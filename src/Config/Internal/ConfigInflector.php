@@ -8,13 +8,13 @@ use Testo\Common\Container;
 use Testo\Common\Inflector;
 use Testo\Config\Internal\Attribute\ConfigAttribute;
 use Testo\Config\Internal\Attribute\Env;
+use Testo\Config\Internal\Attribute\InflectableConfig;
 use Testo\Config\Internal\Attribute\InputArgument;
 use Testo\Config\Internal\Attribute\InputOption;
 use Testo\Config\Internal\Attribute\PhpIni;
 use Testo\Config\Internal\Attribute\XPath;
 use Testo\Config\Internal\Attribute\XPathEmbed;
 use Testo\Config\Internal\Attribute\XPathEmbedList;
-use Internal\DLoad\Service\Logger;
 
 /**
  * Configuration loader service.
@@ -34,7 +34,7 @@ final class ConfigInflector implements Inflector
      * @psalm-suppress RiskyTruthyFalsyComparison
      */
     public function __construct(
-        private readonly Logger $logger,
+        // private readonly Logger $logger,
         private readonly array $env = [],
         private readonly array $inputArguments = [],
         private readonly array $inputOptions = [],
@@ -43,7 +43,7 @@ final class ConfigInflector implements Inflector
         if (\is_string($xml)) {
             // Check SimpleXML extension
             if (!\extension_loaded('simplexml')) {
-                $logger->info('SimpleXML extension is not loaded.');
+                // $logger->info('SimpleXML extension is not loaded.');
             } else {
                 $this->xml = \simplexml_load_string($xml, options: \LIBXML_NOERROR) ?: null;
             }
@@ -55,13 +55,13 @@ final class ConfigInflector implements Inflector
      */
     public function inflect(object $object, Container $container): object
     {
-        # Detect configs
-        if (!\str_starts_with($object::class, 'Testo\\Config\\')) {
+        # Detect inflectable config
+        $reflection = new \ReflectionObject($object);
+        if ($reflection->getAttributes(InflectableConfig::class) === []) {
             return $object;
         }
 
         # Read class properties
-        $reflection = new \ReflectionObject($object);
         foreach ($reflection->getProperties() as $property) {
             $attributes = $property->getAttributes(ConfigAttribute::class, \ReflectionAttribute::IS_INSTANCEOF);
             if (\count($attributes) === 0) {
@@ -167,7 +167,7 @@ final class ConfigInflector implements Inflector
                 $property->setValue($config, $result);
                 return;
             } catch (\Throwable $e) {
-                $this->logger->exception($e, important: true);
+                // $this->logger->exception($e, important: true);
             }
         }
     }
