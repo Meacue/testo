@@ -99,9 +99,18 @@ final class TokenizedFile
     /**
      * Declarations of new functions.
      *
+     * @var array<non-empty-string, array{0: int<0, max>, 1: int<0, max>}>
      * @internal
      */
     private array $functions = [];
+
+    /**
+     * Declarations of new methods.
+     *
+     * @var array<class-string, array<non-empty-string, array{0: int<0, max>, 1: int<0, max>}>>
+     * @internal
+     */
+    private mixed $methods = [];
 
     /**
      * Every found method/function invocation.
@@ -129,6 +138,22 @@ final class TokenizedFile
     public function getFunctions(): array
     {
         return \array_keys($this->functions);
+    }
+
+    /**
+     * List of declared method FQNs
+     * @return list<callable-string>
+     */
+    public function getMethodsFQN(): array
+    {
+        $result = [];
+        foreach ($this->methods as $class => $methods) {
+            foreach ($methods as $method => $location) {
+                $result[] = "$class::$method";
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -367,11 +392,12 @@ final class TokenizedFile
      */
     private function registerFunction(int $tokenID): void
     {
+        $class = null;
         foreach ($this->declarations as $declarations) {
-            foreach ($declarations as $location) {
+            foreach ($declarations as $name => $location) {
                 if ($tokenID >= $location[self::O_TOKEN] && $tokenID <= $location[self::C_TOKEN]) {
-                    //We are inside class, function is method
-                    return;
+                    $class = $name;
+                    break 2;
                 }
             }
         }
@@ -383,11 +409,19 @@ final class TokenizedFile
         }
 
         $name = $this->tokens[$localID][self::TOKEN_CODE];
-        if (!empty($namespace = $this->activeNamespace($tokenID))) {
-            $name = $namespace . self::NS_SEPARATOR . $name;
+
+        // Function
+        if ($class === null) {
+            empty($namespace = $this->activeNamespace($tokenID)) or $name = $namespace . self::NS_SEPARATOR . $name;
+            $this->functions[$name] = [
+                self::O_TOKEN => $tokenID,
+                self::C_TOKEN => $this->endingToken($tokenID),
+            ];
+            return;
         }
 
-        $this->functions[$name] = [
+        // Method
+        $this->methods[$class][$name] = [
             self::O_TOKEN => $tokenID,
             self::C_TOKEN => $this->endingToken($tokenID),
         ];
