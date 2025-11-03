@@ -197,6 +197,23 @@ final class Path implements \Stringable
     }
 
     /**
+     * Match the path against a pattern using shell wildcard pattern matching.
+     *
+     * Both the path and pattern are converted to absolute paths before matching.
+     * Supports standard wildcards: * (any characters), ? (single character), [abc] (character class).
+     *
+     * @param non-empty-string|self $pattern The pattern to match against. Can be a string path or Path object.
+     *        Will be converted to absolute path before matching.
+     *
+     * @return bool True if the path matches the pattern, false otherwise.
+     */
+    public function match(string|self $pattern): bool
+    {
+        \is_string($pattern) and $pattern = self::create($pattern);
+        return \fnmatch((string) $pattern->absolute(), $this->absolute()->path, \FNM_NOESCAPE | \FNM_CASEFOLD);
+    }
+
+    /**
      * Return a normalized relative version of this path.
      *
      * @return non-empty-string
