@@ -4,12 +4,10 @@ declare(strict_types=1);
 
 namespace Testo\Test;
 
+use Testo\Common\Filter;
 use Testo\Config\SuiteConfig;
 use Testo\Interceptor\CaseLocatorInterceptor;
 use Testo\Interceptor\FileLocatorInterceptor;
-use Testo\Interceptor\Locator\FilePostfixTestLocatorInterceptor;
-use Testo\Interceptor\Locator\TestoAttributesLocatorInterceptor;
-use Testo\Module\Finder\Finder;
 use Testo\Module\Interceptor\InterceptorProvider;
 use Testo\Module\Interceptor\Internal\Pipeline;
 use Testo\Module\Tokenizer\FileLocator;
@@ -38,20 +36,20 @@ final class SuiteCollector
         return $this->suites[$name] ?? null;
     }
 
-    public function getOrCreate(SuiteConfig $config): SuiteInfo
+    public function getOrCreate(SuiteConfig $config, Filter $filter): SuiteInfo
     {
-        return $this->suites[$config->name] ??= $this->createInfo($config);
+        return $this->suites[$config->name] ??= $this->createInfo($config, $filter);
     }
 
-    private function createInfo(SuiteConfig $config): SuiteInfo
+    private function createInfo(SuiteConfig $config, Filter $filter): SuiteInfo
     {
-        $files = $this->getFilesIterator($config);
+        $files = $this->getFilesIterator($config, $filter);
         $definitions = $this->getCaseDefinitions($config, $files);
 
         $cases = [];
         foreach ($definitions as $definition) {
             # Skip empty test cases
-            if ($definition->tests === []) {
+            if ($definition->tests->getTests() === []) {
                 continue;
             }
 
@@ -69,16 +67,12 @@ final class SuiteCollector
      *
      * @return iterable<TokenizedFile>
      */
-    private function getFilesIterator(SuiteConfig $config): iterable
+    private function getFilesIterator(SuiteConfig $config, Filter $filter): iterable
     {
-        $locator = new FileLocator(new Finder($config->location));
+        $locator = FileLocator::fromFinderConfig($config->location, $filter);
 
         # Prepare interceptors pipeline
-        $interceptors = $this->interceptorProvider->fromClasses(FileLocatorInterceptor::class);
-
-        # todo remove:
-        $interceptors[] = new FilePostfixTestLocatorInterceptor();
-        $interceptors[] = new TestoAttributesLocatorInterceptor();
+        $interceptors = $this->interceptorProvider->fromConfig(FileLocatorInterceptor::class);
 
         /**
          * @see FileLocatorInterceptor::locateFile()
@@ -106,11 +100,7 @@ final class SuiteCollector
     {
         $cases = [];
         # Prepare interceptors pipeline
-        $interceptors = $this->interceptorProvider->fromClasses(CaseLocatorInterceptor::class);
-
-        // todo remove:
-        $interceptors[] = new FilePostfixTestLocatorInterceptor();
-        $interceptors[] = new TestoAttributesLocatorInterceptor();
+        $interceptors = $this->interceptorProvider->fromConfig(CaseLocatorInterceptor::class);
 
         /**
          * @see CaseLocatorInterceptor::locateTestCases()

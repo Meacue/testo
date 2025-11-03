@@ -54,7 +54,7 @@ final class SuiteProvider
                 continue;
             }
 
-            $info = $this->collector->getOrCreate($config);
+            $info = $this->collector->getOrCreate($config, $this->filter);
             if ($info->testCases->getCases() !== []) {
                 $result[] = $info;
             }
