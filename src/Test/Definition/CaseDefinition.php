@@ -15,13 +15,14 @@ final class CaseDefinition
         // public ?string $runner = null,
     ) {}
 
-    public function setName(
+    public function with(
         ?string $name = null,
+        ?TestDefinitions $tests = null,
     ): self {
         return new self(
             $name ?? $this->name,
             $this->reflection,
-            $this->tests,
+            $tests ?? $this->tests,
         );
     }
 
