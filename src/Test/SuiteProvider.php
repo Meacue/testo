@@ -20,11 +20,14 @@ final class SuiteProvider
     /** @var list<SuiteConfig> */
     private readonly array $configs;
 
+    private readonly ?Filter $filter;
+
     public function __construct(
         ApplicationConfig $applicationConfig,
         private readonly SuiteCollector $collector,
     ) {
         $this->configs = $applicationConfig->suites;
+        $this->filter = null;
     }
 
     /**
@@ -32,18 +35,7 @@ final class SuiteProvider
      */
     public function withFilter(Filter $filter): self
     {
-        # Apply suite name filter if exists
-        if ($filter->testSuites === []) {
-            return $this;
-        }
-
-        $suites = \array_filter(
-            $this->configs,
-            static fn(SuiteConfig $suite) => \in_array($suite->name, $filter->testSuites, true),
-        );
-
-        /** @see self::$suites */
-        return $this->cloneWith('suites', $suites);
+        return $this->cloneWith('filter', $filter);
     }
 
     /**
@@ -54,8 +46,18 @@ final class SuiteProvider
     public function getSuites(): array
     {
         $result = [];
+        $filterNames = $this->filter?->suites ?? [];
+
         foreach ($this->configs as $config) {
-            $result[] = $this->collector->getOrCreate($config);
+            // Apply suite name filter
+            if ($filterNames !== [] && !\in_array($config->name, $filterNames, true)) {
+                continue;
+            }
+
+            $info = $this->collector->getOrCreate($config, $this->filter);
+            if ($info->testCases->getCases() !== []) {
+                $result[] = $info;
+            }
         }
 
         return $result;

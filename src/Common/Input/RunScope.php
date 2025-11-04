@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Testo\Common\Input;
 
 use Testo\Config\Internal\Attribute\InflectableConfig;
-use Testo\Config\Internal\Attribute\InputArgument;
 use Testo\Config\Internal\Attribute\InputOption;
 
 /**
@@ -15,13 +14,20 @@ use Testo\Config\Internal\Attribute\InputOption;
 final class RunScope
 {
     /**
-     * Comma-separated list of filters to apply.
-     *
      * @var non-empty-string[]
      */
     #[InputOption('filter')]
     public array $filter = [];
 
-    #[InputArgument('path')]
-    public string $path = '';
+    /**
+     * @var non-empty-string[]
+     */
+    #[InputOption('path')]
+    public array $path = [];
+
+    /**
+     * @var non-empty-string[]
+     */
+    #[InputOption('suite')]
+    public array $suite = [];
 }

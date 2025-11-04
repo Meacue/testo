@@ -73,6 +73,20 @@ final class Finder implements \Countable, \IteratorAggregate
         return $this->finder->count();
     }
 
+    /**
+     * Apply a custom filter to the finder.
+     *
+     * @param \Closure(SplFileInfo): bool $filter A closure that defines the filtering logic.
+     *
+     * @psalm-immutable
+     */
+    public function withFilter(\Closure $filter): self
+    {
+        $self = clone $this;
+        $self->finder->filter($filter);
+        return $self;
+    }
+
     public function __clone(): void
     {
         $this->finder = clone $this->finder;

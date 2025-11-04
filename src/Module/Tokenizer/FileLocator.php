@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Testo\Module\Tokenizer;
 
+use Testo\Common\Filter;
+use Testo\Common\Path;
+use Testo\Config\FinderConfig;
 use Testo\Module\Finder\Finder;
 use Testo\Module\Tokenizer\Reflection\TokenizedFile;
 
@@ -24,6 +27,28 @@ final class FileLocator implements \IteratorAggregate
         protected readonly bool $debug = false,
     ) {
         $this->finder = $finder->files();
+    }
+
+    public static function fromFinderConfig(FinderConfig $config, Filter $filter = new Filter()): self
+    {
+        $finder = new Finder($config);
+        $toFilter = $filter->paths;
+        $toFilter === [] or $finder = $finder->withFilter(
+            static function (\SplFileInfo $info) use ($toFilter): bool {
+                foreach ($toFilter as $pattern) {
+                    $path = Path::create($info->getRealPath());
+                    if ($path->match("$pattern*")) {
+                        return true;
+                    }
+                }
+
+                return false;
+            },
+        );
+
+        return new self(
+            $finder,
+        );
     }
 
     /**

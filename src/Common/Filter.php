@@ -4,37 +4,92 @@ declare(strict_types=1);
 
 namespace Testo\Common;
 
+use Testo\Common\Input\RunScope;
+
 /**
- * Filter tests by various criteria.
+ * Immutable DTO containing test filtering criteria.
  *
- * todo: Implement filtering logic.
+ * Can be created manually and passed to Application::run() or populated automatically
+ * from CLI arguments.
  */
 final class Filter
 {
-    use CloneWith;
-
     public function __construct(
         /**
-         * @var list<non-empty-string> Names of the test suites to filter by.
+         * Test suite names to filter by.
+         *
+         * @var list<non-empty-string>
          */
-        public readonly array $testSuites = [],
+        public readonly array $suites = [],
+
+        /**
+         * Class, method, or function names to filter by.
+         *
+         * Supports formats:
+         * - Method: ClassName::methodName or Namespace\ClassName::methodName
+         * - FQN: Namespace\ClassName or Namespace\functionName
+         * - Fragment: methodName, functionName, or ShortClassName
+         *
+         * @var list<non-empty-string>
+         */
+        public readonly array $names = [],
+
+        /**
+         * File or directory paths to filter by.
+         *
+         * Supports glob patterns: *, ?, [abc]
+         *
+         * @var list<non-empty-string>
+         */
+        public readonly array $paths = [],
     ) {}
 
     /**
-     * Filter tests by Suite names.
+     * Create Filter from RunScope populated by CLI arguments.
      *
-     * @param non-empty-string ...$names Names of the test suites to filter by.
+     * Automatically categorizes filter values from CLI:
+     * - Values containing dots or existing file paths → paths
+     * - Other values → names
+     * - Suite values → testSuites
      *
-     * @return self A new instance of Filter with the specified test names.
+     * @param RunScope $scope Configuration scope with CLI arguments
+     *
+     * @return self New Filter instance with categorized criteria
      */
-    public function withTestSuites(string ...$names): self
+    public static function fromScope(RunScope $scope): self
     {
-        return $this->cloneWith('testSuites', \array_unique(\array_merge($this->testSuites, $names)));
+        // TODO remove in the future
+        $files = \array_filter(
+            $scope->filter,
+            static fn($value) => \str_contains($value, '.') || \file_exists($value),
+        );
+        $filter = \array_diff($scope->filter, $files);
+
+        return new self(
+            suites: $scope->suite,
+            names: $filter,
+            paths: \array_merge($scope->path, $files),
+        );
     }
 
-    public function withTestCases($name): self
-    {
-        // TODO
-        return $this;
+    /**
+     * Create a new Filter instance with modified properties.
+     *
+     * @param list<non-empty-string>|null $testSuites New test suite names, or null to keep existing
+     * @param list<non-empty-string>|null $names New names, or null to keep existing
+     * @param list<non-empty-string>|null $paths New paths, or null to keep existing
+     *
+     * @return self New Filter instance with updated properties
+     */
+    public function with(
+        ?array $testSuites = null,
+        ?array $names = null,
+        ?array $paths = null,
+    ): self {
+        return new self(
+            suites: $testSuites ?? $this->suites,
+            names: $names ?? $this->names,
+            paths: $paths ?? $this->paths,
+        );
     }
 }

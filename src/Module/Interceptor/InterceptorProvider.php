@@ -8,6 +8,9 @@ use Testo\Assert\Interceptor\AssertCollectorInterceptor;
 use Testo\Assert\Interceptor\ExpectationsInterceptor;
 use Testo\Attribute\Interceptable;
 use Testo\Common\Container;
+use Testo\Interceptor\Locator\FilePostfixTestLocatorInterceptor;
+use Testo\Interceptor\Locator\FilterInterceptor;
+use Testo\Interceptor\Locator\TestoAttributesLocatorInterceptor;
 use Testo\Interceptor\Reflection\AttributesInterceptor;
 use Testo\Interceptor\Reflection\Reflection;
 use Testo\Interceptor\TestCaseCallInterceptor\InstantiateTestCase;
@@ -50,6 +53,9 @@ final class InterceptorProvider
     public function fromConfig(string $class): array
     {
         return $this->fromClasses($class, ...[
+            FilterInterceptor::class,
+            new FilePostfixTestLocatorInterceptor(),
+            new TestoAttributesLocatorInterceptor(),
             StdoutRenderer::class,
             new InstantiateTestCase(),
             new AssertCollectorInterceptor(),

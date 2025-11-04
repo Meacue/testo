@@ -447,4 +447,92 @@ final class PathTest
         // Assert
         Assert::same('some/path/file.txt', $result);
     }
+
+    public static function providePathsForMatch(): \Generator
+    {
+        yield 'exact match' => ['test/file.txt', 'test/file.txt', true];
+        yield 'wildcard asterisk matches multiple chars' => ['test/file.txt', 'test/*.txt', true];
+        yield 'wildcard asterisk at start' => ['test/file.txt', '*/file.txt', true];
+        yield 'wildcard asterisk in middle' => ['test/some/file.txt', 'test/*/file.txt', true];
+        yield 'multiple wildcards' => ['test/path/file.txt', 'test/*/*.txt', true];
+        yield 'wildcard question mark matches single char' => ['test/file1.txt', 'test/file?.txt', true];
+        yield 'character class matches' => ['test/file1.txt', 'test/file[123].txt', true];
+        yield 'character class does not match' => ['test/file4.txt', 'test/file[123].txt', false];
+        yield 'no match different extension' => ['test/file.php', 'test/*.txt', false];
+        yield 'no match different path' => ['other/file.txt', 'test/*.txt', false];
+        yield 'wildcard double asterisk simulation' => ['test/deep/nested/file.txt', 'test/*/nested/*.txt', false];
+        yield 'pattern with no wildcards no match' => ['test/file.txt', 'test/other.txt', false];
+    }
+
+    #[DataProvider('providePathsForMatch')]
+    public function testMatch(string $pathString, string $pattern, bool $expected): void
+    {
+        // Arrange
+        $path = Path::create($pathString)->absolute();
+
+        // Act
+        $result = $path->match($pattern);
+
+        // Assert
+        Assert::same($expected, $result, "Path '$pathString' should " . ($expected ? 'match' : 'not match') . " pattern '$pattern'");
+    }
+
+    public function testMatchWithPathObject(): void
+    {
+        // Arrange
+        $path = Path::create('test/file.txt')->absolute();
+        $pattern = Path::create('test/*.txt');
+
+        // Act
+        $result = $path->match($pattern);
+
+        // Assert
+        Assert::true($result, 'Path should match pattern when pattern is Path object');
+    }
+
+    public function testMatchWithRelativePaths(): void
+    {
+        // Arrange - both paths are relative and will be converted to absolute
+        $path = Path::create('test/file.txt');
+        $pattern = 'test/*.txt';
+
+        // Act
+        $result = $path->match($pattern);
+
+        // Assert
+        Assert::true($result, 'Relative path should match pattern after conversion to absolute');
+    }
+
+    public function testMatchWithComplexPattern(): void
+    {
+        // Arrange
+        $path = Path::create('src/Common/Path.php')->absolute();
+        $pattern = 'src/Common/*.php';
+
+        // Act
+        $result = $path->match($pattern);
+
+        // Assert
+        Assert::true($result, 'Path should match complex pattern');
+    }
+
+    public function testMatchCaseSensitive(): void
+    {
+        // Arrange
+        $path = Path::create('Test/File.TXT')->absolute();
+        $pattern = 'test/file.txt';
+
+        // Act
+        $result = $path->match($pattern);
+
+        // Assert
+        // On Windows, filesystem is case-insensitive, on Unix it's case-sensitive
+        // This test documents the actual behavior
+        $isWindows = DIRECTORY_SEPARATOR === '\\';
+        if ($isWindows) {
+            Assert::true($result, 'On Windows, match should be case-insensitive');
+        } else {
+            Assert::false($result, 'On Unix, match should be case-sensitive');
+        }
+    }
 }

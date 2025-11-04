@@ -6,16 +6,59 @@ namespace Testo\Common\Command;
 
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Testo\Common\Filter;
-use Testo\Common\Input\RunScope;
 use Testo\Render\StdoutRenderer;
 use Testo\Render\TeamcityInterceptor;
 use Testo\Render\TerminalInterceptor;
 
+/**
+ * Executes test suites with optional filtering and custom output formatting.
+ *
+ * Runs tests from specified paths with support for method/function filtering,
+ * test suite filtering, glob pattern matching for test discovery, and output
+ * format selection for different environments (terminal or CI systems like TeamCity).
+ *
+ * Filter Logic:
+ * - Multiple values of same filter type use OR logic (e.g., --filter=test1 --filter=test2)
+ * - Different filter types use AND logic (e.g., --filter + --path + --suite)
+ * - Final result: AND(OR(filters), OR(paths), OR(suites))
+ *
+ * ```bash
+ *  # Run all tests in default location
+ *  ./bin/testo run
+ *
+ *  # Run tests from specific directory
+ *  ./bin/testo run tests/Unit
+ *
+ *  # Run tests matching glob patterns (wildcards supported)
+ *  ./bin/testo run --path="tests/Unit/*Test.php" --path="tests/Integration/*Test.php"
+ *
+ *  # Filter specific test methods or functions by name (OR logic)
+ *  ./bin/testo run --filter=testUserAuthentication --filter=testDatabaseConnection
+ *
+ *  # Filter specific methods in classes (using short name or FQN)
+ *  ./bin/testo run --filter="UserTest::testAuthentication"
+ *  ./bin/testo run --filter="Tests\Unit\UserTest::testAuthentication"
+ *
+ *  # Filter by test suite name (OR logic)
+ *  ./bin/testo run --suite=Unit --suite=Integration
+ *
+ *  # Combine filters with AND logic between types
+ *  # Runs tests that match (UserTest::testCreate OR UserTest::testUpdate) AND (Critical suite)
+ *  ./bin/testo run --filter=UserTest::testCreate --filter=UserTest::testUpdate --suite=Critical
+ *
+ *  # Complex filtering: path AND filter AND suite
+ *  # Runs tests in Unit directory that match testImportant* AND are in Critical suite
+ *  ./bin/testo run --path="tests/Unit/*" --filter=testImportant --suite=Critical
+ *
+ *  # Run tests with custom config
+ *  ./bin/testo run --config=./testo.php
+ * ```
+ *
+ * @internal
+ */
 #[AsCommand(
     name: 'run',
 )]
@@ -24,9 +67,25 @@ final class Run extends Base
     public function configure(): void
     {
         parent::configure();
-        $this->addArgument('path', InputArgument::OPTIONAL, 'Path to tests', '');
         $this->addOption('teamcity', null, InputOption::VALUE_NONE);
-        $this->addOption('filter', null, InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Test suites to be run');
+        $this->addOption(
+            'filter',
+            null,
+            InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+            'Filter methods or functions to be run',
+        );
+        $this->addOption(
+            'path',
+            null,
+            InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+            'Glob patterns for test files to be run',
+        );
+        $this->addOption(
+            'suite',
+            null,
+            InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+            'Filter test suites by name',
+        );
     }
 
     public function __invoke(
@@ -37,13 +96,7 @@ final class Run extends Base
             ? $this->container->bind(StdoutRenderer::class, TeamcityInterceptor::class)
             : $this->container->bind(StdoutRenderer::class, TerminalInterceptor::class);
 
-        tr($this->container->get(RunScope::class));
-        $filter = new Filter();
-        $filterOptions = $input->getOption('filter');
-        if ($filterOptions) {
-            $filter = $filter->withTestSuites(...$filterOptions);
-        }
-        $result = $this->application->run($filter);
+        $result = $this->application->run();
 
         return $result->status->isSuccessful()
             ? Command::SUCCESS

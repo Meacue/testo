@@ -75,19 +75,22 @@ final class Application
 
         # Register Config inflector
         $container->addInflector($container->make(ConfigInflector::class, $args));
+        $container->bind(Filter::class, Filter::fromScope(...));
 
         return new self($container);
     }
 
-    public function run($filter = new Filter()): RunResult
+    public function run(?Filter $filter = null): RunResult
     {
-        $suiteResults = [];
+        $filter === null or $this->container->set($filter);
+        $filter ??= $this->container->get(Filter::class);
 
         $suiteProvider = $this->container->get(SuiteProvider::class);
         $suiteRunner = $this->container->get(SuiteRunner::class);
         $status = Status::Passed;
 
         # Iterate Test Suites
+        $suiteResults = [];
         foreach ($suiteProvider->withFilter($filter)->getSuites() as $suite) {
             $suiteResults[] = $suiteResult = $suiteRunner->runSuite($suite, $filter);
             $suiteResult->status->isFailure() and $status = Status::Failed;

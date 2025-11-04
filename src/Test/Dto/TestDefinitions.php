@@ -17,10 +17,15 @@ final class TestDefinitions
      */
     private array $tests = [];
 
+    /**
+     * Create TestDefinitions from an array of TestDefinition.
+     *
+     * @note You must use named non-empty-string arguments to preserve keys.
+     */
     public static function fromArray(TestDefinition ...$values): self
     {
         $self = new self();
-        $self->tests = \array_values($values);
+        $self->tests = $values;
         return $self;
     }
 
