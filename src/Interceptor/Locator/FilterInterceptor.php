@@ -162,6 +162,14 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
     }
 
     /**
+     * @return bool True if the needle is found as a whole word in the haystack, false otherwise.
+     */
+    private static function has(string $needle, string $haystack): bool
+    {
+        return \preg_match('/\\b' . \preg_quote($needle, '/') . '\\b$/', $haystack) === 1;
+    }
+
+    /**
      * Check if tokenized file contains any matching classes, functions, or methods.
      *
      * Performs quick matching against tokenized file data without loading full reflections.
@@ -209,13 +217,5 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
         }
 
         return false;
-    }
-
-    /**
-     * @return bool True if the needle is found as a whole word in the haystack, false otherwise.
-     */
-    private static function has(string $needle, string $haystack): bool
-    {
-        return \preg_match('/\\b' . \preg_quote($needle, '/') . '\\b$/', $haystack) === 1;
     }
 }

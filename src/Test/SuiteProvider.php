@@ -46,7 +46,7 @@ final class SuiteProvider
     public function getSuites(): array
     {
         $result = [];
-        $filterNames = $this->filter?->testSuites ?? [];
+        $filterNames = $this->filter?->suites ?? [];
 
         foreach ($this->configs as $config) {
             // Apply suite name filter

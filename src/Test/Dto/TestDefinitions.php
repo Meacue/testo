@@ -20,7 +20,6 @@ final class TestDefinitions
     /**
      * Create TestDefinitions from an array of TestDefinition.
      *
-     * @param TestDefinition ...$values
      * @note You must use named non-empty-string arguments to preserve keys.
      */
     public static function fromArray(TestDefinition ...$values): self

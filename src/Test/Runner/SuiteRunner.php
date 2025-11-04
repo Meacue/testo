@@ -45,7 +45,7 @@ final class SuiteRunner
     public function run(SuiteInfo $suite, Filter $filter): SuiteResult
     {
         # Apply suite name filter if exists
-        $suite->name === null or $filter = $filter->withTestSuites($suite->name);
+        $suite->name === null or $filter = $filter->with(testSuites: [$suite->name]);
 
         // todo if random, run in random order?
 
