@@ -8,6 +8,7 @@ use Testo\Assert;
 use Testo\Attribute\ExpectException;
 use Testo\Attribute\RetryPolicy;
 use Testo\Attribute\Test;
+use Testo\Expect;
 use Testo\Sample\DataProvider;
 
 /**
@@ -45,14 +46,14 @@ final class AsserTest
     {
         static $leak = null;
         $leak = new \stdClass();
-        Assert::leaks(myStdClass: $leak);
+        Expect::notLeaks(myStdClass: $leak);
     }
 
     #[Test]
     public function notLeaks(): void
     {
         $leak = new \stdClass();
-        Assert::leaks(myStdClass: $leak);
+        Expect::notLeaks(myStdClass: $leak);
     }
 
     #[Test]
@@ -73,7 +74,7 @@ final class AsserTest
     #[Test]
     public function expectException(): never
     {
-        Assert::exception(\RuntimeException::class);
+        Expect::exception(\RuntimeException::class);
 
         throw new \RuntimeException('This is an expected exception.');
     }
@@ -83,7 +84,7 @@ final class AsserTest
     {
         $e = new \RuntimeException('This is an expected exception.');
 
-        Assert::exception($e);
+        Expect::exception($e);
 
         throw $e;
     }

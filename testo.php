@@ -15,6 +15,6 @@ return new ApplicationConfig(
                 ),
             ),
         ],
-        include 'tests/Assert/suites.php',
+        require 'tests/Assert/suites.php',
     ),
 );

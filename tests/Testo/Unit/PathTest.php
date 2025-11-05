@@ -6,6 +6,7 @@ namespace Tests\Testo\Unit;
 
 use Testo\Assert;
 use Testo\Common\Path;
+use Testo\Expect;
 use Testo\Sample\DataProvider;
 
 #[\Testo\Attribute\CoversClass(Path::class)]
@@ -93,7 +94,7 @@ final class PathTest
     public function testCreateThrowsExceptionForInvalidParentNavigation(): void
     {
         // Arrange & Assert
-        Assert::exception(\LogicException::class);
+        Expect::exception(\LogicException::class);
         // ->withMessage('Cannot go up from root');
 
         // Act
@@ -131,7 +132,7 @@ final class PathTest
         $additionalPath = Path::create('additional/path');
 
         // Assert (prepare for expected exception)
-        Assert::exception(\LogicException::class);
+        Expect::exception(\LogicException::class);
         // ->withMessage('Joining an absolute path is not allowed');
 
         // Act
@@ -158,7 +159,7 @@ final class PathTest
         $path = Path::create('base/path');
 
         // Assert (prepare for expected exception)
-        Assert::exception(\LogicException::class);
+        Expect::exception(\LogicException::class);
         // ->withMessage('Joining an absolute path is not allowed');
 
         // Act

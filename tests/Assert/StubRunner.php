@@ -67,7 +67,7 @@ final class StubRunner
             return $app;
         }
 
-        $app ??= Application::createFromConfig(
+        $app = Application::createFromConfig(
             new ApplicationConfig(
                 src: null,
                 suites: [

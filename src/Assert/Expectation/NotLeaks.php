@@ -13,7 +13,7 @@ use Testo\Test\Dto\TestResult;
 /**
  * Asserts that no memory leaks occurred for the given objects.
  *
- * @see Assert::leaks()
+ * @see Expect::notLeaks()
  */
 final class NotLeaks
 {
