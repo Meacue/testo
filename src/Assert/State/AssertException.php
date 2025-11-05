@@ -9,7 +9,7 @@ use Testo\Assert\Support;
 /**
  * Assertion exception.
  */
-final class AssertException extends \Exception implements Record
+class AssertException extends \Exception implements Record
 {
     /**
      * @param non-empty-string $assertion The assertion result (e.g., "Expected exactly 42, got 43").
@@ -90,37 +90,17 @@ final class AssertException extends \Exception implements Record
         );
     }
 
-    public static function leaks(\WeakMap $map, string $message): self
-    {
-        # Collect all records from the map
-        $records = [];
-
-        /**
-         * @var object $obj
-         * @var true|string $rec
-         */
-        foreach ($map as $obj => $rec) {
-            $records[] = \is_string($rec) ? $rec : $obj::class;
-        }
-
-        return new self(
-            assertion: 'Objects not leaks: ' . \implode(', ', $records),
-            context: $message,
-            details: '',
-        );
-    }
-
-    public function isSuccess(): bool
+    final public function isSuccess(): bool
     {
         return false;
     }
 
-    public function getContext(): ?string
+    final public function getContext(): ?string
     {
         return $this->context !== '' ? $this->context : null;
     }
 
-    public function __toString(): string
+    final public function __toString(): string
     {
         return $this->assertion;
     }

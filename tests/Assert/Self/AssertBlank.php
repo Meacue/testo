@@ -6,6 +6,7 @@ namespace Tests\Assert\Self;
 
 use Testo\Assert;
 use Testo\Attribute\Test;
+use Testo\Expect;
 
 /**
  * Assertion examples.
@@ -24,21 +25,21 @@ final class AssertBlank
     #[Test]
     public function checkZeroIsNotBlank(): void
     {
-        Assert::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertException::class);
         Assert::blank(0);
     }
 
     #[Test]
     public function checkZeroStringIsNotBlank(): void
     {
-        Assert::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertException::class);
         Assert::blank("0");
     }
 
     #[Test]
     public function checkFalseIsNotBlank(): void
     {
-        Assert::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertException::class);
         Assert::blank(false);
     }
 }

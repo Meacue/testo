@@ -4,20 +4,20 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Expectation;
 
-use Testo\Assert\State\ExpectNotLeaksFailure;
+use Testo\Assert\State\ExpectLeaksFailure;
 use Testo\Assert\State\Success;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestResult;
 
 /**
- * Assert that no memory leaks occurred for the given objects.
+ * Asserts that objects are leaked (not garbage collected).
  *
- * @see Expect::notLeaks()
+ * @see Expect::leaks()
  */
-final class NotLeaks
+final class Leaks
 {
-    /** @var \WeakReference[] */
+    /** @var array<array-key, array{0: class-string, 1: \WeakReference}> */
     private readonly array $map;
 
     private string $message = '';
@@ -25,7 +25,10 @@ final class NotLeaks
     public function __construct(
         object ...$objects,
     ) {
-        $this->map = \array_map(static fn(object $object): \WeakReference => \WeakReference::create($object), $objects);
+        $this->map = \array_map(static fn(object $object): array => [
+            $object::class,
+            \WeakReference::create($object),
+        ], $objects);
     }
 
     /**
@@ -37,19 +40,20 @@ final class NotLeaks
         return $this;
     }
 
-    /**
-     * Evaluate the expectation.
-     *
-     * @internal
-     */
     public function __invoke(TestResult $result, TestState $state): TestResult
     {
-        $r = \array_filter($this->map, static fn(\WeakReference $ref): bool => $ref->get() !== null);
+        /** @var array<array-key, class-string> $r */
+        $r = [];
+        foreach ($this->map as $item) {
+            if ($item[1]->get() === null) {
+                $r[] = $item[0];
+            }
+        }
 
         if ($r === []) {
             $state->history[] = new Success(
                 \sprintf(
-                    'No memory leaks for %d object%s.',
+                    '%d object%s cached in memory.',
                     \count($this->map),
                     \count($this->map) === 1 ? '' : 's',
                 ),
@@ -58,7 +62,10 @@ final class NotLeaks
             return $result;
         }
 
-        $e = ExpectNotLeaksFailure::fromWeakReferences($r, $this->message);
+        $e = ExpectLeaksFailure::fromClassArray(
+            $r,
+            $this->message,
+        );
         $state->history[] = $e;
 
         return $result->with(status: Status::Failed)->withFailure($e);
