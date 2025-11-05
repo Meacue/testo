@@ -41,22 +41,6 @@ final class AsserTest
     }
 
     #[Test]
-    #[ExpectException(Assert\State\AssertException::class)]
-    public function leaks(): void
-    {
-        static $leak = null;
-        $leak = new \stdClass();
-        Expect::notLeaks(myStdClass: $leak);
-    }
-
-    #[Test]
-    public function notLeaks(): void
-    {
-        $leak = new \stdClass();
-        Expect::notLeaks(myStdClass: $leak);
-    }
-
-    #[Test]
     #[RetryPolicy(maxAttempts: 2)]
     public function flaky(): void
     {

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Testo;
 
 use Testo\Assert\Expectation\ExpectedException;
+use Testo\Assert\Expectation\Leaks;
+use Testo\Assert\Expectation\NotLeaks;
 use Testo\Assert\StaticState;
 
 /**
@@ -13,9 +15,10 @@ use Testo\Assert\StaticState;
 final class Expect
 {
     /**
-     * Expects that the test will throw an exception of the given class.
+     * Expect that the test will throw the given exception object or an exception of the given class/interface.
      *
-     * @param class-string|\Throwable $classOrObject The expected exception class, interface, or an exception object.
+     * @param class-string|\Throwable $classOrObject The expected exception class, interface,
+     *        or an exact exception object.
      *
      * @note Requires {@see ExpectationsInterceptor} to be registered.
      */
@@ -26,13 +29,25 @@ final class Expect
     }
 
     /**
-     * Asserts that the given objects do not leak memory after the test execution.
+     * Expect that the given objects are not cached in memory after the test execution.
      *
-     * @param string $message Optional message to associate with the leak expectation.
+     * Note that PHP may skip collecting objects if the test ends with throwing an exception.
+     * Also, there are issues about garbage collecting on MacOS.
+     *
      * @param object ...$objects The objects to monitor for memory leaks.
      */
-    public static function notLeaks(string $message = '', object ...$objects): void
+    public static function notLeaks(object ...$objects): NotLeaks
     {
-        StaticState::expectNotLeaks($message, ...$objects);
+        return StaticState::trackObjectsLeak(true, ...$objects);
+    }
+
+    /**
+     * Expect that the given objects are cached in memory after the test execution.
+     *
+     * @param object ...$objects The objects to monitor for memory leaks.
+     */
+    public static function leaks(object ...$objects): Leaks
+    {
+        return StaticState::trackObjectsLeak(false, ...$objects);
     }
 }
