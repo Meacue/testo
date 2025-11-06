@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Testo;
 
+use Testo\Assert\DataType\AssertString;
 use Testo\Assert\State\AssertException;
+use Testo\Assert\State\AssertTypeFailure;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -207,7 +209,7 @@ final class Assert
         if (
             $actual === null || $actual === '' || $actual === [] || ($actual instanceof \Countable && \count($actual) === 0)
         ) {
-            StaticState::log('Assert `blank`', $message);
+            StaticState::log('Assert blank', $message);
             return;
         }
         StaticState::fail(AssertException::compare(
@@ -216,6 +218,21 @@ final class Assert
             $message,
             'Failed asserting that `%2$s` does not contain any data',
         ));
+    }
+
+    /**
+     * Asserts that the given value is of `string` data type.
+     *
+     * @param mixed $actual The actual value to check for `string` data type.
+     * @throws AssertException when the assertion fails.
+     */
+    public static function string(
+        mixed $actual,
+    ): AssertString {
+        \is_string($actual) or StaticState::fail(AssertTypeFailure::create('string', $actual));
+
+        StaticState::log('Assert type string for ' . Support::stringify($actual));
+        return new AssertString($actual);
     }
 
     /**
