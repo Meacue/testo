@@ -10,9 +10,9 @@ use Testo\Attribute\Test;
 use Testo\Expect;
 
 /**
- * Assertion examples.
+ * @see Assert::string()
  */
-final class AssertStringType
+final class AssertString
 {
     #[Test]
     public function checkStringDataType(): void
@@ -37,14 +37,13 @@ final class AssertStringType
         Assert::string("abcde")->contains("abc");
         Assert::string("string")->contains("str");
         Assert::fail();
-
     }
 
     #[Test]
     public function checkWrongDataType(): void
     {
-        Expect::exception(Assert\State\AssertException::class);
-        Assert::string(666);
+        Expect::exception(Assert\State\AssertTypeFailure::class);
+        Assert::string([666]);
     }
 
     #[Test]

@@ -45,7 +45,7 @@ final class StaticState
      * @param non-empty-string $assertion The assertion result (e.g., "Same: 42", "Assert `true`").
      * @param non-empty-string $context Optional user-provided context describing what is being asserted.
      */
-    public static function log(string $assertion, string $context): void
+    public static function log(string $assertion, string $context = ''): void
     {
         self::$state === null or self::$state->history[] = new Success(
             assertion: $assertion,

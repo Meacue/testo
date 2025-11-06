@@ -10,7 +10,7 @@ use Testo\Assert\StaticState;
 /**
  * Assertion utilities for string data type.
  */
-class StringType
+class AssertString
 {
     public function __construct(
         public string $value,
@@ -26,7 +26,7 @@ class StringType
     public function contains(string $needle, string $message = ''): void
     {
         if (\str_contains($this->value, $needle)) {
-            StaticState::log('Assert string contains ' . $needle, $message);
+            StaticState::log('String contains "' . $needle . '"', $message);
             return;
         }
 
@@ -35,6 +35,7 @@ class StringType
             $this->value,
             $message,
             pattern: 'Failed asserting that string `%2$s` contains `%1$s`.',
+            showDiff: false,
         ));
     }
 }
