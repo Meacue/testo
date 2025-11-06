@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo;
 
+use Testo\Assert\DataType\StringType;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
@@ -216,6 +217,31 @@ final class Assert
             $message,
             'Failed asserting that `%2$s` does not contain any data',
         ));
+    }
+
+    /**
+     * Asserts that the given value is of `string` data type.
+     *
+     * @param mixed $actual The actual value to check for `string` data type.
+     * @param string $message Short description about what exactly is being asserted.
+     * @throws AssertException when the assertion fails.
+     */
+    public static function string(
+        mixed $actual,
+        string $message = '',
+    ): StringType
+    {
+        if (!\is_string($actual)) {
+            StaticState::fail(AssertException::compare(
+                'string',
+                \get_debug_type($actual),
+                $message,
+                pattern: 'Failed asserting that value is of type `%1$s`. Got `%2$s`.',
+            ));
+        }
+
+        StaticState::log('Assert string data type', $message);
+        return new StringType($actual, $message);
     }
 
     /**
