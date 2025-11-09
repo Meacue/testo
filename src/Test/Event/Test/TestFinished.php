@@ -12,4 +12,4 @@ namespace Testo\Test\Event\Test;
  *
  * @psalm-immutable
  */
-final class TestFinished extends TestEvent {}
+final class TestFinished extends TestResultEvent {}
