@@ -40,7 +40,7 @@ class DefaultServicesConfig implements PluginConfigurator
             # Event Dispatcher
             EventDispatcherInterface::class => EventDispatcher::class,
             ListenerProviderInterface::class => EventDispatcher::class,
-            EventCollector::class => EventDispatcher::class,
+            EventListenerCollector::class => EventDispatcher::class,
         ];
     }
 }

@@ -11,7 +11,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
  *
  * The interface is accessible only on configuration phase.
  */
-interface EventCollector
+interface EventListenerCollector
 {
     /**
      * Adds event listener.

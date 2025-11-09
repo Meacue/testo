@@ -8,9 +8,13 @@ use Internal\Destroy\Destroyable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
-use Testo\Config\EventCollector;
+use Testo\Config\EventListenerCollector;
 
-final class EventDispatcher implements EventCollector, ListenerProviderInterface, EventDispatcherInterface, Destroyable
+final class EventDispatcher implements
+    EventListenerCollector,
+    ListenerProviderInterface,
+    EventDispatcherInterface,
+    Destroyable
 {
     /**
      * @var array <class-string, array<int, list<callable>>>
