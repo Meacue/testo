@@ -20,7 +20,6 @@ use Testo\Test\Dto\TestResult;
 final class TestRetrying extends TestEvent
 {
     public function __construct(
-        TestDefinition $testDefinition,
         TestInfo $testInfo,
 
         /**
@@ -35,6 +34,6 @@ final class TestRetrying extends TestEvent
          */
         public readonly TestResult $previousRunResult,
     ) {
-        parent::__construct($testDefinition, $testInfo);
+        parent::__construct($testInfo);
     }
 }

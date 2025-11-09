@@ -41,7 +41,7 @@ final class EventDispatcher implements EventCollector, ListenerProviderInterface
         ];
 
         foreach ($hierarchy[$eventName] as $class) {
-            foreach ($this->events[$class] as $priorityGroup) {
+            foreach ($this->events[$class] ?? [] as $priorityGroup) {
                 foreach ($priorityGroup as $listener) {
                     yield $listener;
                 }
