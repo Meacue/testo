@@ -24,7 +24,7 @@ final class EventDispatcher implements
     public function addListener(string $eventName, callable $callback, int $priority = 0): void
     {
         $this->events[$eventName][$priority][] = $callback;
-        \ksort($this->events[$eventName][$priority]);
+        \krsort($this->events[$eventName], \SORT_NUMERIC);
     }
 
     /**
