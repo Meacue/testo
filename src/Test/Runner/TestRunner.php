@@ -39,20 +39,30 @@ final class TestRunner
                     # TODO don't instantiate if the method is static
                     $instance = $info->caseInfo->instance;
                     try {
+                        $startTime = \microtime(true);
                         $executionResult = $instance === null
                             ? $info->testDefinition->reflection->invoke(...$info->arguments)
                             : $info->testDefinition->reflection->invoke($instance, ...$info->arguments);
+                        $duration = \microtime(true) - $startTime;
 
                         $result = new TestResult(
                             info: $info,
                             status: Status::Passed,
                             result: $executionResult,
+                            attributes: [
+                                'duration' => (int) \round($duration * 1000),
+                            ],
                         );
                     } catch (\Throwable $throwable) {
+                        $duration = \microtime(true) - $startTime;
+
                         $result = new TestResult(
                             info: $info,
                             status: Status::Error,
                             failure: $throwable,
+                            attributes: [
+                                'duration' => (int) \round($duration * 1000),
+                            ],
                         );
                     }
 
