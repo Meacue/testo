@@ -24,7 +24,6 @@ use Testo\Test\Dto\TestResult;
  * Supports multiple output formats (Compact, Verbose, Dots) and color modes.
  */
 final class TerminalInterceptor implements
-    StdoutRenderer,
     TestRunInterceptor,
     TestCaseRunInterceptor,
     TestSuiteRunInterceptor
