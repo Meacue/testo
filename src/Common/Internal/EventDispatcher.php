@@ -17,14 +17,14 @@ final class EventDispatcher implements
     Destroyable
 {
     /**
-     * @var array <class-string, array<int, list<callable>>>
+     * @var array<class-string, array<int, list<callable>>>
      */
-    private array $events = [];
+    private array $listeners = [];
 
     public function addListener(string $eventName, callable $callback, int $priority = 0): void
     {
-        $this->events[$eventName][$priority][] = $callback;
-        \krsort($this->events[$eventName], \SORT_NUMERIC);
+        $this->listeners[$eventName][$priority][] = $callback;
+        \krsort($this->listeners[$eventName], \SORT_NUMERIC);
     }
 
     /**
@@ -45,7 +45,7 @@ final class EventDispatcher implements
         ];
 
         foreach ($hierarchy[$eventName] as $class) {
-            foreach ($this->events[$class] ?? [] as $priorityGroup) {
+            foreach ($this->listeners[$class] ?? [] as $priorityGroup) {
                 foreach ($priorityGroup as $listener) {
                     yield $listener;
                 }
@@ -76,6 +76,6 @@ final class EventDispatcher implements
 
     public function destroy(): void
     {
-        $this->events = [];
+        $this->listeners = [];
     }
 }
