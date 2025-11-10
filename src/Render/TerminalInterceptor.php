@@ -94,22 +94,27 @@ final class TerminalInterceptor implements PluginConfigurator
         // Mark that we're inside a batch
         $id = self::getId($event->testInfo);
         $this->isBatch[$id] = true;
+
+        // Start batch in logger for proper indentation
+        $this->logger->batchStartedFromInfo($event->testInfo);
     }
 
     private function onTestBatchFinished(TestBatchFinished $event): void
     {
-        // Batch finished - cleanup is done in TestPipelineFinished
+        // Finish batch in logger
+        $this->logger->batchFinishedFromInfo($event->testInfo);
     }
 
     private function onTestDataSetStarting(TestDataSetStarting $event): void
     {
-        // Log individual dataset start
-        $this->logger->testStartedFromInfo($event->testInfo);
+        // Log individual dataset start with custom name
+        $datasetName = "Dataset #$event->dataSetIndex [$event->dataSetKey]";
+        $this->logger->testStartedFromInfo($event->testInfo, $datasetName);
     }
 
     private function onTestDataSetFinished(TestDataSetFinished $event): void
     {
-        // Handle individual dataset result
+        // Handle individual dataset result (name is already set in testStartedFromInfo)
         $duration = (int) $event->testResult->getAttribute('duration');
         $this->logger->handleTestResult($event->testResult, $duration);
     }
