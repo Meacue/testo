@@ -317,7 +317,14 @@ final class TerminalLogger
             $throwable = $result->failure;
 
             $message = $throwable?->getMessage() ?? 'Test failed';
-            $details = $throwable !== null ? Helper::formatThrowable($throwable) : '';
+            $details = $throwable !== null
+                ? Helper::formatThrowable(
+                    $throwable,
+                    testMethod: $result->info->testDefinition->reflection,
+                    maxPreviousDepth: 1,
+                    compact: true,
+                )
+                : '';
 
             echo Formatter::failureDetail(
                 $index,
