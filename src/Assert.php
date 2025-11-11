@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo;
 
+use Testo\Assert\DataType\AssertInt;
 use Testo\Assert\DataType\AssertString;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
@@ -233,6 +234,21 @@ final class Assert
 
         StaticState::log('Assert type string for ' . Support::stringify($actual));
         return new AssertString($actual);
+    }
+
+    /**
+     * Asserts that the given value is of `int` data type.
+     *
+     * @param mixed $actual The actual value to check for `int` data type.
+     * @throws AssertException when the assertion fails.
+     */
+    public static function int(
+        mixed $actual,
+    ): AssertInt {
+        \is_int($actual) or StaticState::fail(AssertTypeFailure::create('int', $actual));
+
+        StaticState::log('Assert type int for ' . Support::stringify($actual));
+        return new AssertInt($actual);
     }
 
     /**
