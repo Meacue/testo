@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Testo\Render\Teamcity;
 
-use Testo\Render\Helper;
 use Testo\Test\Dto\CaseInfo;
 use Testo\Test\Dto\CaseResult;
 use Testo\Test\Dto\Status;
@@ -24,6 +23,20 @@ use Testo\Test\Dto\TestResult;
  */
 final class TeamcityLogger
 {
+    /**
+     * Formats a throwable into a detailed string with class, message, file, line, and stack trace.
+     */
+    public static function formatThrowable(\Throwable $throwable): string
+    {
+        $class = $throwable::class;
+        $message = $throwable->getMessage();
+        $file = $throwable->getFile();
+        $line = $throwable->getLine();
+        $trace = $throwable->getTraceAsString();
+
+        return "{$class}: {$message}\nFile: {$file}:{$line}\n\nStack trace:\n{$trace}";
+    }
+
     /**
      * Publishes test suite started message using SuiteInfo.
      */
@@ -147,7 +160,7 @@ final class TeamcityLogger
     {
         $failure = $result->failure;
         $message = $failure?->getMessage() ?? 'Test failed';
-        $details = $failure !== null ? Helper::formatThrowable($failure) : '';
+        $details = $failure !== null ? self::formatThrowable($failure) : '';
 
         $this->publish(
             Formatter::testFailed(
@@ -224,7 +237,7 @@ final class TeamcityLogger
         $name = $overrideName ?? $result->info->name;
         $failure = $result->failure;
         $message = $failure?->getMessage() ?? 'Test failed';
-        $details = $failure !== null ? Helper::formatThrowable($failure) : '';
+        $details = $failure !== null ? self::formatThrowable($failure) : '';
 
         $this->publish(
             Formatter::testFailed(
@@ -248,7 +261,7 @@ final class TeamcityLogger
             Formatter::testFailed(
                 $name,
                 'Test aborted',
-                $result->failure !== null ? Helper::formatThrowable($result->failure) : '',
+                $result->failure !== null ? self::formatThrowable($result->failure) : '',
             ),
         );
         $this->publish(Formatter::testFinished($name, $duration));

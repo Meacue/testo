@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Testo\Sample\Internal;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use ReflectionMethod;
 use Testo\Sample\DataProvider;
 use Testo\Sample\MultipleResult;
 use Testo\Interceptor\TestRunInterceptor;

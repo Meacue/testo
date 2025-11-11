@@ -15,7 +15,6 @@ use Testo\Interceptor\Reflection\AttributesInterceptor;
 use Testo\Interceptor\Reflection\Reflection;
 use Testo\Interceptor\TestCaseCallInterceptor\InstantiateTestCase;
 use Testo\Module\Interceptor\Internal\InterceptorMarker;
-use Testo\Render\StdoutRenderer;
 use Yiisoft\Injector\Injector;
 
 final class InterceptorProvider

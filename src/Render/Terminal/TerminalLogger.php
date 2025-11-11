@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Testo\Render\Terminal;
 
 use Testo\Assert\TestState;
-use Testo\Render\Helper;
 use Testo\Sample\MultipleResult;
 use Testo\Test\Dto\CaseInfo;
 use Testo\Test\Dto\CaseResult;
@@ -318,11 +317,10 @@ final class TerminalLogger
 
             $message = $throwable?->getMessage() ?? 'Test failed';
             $details = $throwable !== null
-                ? Helper::formatThrowable(
+                ? Helper::formatException(
                     $throwable,
-                    testMethod: $result->info->testDefinition->reflection,
+                    function: $result->info->testDefinition->reflection,
                     maxPreviousDepth: 1,
-                    compact: true,
                 )
                 : '';
 
