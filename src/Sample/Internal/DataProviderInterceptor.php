@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Sample\Internal;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use ReflectionMethod;
 use Testo\Sample\DataProvider;
 use Testo\Sample\MultipleResult;
 use Testo\Interceptor\TestRunInterceptor;
@@ -32,8 +33,22 @@ final class DataProviderInterceptor implements TestRunInterceptor
         // Dispatch batch starting event
         $this->eventDispatcher->dispatch(new TestBatchStarting($info));
 
+        $provider = $this->options->provider;
+        if (\is_string($provider)) {
+            $info->testDefinition->reflection instanceof \ReflectionMethod or throw new \LogicException(
+                'DataProvider provider must be a callable or method name string.',
+            );
+
+            /** @var \ReflectionClass $class */
+            $class = $info->testDefinition->reflection->getDeclaringClass();
+            $class->hasMethod($provider) or throw new \LogicException(
+                "DataProvider method '$provider' does not exist.",
+            );
+            $provider = [$class->getName(), $provider];
+        }
+
         // Fetch data sets from the provider
-        $dataSets = ($this->options->provider)();
+        $dataSets = $provider();
 
         // Run the test for each data set
         $results = [];

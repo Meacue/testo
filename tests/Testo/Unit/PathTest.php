@@ -461,7 +461,7 @@ final class PathTest
         yield 'character class does not match' => ['test/file4.txt', 'test/file[123].txt', false];
         yield 'no match different extension' => ['test/file.php', 'test/*.txt', false];
         yield 'no match different path' => ['other/file.txt', 'test/*.txt', false];
-        yield 'wildcard double asterisk simulation' => ['test/deep/nested/file.txt', 'test/*/nested/*.txt', false];
+        yield 'wildcard double asterisk simulation' => ['test/deep/nested/file.txt', 'test/*/nested/*.txt', true];
         yield 'pattern with no wildcards no match' => ['test/file.txt', 'test/other.txt', false];
     }
 
