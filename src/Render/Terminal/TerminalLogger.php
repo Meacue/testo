@@ -43,6 +43,18 @@ final class TerminalLogger
     private float $startTime;
     private bool $headerPrinted = false;
 
+    /**
+     * Current indentation level for nested tests (e.g., DataProvider datasets).
+     *
+     * @var int<0, max>
+     */
+    private int $currentIndentLevel = 0;
+
+    /**
+     * Override name for the current test (e.g., dataset name).
+     */
+    private ?string $currentTestName = null;
+
     public function __construct(
         private readonly OutputFormat $format = OutputFormat::Compact,
     ) {
@@ -85,11 +97,33 @@ final class TerminalLogger
     }
 
     /**
-     * Publishes test started message.
+     * Publishes test batch started message (for DataProvider tests).
      */
-    public function testStartedFromInfo(TestInfo $info): void
+    public function batchStartedFromInfo(TestInfo $info): void
     {
         $this->ensureHeader();
+        $this->currentIndentLevel = 1;
+        // No visual output for batch start in terminal mode
+    }
+
+    /**
+     * Publishes test batch finished message (for DataProvider tests).
+     */
+    public function batchFinishedFromInfo(TestInfo $info): void
+    {
+        $this->currentIndentLevel = 0;
+        // No visual output for batch finish in terminal mode
+    }
+
+    /**
+     * Publishes test started message.
+     *
+     * @param non-empty-string|null $overrideName Optional override for the test name (e.g., dataset name)
+     */
+    public function testStartedFromInfo(TestInfo $info, ?string $overrideName = null): void
+    {
+        $this->ensureHeader();
+        $this->currentTestName = $overrideName;
         // No output on test start for compact/dots mode
     }
 
@@ -142,14 +176,15 @@ final class TerminalLogger
         $this->passedTests++;
 
         $item = new FormattedItem(
-            name: $result->info->name,
+            name: $this->currentTestName ?? $result->info->name,
             status: $result->status,
             duration: $duration,
-            indentLevel: 0,
+            indentLevel: $this->currentIndentLevel,
         );
 
         echo Formatter::formatRun($item, $this->format);
         $this->printMultipleRuns($result);
+        $this->currentTestName = null;
     }
 
     /**
@@ -163,16 +198,17 @@ final class TerminalLogger
         $this->failures[] = ['result' => $result, 'duration' => $duration];
 
         $item = new FormattedItem(
-            name: $result->info->name,
+            name: $this->currentTestName ?? $result->info->name,
             status: $result->status,
             duration: $duration,
-            indentLevel: 0,
+            indentLevel: $this->currentIndentLevel,
             description: (string) $result->getAttribute('description'),
         );
 
         echo Formatter::formatRun($item, $this->format);
         $this->printMultipleRuns($result);
         $this->printAssertionHistory($result);
+        $this->currentTestName = null;
     }
 
     /**
@@ -233,13 +269,14 @@ final class TerminalLogger
         $this->skippedTests++;
 
         $item = new FormattedItem(
-            name: $result->info->name,
+            name: $this->currentTestName ?? $result->info->name,
             status: $result->status,
             duration: $duration,
-            indentLevel: 0,
+            indentLevel: $this->currentIndentLevel,
         );
 
         echo Formatter::formatRun($item, $this->format);
+        $this->currentTestName = null;
     }
 
     /**
@@ -252,13 +289,14 @@ final class TerminalLogger
         $this->riskyTests++;
 
         $item = new FormattedItem(
-            name: $result->info->name,
+            name: $this->currentTestName ?? $result->info->name,
             status: $result->status,
             duration: $duration,
-            indentLevel: 0,
+            indentLevel: $this->currentIndentLevel,
         );
 
         echo Formatter::formatRun($item, $this->format);
+        $this->currentTestName = null;
     }
 
     /**
@@ -279,7 +317,14 @@ final class TerminalLogger
             $throwable = $result->failure;
 
             $message = $throwable?->getMessage() ?? 'Test failed';
-            $details = $throwable !== null ? Helper::formatThrowable($throwable) : '';
+            $details = $throwable !== null
+                ? Helper::formatThrowable(
+                    $throwable,
+                    testMethod: $result->info->testDefinition->reflection,
+                    maxPreviousDepth: 1,
+                    compact: true,
+                )
+                : '';
 
             echo Formatter::failureDetail(
                 $index,

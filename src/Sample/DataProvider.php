@@ -20,11 +20,14 @@ use Testo\Module\Interceptor\FallbackInterceptor;
 #[FallbackInterceptor(DataProviderInterceptor::class)]
 final class DataProvider implements Interceptable
 {
-    public readonly \Closure $provider;
+    public readonly \Closure|string $provider;
 
+    /**
+     * @param callable(): iterable<array>|non-empty-string $provider The data provider callable or the method name.
+     */
     public function __construct(
-        callable $provider,
+        callable|string $provider,
     ) {
-        $this->provider = $provider(...);
+        $this->provider = \is_callable($provider) ? $provider(...) : $provider;
     }
 }
