@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\Expectation;
+namespace Testo\Assert\Internal\Expectation;
 
 use Testo\Assert\State\ExpectNotLeaksFailure;
 use Testo\Assert\State\Success;
@@ -14,6 +14,7 @@ use Testo\Test\Dto\TestResult;
  * Assert that no memory leaks occurred for the given objects.
  *
  * @see Expect::notLeaks()
+ * @internal
  */
 final class NotLeaks
 {

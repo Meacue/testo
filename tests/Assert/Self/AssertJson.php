@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
-use Testo\Assert\DataType\Json\JsonAbstract;
+use Testo\Assert\Api\Json\JsonAbstract;
 use Testo\Attribute\Test;
 use Testo\Sample\DataProvider;
 
@@ -35,7 +35,7 @@ final class AssertJson
     }
 
     /**
-     * @see \Testo\Assert\DataType\Json\JsonCommon::matchesType()
+     * @see \Testo\Assert\Api\Json\JsonCommon::matchesType()
      */
     #[Test]
     #[DataProvider('types')]
@@ -45,9 +45,9 @@ final class AssertJson
     }
 
     /**
-     * @see \Testo\Assert\DataType\Json\JsonStructure
-     * @see \Testo\Assert\DataType\Json\JsonArray
-     * @see \Testo\Assert\DataType\Json\JsonObject
+     * @see \Testo\Assert\Api\Json\JsonStructure
+     * @see \Testo\Assert\Api\Json\JsonArray
+     * @see \Testo\Assert\Api\Json\JsonObject
      */
     #[Test]
     public function assertStructure(): void

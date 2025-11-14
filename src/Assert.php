@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Testo;
 
-use Testo\Assert\DataType\Builtin\AssertFloat;
-use Testo\Assert\DataType\Builtin\AssertInt;
-use Testo\Assert\DataType\Builtin\AssertString;
-use Testo\Assert\DataType\Json\AssertJson;
-use Testo\Assert\DataType\Json\JsonAbstract;
+use Testo\Assert\Api\Builtin\AssertFloat;
+use Testo\Assert\Api\Builtin\AssertInt;
+use Testo\Assert\Api\Builtin\AssertString;
+use Testo\Assert\Api\Json\JsonAbstract;
+use Testo\Assert\Internal\Assertion\AssertJson;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
 use Testo\Assert\StaticState;

@@ -2,10 +2,18 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\DataType\Json;
+namespace Testo\Assert\Internal\Assertion;
+
+use Testo\Assert\Api\Json\JsonAbstract;
+use Testo\Assert\Api\Json\JsonArray;
+use Testo\Assert\Api\Json\JsonCommon;
+use Testo\Assert\Api\Json\JsonObject;
+use Testo\Assert\Api\Json\JsonStructure;
 
 /**
  * Implementation of JSON assertions.
+ *
+ * @internal
  */
 class AssertJson implements JsonAbstract
 {

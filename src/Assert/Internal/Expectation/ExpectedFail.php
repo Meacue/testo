@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\Expectation;
+namespace Testo\Assert\Internal\Expectation;
 
 use Testo\Assert\State\AssertException;
 use Testo\Assert\TestState;

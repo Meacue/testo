@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\Expectation;
+namespace Testo\Assert\Internal\Expectation;
 
+use Testo\Assert\Api\ExpectedException;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Record;
 use Testo\Assert\State\Success;
@@ -14,9 +15,9 @@ use Testo\Test\Dto\TestResult;
 /**
  * Expected exception declaration.
  *
- * todo: add methods like ->withMessage(), ->withCode(), etc.
+ * @internal
  */
-final class ExpectedException
+final class ExpectExceptionHandler implements ExpectedException
 {
     /**
      * @param class-string|\Throwable $classOrObject Expected exception class, interface, or an object.
@@ -33,8 +34,6 @@ final class ExpectedException
      *
      * @param class-string $class Fully qualified class name.
      * @param string $method Method name.
-     *
-     * @deprecated To be implemented
      */
     public function fromMethod(string $class, string $method): self
     {
@@ -43,8 +42,6 @@ final class ExpectedException
 
     /**
      * The expected exception should have the exact message.
-     *
-     * @deprecated To be implemented
      */
     public function withMessage(string $message): self
     {
@@ -55,8 +52,6 @@ final class ExpectedException
      * The expected exception message should match the given pattern.
      *
      * @param non-empty-string $pattern Regex pattern.
-     *
-     * @deprecated To be implemented
      */
     public function withMessagePattern(string $pattern): self
     {
@@ -67,8 +62,6 @@ final class ExpectedException
      * The expected exception message should contain the given substring.
      *
      * @param non-empty-string $substring Substring to search for.
-     *
-     * @deprecated To be implemented
      */
     public function withMessageContaining(string $substring): self
     {
@@ -79,8 +72,6 @@ final class ExpectedException
      * The expected exception should have the given code or one of the given codes.
      *
      * @param int|list<int> $code Expected code or list of expected codes.
-     *
-     * @deprecated To be implemented
      */
     public function withCode(int|array $code): self
     {
@@ -89,8 +80,6 @@ final class ExpectedException
 
     /**
      * The expected exception should not have a previous exception.
-     *
-     * @deprecated To be implemented
      */
     public function withNoPrevious(): self
     {
@@ -102,17 +91,12 @@ final class ExpectedException
      *
      * @param class-string|\Throwable $classOrObject Expected previous exception class, interface, or an object.
      * @param (callable(self): mixed)|null $assertion Optional assertion callback for the previous exception.
-     *
-     * @deprecated To be implemented
      */
     public function withPrevious(\Throwable|string $classOrObject, ?callable $assertion = null): self
     {
         throw new \LogicException('Not implemented yet');
     }
 
-    /**
-     * @internal
-     */
     public function __invoke(TestResult $result, TestState $state): TestResult
     {
         # An expectation was defined

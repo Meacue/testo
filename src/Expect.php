@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Testo;
 
-use Testo\Assert\Expectation\ExpectedException;
-use Testo\Assert\Expectation\Leaks;
-use Testo\Assert\Expectation\NotLeaks;
+use Testo\Assert\Api\ExpectedException;
+use Testo\Assert\Internal\Expectation\Leaks;
+use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\StaticState;
 
 /**

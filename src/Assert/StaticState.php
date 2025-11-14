@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Testo\Assert;
 
 use Testo\Assert\Exception\StateNotFound;
-use Testo\Assert\Expectation\ExpectedException;
-use Testo\Assert\Expectation\ExpectedFail;
-use Testo\Assert\Expectation\Leaks;
-use Testo\Assert\Expectation\NotLeaks;
+use Testo\Assert\Internal\Expectation\ExpectedFail;
+use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
+use Testo\Assert\Internal\Expectation\Leaks;
+use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Success;
 
@@ -75,9 +75,9 @@ final class StaticState
      */
     public static function expectException(
         string|\Throwable $classOrObject,
-    ): ExpectedException {
+    ): ExpectExceptionHandler {
         self::$state === null and throw new StateNotFound();
-        return self::$state->expectations[] = new ExpectedException($classOrObject);
+        return self::$state->expectations[] = new ExpectExceptionHandler($classOrObject);
     }
 
     public static function expectFail(AssertException $exception): void

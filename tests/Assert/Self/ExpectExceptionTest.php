@@ -34,7 +34,7 @@ final class ExpectExceptionTest
         Expect::exception(\Throwable::class)
             ->withPrevious(
                 \RuntimeException::class,
-                static fn(Assert\Expectation\ExpectedException $ex) => $ex
+                static fn(Assert\Api\ExpectedException $ex) => $ex
                     ->withCode(456)
                     ->withMessage('Previous exception')
                     ->withNoPrevious(),

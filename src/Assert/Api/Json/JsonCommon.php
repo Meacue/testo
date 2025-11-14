@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\DataType\Json;
+namespace Testo\Assert\Api\Json;
 
 /**
  * Common methods for JSON assertions.

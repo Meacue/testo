@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\Expectation;
+namespace Testo\Assert\Internal\Expectation;
 
 use Testo\Assert\State\ExpectLeaksFailure;
 use Testo\Assert\State\Success;
@@ -14,6 +14,7 @@ use Testo\Test\Dto\TestResult;
  * Asserts that objects are leaked (not garbage collected).
  *
  * @see Expect::leaks()
+ * @internal
  */
 final class Leaks
 {

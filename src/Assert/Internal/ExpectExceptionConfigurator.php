@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal;
 
 use Testo\Assert\Exception\StateNotFound;
-use Testo\Assert\Expectation\ExpectedException;
+use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\StaticState;
 use Testo\Attribute\ExpectException;
 use Testo\Interceptor\TestRunInterceptor;
@@ -26,7 +26,7 @@ final class ExpectExceptionConfigurator implements TestRunInterceptor
     {
         $context = StaticState::current() ?? throw new StateNotFound();
 
-        $context->expectations[] = new ExpectedException(
+        $context->expectations[] = new ExpectExceptionHandler(
             classOrObject: $this->options->class,
         );
 
