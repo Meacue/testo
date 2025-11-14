@@ -81,7 +81,7 @@ final class ExpectExceptionHandler implements ExpectedException
     /**
      * The expected exception should not have a previous exception.
      */
-    public function withNoPrevious(): self
+    public function withoutPrevious(): self
     {
         throw new \LogicException('Not implemented yet');
     }

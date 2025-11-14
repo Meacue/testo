@@ -61,7 +61,7 @@ interface ExpectedException
      *
      * @deprecated To be implemented
      */
-    public function withNoPrevious(): self;
+    public function withoutPrevious(): self;
 
     /**
      * The expected exception was caused by the given previous exception.

@@ -22,7 +22,7 @@ final class ExpectExceptionTest
             ->withCode(123)
             ->withCode([320, 123, 456])
             ->fromMethod(self::class, __FUNCTION__)
-            ->withNoPrevious();
+            ->withoutPrevious();
 
         throw new \LogicException('This is a logic exception', 123);
     }
@@ -37,7 +37,7 @@ final class ExpectExceptionTest
                 static fn(Assert\Api\ExpectedException $ex) => $ex
                     ->withCode(456)
                     ->withMessage('Previous exception')
-                    ->withNoPrevious(),
+                    ->withoutPrevious(),
             );
 
         $previous = new \RuntimeException('Previous exception', 456);
