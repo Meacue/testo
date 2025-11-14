@@ -1,0 +1,22 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Testo\Assert\Internal\Assertion;
+
+use Testo\Assert\Api\Builtin\IntType;
+use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
+
+/**
+ * Assertion utilities for numeric data type.
+ *
+ * @internal
+ */
+class AssertNumeric implements IntType
+{
+    use NumericTrait;
+
+    public function __construct(
+        public int $value,
+    ) {}
+}

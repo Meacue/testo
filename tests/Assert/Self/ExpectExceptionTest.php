@@ -28,7 +28,6 @@ final class ExpectExceptionTest
     }
 
     #[Test]
-    #[ExpectException(Assert\State\ExpectLeaksFailure::class)]
     public function previous(): void
     {
         Expect::exception(\Throwable::class)

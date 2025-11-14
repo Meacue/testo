@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\Traits;
+namespace Testo\Assert\Internal\Assertion\Traits;
 
 use Testo\Assert\State\AssertException;
 use Testo\Assert\StaticState;

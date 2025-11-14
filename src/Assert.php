@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace Testo;
 
-use Testo\Assert\Api\Builtin\AssertFloat;
-use Testo\Assert\Api\Builtin\AssertInt;
-use Testo\Assert\Api\Builtin\AssertString;
+use Testo\Assert\Api\Builtin\FloatType;
+use Testo\Assert\Api\Builtin\IntType;
+use Testo\Assert\Api\Builtin\NumericType;
+use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\Api\Json\JsonAbstract;
+use Testo\Assert\Internal\Assertion\AssertFloat;
+use Testo\Assert\Internal\Assertion\AssertInt;
 use Testo\Assert\Internal\Assertion\AssertJson;
+use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
 use Testo\Assert\StaticState;
@@ -227,46 +231,45 @@ final class Assert
     /**
      * Asserts that the given value is of `string` data type.
      *
-     * @param mixed $actual The actual value to check for `string` data type.
      * @throws AssertException when the assertion fails.
      */
-    public static function string(
-        mixed $actual,
-    ): AssertString {
-        \is_string($actual) or StaticState::fail(AssertTypeFailure::create('string', $actual));
-
-        StaticState::log('Assert type string for ' . Support::stringify($actual));
-        return new AssertString($actual);
+    public static function string(mixed $actual): StringType
+    {
+        return AssertString::create($actual);
     }
 
     /**
      * Asserts that the given value is of `int` data type.
      *
-     * @param mixed $actual The actual value to check for `int` data type.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertTypeFailure
      */
-    public static function int(
-        mixed $actual,
-    ): AssertInt {
-        \is_int($actual) or StaticState::fail(AssertTypeFailure::create('int', $actual));
-
-        StaticState::log('Assert type int for ' . Support::stringify($actual));
-        return new AssertInt($actual);
+    public static function int(mixed $actual): IntType
+    {
+        return AssertInt::create($actual);
     }
 
     /**
      * Asserts that the given value is of `float` data type.
      *
-     * @param mixed $actual The actual value to check for `float` data type.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertTypeFailure
      */
-    public static function float(
-        mixed $actual,
-    ): AssertFloat {
-        \is_float($actual) or StaticState::fail(AssertTypeFailure::create('float', $actual));
+    public static function float(mixed $actual): FloatType
+    {
+        return AssertFloat::create($actual);
+    }
 
-        StaticState::log('Assert type int for ' . Support::stringify($actual));
-        return new AssertFloat($actual);
+    /**
+     * Asserts that the given value is of `numeric` data type.
+     *
+     * Numeric type includes integer, float, and numeric strings.
+     *
+     * @throws AssertTypeFailure
+     *
+     * @deprecated To be implemented
+     */
+    public static function numeric(mixed $actual): NumericType
+    {
+        throw new \LogicException('Not implemented yet');
     }
 
     /**

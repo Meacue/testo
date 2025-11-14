@@ -29,12 +29,11 @@ final class TeamcityLogger
     public static function formatThrowable(\Throwable $throwable): string
     {
         $class = $throwable::class;
-        $message = $throwable->getMessage();
         $file = $throwable->getFile();
         $line = $throwable->getLine();
         $trace = $throwable->getTraceAsString();
 
-        return "{$class}: {$message}\nFile: {$file}:{$line}\n\nStack trace:\n{$trace}";
+        return "{$class}\nFile: {$file}:{$line}\n\nStack trace:\n{$trace}";
     }
 
     /**

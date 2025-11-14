@@ -21,7 +21,7 @@ class AssertException extends \Exception implements Record
         public readonly string $context,
         public readonly string $details,
     ) {
-        parent::__construct();
+        parent::__construct($this->assertion);
     }
 
     /**
