@@ -25,6 +25,94 @@ final class ExpectedException
         public readonly string|\Throwable $classOrObject,
     ) {}
 
+    /**
+     * The expected exception was thrown by the given method.
+     *
+     * Does not mean that tne exception was created in that method, only that the method was the point
+     * where the exception was thrown.
+     *
+     * @param class-string $class Fully qualified class name.
+     * @param string $method Method name.
+     *
+     * @deprecated To be implemented
+     */
+    public function fromMethod(string $class, string $method): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * The expected exception should have the exact message.
+     *
+     * @deprecated To be implemented
+     */
+    public function withMessage(string $message): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * The expected exception message should match the given pattern.
+     *
+     * @param non-empty-string $pattern Regex pattern.
+     *
+     * @deprecated To be implemented
+     */
+    public function withMessagePattern(string $pattern): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * The expected exception message should contain the given substring.
+     *
+     * @param non-empty-string $substring Substring to search for.
+     *
+     * @deprecated To be implemented
+     */
+    public function withMessageContaining(string $substring): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * The expected exception should have the given code or one of the given codes.
+     *
+     * @param int|list<int> $code Expected code or list of expected codes.
+     *
+     * @deprecated To be implemented
+     */
+    public function withCode(int|array $code): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * The expected exception should not have a previous exception.
+     *
+     * @deprecated To be implemented
+     */
+    public function withNoPrevious(): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * The expected exception was caused by the given previous exception.
+     *
+     * @param class-string|\Throwable $classOrObject Expected previous exception class, interface, or an object.
+     * @param (callable(self): mixed)|null $assertion Optional assertion callback for the previous exception.
+     *
+     * @deprecated To be implemented
+     */
+    public function withPrevious(\Throwable|string $classOrObject, ?callable $assertion = null): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * @internal
+     */
     public function __invoke(TestResult $result, TestState $state): TestResult
     {
         # An expectation was defined
