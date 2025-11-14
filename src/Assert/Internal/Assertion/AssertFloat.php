@@ -19,7 +19,7 @@ class AssertFloat implements FloatType
 {
     use NumericTrait;
 
-    private function __construct(
+    public function __construct(
         private readonly float $value,
     ) {}
 
@@ -30,7 +30,7 @@ class AssertFloat implements FloatType
      * @return self An instance of AssertFloat.
      * @throws AssertTypeFailure when the value is not a float.
      */
-    public static function create(mixed $value): self
+    public static function validateAndCreate(mixed $value): self
     {
         \is_float($value) or StaticState::fail(AssertTypeFailure::create('float', $value));
 

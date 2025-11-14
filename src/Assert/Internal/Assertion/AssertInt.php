@@ -19,7 +19,7 @@ class AssertInt implements IntType
 {
     use NumericTrait;
 
-    private function __construct(
+    public function __construct(
         private readonly int $value,
     ) {}
 
@@ -30,7 +30,7 @@ class AssertInt implements IntType
      * @return self An instance of AssertInt.
      * @throws AssertTypeFailure when the value is not an integer.
      */
-    public static function create(mixed $value): self
+    public static function validateAndCreate(mixed $value): self
     {
         \is_int($value) or StaticState::fail(AssertTypeFailure::create('int', $value));
 

@@ -17,7 +17,7 @@ use Testo\Assert\Support;
  */
 class AssertString implements StringType
 {
-    private function __construct(
+    public function __construct(
         private readonly string $value,
     ) {}
 
@@ -29,7 +29,7 @@ class AssertString implements StringType
      *
      * @throws AssertTypeFailure when the value is not a string.
      */
-    public static function create(mixed $value): self
+    public static function validateAndCreate(mixed $value): self
     {
         \is_string($value) or StaticState::fail(AssertTypeFailure::create('string', $value));
 

@@ -18,7 +18,7 @@ use Testo\Assert\Api\Json\JsonStructure;
 class AssertJson implements JsonAbstract
 {
     public function __construct(
-        mixed $value,
+        private mixed $value,
     ) {}
 
     /**

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
-use Testo\Attribute\ExpectException;
 use Testo\Attribute\Test;
 use Testo\Expect;
 
