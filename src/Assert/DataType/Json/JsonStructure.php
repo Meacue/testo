@@ -13,6 +13,8 @@ interface JsonStructure extends JsonCommon
      * Assert that the count of the given value matches the expected count.
      *
      * @param int<0, max> $count The expected count.
+     *
+     * @deprecated To be implemented
      */
     public function count(int $count, string $message = ''): static;
 

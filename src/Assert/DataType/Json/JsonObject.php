@@ -13,6 +13,8 @@ interface JsonObject extends JsonStructure
      * Assert that the JSON object has the specified keys.
      *
      * @param array<string>|string $keys The keys to check for existence.
+     *
+     * @deprecated To be implemented
      */
     public function hasKeys(array|string $keys, string $message = ''): JsonObject;
 }

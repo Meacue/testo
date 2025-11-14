@@ -43,6 +43,8 @@ interface JsonCommon
      * Get the decoded JSON value.
      *
      * @return mixed The decoded JSON value.
+     *
+     * @deprecated To be implemented
      */
     public function decode(): mixed;
 }
