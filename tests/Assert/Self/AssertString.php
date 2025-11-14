@@ -34,9 +34,8 @@ final class AssertString
     #[Test]
     public function chainLogShowcase(): void
     {
-        Assert::string("abcde")->contains("abc");
-        Assert::string("string")->contains("str");
-        Assert::fail();
+        Assert::string("abcde")->contains("abc")->notContains('zxcv');
+        Assert::string("string")->contains("str")->notContains('brr');
     }
 
     #[Test]

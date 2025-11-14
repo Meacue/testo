@@ -59,4 +59,27 @@ class AssertString implements StringType
             showDiff: false,
         ));
     }
+
+    /**
+     * Asserts that the string does not contain the given substring.
+     *
+     * @param string $needle Substring to search for.
+     * @param string $message Optional message for the assertion.
+     * @throws AssertException when the assertion fails.
+     */
+    public function notContains(string $needle, string $message = ''): static
+    {
+        if (!\str_contains($this->value, $needle)) {
+            StaticState::log('String does not contain "' . $needle . '"', $message);
+            return $this;
+        }
+
+        StaticState::fail(AssertException::compare(
+            $needle,
+            $this->value,
+            $message,
+            pattern: 'Failed asserting that string `%2$s` does not contain `%1$s`.',
+            showDiff: false,
+        ));
+    }
 }
