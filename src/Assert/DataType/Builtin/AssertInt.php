@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\DataType;
+namespace Testo\Assert\DataType\Builtin;
 
 use Testo\Assert\Traits\NumericTrait;
 

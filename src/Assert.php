@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Testo;
 
-use Testo\Assert\DataType\AssertFloat;
-use Testo\Assert\DataType\AssertInt;
-use Testo\Assert\DataType\AssertString;
+use Testo\Assert\DataType\Builtin\AssertFloat;
+use Testo\Assert\DataType\Builtin\AssertInt;
+use Testo\Assert\DataType\Builtin\AssertString;
+use Testo\Assert\DataType\Json\AssertJson;
+use Testo\Assert\DataType\Json\JsonAbstract;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
 use Testo\Assert\StaticState;
@@ -265,6 +267,19 @@ final class Assert
 
         StaticState::log('Assert type int for ' . Support::stringify($actual));
         return new AssertFloat($actual);
+    }
+
+    /**
+     * Asserts that the given string is a valid JSON.
+     *
+     * @param string $actual The actual JSON string to check.
+     * @throws AssertException when the assertion fails.
+     *
+     * @deprecated To be implemented
+     */
+    public static function json(string $actual): JsonAbstract
+    {
+        return new AssertJson($actual);
     }
 
     /**
