@@ -235,7 +235,7 @@ final class Assert
      */
     public static function string(mixed $actual): StringType
     {
-        return AssertString::create($actual);
+        return AssertString::validateAndCreate($actual);
     }
 
     /**
@@ -245,7 +245,7 @@ final class Assert
      */
     public static function int(mixed $actual): IntType
     {
-        return AssertInt::create($actual);
+        return AssertInt::validateAndCreate($actual);
     }
 
     /**
@@ -255,7 +255,7 @@ final class Assert
      */
     public static function float(mixed $actual): FloatType
     {
-        return AssertFloat::create($actual);
+        return AssertFloat::validateAndCreate($actual);
     }
 
     /**
