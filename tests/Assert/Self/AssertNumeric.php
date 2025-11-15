@@ -7,6 +7,8 @@ namespace Tests\Assert\Self;
 use Testo\Assert;
 use Testo\Attribute\Test;
 use Testo\Expect;
+use function PHPUnit\Framework\lessThan;
+use Testo\Assert\Internal\Assertion\AssertInt;
 
 /**
  * Assertion examples.

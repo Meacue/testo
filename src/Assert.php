@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace Testo;
 
+use Testo\Assert\Api\Builtin\ArrayType;
 use Testo\Assert\Api\Builtin\FloatType;
 use Testo\Assert\Api\Builtin\IntType;
+use Testo\Assert\Api\Builtin\IterableType;
 use Testo\Assert\Api\Builtin\NumericType;
+use Testo\Assert\Api\Builtin\ObjectType;
 use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\Api\Json\JsonAbstract;
 use Testo\Assert\Internal\Assertion\AssertFloat;
@@ -283,6 +286,45 @@ final class Assert
     public static function json(string $actual): JsonAbstract
     {
         return new AssertJson($actual);
+    }
+
+    /**
+     * Asserts that the given value is of `iterable` data type.
+     *
+     * Iterables include arrays and objects implementing iterable interface.
+     * Does not work with Generators.
+     *
+     * @throws AssertTypeFailure
+     *
+     * @deprecated To be implemented
+     */
+    public static function iterable(mixed $actual): IterableType
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * Asserts that the given value is of `array` data type.
+     *
+     * @throws AssertTypeFailure
+     *
+     * @deprecated To be implemented
+     */
+    public static function array(mixed $actual): ArrayType
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * Asserts that the given value is of `object` data type.
+     *
+     * @throws AssertTypeFailure
+     *
+     * @deprecated To be implemented
+     */
+    public static function object(mixed $actual): ObjectType
+    {
+        throw new \LogicException('Not implemented yet');
     }
 
     /**
