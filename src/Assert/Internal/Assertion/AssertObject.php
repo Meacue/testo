@@ -18,7 +18,7 @@ use Testo\Assert\Support;
 class AssertObject implements ObjectType
 {
     public function __construct(
-        private readonly float $value,
+        private readonly object $value,
     ) {}
 
     /**

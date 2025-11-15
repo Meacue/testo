@@ -21,7 +21,7 @@ class AssertArray implements ArrayType
     use IterableTrait;
 
     public function __construct(
-        private readonly float $value,
+        private readonly array $value,
     ) {}
 
     /**

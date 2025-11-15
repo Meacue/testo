@@ -17,6 +17,6 @@ class AssertNumeric implements IntType
     use NumericTrait;
 
     public function __construct(
-        public int $value,
+        public int|float $value,
     ) {}
 }

@@ -20,7 +20,7 @@ class AssertIterable implements IterableType
     use IterableTrait;
 
     public function __construct(
-        private readonly float $value,
+        private readonly iterable $value,
     ) {}
 
     /**
