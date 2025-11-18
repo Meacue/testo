@@ -48,4 +48,9 @@ class AssertArray implements ArrayType
     {
         throw new \LogicException('Not implemented yet');
     }
+
+    public function isList(string $message = ''): ArrayType
+    {
+        throw new \LogicException('Not implemented yet');
+    }
 }

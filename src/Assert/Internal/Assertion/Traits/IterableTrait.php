@@ -8,7 +8,6 @@ use Testo\Assert\State\AssertException;
 
 /**
  * Contains methods for comparing numeric values
- * @property int|float $value
  */
 trait IterableTrait
 {
@@ -30,6 +29,11 @@ trait IterableTrait
      * @throws AssertException when the assertion fails.
      */
     public function sameSizeAs(iterable $expected, string $message = ''): self
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    public function allOf(string $type, string $message = ''): \Testo\Assert\Api\Builtin\IterableType
     {
         throw new \LogicException('Not implemented yet');
     }

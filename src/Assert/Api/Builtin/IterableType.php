@@ -36,4 +36,15 @@ interface IterableType
      * @deprecated To be implemented
      */
     public function sameSizeAs(iterable $expected, string $message = ''): self;
+
+    /**
+     * Asserts that all values in the iterable are of the specified type.
+     *
+     * @param non-empty-string $type The expected type name (e.g., 'int', 'string', 'object', class name).
+     * @param string $message Optional message for the assertion.
+     * @throws AssertException when the assertion fails.
+     *
+     * @deprecated To be implemented
+     */
+    public function allOf(string $type, string $message = ''): self;
 }

@@ -23,4 +23,17 @@ interface ArrayType extends IterableType
      * @deprecated To be implemented
      */
     public function hasKey(mixed $key, string $message = ''): self;
+
+    /**
+     * Asserts that the array is a list.
+     *
+     * A list is an array with sequential integer keys starting from 0.
+     * Equivalent to {@see array_is_list()} in PHP 8.1+.
+     *
+     * @param string $message Optional message for the assertion.
+     * @throws AssertException when the assertion fails.
+     *
+     * @deprecated To be implemented
+     */
+    public function isList(string $message = ''): self;
 }
