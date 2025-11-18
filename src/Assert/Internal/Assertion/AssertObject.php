@@ -15,48 +15,46 @@ use Testo\Assert\Support;
  *
  * @internal
  */
-class AssertObject implements ObjectType
+final class AssertObject implements ObjectType
 {
     public function __construct(
         private readonly object $value,
     ) {}
 
     /**
-     * Validate that the given value is a float and return an AssertFloat instance.
+     * @template ValueType
      *
-     * @param mixed $value The value to be asserted as float.
-     * @return self An instance of AssertFloat.
-     * @throws AssertTypeFailure when the value is not a float.
+     * @param ValueType $value The value to be asserted as float.
+     * @throws AssertException
+     *
+     * @psalm-assert object $value
+     * @phpstan-assert object $value
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_object($value) or StaticState::fail(AssertTypeFailure::create('iterable', $value));
+        \is_object($value) or StaticState::fail(AssertTypeFailure::create('object', $value));
 
-        StaticState::log('Assert iterable: ' . Support::stringify($value));
+        StaticState::log('Assert object: ' . Support::stringify($value));
         return new self($value);
     }
 
-    /**
-     * Asserts that the object is an instance of the given class/interface.
-     * @param string $class Fully-qualified class or interface name.
-     * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
-     */
-    public function instanceOf(string $class, string $message = ''): self
+    #[\Override]
+    public function instanceOf(string $expected, string $message = ''): self
     {
-        // @todo
-        return new self($this->value);
+        $this->value instanceof $expected
+            ? StaticState::log('Assert instance of `' . $expected . '`', $message)
+            : StaticState::fail(AssertException::compare(
+                $expected,
+                $this->value,
+                $message,
+                'Expected instance of `%1$s`, got `%2$s`',
+            ));
+        return $this;
     }
 
-    /**
-     * Asserts that the object has the given property.
-     * @param string $propertyName The property name to check.
-     * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
-     */
+    #[\Override]
     public function hasProperty(string $propertyName, string $message = ''): self
     {
-        // @todo
-        return new self($this->value);
+        throw new \LogicException('Not implemented yet');
     }
 }

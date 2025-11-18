@@ -33,9 +33,9 @@ class AssertArray implements ArrayType
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_array($value) or StaticState::fail(AssertTypeFailure::create('iterable', $value));
+        \is_array($value) or StaticState::fail(AssertTypeFailure::create('array', $value));
 
-        StaticState::log('Assert iterable: ' . Support::stringify($value));
+        StaticState::log('Assert array: ' . Support::stringify($value));
         return new self($value);
     }
 
@@ -46,7 +46,6 @@ class AssertArray implements ArrayType
      */
     public function hasKey(mixed $key, string $message = ''): self
     {
-        // @todo
-        return new self($this->value);
+        throw new \LogicException('Not implemented yet');
     }
 }

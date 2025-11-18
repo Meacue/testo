@@ -20,8 +20,7 @@ trait IterableTrait
      */
     public function contains(mixed $needle, string $message = ''): self
     {
-        // @todo
-        return new self($this->value);
+        throw new \LogicException('Not implemented yet');
     }
 
     /**
@@ -32,7 +31,6 @@ trait IterableTrait
      */
     public function sameSizeAs(iterable $expected, string $message = ''): self
     {
-        // @todo
-        return new self($this->value);
+        throw new \LogicException('Not implemented yet');
     }
 }

@@ -15,6 +15,7 @@ use Testo\Assert\Api\Json\JsonAbstract;
 use Testo\Assert\Internal\Assertion\AssertFloat;
 use Testo\Assert\Internal\Assertion\AssertInt;
 use Testo\Assert\Internal\Assertion\AssertJson;
+use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
@@ -144,21 +145,19 @@ final class Assert
     /**
      * Asserts that the actual object is an instance of the expected class/interface.
      *
-     * @param string $expected Expected class/interface (class-string).
-     * @param mixed $actual The actual value to compare against the expected value.
-     * @param string $message Short description about what exactly is being asserted.
+     * @template ExpectedType
+     *
+     * @param class-string<ExpectedType> $expected Fully-qualified class or interface name.
+     * @param mixed $actual The actual object to check.
+     * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
+     *
+     * @psalm-assert ExpectedType $actual
+     * @phpstan-assert ExpectedType $actual
      */
-    public static function instanceOf(string $expected, mixed $actual, string $message = ''): void
+    public static function instanceOf(string $expected, mixed $actual, string $message = ''): ObjectType
     {
-        $actual instanceof $expected
-            ? StaticState::log('Assert instance of `' . $expected . '`', $message)
-            : StaticState::fail(AssertException::compare(
-                $expected,
-                $actual,
-                $message,
-                'Expected instance of `%1$s`, got `%2$s`',
-            ));
+        return AssertObject::validateAndCreate($actual)->instanceOf($expected, $message);
     }
 
     /**
