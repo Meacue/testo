@@ -43,7 +43,7 @@ class AssertException extends \Exception implements Record
      *
      * @param mixed $expected The expected value.
      * @param mixed $actual The actual value to compare against the expected value.
-     * @param non-empty-string $message Short description about what exactly is being asserted.
+     * @param string $message Short description about what exactly is being asserted.
      * @param non-empty-string $pattern The message pattern.
      * @param bool $showDiff Whether to generate a diff between expected and actual values.
      */

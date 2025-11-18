@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace Testo;
 
+use Testo\Assert\Api\Builtin\ArrayType;
 use Testo\Assert\Api\Builtin\FloatType;
 use Testo\Assert\Api\Builtin\IntType;
+use Testo\Assert\Api\Builtin\IterableType;
 use Testo\Assert\Api\Builtin\NumericType;
+use Testo\Assert\Api\Builtin\ObjectType;
 use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\Api\Json\JsonAbstract;
 use Testo\Assert\Internal\Assertion\AssertFloat;
 use Testo\Assert\Internal\Assertion\AssertInt;
 use Testo\Assert\Internal\Assertion\AssertJson;
+use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
@@ -141,21 +145,19 @@ final class Assert
     /**
      * Asserts that the actual object is an instance of the expected class/interface.
      *
-     * @param string $expected Expected class/interface (class-string).
-     * @param mixed $actual The actual value to compare against the expected value.
-     * @param string $message Short description about what exactly is being asserted.
+     * @template ExpectedType
+     *
+     * @param class-string<ExpectedType> $expected Fully-qualified class or interface name.
+     * @param mixed $actual The actual object to check.
+     * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
+     *
+     * @psalm-assert ExpectedType $actual
+     * @phpstan-assert ExpectedType $actual
      */
-    public static function instanceOf(string $expected, mixed $actual, string $message = ''): void
+    public static function instanceOf(string $expected, mixed $actual, string $message = ''): ObjectType
     {
-        $actual instanceof $expected
-            ? StaticState::log('Assert instance of `' . $expected . '`', $message)
-            : StaticState::fail(AssertException::compare(
-                $expected,
-                $actual,
-                $message,
-                'Expected instance of `%1$s`, got `%2$s`',
-            ));
+        return AssertObject::validateAndCreate($actual)->instanceOf($expected, $message);
     }
 
     /**
@@ -283,6 +285,45 @@ final class Assert
     public static function json(string $actual): JsonAbstract
     {
         return new AssertJson($actual);
+    }
+
+    /**
+     * Asserts that the given value is of `iterable` data type.
+     *
+     * Iterables include arrays and objects implementing iterable interface.
+     * Does not work with Generators.
+     *
+     * @throws AssertTypeFailure
+     *
+     * @deprecated To be implemented
+     */
+    public static function iterable(mixed $actual): IterableType
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * Asserts that the given value is of `array` data type.
+     *
+     * @throws AssertTypeFailure
+     *
+     * @deprecated To be implemented
+     */
+    public static function array(mixed $actual): ArrayType
+    {
+        throw new \LogicException('Not implemented yet');
+    }
+
+    /**
+     * Asserts that the given value is of `object` data type.
+     *
+     * @throws AssertTypeFailure
+     *
+     * @deprecated To be implemented
+     */
+    public static function object(mixed $actual): ObjectType
+    {
+        throw new \LogicException('Not implemented yet');
     }
 
     /**
