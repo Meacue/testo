@@ -4,7 +4,9 @@
     "license": "BSD-3-Clause",
     "type": "library",
     "keywords": [
+        "test",
         "tests",
+        "testing",
         "dev"
     ],
     "authors": [
