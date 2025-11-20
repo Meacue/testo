@@ -10,6 +10,7 @@ use Testo\Attribute\RetryPolicy;
 use Testo\Attribute\Test;
 use Testo\Expect;
 use Testo\Sample\DataProvider;
+use Tests\Fixture\ClassDataProvider;
 
 /**
  * Assertion examples.
@@ -85,6 +86,13 @@ final class AsserTest
     public function dataProvider(string $arg): string
     {
         return $arg === 'zero' ? throw new \RuntimeException() : $arg;
+    }
+
+    #[Test(description: 'Invokable Class as a Data Provider example')]
+    #[DataProvider(new ClassDataProvider())]
+    public function classDataProvider(string $val, mixed $eq): void
+    {
+        Assert::equals($val, $eq);
     }
 
     public static function dataForProvider(): iterable
