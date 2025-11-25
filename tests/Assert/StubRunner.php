@@ -10,8 +10,6 @@ use Testo\Common\Filter;
 use Testo\Config\ApplicationConfig;
 use Testo\Config\FinderConfig;
 use Testo\Config\SuiteConfig;
-use Testo\Render\StdoutRenderer;
-use Testo\Render\TerminalInterceptor;
 use Testo\Test\Dto\TestResult;
 
 final class StubRunner

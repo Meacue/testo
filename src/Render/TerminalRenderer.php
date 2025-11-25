@@ -7,7 +7,9 @@ namespace Testo\Render;
 use Testo\Common\Container;
 use Testo\Config\EventListenerCollector;
 use Testo\Config\PluginConfigurator;
-use Testo\Render\Teamcity\TeamcityLogger;
+use Testo\Render\Terminal\ColorMode;
+use Testo\Render\Terminal\Style;
+use Testo\Render\Terminal\TerminalLogger;
 use Testo\Test\Dto\TestInfo;
 use Testo\Test\Event\Test\TestBatchFinished;
 use Testo\Test\Event\Test\TestBatchStarting;
@@ -19,7 +21,13 @@ use Testo\Test\Event\TestCase\TestCaseStarting;
 use Testo\Test\Event\TestSuite\TestSuiteFinished;
 use Testo\Test\Event\TestSuite\TestSuiteStarting;
 
-final class TeamcityInterceptor implements PluginConfigurator
+/**
+ * Terminal interceptor for rendering test results with configurable output.
+ *
+ * Implements StdoutRenderer to ensure only one stdout renderer is active.
+ * Supports multiple output formats (Compact, Verbose, Dots) and color modes.
+ */
+final class TerminalRenderer implements PluginConfigurator
 {
     /**
      * Tracks whether we're inside a DataProvider batch.
@@ -29,15 +37,18 @@ final class TeamcityInterceptor implements PluginConfigurator
     private array $isBatch = [];
 
     public function __construct(
-        private readonly TeamcityLogger $logger,
-    ) {}
+        private readonly TerminalLogger $logger,
+        ColorMode $colorMode = ColorMode::Always,
+    ) {
+        // Configure color support based on mode
+        Style::setColorsEnabled($colorMode->shouldUseColors());
+    }
 
     public function configure(Container $container): void
     {
         $listeners = $container->get(EventListenerCollector::class);
 
         // Test Pipeline events (lifecycle of entire test through all interceptors)
-        // $listeners->addListener(TestPipelineStarting::class, $this->onTestPipelineStarting(...));
         $listeners->addListener(TestPipelineFinished::class, $this->onTestPipelineFinished(...));
 
         // Test Batch events (for DataProvider)
@@ -67,7 +78,7 @@ final class TeamcityInterceptor implements PluginConfigurator
         // Check if this test was inside a DataProvider batch
         $id = self::getId($event->testInfo);
         if (isset($this->isBatch[$id])) {
-            // DataProvider test - already handled in batch events
+            // DataProvider test - already handled in dataset events
             unset($this->isBatch[$id]);
             return;
         }
@@ -75,7 +86,7 @@ final class TeamcityInterceptor implements PluginConfigurator
         // Regular test without DataProvider - log it now
         $this->logger->testStartedFromInfo($event->testInfo);
         $duration = (int) $event->testResult->getAttribute('duration');
-        $this->logger->handleSingleTestResult($event->testResult, $duration);
+        $this->logger->handleTestResult($event->testResult, $duration);
     }
 
     private function onTestBatchStarting(TestBatchStarting $event): void
@@ -84,34 +95,28 @@ final class TeamcityInterceptor implements PluginConfigurator
         $id = self::getId($event->testInfo);
         $this->isBatch[$id] = true;
 
-        // For DataProvider tests, start a test suite (wraps all data sets)
+        // Start batch in logger for proper indentation
         $this->logger->batchStartedFromInfo($event->testInfo);
     }
 
     private function onTestBatchFinished(TestBatchFinished $event): void
     {
-        // For DataProvider tests, close the test suite
+        // Finish batch in logger
         $this->logger->batchFinishedFromInfo($event->testInfo);
     }
 
     private function onTestDataSetStarting(TestDataSetStarting $event): void
     {
-        // Send testStarted for individual dataset within DataProvider
-        $this->logger->testStartedFromInfo(
-            $event->testInfo,
-            overrideName: "Dataset #$event->dataSetIndex [$event->dataSetKey]",
-        );
+        // Log individual dataset start with custom name
+        $datasetName = "Dataset #$event->dataSetIndex [$event->dataSetKey]";
+        $this->logger->testStartedFromInfo($event->testInfo, $datasetName);
     }
 
     private function onTestDataSetFinished(TestDataSetFinished $event): void
     {
-        // Handle individual dataset result
+        // Handle individual dataset result (name is already set in testStartedFromInfo)
         $duration = (int) $event->testResult->getAttribute('duration');
-        $this->logger->handleSingleTestResult(
-            $event->testResult,
-            $duration,
-            overrideName: "Dataset #$event->dataSetIndex [$event->dataSetKey]",
-        );
+        $this->logger->handleTestResult($event->testResult, $duration);
     }
 
     private function onTestCaseStarting(TestCaseStarting $event): void
@@ -132,5 +137,8 @@ final class TeamcityInterceptor implements PluginConfigurator
     private function onTestSuiteFinished(TestSuiteFinished $event): void
     {
         $this->logger->handleSuiteResult($event->suiteInfo, $event->suiteResult);
+
+        // Print final summary after all tests in suite complete
+        $this->logger->printSummary();
     }
 }
