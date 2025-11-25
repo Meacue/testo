@@ -15,4 +15,5 @@ enum Symbol: string
     case Risky = '?';
     case Flaky = '~';
     case Error = 'E';
+    case DataProvider = '◆';
 }

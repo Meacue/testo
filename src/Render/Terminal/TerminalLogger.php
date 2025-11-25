@@ -102,7 +102,15 @@ final class TerminalLogger
     {
         $this->ensureHeader();
         $this->currentIndentLevel = 1;
-        // No visual output for batch start in terminal mode
+
+        if ($this->format === OutputFormat::Dots) {
+            return;
+        }
+
+        // Print the batch test name (the main test with DataProvider)
+        $indent = $this->format === OutputFormat::Verbose ? '     ' : '   ';
+        $symbol = Style::dim(Symbol::DataProvider->value);
+        echo "{$indent}{$symbol} {$info->name}\n";
     }
 
     /**
