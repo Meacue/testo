@@ -14,11 +14,12 @@ use Testo\Test\Dto\CaseResult;
  */
 final class InstantiateTestCase implements TestCaseRunInterceptor
 {
+    #[\Override]
     public function runTestCase(CaseInfo $info, callable $next): CaseResult
     {
         if ($info->instance === null && $info->definition->reflection !== null) {
-            // TODO autowire dependencies
             try {
+                # TODO don't instantiate if the test method is static
                 $instance = $info->definition->reflection->newInstance();
             } catch (\Throwable $e) {
                 throw new TestCaseInstantiationException(previous: $e);
