@@ -64,11 +64,16 @@ final class SuiteRunner
         $runner = $this->caseRunner;
         $results = [];
         $status = Status::Passed;
+
+        // Todo: unhardcode
+        $invoker = (new DefaultInvoker())(...);
+
         # Run tests for each case
         foreach ($suite->testCases->getCases() as $caseDefinition) {
             try {
                 $caseInfo = new CaseInfo(
                     definition: $caseDefinition,
+                    invoker: $invoker,
                 );
                 $result = $runner->runCase($caseInfo, $filter);
                 $result->status->isFailure() and $status = Status::Failed;

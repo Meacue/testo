@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit\Test;
 
 use PHPUnit\Framework\TestCase;
+use Testo\Common\Internal\EventDispatcher;
 use Testo\Module\Interceptor\InterceptorProvider;
 use Testo\Test\Definition\CaseDefinition;
 use Testo\Test\Definition\TestDefinition;
@@ -51,6 +52,7 @@ final class TestsRunnerTest extends TestCase
         $info = new TestInfo(
             name: 'withRetryPolicy',
             caseInfo: new CaseInfo(
+                definition: new CaseDefinition('FunctionTests'),
                 instance: new TestInterceptors(),
             ),
             testDefinition: new TestDefinition(
@@ -66,6 +68,6 @@ final class TestsRunnerTest extends TestCase
 
     private static function createInstance(): TestRunner
     {
-        return new TestRunner(InterceptorProvider::createDefault());
+        return new TestRunner(InterceptorProvider::createDefault(), new EventDispatcher());
     }
 }

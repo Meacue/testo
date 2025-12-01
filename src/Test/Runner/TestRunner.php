@@ -36,13 +36,9 @@ final class TestRunner
                 function (TestInfo $info): TestResult {
                     $this->eventDispatcher->dispatch(new TestStarting($info));
 
-                    # TODO don't instantiate if the method is static
-                    $instance = $info->caseInfo->instance;
                     try {
                         $startTime = \microtime(true);
-                        $executionResult = $instance === null
-                            ? $info->testDefinition->reflection->invoke(...$info->arguments)
-                            : $info->testDefinition->reflection->invoke($instance, ...$info->arguments);
+                        $executionResult = ($info->caseInfo->invoker)($info);
                         $duration = \microtime(true) - $startTime;
 
                         $result = new TestResult(
