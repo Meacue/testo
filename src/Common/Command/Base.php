@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Common\Command;
 
+use Internal\Path;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,7 +13,6 @@ use Symfony\Component\Console\Style\StyleInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Testo\Application;
 use Testo\Common\Container;
-use Testo\Common\Path;
 use Yiisoft\Injector\Injector;
 
 /**

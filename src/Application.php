@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Testo;
 
+use Internal\Path;
 use Testo\Common\Container;
 use Testo\Common\Filter;
 use Testo\Common\Internal\ObjectContainer;
-use Testo\Common\Path;
 use Testo\Config\ApplicationConfig;
 use Testo\Config\Internal\ConfigInflector;
 use Testo\Config\PluginConfigurator;

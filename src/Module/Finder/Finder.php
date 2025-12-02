@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Testo\Module\Finder;
 
+use Internal\Path;
 use Symfony\Component\Finder\Finder as SymfonyFinder;
 use Symfony\Component\Finder\SplFileInfo;
-use Testo\Common\Path;
 use Testo\Config\FinderConfig;
 
 /**

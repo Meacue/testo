@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Module\Tokenizer;
 
+use Internal\Path;
 use Testo\Common\Filter;
-use Testo\Common\Path;
 use Testo\Config\FinderConfig;
 use Testo\Module\Finder\Finder;
 use Testo\Module\Tokenizer\Reflection\TokenizedFile;

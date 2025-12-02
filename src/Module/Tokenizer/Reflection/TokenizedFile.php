@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Module\Tokenizer\Reflection;
 
-use Testo\Common\Path;
+use Internal\Path;
 
 /**
  * File reflections can fetch information about classes, interfaces, functions and traits declared
