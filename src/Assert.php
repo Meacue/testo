@@ -21,6 +21,7 @@ use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
+use Testo\Assert\Internal\Assertion\AssertIterable;
 
 /**
  * Assertion utilities.
@@ -294,12 +295,10 @@ final class Assert
      * Does not work with Generators.
      *
      * @throws AssertTypeFailure
-     *
-     * @deprecated To be implemented
      */
     public static function iterable(mixed $actual): IterableType
     {
-        throw new \LogicException('Not implemented yet');
+        return AssertIterable::validateAndCreate($actual);
     }
 
     /**
