@@ -7,6 +7,7 @@ namespace Testo\Assert\Internal\Assertion;
 use Testo\Assert\Api\Builtin\IntType;
 use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
 use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertTypeSuccess;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -21,6 +22,7 @@ class AssertInt implements IntType
 
     public function __construct(
         private readonly int $value,
+        private readonly AssertTypeSuccess $parent,
     ) {}
 
     /**
@@ -34,7 +36,7 @@ class AssertInt implements IntType
     {
         \is_int($value) or StaticState::fail(AssertTypeFailure::create('int', $value));
 
-        StaticState::log('Assert int: ' . Support::stringify($value));
-        return new self($value);
+        $parent = StaticState::typeSuccess('int', $value);
+        return new self($value, $parent);
     }
 }

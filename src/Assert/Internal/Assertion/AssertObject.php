@@ -7,6 +7,7 @@ namespace Testo\Assert\Internal\Assertion;
 use Testo\Assert\Api\Builtin\ObjectType;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertTypeSuccess;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -19,6 +20,7 @@ final class AssertObject implements ObjectType
 {
     public function __construct(
         private readonly object $value,
+        private readonly AssertTypeSuccess $parent,
     ) {}
 
     /**
@@ -34,8 +36,8 @@ final class AssertObject implements ObjectType
     {
         \is_object($value) or StaticState::fail(AssertTypeFailure::create('object', $value));
 
-        StaticState::log('Assert object: ' . Support::stringify($value));
-        return new self($value);
+        $parent = StaticState::typeSuccess('object', $value);
+        return new self($value, $parent);
     }
 
     #[\Override]

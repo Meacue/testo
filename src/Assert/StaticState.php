@@ -10,6 +10,7 @@ use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\Internal\Expectation\Leaks;
 use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\State\AssertException;
+use Testo\Assert\State\AssertTypeSuccess;
 use Testo\Assert\State\Success;
 
 /**
@@ -42,6 +43,18 @@ final class StaticState
     }
 
     /**
+     * Success type assertion.
+     *
+     * @param non-empty-string $type The expected type.
+     */
+    public static function typeSuccess(string $type, mixed $actual, string $message = ''): AssertTypeSuccess
+    {
+        $result = AssertTypeSuccess::create($type, $actual, $message);
+        self::$state === null or self::$state->history[] = $result;
+        return $result;
+    }
+
+    /**
      * @param non-empty-string $assertion The assertion result (e.g., "Same: 42", "Assert `true`").
      * @param string $context Optional user-provided context describing what is being asserted.
      */
@@ -55,10 +68,6 @@ final class StaticState
 
     /**
      * Log a failed assertion and throw the given exception.
-     *
-     * @template T of AssertException
-     * @param T $failure The assertion failure.
-     * @throws T
      */
     public static function fail(AssertException $failure): never
     {

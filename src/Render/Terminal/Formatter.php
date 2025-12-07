@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Render\Terminal;
 
+use Testo\Assert\State\CompositeRecord;
+use Testo\Assert\State\Record;
 use Testo\Common\Info;
 use Testo\Test\Dto\CaseResult;
 use Testo\Test\Dto\Status;
@@ -280,14 +282,14 @@ final class Formatter
      * @param \Testo\Assert\State\Record $assertion
      * @return non-empty-string
      */
-    public static function assertionLine(object $assertion, OutputFormat $format): string
+    public static function assertionLine(Record $assertion, OutputFormat $format, int $level = 1): string
     {
         if ($format === OutputFormat::Dots) {
             return '';
         }
 
         $indent = $format === OutputFormat::Verbose ? self::INDENT_VERBOSE : self::INDENT_COMPACT;
-        $indent .= self::INDENT_STEP;
+        $indent .= \str_repeat(self::INDENT_STEP, $level);
         $symbol = $assertion->isSuccess()
             ? Style::success('✓')
             : Style::error('✗');
@@ -296,7 +298,15 @@ final class Formatter
         $message = $assertion->getContext();
         $message === null or $text =  $text . ' → ' . Style::dim($message);
 
-        return "{$indent}  {$symbol} {$text}\n";
+        $text = "{$indent}  {$symbol} {$text}\n";
+
+        if ($assertion instanceof CompositeRecord) {
+            foreach ($assertion->getRecords() as $subRecord) {
+                $text .= self::assertionLine($subRecord, $format, $level + 1);
+            }
+        }
+
+        return $text;
     }
 
     /**

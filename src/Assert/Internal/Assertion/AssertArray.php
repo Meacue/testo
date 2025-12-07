@@ -8,6 +8,7 @@ use Testo\Assert\Api\Builtin\ArrayType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertTypeSuccess;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -22,6 +23,7 @@ class AssertArray implements ArrayType
 
     public function __construct(
         private readonly array $value,
+        private readonly AssertTypeSuccess $parent,
     ) {}
 
     /**
@@ -35,8 +37,8 @@ class AssertArray implements ArrayType
     {
         \is_array($value) or StaticState::fail(AssertTypeFailure::create('array', $value));
 
-        StaticState::log('Assert array: ' . Support::stringify($value));
-        return new self($value);
+        $parent = StaticState::typeSuccess('array', $value);
+        return new self($value, $parent);
     }
 
     /**

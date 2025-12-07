@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Assertion\Traits;
 
 use Testo\Assert\State\AssertException;
-use Testo\Assert\StaticState;
+use Testo\Assert\State\AssertTypeSuccess;
 use Testo\Assert\Support;
 
 /**
  * Contains assertion methods for iterable values.
  *
  * @property iterable $value
+ * @property AssertTypeSuccess $parent
  */
 trait IterableTrait
 {
@@ -20,12 +21,12 @@ trait IterableTrait
     {
         foreach ($this->value as $item) {
             if ($item === $needle) {
-                StaticState::log('Assert contains: ' . Support::stringify($needle) . '.');
-                return new self($this->value);
+                $this->parent->log('Assert contains: ' . Support::stringify($needle) . '.');
+                return $this;
             }
         }
 
-        StaticState::fail(
+        $this->parent->fail(
             AssertException::fail(
                 \sprintf(
                     'Failed to assert that %s contains %s.',
@@ -40,11 +41,11 @@ trait IterableTrait
     public function sameSizeAs(iterable $expected, string $message = ''): self
     {
         if (self::countIterable($this->value) === self::countIterable($expected)) {
-            StaticState::log('Assert same size as: ' . Support::stringify($expected) . '.');
-            return new self($this->value);
+            $this->parent->log('Assert same size as: ' . Support::stringify($expected) . '.');
+            return $this;
         }
 
-        StaticState::fail(
+        $this->parent->fail(
             AssertException::fail(
                 \sprintf(
                     'Failed to assert that iterable %s has the same number of elements as %s.',
@@ -67,7 +68,7 @@ trait IterableTrait
         };
         foreach ($this->value as $element) {
             $actualType = \strtolower(\get_debug_type($element));
-            $actualType === $type or StaticState::fail(
+            $actualType === $type or $this->parent->fail(
                 AssertException::fail(
                     \sprintf(
                         'Failed to assert that all elements of iterable %s have type %s (found %s instead).',
@@ -79,13 +80,13 @@ trait IterableTrait
             );
         }
 
-        StaticState::log(
+        $this->parent->log(
             \sprintf(
                 'Assert all elements are of type %s.',
                 Support::stringify($type),
             ),
         );
-        return new self($this->value);
+        return $this;
     }
 
     #[\Override]
@@ -93,11 +94,11 @@ trait IterableTrait
     {
         $count = self::countIterable($this->value);
         if ($count === $expected) {
-            StaticState::log("Assert count: {$count}.");
-            return new self($this->value);
+            $this->parent->log("Assert count: {$count}.");
+            return $this;
         }
 
-        StaticState::fail(
+        $this->parent->fail(
             AssertException::fail(
                 \sprintf(
                     'Failed to assert that %s has %d elements (found %d instead).',

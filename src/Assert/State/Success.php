@@ -19,16 +19,19 @@ final class Success implements Record
         private readonly bool $success = true,
     ) {}
 
+    #[\Override]
     public function isSuccess(): bool
     {
         return $this->success;
     }
 
+    #[\Override]
     public function getContext(): ?string
     {
         return $this->context !== '' ? $this->context : null;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->assertion;

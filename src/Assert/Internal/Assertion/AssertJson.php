@@ -9,6 +9,7 @@ use Testo\Assert\Api\Json\JsonArray;
 use Testo\Assert\Api\Json\JsonCommon;
 use Testo\Assert\Api\Json\JsonObject;
 use Testo\Assert\Api\Json\JsonStructure;
+use Testo\Assert\State\AssertTypeSuccess;
 
 /**
  * Implementation of JSON assertions.
@@ -19,6 +20,7 @@ class AssertJson implements JsonAbstract
 {
     public function __construct(
         private mixed $value,
+        private readonly AssertTypeSuccess $parent,
     ) {}
 
     /**

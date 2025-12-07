@@ -6,6 +6,7 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\IntType;
 use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
+use Testo\Assert\State\AssertTypeSuccess;
 
 /**
  * Assertion utilities for numeric data type.
@@ -18,5 +19,6 @@ class AssertNumeric implements IntType
 
     public function __construct(
         public int|float $value,
+        private readonly AssertTypeSuccess $parent,
     ) {}
 }

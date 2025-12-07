@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Assertion\Traits;
 
 use Testo\Assert\State\AssertException;
-use Testo\Assert\StaticState;
+use Testo\Assert\State\AssertTypeSuccess;
 
 /**
  * Contains methods for comparing numeric values
  * @property int|float $value
+ * @property AssertTypeSuccess $parent
  */
 trait NumericTrait
 {
@@ -23,11 +24,11 @@ trait NumericTrait
     public function greaterThan(int|float $min, string $message = ''): self
     {
         if ($this->value > $min) {
-            StaticState::log('Assert `' . $this->value . ' > ' . $min . '`', $message);
+            $this->parent->log('Assert `' . $this->value . ' > ' . $min . '`', $message);
             return $this;
         }
 
-        StaticState::fail(AssertException::compare(
+        $this->parent->fail(AssertException::compare(
             $min,
             $this->value,
             $message,
@@ -46,11 +47,11 @@ trait NumericTrait
     public function greaterThanOrEqual(int|float $min, string $message = ''): self
     {
         if ($this->value >= $min) {
-            StaticState::log('Assert `' . $this->value . ' >= ' . $min . '`', $message);
+            $this->parent->log('Assert `' . $this->value . ' >= ' . $min . '`', $message);
             return $this;
         }
 
-        StaticState::fail(AssertException::compare(
+        $this->parent->fail(AssertException::compare(
             $min,
             $this->value,
             $message,
@@ -69,11 +70,11 @@ trait NumericTrait
     public function lessThan(int|float $max, string $message = ''): self
     {
         if ($this->value < $max) {
-            StaticState::log('Assert `' . $this->value . ' < ' . $max . '`', $message);
+            $this->parent->log('Assert `' . $this->value . ' < ' . $max . '`', $message);
             return $this;
         }
 
-        StaticState::fail(AssertException::compare(
+        $this->parent->fail(AssertException::compare(
             $max,
             $this->value,
             $message,
@@ -92,11 +93,11 @@ trait NumericTrait
     public function lessThanOrEqual(int|float $max, string $message = ''): self
     {
         if ($this->value <= $max) {
-            StaticState::log('Assert `' . $this->value . ' <= ' . $max . '`', $message);
+            $this->parent->log('Assert `' . $this->value . ' <= ' . $max . '`', $message);
             return $this;
         }
 
-        StaticState::fail(AssertException::compare(
+        $this->parent->fail(AssertException::compare(
             $max,
             $this->value,
             $message,
