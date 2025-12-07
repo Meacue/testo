@@ -23,7 +23,7 @@ trait NumericTrait
     public function greaterThan(int|float $min, string $message = ''): self
     {
         if ($this->value > $min) {
-            StaticState::log('Assert `' . $this->value . '` is greater than `' . $min . '`', $message);
+            StaticState::log('Assert `' . $this->value . ' > ' . $min . '`', $message);
             return $this;
         }
 
@@ -31,7 +31,7 @@ trait NumericTrait
             $min,
             $this->value,
             $message,
-            pattern: 'Failed asserting that value `%2$s` is greater than `%1$s`.',
+            pattern: 'Failed asserting that `%2$s > %1$s`.',
             showDiff: false,
         ));
     }
@@ -46,7 +46,7 @@ trait NumericTrait
     public function greaterThanOrEqual(int|float $min, string $message = ''): self
     {
         if ($this->value >= $min) {
-            StaticState::log('Assert `' . $this->value . '` is greater than or equal to `' . $min . '`', $message);
+            StaticState::log('Assert `' . $this->value . ' >= ' . $min . '`', $message);
             return $this;
         }
 
@@ -54,7 +54,7 @@ trait NumericTrait
             $min,
             $this->value,
             $message,
-            pattern: 'Failed asserting that value `%2$s` is greater than or equal to `%1$s`.',
+            pattern: 'Failed asserting that `%2$s >= %1$s`.',
             showDiff: false,
         ));
     }
@@ -69,7 +69,7 @@ trait NumericTrait
     public function lessThan(int|float $max, string $message = ''): self
     {
         if ($this->value < $max) {
-            StaticState::log('Assert `' . $this->value . '` is less than `' . $max . '`', $message);
+            StaticState::log('Assert `' . $this->value . ' < ' . $max . '`', $message);
             return $this;
         }
 
@@ -77,7 +77,7 @@ trait NumericTrait
             $max,
             $this->value,
             $message,
-            pattern: 'Failed asserting that value `%2$s` is less than `%1$s`.',
+            pattern: 'Failed asserting that `%2$s < %1$s`.',
             showDiff: false,
         ));
     }
@@ -92,7 +92,7 @@ trait NumericTrait
     public function lessThanOrEqual(int|float $max, string $message = ''): self
     {
         if ($this->value <= $max) {
-            StaticState::log('Assert `' . $this->value . '` is less than or equal to `' . $max . '`', $message);
+            StaticState::log('Assert `' . $this->value . ' <= ' . $max . '`', $message);
             return $this;
         }
 
@@ -100,7 +100,7 @@ trait NumericTrait
             $max,
             $this->value,
             $message,
-            pattern: 'Failed asserting that value `%2$s` is less than or equal to `%1$s`.',
+            pattern: 'Failed asserting that `%2$s <= %1$s`.',
             showDiff: false,
         ));
     }
