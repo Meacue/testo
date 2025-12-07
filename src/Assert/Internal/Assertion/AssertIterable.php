@@ -27,7 +27,7 @@ class AssertIterable implements IterableType
      * Validate that the given value is an iterable and return an AssertIterable instance.
      *
      * @param mixed $value The value to be asserted as an iterable.
-     * @return self An instance of AssertIterable.
+     *
      * @throws AssertTypeFailure when the value is not an iterable.
      */
     public static function validateAndCreate(mixed $value): self

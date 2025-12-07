@@ -24,23 +24,4 @@ final class Support
             default => (string) $value,
         };
     }
-
-    /**
-     * Counts the number of elements in the given iterable.
-     */
-    public static function countIterable(iterable $value): int
-    {
-        // if Countable
-        if (\is_array($value) || $value instanceof \Countable) {
-            return \count($value);
-        }
-
-        // if Traversable
-        $count = 0;
-        foreach ($value as $_) {
-            $count++;
-        }
-
-        return $count;
-    }
 }

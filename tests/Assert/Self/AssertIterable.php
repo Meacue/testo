@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
-use Testo\Attribute\ExpectException;
 use Testo\Attribute\Test;
 use Testo\Expect;
 
@@ -34,6 +33,12 @@ final class AssertIterable
     {
         Assert::iterable(new \ArrayIterator([1, 2, 3]))->sameSizeAs(new \ArrayIterator(['a', 'b', 'c']));
         Assert::iterable(new \ArrayIterator([1, 2, 3]))->sameSizeAs(['a', 'b', 'c']);
+    }
+
+    #[Test]
+    public function assertCount(): void
+    {
+        Assert::iterable(new \ArrayIterator([1, 2, 3]))->hasCount(3);
     }
 
     #[Test]

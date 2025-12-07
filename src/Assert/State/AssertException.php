@@ -90,16 +90,19 @@ class AssertException extends \Exception implements Record
         );
     }
 
+    #[\Override]
     final public function isSuccess(): bool
     {
         return false;
     }
 
+    #[\Override]
     final public function getContext(): ?string
     {
         return $this->context !== '' ? $this->context : null;
     }
 
+    #[\Override]
     final public function __toString(): string
     {
         return $this->assertion;

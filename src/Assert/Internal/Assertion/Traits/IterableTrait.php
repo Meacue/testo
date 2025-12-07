@@ -10,84 +10,121 @@ use Testo\Assert\Support;
 
 /**
  * Contains assertion methods for iterable values.
+ *
  * @property iterable $value
  */
 trait IterableTrait
 {
-    /**
-     * Asserts that the iterable contains the given needle (strict comparison).
-     * @param mixed $needle The value to look for within the iterable.
-     * @param string $message Optional message for the assertion.
-     *
-     * @throws AssertException when the assertion fails.
-     */
+    #[\Override]
     public function contains(mixed $needle, string $message = ''): self
     {
         foreach ($this->value as $item) {
             if ($item === $needle) {
-                StaticState::log(
-                    'Assert that iterable: ' . Support::stringify($this->value) . ' contains ' . Support::stringify($needle),
-                );
+                StaticState::log('Assert contains: ' . Support::stringify($needle) . '.');
                 return new self($this->value);
             }
         }
+
         StaticState::fail(
             AssertException::fail(
-                'Failed to assert that iterable ' . Support::stringify($this->value) . ' contains ' . Support::stringify($needle),
+                \sprintf(
+                    'Failed to assert that %s contains %s.',
+                    Support::stringify($this->value),
+                    Support::stringify($needle),
+                ),
             ),
         );
     }
 
-    /**
-     * Asserts that the iterable has the same number of elements as the expected iterable.
-     *
-     * @param iterable $expected The iterable to compare size against.
-     * @param string $message Optional message for the assertion.
-     *
-     * @throws AssertException When the iterables do not have the same size.
-     */
+    #[\Override]
     public function sameSizeAs(iterable $expected, string $message = ''): self
     {
-        if (Support::countIterable($this->value) === Support::countIterable($expected)) {
-            StaticState::log(
-                'Assert that iterable: ' . Support::stringify($this->value) . ' has the same number of elements as ' . Support::stringify($expected),
-            );
+        if (self::countIterable($this->value) === self::countIterable($expected)) {
+            StaticState::log('Assert same size as: ' . Support::stringify($expected) . '.');
             return new self($this->value);
         }
+
         StaticState::fail(
             AssertException::fail(
-                'Failed to assert that iterable ' . Support::stringify($this->value) . ' has the same number of elements as ' . Support::stringify($expected),
+                \sprintf(
+                    'Failed to assert that iterable %s has the same number of elements as %s.',
+                    Support::stringify($this->value),
+                    Support::stringify($expected),
+                ),
+            ),
+        );
+    }
+
+    #[\Override]
+    public function allOf(string $type, string $message = ''): self
+    {
+        $type = \strtolower($type);
+        $type = match ($type) {
+            'integer' => 'int',
+            'double' => 'float',
+            'boolean' => 'bool',
+            default => $type,
+        };
+        foreach ($this->value as $element) {
+            $actualType = \strtolower(\get_debug_type($element));
+            $actualType === $type or StaticState::fail(
+                AssertException::fail(
+                    \sprintf(
+                        'Failed to assert that all elements of iterable %s have type %s (found %s instead).',
+                        Support::stringify($this->value),
+                        Support::stringify($type),
+                        Support::stringify($actualType),
+                    ),
+                ),
+            );
+        }
+
+        StaticState::log(
+            \sprintf(
+                'Assert all elements are of type %s.',
+                Support::stringify($type),
+            ),
+        );
+        return new self($this->value);
+    }
+
+    #[\Override]
+    public function hasCount(int $expected): self
+    {
+        $count = self::countIterable($this->value);
+        if ($count === $expected) {
+            StaticState::log("Assert count: {$count}.");
+            return new self($this->value);
+        }
+
+        StaticState::fail(
+            AssertException::fail(
+                \sprintf(
+                    'Failed to assert that %s has %d elements (found %d instead).',
+                    Support::stringify($this->value),
+                    $expected,
+                    $count,
+                ),
             ),
         );
     }
 
     /**
-     * Asserts that all elements of the iterable have the given PHP type.
-     *
-     * The $type parameter uses PHP internal type names (compatible with gettype()),
-     * e.g.: "integer", "double", "boolean", "string", "array", "object", "resource", "null".
-     *
-     * @param non-empty-string $type Expected PHP type name for all elements.
-     * @param string $message Optional message for the assertion.
-     *
-     * @throws AssertException When at least one element has a different type.
+     * Counts the number of elements in the given iterable.
      */
-    public function allOf(string $type, string $message = ''): self
+    private static function countIterable(iterable $value): int
     {
-        foreach ($this->value as $element) {
-            $actualType = \gettype($element);
-            if ($actualType !== $type) {
-                StaticState::fail(
-                    AssertException::fail(
-                        'Failed to assert that all elements of iterable ' . Support::stringify($this->value) . ' have type ' . Support::stringify($type) .
-                        ' (found ' . Support::stringify($actualType) . ' instead)',
-                    ),
-                );
-            }
+        // if Countable
+        if (\is_array($value) || $value instanceof \Countable) {
+            return \count($value);
         }
-        StaticState::log(
-            'Assert that all elements of iterable ' . Support::stringify($this->value) . ' have type ' . Support::stringify($type),
-        );
-        return new self($this->value);
+
+        // if Traversable
+        $count = 0;
+        foreach ($value as $_) {
+            $count++;
+        }
+
+        return $count;
     }
 }
