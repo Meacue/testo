@@ -9,7 +9,6 @@ use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
 use Testo\Assert\State\AssertTypeSuccess;
 use Testo\Assert\StaticState;
-use Testo\Assert\Support;
 
 /**
  * Assertion utilities for iterables.
@@ -43,14 +42,10 @@ final class AssertObject implements ObjectType
     #[\Override]
     public function instanceOf(string $expected, string $message = ''): self
     {
+        $str = "is instance of `{$expected}`";
         $this->value instanceof $expected
-            ? StaticState::log('Assert instance of `' . $expected . '`', $message)
-            : StaticState::fail(AssertException::compare(
-                $expected,
-                $this->value,
-                $message,
-                'Expected instance of `%1$s`, got `%2$s`',
-            ));
+            ? $this->parent->log($str, $message)
+            : throw $this->parent->fail($str, 'got `' . $this->value::class . '` instead', $message);
         return $this;
     }
 

@@ -296,13 +296,12 @@ final class Formatter
 
         $text = (string) $assertion;
         $message = $assertion->getContext();
-        $message === null or $text =  $text . ' → ' . Style::dim($message);
+        $message === '' or $text =  $text . ' → ' . Style::dim($message);
 
         $text = "{$indent}  {$symbol} {$text}\n";
-
         if ($assertion instanceof CompositeRecord) {
             foreach ($assertion->getRecords() as $subRecord) {
-                $text .= self::assertionLine($subRecord, $format, $level + 1);
+                $subRecord->isSuccess() or $text .= self::assertionLine($subRecord, $format, $level + 1);
             }
         }
 

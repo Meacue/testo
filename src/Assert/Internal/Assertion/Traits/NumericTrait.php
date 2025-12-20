@@ -23,18 +23,17 @@ trait NumericTrait
      */
     public function greaterThan(int|float $min, string $message = ''): self
     {
+        $str = "greater than `{$min}`";
         if ($this->value > $min) {
-            $this->parent->log('Assert `' . $this->value . ' > ' . $min . '`', $message);
+            $this->parent->log($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $min,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s > %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not greater than {$min}",
+            context: $message,
+        );
     }
 
     /**
@@ -46,18 +45,17 @@ trait NumericTrait
      */
     public function greaterThanOrEqual(int|float $min, string $message = ''): self
     {
+        $str = "greater than or equal to `{$min}`";
         if ($this->value >= $min) {
-            $this->parent->log('Assert `' . $this->value . ' >= ' . $min . '`', $message);
+            $this->parent->log($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $min,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s >= %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not greater than or equal to {$min}",
+            context: $message,
+        );
     }
 
     /**
@@ -69,18 +67,17 @@ trait NumericTrait
      */
     public function lessThan(int|float $max, string $message = ''): self
     {
+        $str = "less than `{$max}`";
         if ($this->value < $max) {
-            $this->parent->log('Assert `' . $this->value . ' < ' . $max . '`', $message);
+            $this->parent->log($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $max,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s < %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not less than {$max}",
+            context: $message,
+        );
     }
 
     /**
@@ -92,17 +89,16 @@ trait NumericTrait
      */
     public function lessThanOrEqual(int|float $max, string $message = ''): self
     {
+        $str = "less than or equal to `{$max}`";
         if ($this->value <= $max) {
-            $this->parent->log('Assert `' . $this->value . ' <= ' . $max . '`', $message);
+            $this->parent->log($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $max,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s <= %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not less than or equal to {$max}",
+            context: $message,
+        );
     }
 }

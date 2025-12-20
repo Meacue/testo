@@ -26,9 +26,9 @@ final class Success implements Record
     }
 
     #[\Override]
-    public function getContext(): ?string
+    public function getContext(): string
     {
-        return $this->context !== '' ? $this->context : null;
+        return $this->context;
     }
 
     #[\Override]

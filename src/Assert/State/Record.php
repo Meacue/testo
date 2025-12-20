@@ -17,7 +17,7 @@ interface Record extends \Stringable
     /**
      * Returns user-provided message for the assertion.
      *
-     * @return non-empty-string|null
+     * @return non-empty-string
      */
-    public function getContext(): ?string;
+    public function getContext(): string;
 }

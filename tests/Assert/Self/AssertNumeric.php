@@ -30,10 +30,10 @@ final class AssertNumeric
         Assert::int(42)->greaterThan(41);
         Assert::float(42.1)->greaterThan(42.0);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::int(42)->greaterThan(43);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::float(42.1)->greaterThan(42.2);
     }
 
@@ -47,10 +47,10 @@ final class AssertNumeric
         Assert::float(42.1)->greaterThanOrEqual(42.0);
         Assert::float(42.1)->greaterThanOrEqual(42.1);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::int(42)->greaterThanOrEqual(43);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::float(42.1)->greaterThanOrEqual(43.0);
     }
 
@@ -61,10 +61,10 @@ final class AssertNumeric
         Assert::int(42)->lessThan(43);
         Assert::float(42.1)->lessThan(42.2);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::int(42)->lessThan(42);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::int(42.1)->lessThan(42.0);
     }
 
@@ -78,10 +78,10 @@ final class AssertNumeric
         Assert::float(42.0)->lessThanOrEqual(42.1);
         Assert::float(42.1)->lessThanOrEqual(42.1);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::int(43)->lessThanOrEqual(42);
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::float(42.1)->lessThanOrEqual(42.0);
     }
 }

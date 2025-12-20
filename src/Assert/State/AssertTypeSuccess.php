@@ -9,16 +9,20 @@ use Testo\Assert\Support;
 /**
  * Assertion record.
  */
-final class AssertTypeSuccess implements CompositeRecord
+final class AssertTypeSuccess implements CompositeRecord, Assertion
 {
+    /** @var list<Assertion> */
     private array $records = [];
+
     private bool $success = true;
 
     /**
-     * @param non-empty-string $assertion The assertion result (e.g., "Same: 42", "Assert `true`").
+     * @param non-empty-string $value The actual value that was asserted.
+     * @param non-empty-string $assertion The assertion result.
      * @param string $context Optional user-provided context describing what is being asserted.
      */
     private function __construct(
+        private readonly string $value,
         public readonly string $assertion,
         public readonly string $context = '',
     ) {}
@@ -33,24 +37,24 @@ final class AssertTypeSuccess implements CompositeRecord
     public static function create(string $type, mixed $actual, string $message): self
     {
         $assertion = \sprintf(
-            'Assert type `%s` for %s.',
+            'Assert that `%s` is %s',
+            $value = Support::stringify($actual),
             $type,
-            Support::stringify($actual),
         );
 
-        return new self($assertion, $message);
+        return new self($value, $assertion, $message);
     }
 
     #[\Override]
     public function isSuccess(): bool
     {
-        return true;
+        return $this->success;
     }
 
     #[\Override]
-    public function getContext(): ?string
+    public function getContext(): string
     {
-        return $this->context !== '' ? $this->context : null;
+        return $this->context;
     }
 
     /**
@@ -65,20 +69,34 @@ final class AssertTypeSuccess implements CompositeRecord
         );
     }
 
-    public function add(Record $record): void
+    public function add(Assertion $record): void
     {
         $this->records[] = $record;
-        // $record->isSuccess() or $this->success = false;
+        $record->isSuccess() or $this->success = false;
     }
 
     /**
-     * Log a failed assertion and throw the given exception.
+     * @param non-empty-string $assertion The assertion result (e.g., "greater than 42", "is not empty").
+     * @param non-empty-string $reason The reason for the assertion failure.
+     * @param string $context Optional user-provided context describing what is being asserted.
+     * @param string $details The detailed assertion failure information (diff).
      */
-    public function fail(Record&\Throwable $failure): never
-    {
-        // $this->success = false;
-        $this->records[] = $failure;
-        throw $failure;
+    public function fail(
+        string $assertion,
+        string $reason,
+        string $context = '',
+        string $details = '',
+    ): AssertionException {
+        $err = new AssertionException(
+            value: $this->value,
+            assertion: $assertion,
+            context: $context,
+            reason: $reason,
+            details: $details,
+        );
+
+        $this->success = false;
+        return $this->records[] = $err;
     }
 
     #[\Override]
@@ -87,9 +105,34 @@ final class AssertTypeSuccess implements CompositeRecord
         return $this->records;
     }
 
+    public function getValue(): string
+    {
+        return $this->value;
+    }
+
+    public function getAssertion(): string
+    {
+        return $this->assertion;
+    }
+
+    public function getFailReason(): string
+    {
+        // TODO: Implement getFailReason() method.
+    }
+
+    public function getFailDetails(): string
+    {
+        // TODO: Implement getFailDetails() method.
+    }
+
     #[\Override]
     public function __toString(): string
     {
-        return $this->assertion;
+        $parts = [$this->assertion];
+        foreach ($this->records as $record) {
+            $parts[] = $record->__toString(); // todo getAssertion();
+        }
+
+        return \implode(', ', $parts) . '.';
     }
 }
