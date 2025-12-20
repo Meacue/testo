@@ -12,6 +12,7 @@ use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\State\AssertionException;
+use Testo\Assert\State\AssertionSuccess;
 use Testo\Assert\State\Success;
 
 /**
@@ -74,12 +75,14 @@ final class StaticState
     }
 
     /**
-     * @param non-empty-string $assertion The assertion result (e.g., "Same: 42", "Assert `true`").
+     * @param mixed $value The actual value that was asserted.
+     * @param non-empty-string $assertion The assertion result (e.g., "is empty", "contains 'foo'").
      * @param string $context Optional user-provided context describing what is being asserted.
      */
-    public static function log(string $assertion, string $context = ''): void
+    public static function success(mixed $value, string $assertion, string $context = ''): void
     {
-        self::$state === null or self::$state->history[] = new Success(
+        self::$state === null or self::$state->history[] = new AssertionSuccess(
+            value: Support::stringify($value),
             assertion: $assertion,
             context: $context,
         );

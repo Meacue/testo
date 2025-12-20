@@ -6,8 +6,13 @@ namespace Testo\Assert\Internal\Expectation;
 
 use Testo\Assert\Api\ExpectedException;
 use Testo\Assert\State\AssertException;
+use Testo\Assert\State\Assertion;
+use Testo\Assert\State\AssertionComposite;
+use Testo\Assert\State\AssertionException;
+use Testo\Assert\State\AssertionSuccess;
 use Testo\Assert\State\Record;
 use Testo\Assert\State\Success;
+use Testo\Assert\Support;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestResult;
@@ -109,17 +114,25 @@ final class ExpectExceptionHandler implements ExpectedException
             : $result->with(status: Status::Failed)->withFailure($record);
     }
 
-    private function isPassed(?\Throwable $actual): Record|AssertException
+    private function isPassed(?\Throwable $actual): Assertion|\Throwable
     {
         $class = \is_string($this->classOrObject) ? $this->classOrObject : $this->classOrObject::class;
         if (\is_object($this->classOrObject) ? ($actual === $this->classOrObject) : ($actual instanceof $class)) {
-            return new Success(
+            return new AssertionComposite(
+                value: Support::stringify($actual),
                 assertion: $class === $actual::class
-                    ? 'Throw exception: `' . $class . '`.'
-                    : 'Throw exception: `' . $class . '` (got `' . $actual::class . '`).',
+                    ? 'is thrown'
+                    : 'is thrown as an instance of ' . $class,
+                context: '',
             );
         }
 
-        return AssertException::exceptionClass($class, $actual);
+        return new AssertionException(
+            value: Support::stringify($actual),
+            assertion: 'is thrown as an instance of ' . $class,
+            context: '',
+            reason: $actual === null ? 'none thrown' : 'got ' . $actual::class,
+            details: '',
+        );
     }
 }

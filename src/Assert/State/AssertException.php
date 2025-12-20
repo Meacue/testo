@@ -8,6 +8,8 @@ use Testo\Assert\Support;
 
 /**
  * Assertion exception.
+ *
+ * @deprecated use {@see AssertionException} instead.
  */
 class AssertException extends \Exception implements Record
 {
@@ -100,6 +102,16 @@ class AssertException extends \Exception implements Record
     final public function getContext(): string
     {
         return $this->context;
+    }
+
+    public function getFailReason(): string
+    {
+        return '';
+    }
+
+    public function getFailDetails(): string
+    {
+        return '';
     }
 
     #[\Override]

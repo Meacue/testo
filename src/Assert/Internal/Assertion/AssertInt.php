@@ -6,7 +6,7 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\IntType;
 use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
-use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertionException;
 use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
@@ -30,7 +30,7 @@ class AssertInt implements IntType
      *
      * @param mixed $value The value to be asserted as integer.
      * @return self An instance of AssertInt.
-     * @throws AssertTypeFailure when the value is not an integer.
+     * @throws AssertionException when the value is not an integer.
      */
     public static function validateAndCreate(mixed $value): self
     {

@@ -6,7 +6,7 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\IterableType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
-use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertionException;
 use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
@@ -30,7 +30,7 @@ class AssertIterable implements IterableType
      *
      * @param mixed $value The value to be asserted as an iterable.
      *
-     * @throws AssertTypeFailure when the value is not an iterable.
+     * @throws AssertionException when the value is not an iterable.
      */
     public static function validateAndCreate(mixed $value): self
     {

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Expectation;
 
+use Testo\Assert\State\ExpectationFulfilled;
 use Testo\Assert\State\ExpectLeaksFailure;
-use Testo\Assert\State\Success;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestResult;
@@ -52,13 +52,13 @@ final class Leaks
         }
 
         if ($r === []) {
-            $state->history[] = new Success(
-                \sprintf(
-                    '%d object%s cached in memory.',
+            $state->history[] = new ExpectationFulfilled(
+                expectation: \sprintf(
+                    '%d %s cached in memory',
                     \count($this->map),
-                    \count($this->map) === 1 ? '' : 's',
+                    \count($this->map) === 1 ? 'object is' : 'objects are',
                 ),
-                $this->message,
+                context: $this->message,
             );
             return $result;
         }

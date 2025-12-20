@@ -7,7 +7,7 @@ namespace Testo\Assert\State;
 /**
  * Assertion exception.
  */
-final class AssertionException extends \Exception implements Assertion
+class AssertionException extends \Exception implements Assertion
 {
     /**
      * @param non-empty-string $value The actual value that was asserted.

@@ -6,7 +6,7 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\ObjectType;
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertionException;
 use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 

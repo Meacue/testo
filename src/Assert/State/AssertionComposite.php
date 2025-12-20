@@ -11,6 +11,7 @@ final class AssertionComposite extends AssertionSuccess implements CompositeReco
 {
     /** @var list<Assertion> */
     private array $records = [];
+
     private bool $success = true;
 
     #[\Override]

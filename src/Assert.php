@@ -19,7 +19,7 @@ use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\Internal\Assertion\AssertArray;
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertionException;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 use Testo\Assert\Internal\Assertion\AssertIterable;
@@ -40,7 +40,7 @@ final class Assert
     public static function same(mixed $expected, mixed $actual, string $message = ''): void
     {
         $actual === $expected
-            ? StaticState::log('Assert same: `' . Support::stringify($expected) . '`', $message)
+            ? StaticState::success($actual, 'is the same', $message)
             : StaticState::fail(AssertException::compare($expected, $actual, $message));
     }
 
@@ -55,7 +55,7 @@ final class Assert
     public static function notSame(mixed $expected, mixed $actual, string $message = ''): void
     {
         $actual !== $expected
-            ? StaticState::log('Assert not same: `' . Support::stringify($expected) . '`', $message)
+            ? StaticState::success($actual, 'is not same as `' . Support::stringify($expected) . '`', $message)
             : StaticState::fail(AssertException::compare(
                 $expected,
                 $actual,
@@ -76,7 +76,7 @@ final class Assert
     public static function equals(mixed $expected, mixed $actual, string $message = ''): void
     {
         $actual == $expected
-            ? StaticState::log('Assert equals: `' . Support::stringify($expected) . '`', $message)
+            ? StaticState::success($actual, 'equals to `' . Support::stringify($expected) . '`', $message)
             : StaticState::fail(AssertException::compare(
                 $expected,
                 $actual,
@@ -96,7 +96,7 @@ final class Assert
     public static function notEquals(mixed $expected, mixed $actual, string $message = ''): void
     {
         $actual != $expected
-            ? StaticState::log('Assert not equals: `' . Support::stringify($expected) . '`', $message)
+            ? StaticState::success($actual, 'is not equals to `' . Support::stringify($expected) . '`', $message)
             : StaticState::fail(AssertException::compare(
                 $expected,
                 $actual,
@@ -107,38 +107,38 @@ final class Assert
     }
 
     /**
-     * Asserts that the condition is true.
+     * Asserts that the value is true.
      *
-     * @param bool $condition The condition asserting to be true.
+     * @param mixed $actual The actual value to check.
      * @param string $message Short description about what exactly is being asserted.
      * @throws AssertException when the assertion fails.
      */
-    public static function true(bool $condition, string $message = ''): void
+    public static function true(mixed $actual, string $message = ''): void
     {
-        $condition === true
-            ? StaticState::log('Assert true', $message)
+        $actual === true
+            ? StaticState::success($actual, 'is exactly `true`', $message)
             : StaticState::fail(AssertException::compare(
                 true,
-                $condition,
+                $actual,
                 $message,
                 'Failed asserting that value `%2$s` is `%1$s`',
             ));
     }
 
     /**
-     * Asserts that the condition is false.
+     * Asserts that the value is false.
      *
-     * @param bool $condition The condition asserting to be false.
+     * @param mixed $actual The actual value to check.
      * @param string $message Short description about what exactly is being asserted.
      * @throws AssertException when the assertion fails.
      */
-    public static function false(bool $condition, string $message = ''): void
+    public static function false(mixed $actual, string $message = ''): void
     {
-        $condition === false
-            ? StaticState::log('Assert false', $message)
+        $actual === false
+            ? StaticState::success($actual, 'is exactly `false`', $message)
             : StaticState::fail(AssertException::compare(
                 false,
-                $condition,
+                $actual,
                 $message,
                 'Failed asserting that value `%2$s` is `%1$s`',
             ));
@@ -174,7 +174,7 @@ final class Assert
     {
         foreach ($haystack as $element) {
             if ($needle === $element) {
-                StaticState::log('Assert contains', $message);
+                StaticState::success($haystack, 'contains `' . Support::stringify($needle) . '`', $message);
                 return;
             }
         }
@@ -198,7 +198,7 @@ final class Assert
         string $message = '',
     ): void {
         $actual === null
-            ? StaticState::log('Assert `null`', $message)
+            ? StaticState::success($actual, 'is exactly `null`', $message)
             : StaticState::fail(AssertException::compare(null, $actual, $message));
     }
 
@@ -221,7 +221,7 @@ final class Assert
         if (
             $actual === null || $actual === '' || $actual === [] || ($actual instanceof \Countable && \count($actual) === 0)
         ) {
-            StaticState::log('Assert blank', $message);
+            StaticState::success($actual, 'is blank', $message);
             return;
         }
         StaticState::fail(AssertException::compare(
@@ -245,7 +245,7 @@ final class Assert
     /**
      * Asserts that the given value is of `int` data type.
      *
-     * @throws AssertTypeFailure
+     * @throws AssertionException
      */
     public static function int(mixed $actual): IntType
     {
@@ -255,7 +255,7 @@ final class Assert
     /**
      * Asserts that the given value is of `float` data type.
      *
-     * @throws AssertTypeFailure
+     * @throws AssertionException
      */
     public static function float(mixed $actual): FloatType
     {
@@ -267,7 +267,7 @@ final class Assert
      *
      * Numeric type includes integer, float, and numeric strings.
      *
-     * @throws AssertTypeFailure
+     * @throws AssertionException
      *
      * @deprecated To be implemented
      */
@@ -295,7 +295,7 @@ final class Assert
      * Iterables include arrays and objects implementing iterable interface.
      * Does not work with Generators.
      *
-     * @throws AssertTypeFailure
+     * @throws AssertionException
      */
     public static function iterable(mixed $actual): IterableType
     {
@@ -305,7 +305,7 @@ final class Assert
     /**
      * Asserts that the given value is of `array` data type.
      *
-     * @throws AssertTypeFailure
+     * @throws AssertionException
      */
     public static function array(mixed $actual): ArrayType
     {
@@ -315,7 +315,7 @@ final class Assert
     /**
      * Asserts that the given value is of `object` data type.
      *
-     * @throws AssertTypeFailure
+     * @throws AssertionException
      *
      * @deprecated To be implemented
      */

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Expectation;
 
+use Testo\Assert\State\ExpectationFulfilled;
 use Testo\Assert\State\ExpectNotLeaksFailure;
-use Testo\Assert\State\Success;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestResult;
@@ -48,11 +48,11 @@ final class NotLeaks
         $r = \array_filter($this->map, static fn(\WeakReference $ref): bool => $ref->get() !== null);
 
         if ($r === []) {
-            $state->history[] = new Success(
+            $state->history[] = new ExpectationFulfilled(
                 \sprintf(
-                    'No memory leaks for %d object%s.',
+                    '%d %s not leaked',
                     \count($this->map),
-                    \count($this->map) === 1 ? '' : 's',
+                    \count($this->map) === 1 ? 'object was' : 'objects were',
                 ),
                 $this->message,
             );

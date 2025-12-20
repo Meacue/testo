@@ -6,7 +6,7 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\ArrayType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
-use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertionException;
 use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 
@@ -29,7 +29,7 @@ class AssertArray implements ArrayType
      *
      * @param mixed $value The value to be asserted as array.
      *
-     * @throws AssertTypeFailure when the value is not an array.
+     * @throws AssertionException when the value is not an array.
      */
     public static function validateAndCreate(mixed $value): self
     {

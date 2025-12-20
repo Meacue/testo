@@ -6,7 +6,7 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeFailure;
+use Testo\Assert\State\AssertionException;
 use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
@@ -29,7 +29,7 @@ class AssertString implements StringType
      * @param mixed $value The value to be asserted as string.
      * @return self An instance of AssertString.
      *
-     * @throws AssertTypeFailure when the value is not a string.
+     * @throws AssertionException when the value is not a string.
      */
     public static function validateAndCreate(mixed $value): self
     {
@@ -49,7 +49,7 @@ class AssertString implements StringType
     public function contains(string $needle, string $message = ''): static
     {
         if (\str_contains($this->value, $needle)) {
-            StaticState::log('String contains "' . $needle . '"', $message);
+            StaticState::success($this->value, ' contains "' . $needle . '"', $message);
             return $this;
         }
 
@@ -72,7 +72,7 @@ class AssertString implements StringType
     public function notContains(string $needle, string $message = ''): static
     {
         if (!\str_contains($this->value, $needle)) {
-            StaticState::log('String does not contain "' . $needle . '"', $message);
+            StaticState::success($this->value, 'does not contain "' . $needle . '"', $message);
             return $this;
         }
 
