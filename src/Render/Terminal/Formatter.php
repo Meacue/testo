@@ -300,8 +300,8 @@ final class Formatter
 
         $text = "{$indent}  {$symbol} {$text}\n";
         if ($assertion instanceof CompositeRecord) {
-            foreach ($assertion->getRecords() as $subRecord) {
-                $subRecord->isSuccess() or $text .= self::assertionLine($subRecord, $format, $level + 1);
+            foreach ($assertion->getRecords() as $record) {
+                $record->isSuccess() or $text .= self::assertionLine($record, $format, $level + 1);
             }
         }
 

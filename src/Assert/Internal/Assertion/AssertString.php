@@ -7,7 +7,7 @@ namespace Testo\Assert\Internal\Assertion;
 use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -20,7 +20,7 @@ class AssertString implements StringType
 {
     public function __construct(
         private readonly string $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -33,7 +33,7 @@ class AssertString implements StringType
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_string($value) or StaticState::fail(AssertTypeFailure::create('string', $value));
+        \is_string($value) or StaticState::typeFail('string', $value);
 
         $parent = StaticState::typeSuccess('string', $value);
         return new self($value, $parent);

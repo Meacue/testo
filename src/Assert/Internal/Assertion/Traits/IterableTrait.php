@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Assertion\Traits;
 
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\Support;
 
 /**
  * Contains assertion methods for iterable values.
  *
  * @property iterable $value
- * @property AssertTypeSuccess $parent
+ * @property AssertionComposite $parent
  */
 trait IterableTrait
 {
@@ -21,7 +21,7 @@ trait IterableTrait
         $str = 'contains `' . Support::stringify($needle) . '`';
         foreach ($this->value as $item) {
             if ($item === $needle) {
-                $this->parent->log($str);
+                $this->parent->success($str);
                 return $this;
             }
         }
@@ -40,7 +40,7 @@ trait IterableTrait
         $countThis = self::countIterable($this->value);
         $countExpected = self::countIterable($expected);
         if ($countThis === $countExpected) {
-            $this->parent->log($str);
+            $this->parent->success($str);
             return $this;
         }
 
@@ -72,7 +72,7 @@ trait IterableTrait
             );
         }
 
-        $this->parent->log($str);
+        $this->parent->success($str);
         return $this;
     }
 
@@ -82,7 +82,7 @@ trait IterableTrait
         $count = self::countIterable($this->value);
         $str = "has count `$expected`";
         if ($count === $expected) {
-            $this->parent->log($str);
+            $this->parent->success($str);
             return $this;
         }
 

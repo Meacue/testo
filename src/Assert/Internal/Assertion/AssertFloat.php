@@ -7,7 +7,7 @@ namespace Testo\Assert\Internal\Assertion;
 use Testo\Assert\Api\Builtin\FloatType;
 use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
 use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -22,7 +22,7 @@ class AssertFloat implements FloatType
 
     public function __construct(
         private readonly float $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -34,7 +34,7 @@ class AssertFloat implements FloatType
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_float($value) or StaticState::fail(AssertTypeFailure::create('float', $value));
+        \is_float($value) or StaticState::typeFail('float', $value);
 
         $parent = StaticState::typeSuccess('float', $value);
         return new self($value, $parent);

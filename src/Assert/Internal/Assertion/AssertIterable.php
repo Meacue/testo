@@ -7,7 +7,7 @@ namespace Testo\Assert\Internal\Assertion;
 use Testo\Assert\Api\Builtin\IterableType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
 use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -22,7 +22,7 @@ class AssertIterable implements IterableType
 
     public function __construct(
         private readonly iterable $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -34,7 +34,7 @@ class AssertIterable implements IterableType
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_iterable($value) or StaticState::fail(AssertTypeFailure::create('iterable', $value));
+        \is_iterable($value) or StaticState::typeFail('iterable', $value);
 
         $parent = StaticState::typeSuccess('iterable', $value);
         return new self($value, $parent);

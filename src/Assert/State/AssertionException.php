@@ -23,7 +23,7 @@ final class AssertionException extends \Exception implements Assertion
         private readonly string $reason,
         private readonly string $details,
     ) {
-        $message = "Failed that {$value} {$assertion}: {$reason}.";
+        $message = "Failed assertion that {$value} {$assertion}: {$reason}.";
         $context === '' or $message .= "\nMeaning: {$context}";
         $details === '' or $message .= "\nDetails:\n{$details}";
 
@@ -69,6 +69,6 @@ final class AssertionException extends \Exception implements Assertion
     #[\Override]
     final public function __toString(): string
     {
-        return $this->assertion;
+        return $this->getMessage();
     }
 }

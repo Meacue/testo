@@ -10,7 +10,8 @@ use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\Internal\Expectation\Leaks;
 use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
+use Testo\Assert\State\AssertionException;
 use Testo\Assert\State\Success;
 
 /**
@@ -47,11 +48,29 @@ final class StaticState
      *
      * @param non-empty-string $type The expected type.
      */
-    public static function typeSuccess(string $type, mixed $actual, string $message = ''): AssertTypeSuccess
+    public static function typeSuccess(string $type, mixed $actual, string $message = ''): AssertionComposite
     {
-        $result = AssertTypeSuccess::create($type, $actual, $message);
+        $result = new AssertionComposite(Support::stringify($actual), "is $type", $message);
         self::$state === null or self::$state->history[] = $result;
         return $result;
+    }
+
+    /**
+     * Register a type assertion failure and throw an exception.
+     *
+     * @param non-empty-string $type The expected type.
+     */
+    public static function typeFail(string $type, mixed $actual, string $message = ''): never
+    {
+        $result = new AssertionException(
+            value: Support::stringify($actual),
+            assertion: "is $type",
+            context: $message,
+            reason: "got " . Support::stringify($actual),
+            details: '',
+        );
+        self::$state === null or self::$state->history[] = $result;
+        throw $result;
     }
 
     /**

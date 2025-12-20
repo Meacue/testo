@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Assertion\Traits;
 
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
 
 /**
  * Contains methods for comparing numeric values
  * @property int|float $value
- * @property AssertTypeSuccess $parent
+ * @property AssertionComposite $parent
  */
 trait NumericTrait
 {
@@ -25,7 +25,7 @@ trait NumericTrait
     {
         $str = "greater than `{$min}`";
         if ($this->value > $min) {
-            $this->parent->log($str, $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 
@@ -47,7 +47,7 @@ trait NumericTrait
     {
         $str = "greater than or equal to `{$min}`";
         if ($this->value >= $min) {
-            $this->parent->log($str, $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 
@@ -69,7 +69,7 @@ trait NumericTrait
     {
         $str = "less than `{$max}`";
         if ($this->value < $max) {
-            $this->parent->log($str, $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 
@@ -91,7 +91,7 @@ trait NumericTrait
     {
         $str = "less than or equal to `{$max}`";
         if ($this->value <= $max) {
-            $this->parent->log($str, $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 

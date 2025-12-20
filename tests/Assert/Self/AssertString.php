@@ -41,7 +41,7 @@ final class AssertString
     #[Test]
     public function checkWrongDataType(): void
     {
-        Expect::exception(Assert\State\AssertTypeFailure::class);
+        Expect::exception(Assert\State\AssertionException::class);
         Assert::string([666]);
     }
 

@@ -7,7 +7,7 @@ namespace Testo\Assert\Internal\Assertion;
 use Testo\Assert\Api\Builtin\ObjectType;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 
 /**
@@ -19,7 +19,7 @@ final class AssertObject implements ObjectType
 {
     public function __construct(
         private readonly object $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -33,7 +33,7 @@ final class AssertObject implements ObjectType
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_object($value) or StaticState::fail(AssertTypeFailure::create('object', $value));
+        \is_object($value) or StaticState::typeFail('object', $value);
 
         $parent = StaticState::typeSuccess('object', $value);
         return new self($value, $parent);
@@ -44,7 +44,7 @@ final class AssertObject implements ObjectType
     {
         $str = "is instance of `{$expected}`";
         $this->value instanceof $expected
-            ? $this->parent->log($str, $message)
+            ? $this->parent->success($str, $message)
             : throw $this->parent->fail($str, 'got `' . $this->value::class . '` instead', $message);
         return $this;
     }

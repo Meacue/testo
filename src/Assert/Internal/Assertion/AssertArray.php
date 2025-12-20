@@ -7,7 +7,7 @@ namespace Testo\Assert\Internal\Assertion;
 use Testo\Assert\Api\Builtin\ArrayType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
 use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\AssertionComposite;
 use Testo\Assert\StaticState;
 
 /**
@@ -21,7 +21,7 @@ class AssertArray implements ArrayType
 
     public function __construct(
         private readonly array $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -33,7 +33,7 @@ class AssertArray implements ArrayType
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_array($value) or StaticState::fail(AssertTypeFailure::create('array', $value));
+        \is_array($value) or StaticState::typeFail('array', $value);
 
         $parent = StaticState::typeSuccess('array', $value);
         return new self($value, $parent);
@@ -58,7 +58,7 @@ class AssertArray implements ArrayType
         $m = \count($keys) === 1 ? '' : 's';
         $str = "has key$m " . \implode(', ', $keys);
         if ($failedKeys === []) {
-            $this->parent->log($str);
+            $this->parent->success($str);
             return $this;
         }
 
@@ -73,7 +73,7 @@ class AssertArray implements ArrayType
     public function isList(string $message = ''): static
     {
         if (\array_is_list($this->value)) {
-            $this->parent->log('is list');
+            $this->parent->success('is list');
             return $this;
         }
 

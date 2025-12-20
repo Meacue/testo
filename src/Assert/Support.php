@@ -8,6 +8,7 @@ final class Support
 {
     /**
      * Convert a value to a string for error messages.
+     * @return non-empty-string
      */
     public static function stringify(mixed $value): string
     {
