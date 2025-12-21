@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Expectation;
 
-use Testo\Assert\State\AssertException;
-use Testo\Assert\State\Expectation\ExpectationFailed;
+use Testo\Assert\State\Test\Fail;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestResult;

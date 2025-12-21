@@ -45,6 +45,7 @@ class AssertString implements StringType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
+    #[\Override]
     public function contains(string $needle, string $message = ''): static
     {
         if (\str_contains($this->value, $needle)) {
@@ -68,6 +69,7 @@ class AssertString implements StringType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
+    #[\Override]
     public function notContains(string $needle, string $message = ''): static
     {
         if (!\str_contains($this->value, $needle)) {

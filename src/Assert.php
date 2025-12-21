@@ -21,8 +21,7 @@ use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
-use Testo\Assert\State\Expectation\ExpectationFailed;
-use Testo\Assert\State\Expectation\Fail;
+use Testo\Assert\State\Test\Fail;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 

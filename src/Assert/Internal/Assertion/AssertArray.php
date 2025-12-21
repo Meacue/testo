@@ -9,6 +9,7 @@ use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
+use Testo\Assert\Support;
 
 /**
  * Assertion utilities for arrays.
@@ -47,12 +48,13 @@ class AssertArray implements ArrayType
         }
 
         $failedKeys = [];
-        foreach ($keys as $key) {
+        foreach ($keys as $k => $key) {
+            $keys[$k] = "`$key`";
             if (\array_key_exists($key, $this->value)) {
                 continue;
             }
 
-            $failedKeys[] = $key;
+            $failedKeys[] = "`$key`";
         }
 
         $m = \count($keys) === 1 ? '' : 's';
@@ -65,7 +67,7 @@ class AssertArray implements ArrayType
         $m = \count($failedKeys) === 1 ? '' : 's';
         throw $this->parent->fail(
             assertion: $str,
-            reason: "missing key$m " . \implode(', ', $failedKeys),
+            reason: "missing key$m: " . \implode(', ', $failedKeys),
         );
     }
 

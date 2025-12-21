@@ -113,6 +113,6 @@ final class AssertionComposite extends AssertionSuccess implements CompositeReco
                 : "{$record->getAssertion()}, but {$record->getFailReason()}";
         }
 
-        return "Assert that {$this->value} " . \implode(';  ', $parts) . '.';
+        return "Assert that `{$this->value}` " . \implode(';  ', $parts) . '.';
     }
 }

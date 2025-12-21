@@ -12,8 +12,8 @@ use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Assertion\AssertionSuccess;
-use Testo\Assert\State\Expectation\Fail;
 use Testo\Assert\State\Record;
+use Testo\Assert\State\Test\Fail;
 
 /**
  * Holds the current assertion collector.

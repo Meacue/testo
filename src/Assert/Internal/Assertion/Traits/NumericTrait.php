@@ -21,7 +21,8 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function greaterThan(int|float $min, string $message = ''): self
+    #[\Override]
+    public function greaterThan(int|float $min, string $message = ''): static
     {
         $str = "greater than `{$min}`";
         if ($this->value > $min) {
@@ -43,7 +44,8 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function greaterThanOrEqual(int|float $min, string $message = ''): self
+    #[\Override]
+    public function greaterThanOrEqual(int|float $min, string $message = ''): static
     {
         $str = "greater than or equal to `{$min}`";
         if ($this->value >= $min) {
@@ -65,7 +67,8 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function lessThan(int|float $max, string $message = ''): self
+    #[\Override]
+    public function lessThan(int|float $max, string $message = ''): static
     {
         $str = "less than `{$max}`";
         if ($this->value < $max) {
@@ -87,7 +90,8 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function lessThanOrEqual(int|float $max, string $message = ''): self
+    #[\Override]
+    public function lessThanOrEqual(int|float $max, string $message = ''): static
     {
         $str = "less than or equal to `{$max}`";
         if ($this->value <= $max) {

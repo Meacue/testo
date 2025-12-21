@@ -39,7 +39,7 @@ final class AssertObject implements ObjectType
     }
 
     #[\Override]
-    public function instanceOf(string $expected, string $message = ''): self
+    public function instanceOf(string $expected, string $message = ''): static
     {
         $str = "is instance of `{$expected}`";
         $this->value instanceof $expected
@@ -49,7 +49,7 @@ final class AssertObject implements ObjectType
     }
 
     #[\Override]
-    public function hasProperty(string $propertyName, string $message = ''): self
+    public function hasProperty(string $propertyName, string $message = ''): static
     {
         throw new \LogicException('Not implemented yet');
     }

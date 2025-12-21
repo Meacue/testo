@@ -61,6 +61,6 @@ class AssertionSuccess implements Assertion
     #[\Override]
     public function __toString(): string
     {
-        return "Successful assertion that {$this->value} {$this->assertion}.";
+        return "Successful assertion that `{$this->value}` {$this->assertion}.";
     }
 }

@@ -25,7 +25,7 @@ class AssertionException extends \Exception implements Assertion
         private readonly string $reason,
         private readonly string $details,
     ) {
-        $message = "Failed assertion that {$value} {$assertion}: {$reason}.";
+        $message = "Failed assertion that `{$value}` {$assertion}: {$reason}.";
         $context === '' or $message .= "\nMeaning: {$context}";
         $details === '' or $message .= "\nDetails:\n{$details}";
 

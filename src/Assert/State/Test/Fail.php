@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\State\Expectation;
+namespace Testo\Assert\State\Test;
+
+use Testo\Assert\State\Expectation\ExpectationFailed;
 
 final class Fail extends ExpectationFailed
 {
