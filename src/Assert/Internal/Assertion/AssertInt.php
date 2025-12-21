@@ -6,10 +6,9 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\IntType;
 use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
-use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
-use Testo\Assert\Support;
 
 /**
  * Assertion utilities for integer data type.
@@ -22,7 +21,7 @@ class AssertInt implements IntType
 
     public function __construct(
         private readonly int $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -30,11 +29,11 @@ class AssertInt implements IntType
      *
      * @param mixed $value The value to be asserted as integer.
      * @return self An instance of AssertInt.
-     * @throws AssertTypeFailure when the value is not an integer.
+     * @throws AssertionException when the value is not an integer.
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_int($value) or StaticState::fail(AssertTypeFailure::create('int', $value));
+        \is_int($value) or StaticState::typeFail('int', $value);
 
         $parent = StaticState::typeSuccess('int', $value);
         return new self($value, $parent);

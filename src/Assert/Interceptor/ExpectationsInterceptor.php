@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Assert\Interceptor;
 
 use Testo\Assert\State\AssertException;
+use Testo\Assert\State\Record;
 use Testo\Assert\StaticState;
 use Testo\Interceptor\TestRunInterceptor;
 use Testo\Test\Dto\Status;
@@ -28,7 +29,7 @@ final class ExpectationsInterceptor implements TestRunInterceptor
         $result = $next($info);
 
         # Convert Error status to Failed if caused by an assertion failure
-        $result->status === Status::Error && $result->failure instanceof AssertException and $result = $result
+        $result->status === Status::Error && $result->failure instanceof Record and $result = $result
             ->with(status: Status::Failed);
 
         $state = StaticState::current();

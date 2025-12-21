@@ -6,10 +6,9 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
-use Testo\Assert\Support;
 
 /**
  * Assertion utilities for string data type.
@@ -20,7 +19,7 @@ class AssertString implements StringType
 {
     public function __construct(
         private readonly string $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -29,11 +28,11 @@ class AssertString implements StringType
      * @param mixed $value The value to be asserted as string.
      * @return self An instance of AssertString.
      *
-     * @throws AssertTypeFailure when the value is not a string.
+     * @throws AssertionException when the value is not a string.
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_string($value) or StaticState::fail(AssertTypeFailure::create('string', $value));
+        \is_string($value) or StaticState::typeFail('string', $value);
 
         $parent = StaticState::typeSuccess('string', $value);
         return new self($value, $parent);
@@ -46,10 +45,11 @@ class AssertString implements StringType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
+    #[\Override]
     public function contains(string $needle, string $message = ''): static
     {
         if (\str_contains($this->value, $needle)) {
-            StaticState::log('String contains "' . $needle . '"', $message);
+            StaticState::success($this->value, ' contains "' . $needle . '"', $message);
             return $this;
         }
 
@@ -69,10 +69,11 @@ class AssertString implements StringType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
+    #[\Override]
     public function notContains(string $needle, string $message = ''): static
     {
         if (!\str_contains($this->value, $needle)) {
-            StaticState::log('String does not contain "' . $needle . '"', $message);
+            StaticState::success($this->value, 'does not contain "' . $needle . '"', $message);
             return $this;
         }
 

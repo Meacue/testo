@@ -23,7 +23,7 @@ interface ObjectType
      * @psalm-assert ExpectedType $actual
      * @phpstan-assert ExpectedType $actual
      */
-    public function instanceOf(string $expected, string $message = ''): self;
+    public function instanceOf(string $expected, string $message = ''): static;
 
     /**
      * Asserts that the object has the given property.
@@ -34,5 +34,5 @@ interface ObjectType
      *
      * @deprecated To be implemented
      */
-    public function hasProperty(string $propertyName, string $message = ''): self;
+    public function hasProperty(string $propertyName, string $message = ''): static;
 }

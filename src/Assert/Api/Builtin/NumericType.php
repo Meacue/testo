@@ -20,7 +20,7 @@ interface NumericType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function greaterThan(int|float $min, string $message = ''): self;
+    public function greaterThan(int|float $min, string $message = ''): static;
 
     /**
      * Asserts that the numeric value is greater than or equal to given minimum.
@@ -29,7 +29,7 @@ interface NumericType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function greaterThanOrEqual(int|float $min, string $message = ''): self;
+    public function greaterThanOrEqual(int|float $min, string $message = ''): static;
 
     /**
      * Asserts that numeric value is less than the given maximum.
@@ -38,7 +38,7 @@ interface NumericType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function lessThan(int|float $max, string $message = ''): self;
+    public function lessThan(int|float $max, string $message = ''): static;
 
     /**
      * Asserts that the numeric value is less than or equal to given maximum.
@@ -47,5 +47,5 @@ interface NumericType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function lessThanOrEqual(int|float $max, string $message = ''): self;
+    public function lessThanOrEqual(int|float $max, string $message = ''): static;
 }

@@ -9,9 +9,11 @@ use Testo\Assert\Internal\Expectation\ExpectedFail;
 use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\Internal\Expectation\Leaks;
 use Testo\Assert\Internal\Expectation\NotLeaks;
-use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeSuccess;
-use Testo\Assert\State\Success;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Assert\State\Assertion\AssertionSuccess;
+use Testo\Assert\State\Record;
+use Testo\Assert\State\Test\Fail;
 
 /**
  * Holds the current assertion collector.
@@ -47,20 +49,40 @@ final class StaticState
      *
      * @param non-empty-string $type The expected type.
      */
-    public static function typeSuccess(string $type, mixed $actual, string $message = ''): AssertTypeSuccess
+    public static function typeSuccess(string $type, mixed $actual, string $message = ''): AssertionComposite
     {
-        $result = AssertTypeSuccess::create($type, $actual, $message);
+        $result = new AssertionComposite(Support::stringify($actual), "is $type", $message);
         self::$state === null or self::$state->history[] = $result;
         return $result;
     }
 
     /**
-     * @param non-empty-string $assertion The assertion result (e.g., "Same: 42", "Assert `true`").
+     * Register a type assertion failure and throw an exception.
+     *
+     * @param non-empty-string $type The expected type.
+     */
+    public static function typeFail(string $type, mixed $actual, string $message = ''): never
+    {
+        $result = new AssertionException(
+            value: Support::stringify($actual),
+            assertion: "is $type",
+            context: $message,
+            reason: "got " . Support::stringify($actual),
+            details: '',
+        );
+        self::$state === null or self::$state->history[] = $result;
+        throw $result;
+    }
+
+    /**
+     * @param mixed $value The actual value that was asserted.
+     * @param non-empty-string $assertion The assertion result (e.g., "is empty", "contains 'foo'").
      * @param string $context Optional user-provided context describing what is being asserted.
      */
-    public static function log(string $assertion, string $context = ''): void
+    public static function success(mixed $value, string $assertion, string $context = ''): void
     {
-        self::$state === null or self::$state->history[] = new Success(
+        self::$state === null or self::$state->history[] = new AssertionSuccess(
+            value: Support::stringify($value),
             assertion: $assertion,
             context: $context,
         );
@@ -69,7 +91,7 @@ final class StaticState
     /**
      * Log a failed assertion and throw the given exception.
      */
-    public static function fail(AssertException $failure): never
+    public static function fail(Record&\Throwable $failure): never
     {
         self::$state === null or self::$state->history[] = $failure;
         throw $failure;
@@ -89,7 +111,7 @@ final class StaticState
         return self::$state->expectations[] = new ExpectExceptionHandler($classOrObject);
     }
 
-    public static function expectFail(AssertException $exception): void
+    public static function expectFail(Fail $exception): void
     {
         self::$state === null and throw new StateNotFound();
         self::$state->expectations[] = new ExpectedFail($exception);

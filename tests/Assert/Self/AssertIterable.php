@@ -47,7 +47,7 @@ final class AssertIterable
         Assert::iterable(new \ArrayIterator([1, 2, 3]))->allOf('integer');
         Assert::iterable(['a', 'b', 'c'])->allOf('string');
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\Assertion\AssertionException::class);
         Assert::iterable([true, false, 'true'])->allOf('bool');
     }
 }

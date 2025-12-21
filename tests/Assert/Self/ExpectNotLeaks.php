@@ -15,7 +15,7 @@ use Testo\Expect;
 final class ExpectNotLeaks
 {
     #[Test]
-    #[ExpectException(Assert\State\ExpectNotLeaksFailure::class)]
+    #[ExpectException(Assert\State\Expectation\ExpectNotLeaksFailure::class)]
     public function cachedStatically(): void
     {
         static $leak = null;

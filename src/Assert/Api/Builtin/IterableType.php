@@ -22,7 +22,7 @@ interface IterableType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function contains(mixed $needle, string $message = ''): self;
+    public function contains(mixed $needle, string $message = ''): static;
 
     /**
      * Asserts that the iterable has the same number of elements as the expected iterable.
@@ -31,7 +31,7 @@ interface IterableType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function sameSizeAs(iterable $expected, string $message = ''): self;
+    public function sameSizeAs(iterable $expected, string $message = ''): static;
 
     /**
      * Asserts that the iterable has the expected number of elements.
@@ -39,7 +39,7 @@ interface IterableType
      * @param int $expected The expected count of elements.
      * @throws AssertException when the assertion fails.
      */
-    public function hasCount(int $expected): self;
+    public function hasCount(int $expected): static;
 
     /**
      * Asserts that all values in the iterable are of the specified type.
@@ -49,5 +49,5 @@ interface IterableType
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function allOf(string $type, string $message = ''): self;
+    public function allOf(string $type, string $message = ''): static;
 }

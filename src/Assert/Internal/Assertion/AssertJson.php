@@ -9,7 +9,7 @@ use Testo\Assert\Api\Json\JsonArray;
 use Testo\Assert\Api\Json\JsonCommon;
 use Testo\Assert\Api\Json\JsonObject;
 use Testo\Assert\Api\Json\JsonStructure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\Assertion\AssertionComposite;
 
 /**
  * Implementation of JSON assertions.
@@ -20,7 +20,7 @@ class AssertJson implements JsonAbstract
 {
     public function __construct(
         private mixed $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -30,6 +30,7 @@ class AssertJson implements JsonAbstract
      *
      * @deprecated To be implemented
      */
+    #[\Override]
     public function maxDepth(int $expected): static
     {
         throw new \LogicException('Not implemented yet');
@@ -40,6 +41,7 @@ class AssertJson implements JsonAbstract
      *
      * @deprecated To be implemented
      */
+    #[\Override]
     public function empty(): JsonCommon
     {
         throw new \LogicException('Not implemented yet');
@@ -54,6 +56,7 @@ class AssertJson implements JsonAbstract
      *
      * @deprecated To be implemented
      */
+    #[\Override]
     public function assertPath(string $path, callable $callback): static
     {
         throw new \LogicException('Not implemented yet');
@@ -66,6 +69,7 @@ class AssertJson implements JsonAbstract
      *
      * @deprecated To be implemented
      */
+    #[\Override]
     public function count(int $count, string $message = ''): static
     {
         throw new \LogicException('Not implemented yet');
@@ -74,6 +78,7 @@ class AssertJson implements JsonAbstract
     /**
      * Asserts that the JSON string represents a valid JSON structure (object or array).
      */
+    #[\Override]
     public function isStructure(): JsonStructure
     {
         throw new \LogicException('Not implemented yet');
@@ -82,6 +87,7 @@ class AssertJson implements JsonAbstract
     /**
      * Assert that the JSON string represents a valid JSON object.
      */
+    #[\Override]
     public function isObject(): JsonObject
     {
         throw new \LogicException('Not implemented yet');
@@ -90,6 +96,7 @@ class AssertJson implements JsonAbstract
     /**
      * Assert that the JSON string represents a valid JSON array.
      */
+    #[\Override]
     public function isArray(): JsonArray
     {
         throw new \LogicException('Not implemented yet');
@@ -98,6 +105,7 @@ class AssertJson implements JsonAbstract
     /**
      * Assert that the JSON string represents a primitive value (string, number, boolean, null).
      */
+    #[\Override]
     public function isPrimitive(): JsonCommon
     {
         throw new \LogicException('Not implemented yet');
@@ -111,6 +119,7 @@ class AssertJson implements JsonAbstract
      *
      * @param non-empty-string $type The Psalm type to validate against
      */
+    #[\Override]
     public function matchesType(string $type): static
     {
         throw new \LogicException('Not implemented yet');
@@ -123,6 +132,7 @@ class AssertJson implements JsonAbstract
      *
      * @deprecated To be implemented
      */
+    #[\Override]
     public function matchesSchema(string $schema): static
     {
         throw new \LogicException('Not implemented yet');
@@ -133,6 +143,7 @@ class AssertJson implements JsonAbstract
      *
      * @param array<string>|string $keys The keys to check for existence.
      */
+    #[\Override]
     public function hasKeys(array|string $keys, string $message = ''): JsonObject
     {
         throw new \LogicException('Not implemented yet');
@@ -145,6 +156,7 @@ class AssertJson implements JsonAbstract
      *
      * @deprecated To be implemented
      */
+    #[\Override]
     public function decode(): mixed
     {
         throw new \LogicException('Not implemented yet');

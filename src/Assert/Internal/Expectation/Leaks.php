@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Expectation;
 
-use Testo\Assert\State\ExpectLeaksFailure;
-use Testo\Assert\State\Success;
+use Testo\Assert\State\Expectation\ExpectationFulfilled;
+use Testo\Assert\State\Expectation\ExpectLeaksFailure;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestResult;
@@ -43,30 +43,27 @@ final class Leaks
 
     public function __invoke(TestResult $result, TestState $state): TestResult
     {
-        /** @var array<array-key, class-string> $r */
-        $r = [];
+        $fail = false;
         foreach ($this->map as $item) {
             if ($item[1]->get() === null) {
-                $r[] = $item[0];
+                $fail = true;
+                break;
             }
         }
 
-        if ($r === []) {
-            $state->history[] = new Success(
-                \sprintf(
-                    '%d object%s cached in memory.',
+        if (!$fail) {
+            $state->history[] = new ExpectationFulfilled(
+                expectation: \sprintf(
+                    '%d %s cached in memory',
                     \count($this->map),
-                    \count($this->map) === 1 ? '' : 's',
+                    \count($this->map) === 1 ? 'object is' : 'objects are',
                 ),
-                $this->message,
+                context: $this->message,
             );
             return $result;
         }
 
-        $e = ExpectLeaksFailure::fromClassArray(
-            $r,
-            $this->message,
-        );
+        $e = ExpectLeaksFailure::fromClassArray($this->map, $this->message);
         $state->history[] = $e;
 
         return $result->with(status: Status::Failed)->withFailure($e);

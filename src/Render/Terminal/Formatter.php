@@ -279,7 +279,6 @@ final class Formatter
     /**
      * Formats a single assertion line.
      *
-     * @param \Testo\Assert\State\Record $assertion
      * @return non-empty-string
      */
     public static function assertionLine(Record $assertion, OutputFormat $format, int $level = 1): string
@@ -296,13 +295,12 @@ final class Formatter
 
         $text = (string) $assertion;
         $message = $assertion->getContext();
-        $message === null or $text =  $text . ' → ' . Style::dim($message);
+        $message === '' or $text =  $text . ' → ' . Style::dim($message);
 
         $text = "{$indent}  {$symbol} {$text}\n";
-
         if ($assertion instanceof CompositeRecord) {
-            foreach ($assertion->getRecords() as $subRecord) {
-                $text .= self::assertionLine($subRecord, $format, $level + 1);
+            foreach ($assertion->getRecords() as $record) {
+                $record->isSuccess() or $text .= self::assertionLine($record, $format, $level + 1);
             }
         }
 

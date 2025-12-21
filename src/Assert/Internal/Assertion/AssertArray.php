@@ -6,9 +6,8 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\ArrayType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
-use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeFailure;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -23,7 +22,7 @@ class AssertArray implements ArrayType
 
     public function __construct(
         private readonly array $value,
-        private readonly AssertTypeSuccess $parent,
+        private readonly AssertionComposite $parent,
     ) {}
 
     /**
@@ -31,55 +30,59 @@ class AssertArray implements ArrayType
      *
      * @param mixed $value The value to be asserted as array.
      *
-     * @throws AssertTypeFailure when the value is not an array.
+     * @throws AssertionException when the value is not an array.
      */
     public static function validateAndCreate(mixed $value): self
     {
-        \is_array($value) or StaticState::fail(AssertTypeFailure::create('array', $value));
+        \is_array($value) or StaticState::typeFail('array', $value);
 
         $parent = StaticState::typeSuccess('array', $value);
         return new self($value, $parent);
     }
 
     #[\Override]
-    public function hasKey(int|string $key, string $message = ''): self
+    public function hasKeys(int|string ...$keys): static
     {
-        if (\array_key_exists($key, $this->value)) {
-            $this->parent->log(
-                \sprintf(
-                    'Assert has key: %s.',
-                    Support::stringify($key),
-                ),
-            );
+        if ($keys === []) {
             return $this;
         }
-        $this->parent->fail(
-            AssertException::fail(
-                \sprintf(
-                    'Failed to assert that array %s has key %s.',
-                    Support::stringify($this->value),
-                    Support::stringify($key),
-                ),
-            ),
+
+        $failedKeys = [];
+        foreach ($keys as $k => $key) {
+            $keys[$k] = "`$key`";
+            if (\array_key_exists($key, $this->value)) {
+                continue;
+            }
+
+            $failedKeys[] = "`$key`";
+        }
+
+        $m = \count($keys) === 1 ? '' : 's';
+        $str = "has key$m " . \implode(', ', $keys);
+        if ($failedKeys === []) {
+            $this->parent->success($str);
+            return $this;
+        }
+
+        $m = \count($failedKeys) === 1 ? '' : 's';
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "missing key$m: " . \implode(', ', $failedKeys),
         );
     }
 
     #[\Override]
-    public function isList(string $message = ''): ArrayType
+    public function isList(string $message = ''): static
     {
         if (\array_is_list($this->value)) {
-            $this->parent->log('Assert array is list.');
-
+            $this->parent->success('is list');
             return $this;
         }
 
-        $this->parent->fail(
-            AssertException::fail(
-                \sprintf(
-                    'Failed to assert that array %s is a list.',
-                    Support::stringify($this->value),
-                ),
-            ),
+        throw $this->parent->fail(
+            assertion: 'is list',
+            reason: 'array keys are not sequential integers starting from 0',
+            context: $message,
         );
     }
 }

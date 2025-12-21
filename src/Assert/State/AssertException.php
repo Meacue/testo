@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace Testo\Assert\State;
 
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\Support;
 
 /**
  * Assertion exception.
+ *
+ * @deprecated use {@see AssertionException} instead.
  */
 class AssertException extends \Exception implements Record
 {
@@ -22,20 +25,6 @@ class AssertException extends \Exception implements Record
         public readonly string $details,
     ) {
         parent::__construct($this->assertion);
-    }
-
-    /**
-     * Simple failure assertion factory.
-     *
-     * @param string|null $message The failure message.
-     */
-    public static function fail(?string $message): self
-    {
-        return new self(
-            assertion: 'Fail',
-            context: $message,
-            details: '',
-        );
     }
 
     /**
@@ -69,27 +58,6 @@ class AssertException extends \Exception implements Record
         );
     }
 
-    /**
-     * Failed `expect exception` assertion factory.
-     *
-     * @param class-string<\Throwable> $expected The expected exception class.
-     * @param \Throwable|null $actual The actual exception thrown, or null if none was thrown.
-     */
-    public static function exceptionClass(
-        string $expected,
-        ?\Throwable $actual,
-    ): self {
-        $msg = $actual === null
-            ? "Expected exception of type `$expected`, none thrown"
-            : "Expected exception of type `$expected`, got `" . $actual::class . '`';
-
-        return new self(
-            assertion: $msg,
-            context: '',
-            details: '',
-        );
-    }
-
     #[\Override]
     final public function isSuccess(): bool
     {
@@ -97,9 +65,19 @@ class AssertException extends \Exception implements Record
     }
 
     #[\Override]
-    final public function getContext(): ?string
+    final public function getContext(): string
     {
-        return $this->context !== '' ? $this->context : null;
+        return $this->context;
+    }
+
+    public function getFailReason(): string
+    {
+        return '';
+    }
+
+    public function getFailDetails(): string
+    {
+        return '';
     }
 
     #[\Override]

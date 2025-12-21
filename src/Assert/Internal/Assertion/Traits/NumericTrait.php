@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Assertion\Traits;
 
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\Assertion\AssertionComposite;
 
 /**
  * Contains methods for comparing numeric values
  * @property int|float $value
- * @property AssertTypeSuccess $parent
+ * @property AssertionComposite $parent
  */
 trait NumericTrait
 {
@@ -21,20 +21,20 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function greaterThan(int|float $min, string $message = ''): self
+    #[\Override]
+    public function greaterThan(int|float $min, string $message = ''): static
     {
+        $str = "greater than `{$min}`";
         if ($this->value > $min) {
-            $this->parent->log('Assert `' . $this->value . ' > ' . $min . '`', $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $min,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s > %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not greater than {$min}",
+            context: $message,
+        );
     }
 
     /**
@@ -44,20 +44,20 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function greaterThanOrEqual(int|float $min, string $message = ''): self
+    #[\Override]
+    public function greaterThanOrEqual(int|float $min, string $message = ''): static
     {
+        $str = "greater than or equal to `{$min}`";
         if ($this->value >= $min) {
-            $this->parent->log('Assert `' . $this->value . ' >= ' . $min . '`', $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $min,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s >= %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not greater than or equal to {$min}",
+            context: $message,
+        );
     }
 
     /**
@@ -67,20 +67,20 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function lessThan(int|float $max, string $message = ''): self
+    #[\Override]
+    public function lessThan(int|float $max, string $message = ''): static
     {
+        $str = "less than `{$max}`";
         if ($this->value < $max) {
-            $this->parent->log('Assert `' . $this->value . ' < ' . $max . '`', $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $max,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s < %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not less than {$max}",
+            context: $message,
+        );
     }
 
     /**
@@ -90,19 +90,19 @@ trait NumericTrait
      * @param string $message Optional message for the assertion.
      * @throws AssertException when the assertion fails.
      */
-    public function lessThanOrEqual(int|float $max, string $message = ''): self
+    #[\Override]
+    public function lessThanOrEqual(int|float $max, string $message = ''): static
     {
+        $str = "less than or equal to `{$max}`";
         if ($this->value <= $max) {
-            $this->parent->log('Assert `' . $this->value . ' <= ' . $max . '`', $message);
+            $this->parent->success($str, $message);
             return $this;
         }
 
-        $this->parent->fail(AssertException::compare(
-            $max,
-            $this->value,
-            $message,
-            pattern: 'Failed asserting that `%2$s <= %1$s`.',
-            showDiff: false,
-        ));
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not less than or equal to {$max}",
+            context: $message,
+        );
     }
 }

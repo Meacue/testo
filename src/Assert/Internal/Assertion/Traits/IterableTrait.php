@@ -4,60 +4,55 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Assertion\Traits;
 
-use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertTypeSuccess;
+use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\Support;
 
 /**
  * Contains assertion methods for iterable values.
  *
  * @property iterable $value
- * @property AssertTypeSuccess $parent
+ * @property AssertionComposite $parent
  */
 trait IterableTrait
 {
     #[\Override]
-    public function contains(mixed $needle, string $message = ''): self
+    public function contains(mixed $needle, string $message = ''): static
     {
+        $str = 'contains `' . Support::stringify($needle) . '`';
         foreach ($this->value as $item) {
             if ($item === $needle) {
-                $this->parent->log('Assert contains: ' . Support::stringify($needle) . '.');
+                $this->parent->success($str);
                 return $this;
             }
         }
 
-        $this->parent->fail(
-            AssertException::fail(
-                \sprintf(
-                    'Failed to assert that %s contains %s.',
-                    Support::stringify($this->value),
-                    Support::stringify($needle),
-                ),
-            ),
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: 'element not found',
+            context: $message,
         );
     }
 
     #[\Override]
-    public function sameSizeAs(iterable $expected, string $message = ''): self
+    public function sameSizeAs(iterable $expected, string $message = ''): static
     {
-        if (self::countIterable($this->value) === self::countIterable($expected)) {
-            $this->parent->log('Assert same size as: ' . Support::stringify($expected) . '.');
+        $str = 'has same size as `' . Support::stringify($expected) . '`';
+        $countThis = self::countIterable($this->value);
+        $countExpected = self::countIterable($expected);
+        if ($countThis === $countExpected) {
+            $this->parent->success($str);
             return $this;
         }
 
-        $this->parent->fail(
-            AssertException::fail(
-                \sprintf(
-                    'Failed to assert that iterable %s has the same number of elements as %s.',
-                    Support::stringify($this->value),
-                    Support::stringify($expected),
-                ),
-            ),
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "got size `{$countThis}` instead of `{$countExpected}`",
+            context: $message,
         );
     }
 
     #[\Override]
-    public function allOf(string $type, string $message = ''): self
+    public function allOf(string $type, string $message = ''): static
     {
         $type = \strtolower($type);
         $type = match ($type) {
@@ -66,47 +61,34 @@ trait IterableTrait
             'boolean' => 'bool',
             default => $type,
         };
+
+        $str = "has all elements of type `{$type}`";
         foreach ($this->value as $element) {
             $actualType = \strtolower(\get_debug_type($element));
-            $actualType === $type or $this->parent->fail(
-                AssertException::fail(
-                    \sprintf(
-                        'Failed to assert that all elements of iterable %s have type %s (found %s instead).',
-                        Support::stringify($this->value),
-                        Support::stringify($type),
-                        Support::stringify($actualType),
-                    ),
-                ),
+            $actualType === $type or throw $this->parent->fail(
+                assertion: $str,
+                reason: "found element of type `{$actualType}`",
+                context: $message,
             );
         }
 
-        $this->parent->log(
-            \sprintf(
-                'Assert all elements are of type %s.',
-                Support::stringify($type),
-            ),
-        );
+        $this->parent->success($str);
         return $this;
     }
 
     #[\Override]
-    public function hasCount(int $expected): self
+    public function hasCount(int $expected): static
     {
         $count = self::countIterable($this->value);
+        $str = "has count `$expected`";
         if ($count === $expected) {
-            $this->parent->log("Assert count: {$count}.");
+            $this->parent->success($str);
             return $this;
         }
 
-        $this->parent->fail(
-            AssertException::fail(
-                \sprintf(
-                    'Failed to assert that %s has %d elements (found %d instead).',
-                    Support::stringify($this->value),
-                    $expected,
-                    $count,
-                ),
-            ),
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "got `$count` instead",
         );
     }
 

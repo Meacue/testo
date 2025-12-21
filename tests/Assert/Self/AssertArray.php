@@ -30,10 +30,10 @@ final class AssertArray
     #[Test]
     public function checkHasKey(): void
     {
-        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKey('key');
+        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key');
 
-        Expect::exception(Assert\State\AssertException::class);
-        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKey('key2');
+        Expect::exception(Assert\State\Assertion\AssertionException::class);
+        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key2');
     }
 
     #[Test]
@@ -41,7 +41,7 @@ final class AssertArray
     {
         Assert::array([1, 2, 3])->isList();
 
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(Assert\State\Assertion\AssertionException::class);
         Assert::array(['key' => 'value', 'abc' => 'value2'])->isList();
     }
 }
