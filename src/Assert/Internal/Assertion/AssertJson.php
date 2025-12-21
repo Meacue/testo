@@ -9,7 +9,7 @@ use Testo\Assert\Api\Json\JsonArray;
 use Testo\Assert\Api\Json\JsonCommon;
 use Testo\Assert\Api\Json\JsonObject;
 use Testo\Assert\Api\Json\JsonStructure;
-use Testo\Assert\State\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionComposite;
 
 /**
  * Implementation of JSON assertions.

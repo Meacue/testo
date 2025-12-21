@@ -10,10 +10,9 @@ use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\Internal\Expectation\Leaks;
 use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertionComposite;
-use Testo\Assert\State\AssertionException;
-use Testo\Assert\State\AssertionSuccess;
-use Testo\Assert\State\Success;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Assert\State\Assertion\AssertionSuccess;
 
 /**
  * Holds the current assertion collector.
@@ -90,6 +89,7 @@ final class StaticState
 
     /**
      * Log a failed assertion and throw the given exception.
+     * @deprecated
      */
     public static function fail(AssertException $failure): never
     {

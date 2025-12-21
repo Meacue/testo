@@ -26,7 +26,7 @@ final class ExpectLeaks
     }
 
     #[Test]
-    #[ExpectException(Assert\State\ExpectLeaksFailure::class)]
+    #[ExpectException(Assert\State\Expectation\ExpectLeaksFailure::class)]
     public function leaks(): void
     {
         $leak = new \stdClass();

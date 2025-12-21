@@ -5,13 +5,9 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Expectation;
 
 use Testo\Assert\Api\ExpectedException;
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion;
-use Testo\Assert\State\AssertionComposite;
-use Testo\Assert\State\AssertionException;
-use Testo\Assert\State\AssertionSuccess;
-use Testo\Assert\State\Record;
-use Testo\Assert\State\Success;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\Support;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;

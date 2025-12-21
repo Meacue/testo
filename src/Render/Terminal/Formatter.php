@@ -279,7 +279,6 @@ final class Formatter
     /**
      * Formats a single assertion line.
      *
-     * @param \Testo\Assert\State\Record $assertion
      * @return non-empty-string
      */
     public static function assertionLine(Record $assertion, OutputFormat $format, int $level = 1): string

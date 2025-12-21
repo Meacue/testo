@@ -6,7 +6,7 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\IntType;
 use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
-use Testo\Assert\State\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionComposite;
 
 /**
  * Assertion utilities for numeric data type.

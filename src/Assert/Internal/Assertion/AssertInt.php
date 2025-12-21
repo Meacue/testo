@@ -6,10 +6,9 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\IntType;
 use Testo\Assert\Internal\Assertion\Traits\NumericTrait;
-use Testo\Assert\State\AssertionException;
-use Testo\Assert\State\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
-use Testo\Assert\Support;
 
 /**
  * Assertion utilities for integer data type.

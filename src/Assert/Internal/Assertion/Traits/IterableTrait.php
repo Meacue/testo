@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Assertion\Traits;
 
-use Testo\Assert\State\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\Support;
 
 /**

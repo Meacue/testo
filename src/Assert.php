@@ -12,17 +12,17 @@ use Testo\Assert\Api\Builtin\NumericType;
 use Testo\Assert\Api\Builtin\ObjectType;
 use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\Api\Json\JsonAbstract;
+use Testo\Assert\Internal\Assertion\AssertArray;
 use Testo\Assert\Internal\Assertion\AssertFloat;
 use Testo\Assert\Internal\Assertion\AssertInt;
+use Testo\Assert\Internal\Assertion\AssertIterable;
 use Testo\Assert\Internal\Assertion\AssertJson;
 use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
-use Testo\Assert\Internal\Assertion\AssertArray;
 use Testo\Assert\State\AssertException;
-use Testo\Assert\State\AssertionException;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
-use Testo\Assert\Internal\Assertion\AssertIterable;
 
 /**
  * Assertion utilities.

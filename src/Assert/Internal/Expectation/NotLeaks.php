@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Expectation;
 
-use Testo\Assert\State\ExpectationFulfilled;
-use Testo\Assert\State\ExpectNotLeaksFailure;
+use Testo\Assert\State\Expectation\ExpectationFulfilled;
+use Testo\Assert\State\Expectation\ExpectNotLeaksFailure;
 use Testo\Assert\TestState;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestResult;

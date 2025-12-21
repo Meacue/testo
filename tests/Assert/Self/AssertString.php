@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
-use Testo\Attribute\ExpectException;
 use Testo\Attribute\Test;
 use Testo\Expect;
 
@@ -41,7 +40,7 @@ final class AssertString
     #[Test]
     public function checkWrongDataType(): void
     {
-        Expect::exception(Assert\State\AssertionException::class);
+        Expect::exception(Assert\State\Assertion\AssertionException::class);
         Assert::string([666]);
     }
 

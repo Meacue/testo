@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\State;
+namespace Testo\Assert\State\Expectation;
+
+use Testo\Assert\State\Expectation;
 
 /**
  * Successful assertion record.
  */
-class AssertionSuccess implements Assertion
+class ExpectationFulfilled implements Expectation
 {
     /**
-     * @param non-empty-string $value The actual value that was asserted.
-     * @param non-empty-string $assertion The assertion result.
+     * @param non-empty-string $expectation The assertion result.
      * @param string $context Optional user-provided context describing what is being asserted.
      */
     public function __construct(
-        protected readonly string $value,
-        protected readonly string $assertion,
+        protected readonly string $expectation,
         protected readonly string $context,
     ) {}
 
@@ -33,15 +33,9 @@ class AssertionSuccess implements Assertion
     }
 
     #[\Override]
-    public function getValue(): string
+    public function getExpectation(): string
     {
-        return $this->value;
-    }
-
-    #[\Override]
-    public function getAssertion(): string
-    {
-        return $this->assertion;
+        return $this->expectation;
     }
 
     #[\Override]
@@ -59,6 +53,6 @@ class AssertionSuccess implements Assertion
     #[\Override]
     public function __toString(): string
     {
-        return "Successful assertion that {$this->value} {$this->assertion}.";
+        return "Met expectation that {$this->expectation}.";
     }
 }

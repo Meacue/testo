@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\State;
+namespace Testo\Assert\State\Assertion;
+
+use Testo\Assert\State\Assertion;
+use Testo\Assert\State\CompositeRecord;
+use Testo\Assert\State\Record;
 
 /**
  * Assertion record.

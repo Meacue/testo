@@ -6,8 +6,8 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\ArrayType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
-use Testo\Assert\State\AssertionException;
-use Testo\Assert\State\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
 
 /**
