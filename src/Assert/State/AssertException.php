@@ -28,20 +28,6 @@ class AssertException extends \Exception implements Record
     }
 
     /**
-     * Simple failure assertion factory.
-     *
-     * @param string|null $message The failure message.
-     */
-    public static function fail(?string $message): self
-    {
-        return new self(
-            assertion: 'Fail',
-            context: $message,
-            details: '',
-        );
-    }
-
-    /**
      * Failed comparison assertion factory.
      *
      * @param mixed $expected The expected value.
@@ -69,27 +55,6 @@ class AssertException extends \Exception implements Record
             assertion: $msg,
             context: $message,
             details: $diff,
-        );
-    }
-
-    /**
-     * Failed `expect exception` assertion factory.
-     *
-     * @param class-string<\Throwable> $expected The expected exception class.
-     * @param \Throwable|null $actual The actual exception thrown, or null if none was thrown.
-     */
-    public static function exceptionClass(
-        string $expected,
-        ?\Throwable $actual,
-    ): self {
-        $msg = $actual === null
-            ? "Expected exception of type `$expected`, none thrown"
-            : "Expected exception of type `$expected`, got `" . $actual::class . '`';
-
-        return new self(
-            assertion: $msg,
-            context: '',
-            details: '',
         );
     }
 

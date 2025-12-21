@@ -21,6 +21,8 @@ use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Assert\State\Expectation\ExpectationFailed;
+use Testo\Assert\State\Expectation\Fail;
 use Testo\Assert\StaticState;
 use Testo\Assert\Support;
 
@@ -337,7 +339,7 @@ final class Assert
      */
     public static function fail(string $message = ''): never
     {
-        $exception = AssertException::fail($message);
+        $exception = new Fail($message);
         StaticState::expectFail($exception);
         StaticState::fail($exception);
     }

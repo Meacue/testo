@@ -9,10 +9,11 @@ use Testo\Assert\Internal\Expectation\ExpectedFail;
 use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\Internal\Expectation\Leaks;
 use Testo\Assert\Internal\Expectation\NotLeaks;
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Assertion\AssertionSuccess;
+use Testo\Assert\State\Expectation\Fail;
+use Testo\Assert\State\Record;
 
 /**
  * Holds the current assertion collector.
@@ -89,9 +90,8 @@ final class StaticState
 
     /**
      * Log a failed assertion and throw the given exception.
-     * @deprecated
      */
-    public static function fail(AssertException $failure): never
+    public static function fail(Record&\Throwable $failure): never
     {
         self::$state === null or self::$state->history[] = $failure;
         throw $failure;
@@ -111,7 +111,7 @@ final class StaticState
         return self::$state->expectations[] = new ExpectExceptionHandler($classOrObject);
     }
 
-    public static function expectFail(AssertException $exception): void
+    public static function expectFail(Fail $exception): void
     {
         self::$state === null and throw new StateNotFound();
         self::$state->expectations[] = new ExpectedFail($exception);
