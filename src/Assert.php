@@ -153,7 +153,7 @@ final class Assert
      * @param class-string<ExpectedType> $expected Fully-qualified class or interface name.
      * @param mixed $actual The actual object to check.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      *
      * @psalm-assert ExpectedType $actual
      * @phpstan-assert ExpectedType $actual
@@ -318,11 +318,10 @@ final class Assert
      *
      * @throws AssertionException
      *
-     * @deprecated To be implemented
      */
     public static function object(mixed $actual): ObjectType
     {
-        throw new \LogicException('Not implemented yet');
+        return AssertObject::validateAndCreate($actual);
     }
 
     /**

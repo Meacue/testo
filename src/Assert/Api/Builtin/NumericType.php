@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Api\Builtin;
 
-use Testo\Assert\State\AssertException;
+use Testo\Assert\State\Assertion\AssertionException;
 
 /**
  * Assertion utilities for numeric data types.
@@ -18,7 +18,7 @@ interface NumericType
      *
      * @param int|float $min Minimum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function greaterThan(int|float $min, string $message = ''): static;
 
@@ -27,7 +27,7 @@ interface NumericType
      *
      * @param int|float $min Minimum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function greaterThanOrEqual(int|float $min, string $message = ''): static;
 
@@ -36,7 +36,7 @@ interface NumericType
      *
      * @param int|float $max Maximum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function lessThan(int|float $max, string $message = ''): static;
 
@@ -45,7 +45,7 @@ interface NumericType
      *
      * @param int|float $max Maximum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function lessThanOrEqual(int|float $max, string $message = ''): static;
 }

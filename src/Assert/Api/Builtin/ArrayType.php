@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Api\Builtin;
 
-use Testo\Assert\State\AssertException;
+use Testo\Assert\State\Assertion\AssertionException;
 
 /**
  * Assertion utilities for array-like data type.
@@ -17,7 +17,7 @@ interface ArrayType extends IterableType
      * Asserts that the array contains given key.
      *
      * @param int|string ...$keys The keys to check for existence in the array.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function hasKeys(int|string ...$keys): static;
 
@@ -28,7 +28,7 @@ interface ArrayType extends IterableType
      * Equivalent to {@see array_is_list()} in PHP 8.1+.
      *
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function isList(string $message = ''): static;
 }
