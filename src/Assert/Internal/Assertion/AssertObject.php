@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\ObjectType;
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
 
 /**
- * Assertion utilities for iterables.
+ * Assertion utilities for objects.
  *
  * @internal
  */
@@ -24,8 +24,8 @@ final class AssertObject implements ObjectType
     /**
      * @template ValueType
      *
-     * @param ValueType $value The value to be asserted as float.
-     * @throws AssertException
+     * @param ValueType $value The value to be asserted as object.
+     * @throws AssertionException when the value is not an object.
      *
      * @psalm-assert object $value
      * @phpstan-assert object $value
@@ -51,6 +51,10 @@ final class AssertObject implements ObjectType
     #[\Override]
     public function hasProperty(string $propertyName, string $message = ''): static
     {
-        throw new \LogicException('Not implemented yet');
+        $str = "has property `{$propertyName}`";
+        \property_exists($this->value, $propertyName)
+            ? $this->parent->success($str, $message)
+            : throw $this->parent->fail($str, 'does not have property `' . $propertyName . '`', $message);
+        return $this;
     }
 }

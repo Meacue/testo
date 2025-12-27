@@ -9,7 +9,6 @@ use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\StaticState;
-use Testo\Assert\Support;
 
 /**
  * Assertion utilities for arrays.

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Assertion\Traits;
 
 use Testo\Assert\State\Assertion\AssertionComposite;
-use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\Support;
 
 /**

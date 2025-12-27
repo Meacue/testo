@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Api\Builtin;
 
-use Testo\Assert\State\AssertException;
+use Testo\Assert\State\Assertion\AssertionException;
 
 /**
  * Assertion utilities for string data type.
@@ -16,7 +16,7 @@ interface StringType
      *
      * @param string $needle Substring to search for.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function contains(string $needle, string $message = ''): static;
 
@@ -25,7 +25,7 @@ interface StringType
      *
      * @param string $needle Substring to search for.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function notContains(string $needle, string $message = ''): static;
 }
