@@ -13,6 +13,8 @@ trait CloneWith
 {
     /**
      * Return a new immutable instance with the specified property value.
+     * @param non-empty-string $key The property name to set.
+     *
      * @psalm-immutable
      */
     private function cloneWith(string $key, mixed $value): static

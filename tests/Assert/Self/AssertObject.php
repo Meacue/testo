@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Self;
 
-use stdClass;
 use Testo\Assert;
 use Testo\Attribute\Test;
 use Testo\Expect;
@@ -28,9 +27,12 @@ final class AssertObject
     #[Test]
     public function hasProperty(): void
     {
-        $obj = new stdClass();
-        $obj->property = null;
-        Assert::object($obj)->hasProperty('property');
+        $obj = new class {
+            private int $private = 42;
+            public int $public = 42;
+        };
+        Assert::object($obj)->hasProperty('private');
+        Assert::object($obj)->hasProperty('public');
 
         Expect::exception(Assert\State\Assertion\AssertionException::class);
         Assert::object($obj)->hasProperty('wrongPropertyName');
