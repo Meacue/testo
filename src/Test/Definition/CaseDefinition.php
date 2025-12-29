@@ -5,14 +5,18 @@ declare(strict_types=1);
 namespace Testo\Test\Definition;
 
 use Testo\Test\Dto\TestDefinitions;
+use Testo\Test\Dto\TestInfo;
 
 final class CaseDefinition
 {
+    /**
+     * @param null|\Closure(TestInfo): mixed $invoker Invoker for the test method.
+     */
     public function __construct(
         public readonly ?string $name,
         public readonly ?\ReflectionClass $reflection = null,
         public readonly TestDefinitions $tests = new TestDefinitions(),
-        // public ?string $runner = null,
+        public ?\Closure $invoker = null,
     ) {}
 
     public function with(

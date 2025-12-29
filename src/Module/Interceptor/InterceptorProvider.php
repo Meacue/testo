@@ -15,6 +15,7 @@ use Testo\Interceptor\Reflection\AttributesInterceptor;
 use Testo\Interceptor\Reflection\Reflection;
 use Testo\Interceptor\TestCaseCallInterceptor\InstantiateTestCase;
 use Testo\Module\Interceptor\Internal\InterceptorMarker;
+use Testo\Sample\Internal\TestInlineFinder;
 use Yiisoft\Injector\Injector;
 
 final class InterceptorProvider
@@ -57,6 +58,7 @@ final class InterceptorProvider
             new TestoAttributesLocatorInterceptor(),
             new InstantiateTestCase(),
             new AssertCollectorInterceptor(),
+            TestInlineFinder::class,
             AttributesInterceptor::class,
             new ExpectationsInterceptor(),
         ]);

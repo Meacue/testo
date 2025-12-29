@@ -73,7 +73,7 @@ final class SuiteRunner
             try {
                 $caseInfo = new CaseInfo(
                     definition: $caseDefinition,
-                    invoker: $invoker,
+                    invoker: $caseDefinition->invoker ?? $invoker,
                 );
                 $result = $runner->runCase($caseInfo, $filter);
                 $result->status->isFailure() and $status = Status::Failed;

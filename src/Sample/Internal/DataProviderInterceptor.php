@@ -17,7 +17,7 @@ use Testo\Test\Event\Test\TestDataSetFinished;
 use Testo\Test\Event\Test\TestDataSetStarting;
 
 /**
- * Interceptor that retries a test execution based on the provided retry policy.
+ * Interceptor that handles data providers for tests.
  */
 final class DataProviderInterceptor implements TestRunInterceptor
 {
