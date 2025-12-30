@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Testo\Sample\Internal;
 
-use Testo\Attribute\Test;
 use Testo\Interceptor\CaseLocatorInterceptor;
 use Testo\Interceptor\FileLocatorInterceptor;
 use Testo\Interceptor\Reflection\Reflection;
@@ -19,12 +18,12 @@ use Testo\Test\Dto\TestInfo;
  */
 final class TestInlineFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
-    /** @var callable(TestInfo): mixed Invoker for the test method. */
-    private readonly \CLosure $invoker;
+    /** @var \Closure(TestInfo): mixed Invoker for the test method. */
+    private readonly \Closure $invoker;
 
-    public function __construct()
+    public function __construct(InlineTestInvoker $invoker)
     {
-        $this->invoker = (new InlineTestInvoker())(...);
+        $this->invoker = $invoker(...);
     }
 
     #[\Override]
@@ -63,7 +62,7 @@ final class TestInlineFinder implements FileLocatorInterceptor, CaseLocatorInter
         // Implement a lazy case definition
         $case = null;
         foreach ($file->functions as $function) {
-            if (Reflection::fetchFunctionAttributes($function, attributeClass: Test::class)) {
+            if (Reflection::fetchFunctionAttributes($function, attributeClass: TestInline::class)) {
                 if ($case === null) {
                     $case = $file->cases->define(null, $file);
                     $case->invoker = $this->invoker;
