@@ -4,7 +4,11 @@ declare(strict_types=1);
 
 namespace Testo\Sample\Internal;
 
-use Testo\Assert;use Testo\Sample\TestInline;use Testo\Test\Dto\TestInfo;class InlineTestInvoker
+use Testo\Assert;
+use Testo\Sample\TestInline;
+use Testo\Test\Dto\TestInfo;
+
+class InlineTestInvoker
 {
     public function __construct() {}
 

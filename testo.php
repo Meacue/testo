@@ -16,5 +16,6 @@ return new ApplicationConfig(
             ),
         ],
         require 'tests/Assert/suites.php',
+        require 'tests/Sample/suites.php',
     ),
 );
