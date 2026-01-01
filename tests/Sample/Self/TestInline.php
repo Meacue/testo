@@ -4,11 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Sample\Self;
 
-use Testo\Expect;
-
-/**
- * @see Expect::leaks()
- */
 final class TestInline
 {
     #[\Testo\Sample\TestInline(arguments: [1, 1], result: 2)]
@@ -23,7 +18,7 @@ final class TestInline
 
     #[\Testo\Sample\TestInline(arguments: ['b' => 'foo', 'a' => 'bar'], result: 'bar-foo')]
     #[\Testo\Sample\TestInline(arguments: ['foo', 'bar'], result: 'foo-bar')]
-    public function concat(string $a, string $b): string
+    private function concat(string $a, string $b): string
     {
         return $a . '-' . $b;
     }
