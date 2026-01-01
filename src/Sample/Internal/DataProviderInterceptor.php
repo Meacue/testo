@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Sample\Internal;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Testo\Module\Interceptor\InterceptorOptions;
 use Testo\Sample\DataProvider;
 use Testo\Sample\MultipleResult;
 use Testo\Interceptor\TestRunInterceptor;
@@ -19,6 +20,7 @@ use Testo\Test\Event\Test\TestDataSetStarting;
 /**
  * Interceptor that handles data providers for tests.
  */
+#[InterceptorOptions(order: -20_000)]
 final class DataProviderInterceptor implements TestRunInterceptor
 {
     public function __construct(
@@ -77,10 +79,10 @@ final class DataProviderInterceptor implements TestRunInterceptor
                     status: Status::Error,
                     failure: $throwable,
                 );
+            } finally {
+                // Dispatch dataset finished event
+                $this->eventDispatcher->dispatch(new TestDataSetFinished($dataSetInfo, $result, $label, $num - 1));
             }
-
-            // Dispatch dataset finished event
-            $this->eventDispatcher->dispatch(new TestDataSetFinished($dataSetInfo, $result, $label, $num - 1));
 
             unset($dataSet, $dataSetInfo);
             $result->status->isFailure() and $status = Status::Failed;

@@ -7,6 +7,7 @@ namespace Testo\Interceptor\Reflection;
 use Testo\Attribute\Interceptable;
 use Testo\Interceptor\TestCaseRunInterceptor;
 use Testo\Interceptor\TestRunInterceptor;
+use Testo\Module\Interceptor\InterceptorOptions;
 use Testo\Module\Interceptor\InterceptorProvider;
 use Testo\Module\Interceptor\Internal\Pipeline;
 use Testo\Test\Dto\CaseInfo;
@@ -18,6 +19,7 @@ use Testo\Test\Dto\TestResult;
  * Reads {@see Interceptable} attributes and integrates them into the pipeline.
  * Also maps the found attributes into the info DTO attributes.
  */
+#[InterceptorOptions(order: \PHP_INT_MIN)]
 final class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInterceptor
 {
     public function __construct(
@@ -54,14 +56,20 @@ final class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInte
 
         # Merge and instantiate attributes
         $interceptors = $this->interceptorProvider->fromAttributes(TestRunInterceptor::class, ...$attrs);
+        $info = $info->withAttributes(self::groupAttributes($attrs));
 
-        return Pipeline::prepare(...$interceptors)->with(
-            $next,
-            /** @see TestRunInterceptor::runTest() */
-            'runTest',
-        )($info->withAttributes(self::groupAttributes($attrs)));
+        $pipeline = $next instanceof Pipeline
+            ? $next->combine(...$interceptors)
+            : Pipeline::prepare(...$interceptors)->with(
+                $next,
+                /** @see TestRunInterceptor::runTest() */
+                'runTest',
+            );
+
+        return $pipeline($info);
     }
 
+    #[\Override]
     public function runTestCase(CaseInfo $info, callable $next): CaseResult
     {
         $attrs = $info->definition->reflection === null
@@ -84,12 +92,16 @@ final class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInte
 
         # Merge and instantiate attributes
         $interceptors = $this->interceptorProvider->fromAttributes(TestCaseRunInterceptor::class, ...$attrs);
+        $info = $info->withAttributes(self::groupAttributes($attrs));
 
-        return Pipeline::prepare(...$interceptors)->with(
-            $next,
-            /** @see TestCaseRunInterceptor::runTestCase() */
-            'runTestCase',
-        )($info->withAttributes(self::groupAttributes($attrs)));
+        $pipeline = $next instanceof Pipeline
+            ? $next->combine(...$interceptors)
+            : Pipeline::prepare(...$interceptors)->with(
+                $next,
+                /** @see TestRunInterceptor::runTest() */
+                'runTest',
+            );
+        return $pipeline($info);
     }
 
     /**

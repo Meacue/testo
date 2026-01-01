@@ -9,12 +9,14 @@ use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\StaticState;
 use Testo\Attribute\ExpectException;
 use Testo\Interceptor\TestRunInterceptor;
+use Testo\Module\Interceptor\InterceptorOptions;
 use Testo\Test\Dto\TestInfo;
 use Testo\Test\Dto\TestResult;
 
 /**
  * Configures expected exceptions for a test based on the {@see ExpectException} attribute.
  */
+#[InterceptorOptions(order: 200_000)]
 final class ExpectExceptionConfigurator implements TestRunInterceptor
 {
     public function __construct(

@@ -74,9 +74,9 @@ final class TestRunner
                 status: Status::Aborted,
                 failure: new PipelineFailure('Error during test execution pipeline.', previous: $e),
             );
+        } finally {
+            $this->eventDispatcher->dispatch(new TestPipelineFinished($info, $result));
         }
-
-        $this->eventDispatcher->dispatch(new TestPipelineFinished($info, $result));
 
         return $result;
     }

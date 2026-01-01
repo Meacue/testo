@@ -16,7 +16,7 @@ use Testo\Module\Interceptor\Internal\InterceptorMarker as TInterceptor;
  * @psalm-immutable
  *
  * @internal
- * @psalm-internal Testo\Interceptor
+ * @psalm-internal Testo
  */
 final class Pipeline
 {
@@ -26,20 +26,20 @@ final class Pipeline
     /** @var callable(TInput): TOutput */
     private mixed $last;
 
-    /** @var TInterceptor */
+    /** @var list<TInterceptor> */
     private array $interceptors = [];
 
     /** @var int<0, max> Current interceptor key */
     private int $current = 0;
 
     /**
-     * @param TInterceptor $interceptors
+     * @param TInterceptor[] $interceptors
      */
     private function __construct(
         array $interceptors,
     ) {
         // Reset keys
-        $this->interceptors = \array_values($interceptors);
+        $this->interceptors = Sorter::sortAndFilter($interceptors);
     }
 
     /**
@@ -53,6 +53,26 @@ final class Pipeline
     public static function prepare(TInterceptor ...$interceptors): self
     {
         return new self($interceptors);
+    }
+
+    /**
+     * Add interceptors to the pipeline.
+     *
+     * All the remaining interceptors will be sorted and combined into a new single interceptor.
+     *
+     * @param TInterceptor ...$interceptors Instantiated interceptors.
+     * @return self<TInterceptor, TInput, TOutput>
+     */
+    public function combine(TInterceptor ...$interceptors): self
+    {
+        # Merge remaining interceptors with new ones
+        $interceptors = \array_merge(\array_slice($this->interceptors, $this->current), $interceptors);
+
+        # Create a new pipeline with merged interceptors
+        $new = clone $this;
+        $new->current = 0;
+        $new->interceptors = Sorter::sortAndFilter($interceptors);
+        return $new;
     }
 
     /**

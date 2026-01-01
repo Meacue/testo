@@ -23,7 +23,8 @@ class ExpectationFailed extends \Exception implements Expectation
         private readonly string $reason,
         private readonly string $details,
     ) {
-        $message = "Failed expectation that {$expectation}. Reason: {$reason}.";
+        $message = "Failed expectation that {$expectation}.";
+        $reason === '' or $message .= "\nReason: {$reason}";
         $context === '' or $message .= "\nMeaning: {$context}";
         $details === '' or $message .= "\nDetails:\n{$details}";
 

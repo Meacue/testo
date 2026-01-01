@@ -7,6 +7,7 @@ namespace Testo\Assert\Interceptor;
 use Testo\Assert\StaticState;
 use Testo\Assert\TestState;
 use Testo\Interceptor\TestRunInterceptor;
+use Testo\Module\Interceptor\InterceptorOptions;
 use Testo\Test\Dto\TestInfo;
 use Testo\Test\Dto\TestResult;
 
@@ -18,6 +19,7 @@ use Testo\Test\Dto\TestResult;
  *
  * Supports both synchronous and asynchronous (Fiber-based) environments.
  */
+#[InterceptorOptions(order: -2_000)]
 final class AssertCollectorInterceptor implements TestRunInterceptor
 {
     #[\Override]

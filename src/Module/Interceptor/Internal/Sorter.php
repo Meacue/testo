@@ -26,7 +26,7 @@ final class Sorter
      *
      * @param TInterceptor[] $interceptors
      *
-     * @return TInterceptor[]
+     * @return list<TInterceptor>
      */
     public static function sortAndFilter(array $interceptors): array
     {

@@ -15,7 +15,6 @@ use Testo\Interceptor\Reflection\AttributesInterceptor;
 use Testo\Interceptor\Reflection\Reflection;
 use Testo\Interceptor\TestCaseCallInterceptor\InstantiateTestCase;
 use Testo\Module\Interceptor\Internal\InterceptorMarker;
-use Testo\Module\Interceptor\Internal\Sorter;
 use Testo\Sample\Internal\TestInlineFinder;
 use Yiisoft\Injector\Injector;
 
@@ -90,7 +89,7 @@ final class InterceptorProvider
 
             $interceptor instanceof $class and $result[] = $interceptor;
         }
-        return Sorter::sortAndFilter($result);
+        return $result;
     }
 
     /**
@@ -116,7 +115,7 @@ final class InterceptorProvider
             \is_a($iClass, $class, true) and $result[] = $this->createInstance($iClass, [$attribute]);
         }
 
-        return Sorter::sortAndFilter($result);
+        return $result;
     }
 
     /**
