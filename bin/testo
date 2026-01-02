@@ -8,35 +8,36 @@ use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
 use Testo\Common\Info;
 use Testo\Common\Command;
 
-// Set timeout to 0 to prevent script from timing out
+# Set timeout to 0 to prevent script from timing out
 \set_time_limit(0);
 \ini_set('memory_limit', '2G');
 \error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
 
 (static function (): void {
-    $cwd = \getcwd();
+    /** @var list<non-empty-string> $paths */
+    $paths = [];
 
-    $possibleAutoloadPaths = [
-        // local dev repository
-        \dirname(__DIR__) . '/vendor/autoload.php',
-        // running from project root
-        $cwd . '/vendor/autoload.php',
-        // running from project bin
-        \dirname($cwd) . '/autoload.php',
-        // dependency
-        \dirname(__DIR__, 4) . '/vendor/autoload.php',
-    ];
+    # Local dev repository
+    $paths[] = __DIR__ . '/../vendor/autoload.php';
+
+    # As a dependency
+    $s = DIRECTORY_SEPARATOR;
+    \str_ends_with(__DIR__, "{$s}vendor{$s}testo{$s}testo{$s}bin") and $paths[] = __DIR__ . '/../../../autoload.php';
+
+    # Fallback to CWD
+    $paths[] = 'vendor/autoload.php';
+
     $autoloadPath = null;
-    foreach ($possibleAutoloadPaths as $possibleAutoloadPath) {
-        if (\file_exists($possibleAutoloadPath)) {
-            $autoloadPath = $possibleAutoloadPath;
+    foreach ($paths as $path) {
+        if (\file_exists($path)) {
+            $autoloadPath = $path;
             break;
         }
     }
 
     if ($autoloadPath === null) {
         $message = "Unable to find `vendor/autoload.php` in the following paths:\n\n";
-        $message .= '- ' . \implode("\n- ", $possibleAutoloadPaths) . "\n\n";
+        $message .= '- ' . \implode("\n- ", $paths) . "\n\n";
         \fwrite(STDERR, $message);
         exit(1);
     }
