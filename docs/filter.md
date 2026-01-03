@@ -32,6 +32,11 @@ $filter = new Filter(
   - Method: `ClassName::methodName` or `Namespace\ClassName::methodName`
   - FQN: `Namespace\ClassName` or `Namespace\functionName`
   - Fragment: `methodName`, `functionName`, or `ShortClassName`
+- Optional DataProvider indices: `name:providerIndex:datasetIndex`
+  - Provides indices for data provider module
+  - Indices are 0-based and independent of dataset labels
+  - `datasetIndex` is optional (omit to pass only provider index)
+  - Examples: `UserTest::testLogin:0`, `testAuth:1:3`, `UserTest:0`
 
 **`paths`**: `list<non-empty-string>`
 - File or directory paths to filter by
@@ -130,9 +135,34 @@ $filter = new Filter(names: ['testLogin']);
 // Result: All classes with testLogin method, each with only that method
 ```
 
+### DataProvider Indices
+
+When tests use data providers, names can include provider and dataset indices using colon separator. These indices become available to the data provider module.
+
+**Format:** `name:providerIndex:datasetIndex`
+
+- Indices are 0-based integers, independent of dataset labels
+- `datasetIndex` is optional - omit to pass only provider index
+- Works with all name formats (Method, FQN, Fragment)
+
+**Examples:**
+```php
+// Pass provider #0 index
+$filter = new Filter(names: ['UserTest::testLogin:0']);
+
+// Pass provider #0 and dataset #1 indices
+$filter = new Filter(names: ['UserTest::testLogin:0:1']);
+
+// Pass provider #1 and dataset #3 indices, matching any test named 'testAuth'
+$filter = new Filter(names: ['testAuth:1:3']);
+
+// Pass provider #0 index for entire UserTest class
+$filter = new Filter(names: ['UserTest:0']);
+```
+
 ## Filtering Pipeline
 
-Filtering operates in four stages:
+Filtering operates in five stages:
 
 ### Stage 1: Suite Filter (Configuration Level)
 
@@ -173,7 +203,17 @@ Filtering operates in four stages:
 - Implements hierarchical filtering:
   - For method format (`::`) - filters specific methods only
   - For FQN/fragment format - checks class name first, then methods
+- Extracts DataProvider indices and associates them with matched tests
 - Returns filtered test case definitions ready for execution
+
+### Stage 5: DataProvider Injection (Execution Level)
+
+**Input:** DataProvider indices from Stage 4
+**Implementation:** `FilterInterceptor::runTest()`
+
+- Injects `DataPointer` into test metadata before execution
+- Makes `DataPointer` available to other interceptors
+- If no indices specified: no `DataPointer` is injected
 
 ## Pattern Matching
 
