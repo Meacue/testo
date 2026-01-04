@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Sample;
 
 use Testo\Attribute\Interceptable;
+use Testo\Sample\Internal\DataProviderAttribute;
 use Testo\Sample\Internal\DataProviderInterceptor;
 use Testo\Module\Interceptor\FallbackInterceptor;
 
@@ -18,7 +19,7 @@ use Testo\Module\Interceptor\FallbackInterceptor;
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::IS_REPEATABLE)]
 #[FallbackInterceptor(DataProviderInterceptor::class)]
-final class DataProvider implements Interceptable
+final class DataProvider implements Interceptable, DataProviderAttribute
 {
     public readonly \Closure|string $provider;
 

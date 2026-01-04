@@ -12,7 +12,7 @@ use Testo\Module\Interceptor\Policy\ConflictPolicy;
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class InterceptorOptions
 {
-    const DEFAULT_ORDER = 0;
+    public const DEFAULT_ORDER = 0;
 
     public function __construct(
         /**
@@ -22,6 +22,6 @@ final class InterceptorOptions
          * Higher priority interceptors are closer to the test function in the interceptor chain.
          */
         public readonly int $order = self::DEFAULT_ORDER,
-        public readonly ConflictPolicy $onConflict = ConflictPolicy::Merge,
+        public readonly ConflictPolicy $onConflict = ConflictPolicy::First,
     ) {}
 }
