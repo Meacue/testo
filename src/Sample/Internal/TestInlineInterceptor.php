@@ -54,7 +54,7 @@ final class TestInlineInterceptor implements TestRunInterceptor
 
             # Dispatch dataset starting event
             $this->eventDispatcher->dispatch(
-                new TestDataSetStarting($newInfo, $label, $index),
+                new TestDataSetStarting($newInfo, $label, null, $index),
             );
 
             try {
@@ -65,7 +65,7 @@ final class TestInlineInterceptor implements TestRunInterceptor
 
             # Dispatch dataset finished event
             $this->eventDispatcher->dispatch(
-                new TestDataSetFinished($newInfo, $result, $label, $index),
+                new TestDataSetFinished($newInfo, $result, $label, null, $index),
             );
 
             unset($inline, $newInfo);

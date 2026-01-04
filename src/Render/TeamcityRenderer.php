@@ -97,9 +97,10 @@ final class TeamcityRenderer implements PluginConfigurator
     private function onTestDataSetStarting(TestDataSetStarting $event): void
     {
         // Send testStarted for individual dataset within DataProvider
+        $prefix = $event->providerIndex === null ? '' : "$event->providerIndex:";
         $this->logger->testStartedFromInfo(
             $event->testInfo,
-            overrideName: "Dataset #$event->dataSetIndex [$event->dataSetKey]",
+            overrideName: "Dataset #{$prefix}{$event->datasetIndex} [$event->dataSetKey]",
         );
     }
 
@@ -107,10 +108,11 @@ final class TeamcityRenderer implements PluginConfigurator
     {
         // Handle individual dataset result
         $duration = (int) $event->testResult->getAttribute('duration');
+        $prefix = $event->providerIndex === null ? '' : "$event->providerIndex:";
         $this->logger->handleSingleTestResult(
             $event->testResult,
             $duration,
-            overrideName: "Dataset #$event->dataSetIndex [$event->dataSetKey]",
+            overrideName: "Dataset #{$prefix}{$event->datasetIndex} [$event->datasetKey]",
         );
     }
 

@@ -108,7 +108,8 @@ final class TerminalRenderer implements PluginConfigurator
     private function onTestDataSetStarting(TestDataSetStarting $event): void
     {
         // Log individual dataset start with custom name
-        $datasetName = "Dataset #$event->dataSetIndex [$event->dataSetKey]";
+        $prefix = $event->providerIndex === null ? '' : "$event->providerIndex:";
+        $datasetName = "Dataset #{$prefix}{$event->datasetIndex} [$event->dataSetKey]";
         $this->logger->testStartedFromInfo($event->testInfo, $datasetName);
     }
 

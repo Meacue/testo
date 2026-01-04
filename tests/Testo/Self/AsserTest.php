@@ -10,6 +10,7 @@ use Testo\Attribute\RetryPolicy;
 use Testo\Attribute\Test;
 use Testo\Expect;
 use Testo\Sample\DataProvider;
+use Testo\Sample\DataSet;
 use Tests\Fixture\ClassDataProvider;
 
 /**
@@ -39,6 +40,14 @@ final class AsserTest
         Assert::null(null, 'Custom message on null assertion failure.');
         Assert::notSame(42, '42');
         Assert::same(0, null);
+    }
+
+    #[Test]
+    public function withPrevious(): void
+    {
+        $nested = new \RuntimeException('Inner exception');
+        $e = new \InvalidArgumentException('Outer exception', 42, $nested);
+        throw new \RuntimeException('Test exception with previous', 69, $e);
     }
 
     #[Test]
@@ -83,6 +92,9 @@ final class AsserTest
 
     #[Test(description: 'Data provider example')]
     #[DataProvider([self::class, 'dataForProvider'])]
+    #[DataSet(['zero'])]
+    #[DataSet(['first'])]
+    #[DataSet(['second'])]
     public function dataProvider(string $arg): string
     {
         return $arg === 'zero' ? throw new \RuntimeException() : $arg;

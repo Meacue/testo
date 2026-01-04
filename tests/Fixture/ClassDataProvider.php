@@ -8,7 +8,7 @@ final class ClassDataProvider
 {
     public function __invoke(): iterable
     {
-        yield [1, '1'];
-        yield [2, '2'];
+        yield ['1', 1];
+        yield ['2', 2];
     }
 }

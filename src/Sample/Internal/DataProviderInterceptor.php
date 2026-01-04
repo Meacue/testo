@@ -10,6 +10,7 @@ use Testo\Interceptor\TestRunInterceptor;
 use Testo\Module\Interceptor\InterceptorOptions;
 use Testo\Module\Interceptor\Policy\ConflictPolicy;
 use Testo\Sample\DataProvider;
+use Testo\Sample\DataSet;
 use Testo\Sample\MultipleResult;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestInfo;
@@ -45,35 +46,72 @@ final class DataProviderInterceptor implements TestRunInterceptor
             # Check Filters
             $dataPointer = $info->getAttribute(DataPointer::class);
 
-            foreach ($attributes as $i => $attribute) {
-                if ($dataPointer !== null && $dataPointer->provider !== $i) {
+            $providerNum = -1;
+            foreach ($attributes as $pNum => $attribute) {
+                ++$providerNum;
+                if ($dataPointer !== null && $dataPointer->provider !== $pNum) {
                     continue;
                 }
 
                 $attr = $attribute->newInstance();
 
-                # Handle DataProvider attributes
-                if ($attr instanceof DataProvider) {
-                    foreach ($this->handleDataProvider($info, $next, $attr, $dataPointer) as $result) {
-                        $result->status->isFailure() and $status = Status::Failed;
-                        $results[] = $result;
+                $datasets = match (true) {
+                    $attr instanceof DataProvider => self::fromDataProvider($info, $attr),
+                    $attr instanceof DataSet => [$attr->arguments],
+                    default => throw new \RuntimeException('Unknown Data Provider Attribute type.'),
+                };
+
+                # Handle each data set
+                $results = [];
+                $num = -1;
+                foreach ($datasets as $k => $dataset) {
+                    ++$num;
+                    if ($dataPointer !== null && $dataPointer->dataset !== null && $dataPointer->dataset !== $num) {
+                        continue;
                     }
+
+                    \is_array($dataset) or throw new \InvalidArgumentException(
+                        'Each data set must be an array of arguments.',
+                    );
+
+                    # Determine unique label for the data set
+                    $label = (string) $k;
+                    // $i = 0;
+                    // while (\array_key_exists($label, $results)) {
+                    //     ++$i;
+                    //     $label = "$k~$i";
+                    // }
+
+
+                    $result = $this->run($info, $next, $label, \count($attributes) === 1 ? null : $providerNum, $num, $dataset);
+                    $result->status->isFailure() and $status = Status::Failed;
+                    $results[] = $result;
                 }
             }
         } catch (\Throwable $e) {
             $status = Status::Error;
             throw $e;
         } finally {
-            $summary = new MultipleResult($results);
+            if ($results === []) {
+                # No data sets were run, mark as Risky
+                $status->isFailure() or $status = Status::Risky;
 
-            $finalResult = new TestResult(
-                info: $info,
-                status: $status,
-                result: $summary,
-                attributes: [
-                    MultipleResult::class => $summary,
-                ],
-            );
+                $finalResult = new TestResult(
+                    info: $info,
+                    status: $status,
+                    result: $e ?? new \RuntimeException('No data sets were provided by the data provider.'),
+                );
+            } else {
+                $summary = new MultipleResult($results);
+                $finalResult = new TestResult(
+                    info: $info,
+                    status: $status,
+                    result: $e ?? $summary,
+                    attributes: [
+                        MultipleResult::class => $summary,
+                    ],
+                );
+            }
 
             // Dispatch batch finished event
             $this->eventDispatcher->dispatch(new TestBatchFinished($info, $finalResult));
@@ -83,10 +121,49 @@ final class DataProviderInterceptor implements TestRunInterceptor
     }
 
     /**
+     * Run a single data set.
+     *
+     * @param TestInfo $info Test information.
+     * @param non-empty-string $label Unique label for the data set.
+     * @param int<0, max>|null $providerNum Data provider number or null if only one.
+     * @param int<0, max> $datasetNum Data set number.
      * @param callable(TestInfo): TestResult $next Next interceptor or core logic to run the test.
-     * @return array<array-key, TestResult>
      */
-    private function handleDataProvider(TestInfo $info, callable $next, DataProvider $attribute, ?DataPointer $pointer): array
+    public function run(
+        TestInfo $info,
+        callable $next,
+        string $label,
+        ?int $providerNum,
+        int $datasetNum,
+        array $arguments,
+    ): TestResult {
+        $newInfo = $info->with(
+            arguments: $arguments,
+        );
+
+        // Dispatch dataset starting event
+        $this->eventDispatcher->dispatch(new TestDataSetStarting($newInfo, $label, $providerNum, $datasetNum));
+
+        try {
+            $result = $next($newInfo);
+        } catch (\Throwable $throwable) {
+            $result = new TestResult(
+                info: $newInfo,
+                status: Status::Error,
+                failure: $throwable,
+            );
+        }
+
+        // Dispatch dataset finished event
+        $this->eventDispatcher->dispatch(new TestDataSetFinished($newInfo, $result, $label, $providerNum, $datasetNum));
+
+        return $result;
+    }
+
+    /**
+     * Extract data sets from a DataProvider attribute.
+     */
+    private static function fromDataProvider(TestInfo $info, DataProvider $attribute): iterable
     {
         $provider = $attribute->provider;
 
@@ -110,56 +187,11 @@ final class DataProviderInterceptor implements TestRunInterceptor
         }
 
         # Fetch data sets from the provider
-        $dataSets = $provider();
-        \is_iterable($dataSets) or throw new \InvalidArgumentException(
+        $datasets = $provider();
+        \is_iterable($datasets) or throw new \InvalidArgumentException(
             'Data provider must return an iterable of data sets.',
         );
 
-        # Run the test for each data set
-        $results = [];
-        $num = 0;
-        foreach ($dataSets as $k => $dataset) {
-            if ($pointer !== null && $pointer->dataset !== null && $pointer->dataset !== $num) {
-                ++$num;
-                continue;
-            }
-
-            \is_array($dataset) or throw new \InvalidArgumentException('Each data set must be an array of arguments.');
-
-            # Determine unique label for the data set
-            $label = (string) $k;
-            ++$num;
-            $i = 0;
-            while (\array_key_exists($label, $results)) {
-                ++$i;
-                $label = "$k~$i";
-            }
-
-            $newInfo = $info->with(
-                arguments: $dataset,
-            );
-
-            // Dispatch dataset starting event
-            $this->eventDispatcher->dispatch(new TestDataSetStarting($newInfo, $label, $num - 1));
-
-            try {
-                $result = $next($newInfo);
-            } catch (\Throwable $throwable) {
-                $result = new TestResult(
-                    info: $newInfo,
-                    status: Status::Error,
-                    failure: $throwable,
-                );
-            }
-
-            // Dispatch dataset finished event
-            $result->withAttribute(DataPointer::class, $pointer);
-            $this->eventDispatcher->dispatch(new TestDataSetFinished($newInfo, $result, $label, $num - 1));
-
-            unset($dataset, $newInfo);
-            $results[$label] = $result;
-        }
-
-        return $results;
+        return $datasets;
     }
 }

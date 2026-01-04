@@ -26,14 +26,21 @@ final class TestDataSetFinished extends TestResultEvent
          *
          * @var string|int
          */
-        public readonly string|int $dataSetKey,
+        public readonly string|int $datasetKey,
+
+        /**
+         * The zero-based index of the DataProvider attribute in case of multiple providers.
+         *
+         * @var null|int<0, max>
+         */
+        public readonly ?int $providerIndex,
 
         /**
          * The zero-based index of this dataset in the sequence.
          *
          * @var int<0, max>
          */
-        public readonly int $dataSetIndex,
+        public readonly int $datasetIndex,
     ) {
         parent::__construct($testInfo, $testResult);
     }
