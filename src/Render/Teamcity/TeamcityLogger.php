@@ -318,13 +318,13 @@ final class TeamcityLogger
             $this->publish(Formatter::testStdOut($name, $assertionHistory));
         }
 
-        $this->publish(Formatter::testFinished($name, $duration));
         $this->publish(
             Formatter::testStdOut(
                 $name,
                 'Warning: This test has been marked as risky',
             ),
         );
+        $this->publish(Formatter::testFinished($name, $duration));
     }
 
     /**
