@@ -48,7 +48,7 @@ final class DefinitionLocator
         $classes = [];
         foreach ($file->getClasses() as $class) {
             try {
-                $classes[$class] = self::classReflection($class);
+                $classes[$class] = self::classReflection($class, $file);
             } catch (LocatorException $e) {
                 // if ($file->isDebug()) {
                 //     throw $e;
@@ -72,9 +72,19 @@ final class DefinitionLocator
      *
      * @throws LocatorException
      */
-    private static function classReflection(string $class): \ReflectionClass
+    private static function classReflection(string $class, TokenizedFile $file): \ReflectionClass
     {
-        $loader = static function ($class): void {
+        // Try to include the file to load the class
+        $includer = static function () use ($file): void {
+            try {
+                include_once $file->path->__toString();
+            } catch (\Throwable) {
+                // Ignoring include errors
+            }
+        };
+
+        // Throw exception if class can not be loaded
+        $loader = static function (string $class): void {
             if ($class === LocatorException::class) {
                 return;
             }
@@ -83,6 +93,7 @@ final class DefinitionLocator
         };
 
         //To suspend class dependency exception
+        \spl_autoload_register($includer);
         \spl_autoload_register($loader);
 
         try {
@@ -104,6 +115,7 @@ final class DefinitionLocator
             throw new LocatorException($e->getMessage(), (int) $e->getCode(), $e);
         } finally {
             \spl_autoload_unregister($loader);
+            \spl_autoload_unregister($includer);
         }
     }
 
