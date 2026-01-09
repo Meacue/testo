@@ -9,8 +9,8 @@
 
 <div align="center">
 
-[![Support on Boosty](https://img.shields.io/static/v1?style=flat-square&label=Boosty&message=%E2%9D%A4&logo=Boosty&color=%23F15F2C)](https://boosty.to/roxblnfk)
-[![Support on Patreon](https://img.shields.io/static/v1?style=flat-square&label=Patreon&message=%E2%9D%A4&logo=Patreon&color=%23fe0086)](https://patreon.com/roxblnfk)
+[![Documentation](https://img.shields.io/badge/Documentation-Live-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://php-testo.github.io)
+[![Support on Boosty](https://img.shields.io/static/v1?style=for-the-badge&label=Sponsorship&message=%E2%9D%A4&logo=Boosty&color=%23F15F2C)](https://boosty.to/roxblnfk)
 
 </div>
 

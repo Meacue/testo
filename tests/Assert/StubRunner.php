@@ -17,7 +17,7 @@ final class StubRunner
     /**
      * Run a specific test function and return its result.
      *
-     * @param array&callable|callable-string $testFunction The test function to run,
+     * @param array|callable-string $testFunction The test function to run,
      *        either as a callable array to a method or as a fully qualified function name.
      * @return TestResult The result of the specified test function.
      * @throws \RuntimeException If the test function is not found.
@@ -83,15 +83,19 @@ final class StubRunner
 
     /**
      * Determine if the provided test function is a valid function or method.
-     * @param array&callable|non-empty-string $testFunction The test function to validate.
-     * @psalm-assert-if-false array&callable $testFunction
+     *
+     * @param array|non-empty-string $testFunction The test function to validate.
+     * @return bool True if the test function is a valid function, false if it's a method.
+     * @throws InvalidArgument If the test function is neither a valid function nor a method.
+     *
+     * @psalm-assert-if-false callable $testFunction
      * @psalm-assert-if-true callable-string $testFunction
      */
     private static function isFunction(array|string $testFunction): bool
     {
         $isFunction = match (true) {
             \is_array($testFunction) => false,
-            \is_string($testFunction) && \function_exists($testFunction) => true,
+            \function_exists($testFunction) => true,
             default => throw new InvalidArgument('Invalid test function provided.'),
         };
         $isFunction or \method_exists($testFunction[0], $testFunction[1]) or throw new InvalidArgument(
