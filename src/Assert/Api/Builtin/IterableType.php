@@ -17,6 +17,14 @@ use Testo\Assert\State\Assertion\AssertionException;
 interface IterableType
 {
     /**
+     * Asserts that the iterable is not empty.
+     *
+     * @param string $message Optional message for the assertion.
+     * @throws AssertionException when the assertion fails.
+     */
+    public function notEmpty(string $message = ''): static;
+
+    /**
      * Asserts that the iterable contains the given needle.
      *
      * @param mixed $needle The value to look for within the iterable.

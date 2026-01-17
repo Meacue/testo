@@ -16,6 +16,22 @@ use Testo\Assert\Support;
 trait IterableTrait
 {
     #[\Override]
+    public function notEmpty(string $message = ''): static
+    {
+        $str = 'is not empty';
+        foreach ($this->value as $_) {
+            $this->parent->success($str);
+            return $this;
+        }
+
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: 'it is empty',
+            context: $message,
+        );
+    }
+
+    #[\Override]
     public function contains(mixed $needle, string $message = ''): static
     {
         $str = 'contains `' . Support::stringify($needle) . '`';
