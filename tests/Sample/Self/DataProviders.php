@@ -22,7 +22,7 @@ final class DataProviders
     #[Test]
     #[DataProvider('numbersProvider')]
     #[DataProvider('bigNumbersProvider')]
-    #[DataSet([7, 8])]
+    #[DataSet([7, 8], 'seven-eight')]
     #[DataSet(['b' => 7, 'a' => 8])]
     public function sum(int $a, int $b): int
     {

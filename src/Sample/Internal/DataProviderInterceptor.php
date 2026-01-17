@@ -57,7 +57,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
 
                 $datasets = match (true) {
                     $attr instanceof DataProvider => self::fromDataProvider($info, $attr),
-                    $attr instanceof DataSet => [$attr->arguments],
+                    $attr instanceof DataSet => [($attr->name ?? 0) => $attr->arguments],
                     default => throw new \RuntimeException('Unknown Data Provider Attribute type.'),
                 };
 
