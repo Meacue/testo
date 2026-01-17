@@ -177,7 +177,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
                 $m = $class->getMethod($provider);
                 $provider = match (true) {
                     $m->isStatic() => $m->getClosure(null),
-                    default => static fn() => $m->getClosure($info->caseInfo->instance),
+                    default => static fn() => $m->getClosure($info->caseInfo->instance->getInstance()),
                 };
             }
 

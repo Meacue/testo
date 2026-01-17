@@ -33,7 +33,7 @@ final class CaseInfo
         /**
          * Test Case class instance if class is defined, null otherwise.
          */
-        public readonly ?object $instance = null,
+        public readonly ?CaseInstance $instance = null,
         array $attributes = [],
         callable $invoker = new DefaultInvoker(),
     ) {
@@ -53,7 +53,10 @@ final class CaseInfo
         );
     }
 
-    public function withInstance(?object $instance): self
+    /**
+     * Replaces the case instance provider.
+     */
+    public function withInstance(?CaseInstance $instance): self
     {
         /** @see self::$instance */
         return $this->cloneWith('instance', $instance);

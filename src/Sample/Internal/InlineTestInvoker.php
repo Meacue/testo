@@ -17,9 +17,9 @@ final class InlineTestInvoker
         $attr instanceof TestInline or throw TestInlineAttributeMissingException::fromTestInfo($info);
 
         # Execute the method
-        $result = $info->caseInfo->instance === null
-            ? $info->testDefinition->reflection->invoke(...$info->arguments)
-            : $info->testDefinition->reflection->invoke($info->caseInfo->instance, ...$info->arguments);
+        $result = $info->caseInfo->instance === null || $info->testDefinition->reflection->isStatic()
+            ? $info->testDefinition->reflection->invoke(null, ...$info->arguments)
+            : $info->testDefinition->reflection->invoke($info->caseInfo->instance->getInstance(), ...$info->arguments);
 
         # Verify the expected result
         if ($attr->result instanceof \Closure) {

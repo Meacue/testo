@@ -73,6 +73,9 @@ final class SuiteRunner
             try {
                 $caseInfo = new CaseInfo(
                     definition: $caseDefinition,
+                    instance: $caseDefinition->reflection === null
+                        ? null
+                        : new SimpleCaseInstantiator($caseDefinition->reflection),
                     invoker: $caseDefinition->invoker ?? $invoker,
                 );
                 $result = $runner->runCase($caseInfo, $filter);
