@@ -24,7 +24,7 @@
     "require": {
         "php": ">=8.1",
         "internal/destroy": "^1.0",
-        "internal/path": "^1.1.1",
+        "internal/path": "^1.2",
         "psr/container": "1 - 2",
         "psr/event-dispatcher": "^1.0",
         "symfony/console": "^6.4 || ^7 || ^8.0",
@@ -37,10 +37,9 @@
     "require-dev": {
         "buggregator/trap": "^1.10",
         "internal/dload": "^1.6",
-        "phpunit/phpunit": "^10.5",
         "roxblnfk/unpoly": "^1.8.1",
         "spiral/code-style": "^2.2.2",
-        "vimeo/psalm": "^6.10"
+        "vimeo/psalm": "^7.0@dev"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
