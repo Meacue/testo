@@ -23,7 +23,7 @@ use Testo\Test\Event\Test\TestDataSetStarting;
 /**
  * Interceptor that handles data providers for tests.
  */
-#[InterceptorOptions(order: -20_000, onConflict: ConflictPolicy::First)]
+#[InterceptorOptions(order: InterceptorOptions::ORDER_DATA_PROVIDER, onConflict: ConflictPolicy::First)]
 final class DataProviderInterceptor implements TestRunInterceptor
 {
     public function __construct(

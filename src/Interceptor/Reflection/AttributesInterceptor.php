@@ -19,7 +19,7 @@ use Testo\Test\Dto\TestResult;
  * Reads {@see Interceptable} attributes and integrates them into the pipeline.
  * Also maps the found attributes into the info DTO attributes.
  */
-#[InterceptorOptions(order: \PHP_INT_MIN)]
+#[InterceptorOptions(order: InterceptorOptions::ORDER_ATTRIBUTES)]
 final class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInterceptor
 {
     public function __construct(

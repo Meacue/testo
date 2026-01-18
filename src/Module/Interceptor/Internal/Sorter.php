@@ -79,7 +79,7 @@ final class Sorter
 
         if ($attributes === []) {
             self::$conflictPolicyCache[$class] = ConflictPolicy::default();
-            self::$orderCache[$class] = InterceptorOptions::DEFAULT_ORDER;
+            self::$orderCache[$class] = InterceptorOptions::ORDER_DEFAULT;
             return;
         }
 

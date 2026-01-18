@@ -41,7 +41,7 @@ use Testo\Test\Dto\TestResult;
  *   - If any methods/functions match: case passes with only matched tests
  *   - If no methods/functions match: case is skipped entirely
  */
-#[InterceptorOptions(order: -20_000_000, onConflict: ConflictPolicy::First)]
+#[InterceptorOptions(order: InterceptorOptions::ORDER_FILTER, onConflict: ConflictPolicy::First)]
 final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInterceptor, TestRunInterceptor
 {
     /** @var bool True if filtering is disabled (no filters provided) */

@@ -21,7 +21,7 @@ use Testo\Test\Event\Test\TestDataSetStarting;
 /**
  * Interceptor that runs the target method as a pure function with provided arguments and expected result.
  */
-#[InterceptorOptions(onConflict: ConflictPolicy::First)]
+#[InterceptorOptions(order: InterceptorOptions::ORDER_DATA_PROVIDER, onConflict: ConflictPolicy::First)]
 final class TestInlineInterceptor implements TestRunInterceptor
 {
     public function __construct(

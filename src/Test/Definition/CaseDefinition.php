@@ -27,6 +27,7 @@ final class CaseDefinition
             $name ?? $this->name,
             $this->reflection,
             $tests ?? $this->tests,
+            $this->invoker,
         );
     }
 

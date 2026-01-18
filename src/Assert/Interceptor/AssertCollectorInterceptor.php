@@ -19,7 +19,7 @@ use Testo\Test\Dto\TestResult;
  *
  * Supports both synchronous and asynchronous (Fiber-based) environments.
  */
-#[InterceptorOptions(order: -2_000)]
+#[InterceptorOptions(order: InterceptorOptions::ORDER_ASSERTIONS - 10)]
 final class AssertCollectorInterceptor implements TestRunInterceptor
 {
     #[\Override]

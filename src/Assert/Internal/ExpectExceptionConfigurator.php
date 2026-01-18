@@ -16,7 +16,7 @@ use Testo\Test\Dto\TestResult;
 /**
  * Configures expected exceptions for a test based on the {@see ExpectException} attribute.
  */
-#[InterceptorOptions(order: 200_000)]
+#[InterceptorOptions(order: InterceptorOptions::ORDER_ASSERTIONS + 10)]
 final class ExpectExceptionConfigurator implements TestRunInterceptor
 {
     public function __construct(

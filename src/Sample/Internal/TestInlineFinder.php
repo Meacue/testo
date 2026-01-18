@@ -7,6 +7,7 @@ namespace Testo\Sample\Internal;
 use Testo\Interceptor\CaseLocatorInterceptor;
 use Testo\Interceptor\FileLocatorInterceptor;
 use Testo\Interceptor\Reflection\Reflection;
+use Testo\Module\Interceptor\InterceptorOptions;
 use Testo\Module\Tokenizer\Reflection\FileDefinitions;
 use Testo\Module\Tokenizer\Reflection\TokenizedFile;
 use Testo\Sample\TestInline;
@@ -16,6 +17,7 @@ use Testo\Test\Dto\TestInfo;
 /**
  * Finds inline tests defined with the {@see TestInline} attribute.
  */
+#[InterceptorOptions(order: -20_000)]
 final class TestInlineFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     /** @var \Closure(TestInfo): mixed Invoker for the test method. */

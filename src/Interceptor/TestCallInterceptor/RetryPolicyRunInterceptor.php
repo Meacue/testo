@@ -7,6 +7,7 @@ namespace Testo\Interceptor\TestCallInterceptor;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Attribute\RetryPolicy;
 use Testo\Interceptor\TestRunInterceptor;
+use Testo\Module\Interceptor\InterceptorOptions;
 use Testo\Test\Dto\Status;
 use Testo\Test\Dto\TestInfo;
 use Testo\Test\Dto\TestResult;
@@ -17,6 +18,7 @@ use Testo\Test\Event\Test\TestRetrying;
  *
  * @see RetryPolicy
  */
+#[InterceptorOptions(order: InterceptorOptions::ORDER_DEFAULT)]
 final class RetryPolicyRunInterceptor implements TestRunInterceptor
 {
     public function __construct(
