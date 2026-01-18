@@ -7,8 +7,8 @@ namespace Testo\Assert\Internal\Expectation;
 use Testo\Assert\State\Expectation\ExpectationFulfilled;
 use Testo\Assert\State\Expectation\ExpectNotLeaksFailure;
 use Testo\Assert\TestState;
-use Testo\Test\Dto\Status;
-use Testo\Test\Dto\TestResult;
+use Testo\Core\Context\TestResult;
+use Testo\Core\Value\Status;
 
 /**
  * Assert that no memory leaks occurred for the given objects.

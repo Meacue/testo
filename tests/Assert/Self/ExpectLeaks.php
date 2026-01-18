@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Self;
 
-use Testo\Assert;
-use Testo\Attribute\ExpectException;
-use Testo\Attribute\Test;
+use Testo\Application\Attribute\Test;
+use Testo\Assert\ExpectException;
+use Testo\Assert\State\Expectation\ExpectLeaksFailure;
 use Testo\Expect;
 
 /**
@@ -26,7 +26,7 @@ final class ExpectLeaks
     }
 
     #[Test]
-    #[ExpectException(Assert\State\Expectation\ExpectLeaksFailure::class)]
+    #[ExpectException(ExpectLeaksFailure::class)]
     public function leaks(): void
     {
         $leak = new \stdClass();

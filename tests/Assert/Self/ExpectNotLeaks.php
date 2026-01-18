@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Self;
 
-use Testo\Assert;
-use Testo\Attribute\ExpectException;
-use Testo\Attribute\Test;
+use Testo\Application\Attribute\Test;
+use Testo\Assert\ExpectException;
+use Testo\Assert\State\Expectation\ExpectNotLeaksFailure;
 use Testo\Expect;
 
 /**
@@ -15,7 +15,7 @@ use Testo\Expect;
 final class ExpectNotLeaks
 {
     #[Test]
-    #[ExpectException(Assert\State\Expectation\ExpectNotLeaksFailure::class)]
+    #[ExpectException(ExpectNotLeaksFailure::class)]
     public function cachedStatically(): void
     {
         static $leak = null;

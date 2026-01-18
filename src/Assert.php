@@ -19,11 +19,11 @@ use Testo\Assert\Internal\Assertion\AssertIterable;
 use Testo\Assert\Internal\Assertion\AssertJson;
 use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
+use Testo\Assert\Internal\StaticState;
+use Testo\Assert\Internal\Support;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Test\Fail;
-use Testo\Assert\StaticState;
-use Testo\Assert\Support;
 
 /**
  * Assertion utilities.

@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Testo\Interceptor;
 
+use Testo\Application\Attribute\Test;
+use Testo\Application\Middleware\Locator\TestoAttributesLocatorInterceptor;
 use Testo\Assert;
-use Testo\Attribute\Test;
-use Testo\Interceptor\Locator\TestoAttributesLocatorInterceptor;
-use Testo\Module\Tokenizer\Reflection\FileDefinitions;
-use Testo\Module\Tokenizer\Reflection\TokenizedFile;
+use Testo\Tokenizer\Reflection\FileDefinitions;
+use Testo\Tokenizer\Reflection\TokenizedFile;
 use Tests\Fixture\Interceptor\TestClassWithClassLevelAttribute;
 use Tests\Fixture\Interceptor\TestClassWithMethodLevelAttributes;
 

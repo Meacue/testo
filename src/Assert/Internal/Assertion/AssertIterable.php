@@ -6,9 +6,9 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\IterableType;
 use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
+use Testo\Assert\Internal\StaticState;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
-use Testo\Assert\StaticState;
 
 /**
  * Assertion utilities for iterables.

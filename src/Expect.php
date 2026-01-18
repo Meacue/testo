@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Testo;
 
 use Testo\Assert\Api\ExpectedException;
+use Testo\Assert\Interceptor\ExpectationsInterceptor;
 use Testo\Assert\Internal\Expectation\Leaks;
 use Testo\Assert\Internal\Expectation\NotLeaks;
-use Testo\Assert\StaticState;
+use Testo\Assert\Internal\StaticState;
 
 /**
  * Assertion utilities.

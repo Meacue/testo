@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Testo\Assert;
 
 use Testo\Assert\State\Record;
-use Testo\Test\Dto\TestResult;
+use Testo\Core\Context\TestResult;
 
 /**
  * Collects assertions.

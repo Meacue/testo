@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Interceptor;
 
+use Testo\Assert\Internal\StaticState;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Record;
-use Testo\Assert\StaticState;
-use Testo\Interceptor\TestRunInterceptor;
-use Testo\Module\Interceptor\InterceptorOptions;
-use Testo\Test\Dto\Status;
-use Testo\Test\Dto\TestInfo;
-use Testo\Test\Dto\TestResult;
+use Testo\Core\Context\TestInfo;
+use Testo\Core\Context\TestResult;
+use Testo\Core\Value\Status;
+use Testo\Pipeline\Attribute\InterceptorOptions;
+use Testo\Pipeline\Middleware\TestRunInterceptor;
 
 /**
  * Interceptor to handle expected exceptions.

@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace Tests\Assert;
 
 use InvalidArgumentException as InvalidArgument;
-use Testo\Application;
-use Testo\Common\Filter;
-use Testo\Config\ApplicationConfig;
-use Testo\Config\FinderConfig;
-use Testo\Config\SuiteConfig;
-use Testo\Test\Dto\TestResult;
+use Testo\Application\Application;
+use Testo\Application\Config\ApplicationConfig;
+use Testo\Application\Config\FinderConfig;
+use Testo\Application\Config\SuiteConfig;
+use Testo\Application\Value\Filter;
+use Testo\Core\Context\TestResult;
 
 final class StubRunner
 {

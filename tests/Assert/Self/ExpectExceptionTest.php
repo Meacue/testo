@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Self;
 
-use Testo\Assert;
-use Testo\Attribute\Test;
+use Testo\Application\Attribute\Test;
+use Testo\Assert\Api\ExpectedException;
 use Testo\Expect;
 
 /**
@@ -32,7 +32,7 @@ final class ExpectExceptionTest
         Expect::exception(\Throwable::class)
             ->withPrevious(
                 \RuntimeException::class,
-                static fn(Assert\Api\ExpectedException $ex) => $ex
+                static fn(ExpectedException $ex) => $ex
                     ->withCode(456)
                     ->withMessage('Previous exception')
                     ->withoutPrevious(),

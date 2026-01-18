@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Assert\State;
 
+use Testo\Assert\Internal\Support;
 use Testo\Assert\State\Assertion\AssertionException;
-use Testo\Assert\Support;
 
 /**
  * Assertion exception.

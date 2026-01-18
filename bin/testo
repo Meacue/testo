@@ -5,8 +5,8 @@ declare(strict_types=1);
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\CommandLoader\FactoryCommandLoader;
+use Testo\Bridge\Symfony\Command\Run;
 use Testo\Common\Info;
-use Testo\Common\Command;
 
 # Set timeout to 0 to prevent script from timing out
 \set_time_limit(0);
@@ -47,7 +47,7 @@ use Testo\Common\Command;
     $application = new Application();
     $application->setCommandLoader(
         new FactoryCommandLoader([
-            'run' => static fn() => new Command\Run(),
+            'run' => static fn() => new Run(),
         ]),
     );
     $application->setDefaultCommand('run', false);

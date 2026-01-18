@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Fixture;
 
-use Testo\Attribute\RetryPolicy;
-use Testo\Attribute\Test;
+use Testo\Application\Attribute\Test;
+use Testo\Retry\RetryPolicy;
 
 #[Test]
 #[RetryPolicy(maxAttempts: 3, markFlaky: false)]

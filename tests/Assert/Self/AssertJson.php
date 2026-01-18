@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Self;
 
+use Testo\Application\Attribute\Test;
 use Testo\Assert;
 use Testo\Assert\Api\Json\JsonAbstract;
-use Testo\Attribute\Test;
-use Testo\Sample\DataProvider;
+use Testo\Data\DataProvider;
 
 /**
  * @see Assert::json()

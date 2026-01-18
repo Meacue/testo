@@ -6,8 +6,8 @@ namespace Testo\Assert\Internal\Expectation;
 
 use Testo\Assert\State\Test\Fail;
 use Testo\Assert\TestState;
-use Testo\Test\Dto\Status;
-use Testo\Test\Dto\TestResult;
+use Testo\Core\Context\TestResult;
+use Testo\Core\Value\Status;
 
 /**
  * If {@see Assert::fail()} was called but the exception was caught in the test and the test

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Sample\Self;
 
-use Testo\Attribute\Test;
-use Testo\Sample\DataProvider;
-use Testo\Sample\DataSet;
+use Testo\Application\Attribute\Test;
+use Testo\Data\DataProvider;
+use Testo\Data\DataSet;
 
 final class DataProviders
 {

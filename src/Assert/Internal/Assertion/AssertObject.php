@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\ObjectType;
+use Testo\Assert\Internal\StaticState;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
-use Testo\Assert\StaticState;
 
 /**
  * Assertion utilities for objects.

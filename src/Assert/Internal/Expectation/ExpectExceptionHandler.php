@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Expectation;
 
 use Testo\Assert\Api\ExpectedException;
+use Testo\Assert\Internal\Support;
 use Testo\Assert\State\Assertion;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
-use Testo\Assert\Support;
 use Testo\Assert\TestState;
-use Testo\Test\Dto\Status;
-use Testo\Test\Dto\TestResult;
+use Testo\Core\Context\TestResult;
+use Testo\Core\Value\Status;
 
 /**
  * Expected exception declaration.

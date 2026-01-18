@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Sample\Self;
 
-use Testo\Sample\TestInline;
+use Testo\Inline\TestInline;
 use Webmozart\Assert\Assert;
 
 final class TestInlineAttribute

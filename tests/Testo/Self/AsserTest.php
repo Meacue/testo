@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Testo\Self;
 
+use Testo\Application\Attribute\Test;
 use Testo\Assert;
-use Testo\Attribute\ExpectException;
-use Testo\Attribute\RetryPolicy;
-use Testo\Attribute\Test;
+use Testo\Assert\ExpectException;
+use Testo\Assert\State\AssertException;
+use Testo\Data\DataProvider;
+use Testo\Data\DataSet;
 use Testo\Expect;
-use Testo\Sample\DataProvider;
-use Testo\Sample\DataSet;
+use Testo\Retry\RetryPolicy;
 use Tests\Fixture\ClassDataProvider;
 
 /**
@@ -132,7 +133,7 @@ final class AsserTest
         try {
             // Assert::fail() sets expectation and throws
             Assert::fail('This exception will be caught');
-        } catch (Assert\State\AssertException $e) {
+        } catch (AssertException $e) {
             // Catching the exception prevents the test from failing
             // But the expectation was set, so this should be marked as Risky
         }

@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Testo\Config\FinderConfig;
-use Testo\Config\SuiteConfig;
+use Testo\Application\Config\FinderConfig;
+use Testo\Application\Config\SuiteConfig;
 
 /**
  * Test suites for Assert component.

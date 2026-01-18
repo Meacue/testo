@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Self;
 
+use Testo\Application\Attribute\Test;
 use Testo\Assert;
-use Testo\Attribute\Test;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Expect;
 
 /**
@@ -32,7 +33,7 @@ final class AssertArray
     {
         Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key');
 
-        Expect::exception(Assert\State\Assertion\AssertionException::class);
+        Expect::exception(AssertionException::class);
         Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key2');
     }
 
@@ -41,7 +42,7 @@ final class AssertArray
     {
         Assert::array([1, 2, 3])->isList();
 
-        Expect::exception(Assert\State\Assertion\AssertionException::class);
+        Expect::exception(AssertionException::class);
         Assert::array(['key' => 'value', 'abc' => 'value2'])->isList();
     }
 
@@ -50,7 +51,7 @@ final class AssertArray
     {
         Assert::array([1, 2, 3])->every(fn ($value) => is_int($value));
 
-        Expect::exception(Assert\State\Assertion\AssertionException::class);
+        Expect::exception(AssertionException::class);
         Assert::array([1, 2, 3, 'testo'])->every(fn ($value) => is_int($value));
     }
 }

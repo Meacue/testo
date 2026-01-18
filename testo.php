@@ -2,15 +2,16 @@
 
 declare(strict_types=1);
 
-use Testo\Config\ApplicationConfig;
-use Testo\Config\SuiteConfig;
+use Testo\Framework\Application\Config\ApplicationConfig;
+use Testo\Framework\Application\Config\FinderConfig;
+use Testo\Framework\Application\Config\SuiteConfig;
 
 return new ApplicationConfig(
     suites: \array_merge(
         [
             new SuiteConfig(
                 name: 'default',
-                location: new \Testo\Config\FinderConfig(
+                location: new FinderConfig(
                     include: ['tests/Testo'],
                 ),
             ),

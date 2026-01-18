@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Feature;
 
+use Testo\Application\Attribute\Test;
 use Testo\Assert;
-use Testo\Attribute\Test;
-use Testo\Test\Dto\Status;
-use Tests\Assert\StubRunner;
+use Testo\Core\Value\Status;
 use Tests\Assert\Stub\Common;
+use Tests\Assert\StubRunner;
 
 final class CommonTest
 {

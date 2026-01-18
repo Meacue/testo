@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Tests\Testo\Unit\Test\Runner;
 
+use Testo\Application\Exception\TestCaseInstantiationException;
+use Testo\Application\Internal\SimpleCaseInstantiator;
 use Testo\Assert;
 use Testo\Expect;
-use Testo\Interceptor\Exception\TestCaseInstantiationException;
-use Testo\Test\Runner\SimpleCaseInstantiator;
 use Tests\Fixture\Runner\InstantiableClass;
 use Tests\Fixture\Runner\NonInstantiableClass;
 

@@ -1,0 +1,124 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Testo\Application\Internal;
+
+use Testo\Application\Config\SuiteConfig;
+use Testo\Application\Value\Filter;
+use Testo\Core\Context\SuiteInfo;
+use Testo\Core\Definition\CaseDefinition;
+use Testo\Core\Definition\CaseDefinitions;
+use Testo\Pipeline\InterceptorProvider;
+use Testo\Pipeline\Internal\Pipeline;
+use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
+use Testo\Pipeline\Middleware\FileLocatorInterceptor;
+use Testo\Tokenizer\FileLocator;
+use Testo\Tokenizer\Reflection\FileDefinitions;
+use Testo\Tokenizer\Reflection\TokenizedFile;
+
+/**
+ * Test suite collection and producer of SuiteInfo.
+ * Caches SuiteInfo instances.
+ */
+final class SuiteCollector
+{
+    /** @var array<string, SuiteInfo> */
+    private array $suites = [];
+
+    public function __construct(
+        // private readonly ClassLoader $classLoader,
+        private readonly InterceptorProvider $interceptorProvider,
+    ) {}
+
+    public function get(string $name): ?SuiteInfo
+    {
+        return $this->suites[$name] ?? null;
+    }
+
+    public function getOrCreate(SuiteConfig $config, Filter $filter): SuiteInfo
+    {
+        return $this->suites[$config->name] ??= $this->createInfo($config, $filter);
+    }
+
+    private function createInfo(SuiteConfig $config, Filter $filter): SuiteInfo
+    {
+        $files = $this->getFilesIterator($config, $filter);
+        $definitions = $this->getCaseDefinitions($config, $files);
+
+        $cases = [];
+        foreach ($definitions as $definition) {
+            # Skip empty test cases
+            if ($definition->tests->getTests() === []) {
+                continue;
+            }
+
+            $cases[] = $definition;
+        }
+
+        return new SuiteInfo(
+            name: $config->name,
+            testCases: CaseDefinitions::fromArray(...$cases),
+        );
+    }
+
+    /**
+     * Locate test files based on the suite configuration and {@see FileLocatorInterceptor} interceptors.
+     *
+     * @return iterable<TokenizedFile>
+     */
+    private function getFilesIterator(SuiteConfig $config, Filter $filter): iterable
+    {
+        $locator = FileLocator::fromFinderConfig($config->location, $filter);
+
+        # Prepare interceptors pipeline
+        $interceptors = $this->interceptorProvider->fromConfig(FileLocatorInterceptor::class);
+
+        /**
+         * @see FileLocatorInterceptor::locateFile()
+         * @var callable(TokenizedFile): (null|bool) $pipeline
+         */
+        $pipeline = Pipeline::prepare(...$interceptors)
+            ->with(static fn(TokenizedFile $file): ?bool => null, 'locateFile');
+
+        foreach ($locator->getIterator() as $fileReflection) {
+            $match = $pipeline($fileReflection);
+
+            if ($match === true) {
+                yield $fileReflection;
+            }
+        }
+    }
+
+    /**
+     * Fetch test case definitions from the given files using {@see CaseLocatorInterceptor} interceptors.
+     *
+     * @param iterable<TokenizedFile> $files
+     * @return list<CaseDefinition>
+     */
+    private function getCaseDefinitions(SuiteConfig $config, iterable $files): array
+    {
+        $cases = [];
+        # Prepare interceptors pipeline
+        $interceptors = $this->interceptorProvider->fromConfig(CaseLocatorInterceptor::class);
+
+        /**
+         * @see CaseLocatorInterceptor::locateTestCases()
+         * @var callable(FileDefinitions): CaseDefinitions $pipeline
+         */
+        $pipeline = Pipeline::prepare(...$interceptors)
+            ->with(
+                static fn(FileDefinitions $definitions): CaseDefinitions => $definitions->cases,
+                'locateTestCases',
+            );
+
+        foreach ($files as $file) {
+            $fileDef = new FileDefinitions($file);
+            $result = $pipeline($fileDef);
+
+            $cases = \array_merge($cases, $result->getCases());
+        }
+
+        return $cases;
+    }
+}

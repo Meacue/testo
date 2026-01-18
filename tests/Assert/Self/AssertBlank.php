@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Self;
 
+use Testo\Application\Attribute\Test;
 use Testo\Assert;
-use Testo\Attribute\Test;
+use Testo\Assert\State\AssertException;
 use Testo\Expect;
 
 /**
@@ -25,21 +26,21 @@ final class AssertBlank
     #[Test]
     public function checkZeroIsNotBlank(): void
     {
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(AssertException::class);
         Assert::blank(0);
     }
 
     #[Test]
     public function checkZeroStringIsNotBlank(): void
     {
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(AssertException::class);
         Assert::blank("0");
     }
 
     #[Test]
     public function checkFalseIsNotBlank(): void
     {
-        Expect::exception(Assert\State\AssertException::class);
+        Expect::exception(AssertException::class);
         Assert::blank(false);
     }
 }
