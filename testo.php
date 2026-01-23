@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Testo\Framework\Application\Config\ApplicationConfig;
-use Testo\Framework\Application\Config\FinderConfig;
-use Testo\Framework\Application\Config\SuiteConfig;
+use Testo\Application\Config\ApplicationConfig;
+use Testo\Application\Config\FinderConfig;
+use Testo\Application\Config\SuiteConfig;
 
 return new ApplicationConfig(
     suites: \array_merge(
@@ -17,6 +17,7 @@ return new ApplicationConfig(
             ),
         ],
         require 'tests/Assert/suites.php',
+        require 'tests/Common/suites.php',
         require 'tests/Sample/suites.php',
     ),
 );

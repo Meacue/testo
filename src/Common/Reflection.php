@@ -13,7 +13,7 @@ final class Reflection
      * Fetch all attributes for a given function or method.
      *
      * @param \ReflectionFunctionAbstract $function The function or method to fetch attributes from.
-     * @param bool $includeParents Whether to include attributes from parent methods (only applicable for methods).
+     * @param bool $includePrototypes Whether to include attributes from method prototypes (only applicable for methods).
      * @param class-string|null $attributeClass If provided, only attributes of this class will be returned.
      * @param int $flags Flags to pass to {@see ReflectionFunctionAbstract::getAttributes()}.
      *
@@ -21,7 +21,7 @@ final class Reflection
      */
     public static function fetchFunctionAttributes(
         \ReflectionFunctionAbstract $function,
-        bool $includeParents = true,
+        bool $includePrototypes = true,
         ?string $attributeClass = null,
         int $flags = 0,
     ): array {
@@ -30,11 +30,13 @@ final class Reflection
         do {
             $attributes = \array_merge($attributes, $function->getAttributes($attributeClass, $flags));
 
-            if ($includeParents && $function instanceof \ReflectionMethod) {
-                $parentClass = $function->getDeclaringClass()->getParentClass();
-                if ($parentClass !== false && $parentClass->hasMethod($function->getName())) {
-                    $function = $parentClass->getMethod($function->getName());
+            if ($includePrototypes && $function instanceof \ReflectionMethod) {
+                # todo use ->hasPrototype() since php 8.2
+                try {
+                    $function = $function->getPrototype();
                     continue;
+                } catch (\ReflectionException) {
+                    break;
                 }
             }
 
@@ -115,5 +117,43 @@ final class Reflection
         }
 
         return \array_unique($traits);
+    }
+
+    /**
+     * Find all methods in a class that have a specific attribute.
+     *
+     * @param \ReflectionClass|class-string $class The class to inspect.
+     * @param class-string $attributeClass The attribute class to search for.
+     * @param bool $includePrototypes Whether to search for the attribute in method prototypes if not found on the method itself.
+     * @param int $flags Flags to pass to {@see ReflectionMethod::getAttributes()}.
+     *
+     * @return \ReflectionMethod[] An array of methods that have the specified attribute.
+     */
+    public static function findMethodsWithAttribute(
+        \ReflectionClass|string $class,
+        string $attributeClass,
+        bool $includePrototypes = true,
+        int $flags = 0,
+    ): array {
+        \is_string($class) and $class = new \ReflectionClass($class);
+
+        $methods = [];
+        foreach ($class->getMethods() as $method) {
+            do {
+                if ($method->getAttributes($attributeClass, $flags) !== []) {
+                    $methods[] = $method;
+                    break;
+                }
+
+                # todo use ->hasPrototype() since php 8.2
+                try {
+                    $method = $method->getPrototype();
+                } catch (\ReflectionException) {
+                    break;
+                }
+            } while ($includePrototypes);
+        }
+
+        return $methods;
     }
 }
