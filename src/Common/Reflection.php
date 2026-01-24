@@ -163,15 +163,35 @@ final class Reflection
      * Attributes are returned in the order from the deepest call (closest to the point where this method is invoked)
      * to the topmost call (root of the call stack). This follows the natural order of {@see debug_backtrace()}.
      *
-     * @param class-string|null $attributeClass If provided, only attributes of this class will be returned.
+     * @note Attributes may be duplicated in the result if multiple methods in the call stack belong to the same
+     * class or to classes in the same inheritance hierarchy. For example, if the call stack contains both
+     * ChildClass::method() and ParentClass::method() and $includeClasses is true with $includeParents set to true,
+     * attributes from ParentClass will appear twice. This is intentional behavior that reflects the call stack
+     * structure.
+     *
+     * @template T
+     *
+     * @param class-string<T>|null $attributeClass If provided, only attributes of this class will be returned.
      * @param bool $includePrototypes Whether to include attributes from method prototypes. Only applicable for methods
      *        in the call stack.
+     * @param bool $includeClasses Whether to include attributes from the class containing the method. Only applicable
+     *        for methods in the call stack.
+     * @param bool $includeParents Whether to include attributes from parent classes. Only applicable when
+     *        $includeClasses is true.
+     * @param bool $includeTraits Whether to include attributes from traits. Only applicable when $includeClasses is
+     *        true.
+     * @param int<1, max> $limit Maximum number of attributes to return. If reached, the search will stop early.
+     *        Defaults to PHP_INT_MAX (no practical limit).
      * @param ReflectionAttribute::* $flags Flags to pass to {@see ReflectionFunctionAbstract::getAttributes()}.
-     * @return \ReflectionAttribute[]
+     * @return list<\ReflectionAttribute<T>>
      */
     public static function getAttributesFromCallStack(
         ?string $attributeClass,
         bool $includePrototypes = true,
+        bool $includeClasses = false,
+        bool $includeParents = true,
+        bool $includeTraits = true,
+        int $limit = \PHP_INT_MAX,
         int $flags = 0,
     ): array {
         $attributes = [];
@@ -187,6 +207,10 @@ final class Reflection
                     default => null,
                 };
 
+                if ($reflection === null) {
+                    continue;
+                }
+
                 $functionAttributes = self::fetchFunctionAttributes(
                     $reflection,
                     includePrototypes: $includePrototypes,
@@ -194,11 +218,24 @@ final class Reflection
                     flags: $flags,
                 );
                 $attributes = \array_merge($attributes, $functionAttributes);
-            } catch (\Throwable) {
-                continue;
-            }
 
-            if ($reflection === null) {
+                // Include class attributes if requested and the reflection is a method
+                if ($includeClasses && $reflection instanceof \ReflectionMethod) {
+                    $classAttributes = self::fetchClassAttributes(
+                        $reflection->getDeclaringClass(),
+                        includeParents: $includeParents,
+                        includeTraits: $includeTraits,
+                        attributeClass: $attributeClass,
+                        flags: $flags,
+                    );
+                    $attributes = \array_merge($attributes, $classAttributes);
+                }
+
+                // Early exit if limit is reached
+                if (\count($attributes) >= $limit) {
+                    return \array_slice($attributes, 0, $limit);
+                }
+            } catch (\Throwable) {
                 continue;
             }
         }

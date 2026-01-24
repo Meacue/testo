@@ -36,8 +36,8 @@ final class FinderConfig
     public array $excludeFiles = [];
 
     /**
-     * @param Path $include Include directories or files to the scope
-     * @param Path $exclude Exclude directories or files from the scope
+     * @param iterable<non-empty-string|Path> $include Include directories or files to the scope
+     * @param iterable<non-empty-string|Path> $exclude Exclude directories or files from the scope
      *
      * @note Glob and regex patterns are not supported
      */

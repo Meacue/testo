@@ -216,3 +216,122 @@ function testGetAttributesFromCallStackWithNullAttributeClass(): void
     // Should return all attributes, not just CallStackAttribute
     Assert::true(\count($attributes) >= 1);
 }
+
+function testGetAttributesFromCallStackIncludesClassAttributes(): void
+{
+    $obj = new CallStackTestClass();
+    $attributes = $obj->methodA(CallStackAttribute::class, true, true);
+
+    $labels = \array_map(
+        static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
+        $attributes,
+    );
+
+    // Should find both method attribute and class attribute
+    Assert::true(\in_array('methodA', $labels, true));
+    Assert::true(\in_array('classAttribute', $labels, true));
+}
+
+function testGetAttributesFromCallStackWithoutClassAttributes(): void
+{
+    $obj = new CallStackTestClass();
+    $attributes = $obj->methodA(CallStackAttribute::class, true, false);
+
+    $labels = \array_map(
+        static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
+        $attributes,
+    );
+
+    // Should find only method attribute, not class attribute
+    Assert::true(\in_array('methodA', $labels, true));
+    Assert::false(\in_array('classAttribute', $labels, true));
+}
+
+function testGetAttributesFromCallStackIncludesParentClassAttributes(): void
+{
+    $obj = new CallStackChildClass();
+    $attributes = $obj->childMethod(CallStackAttribute::class, true, true, true);
+
+    $labels = \array_map(
+        static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
+        $attributes,
+    );
+
+    // Should find child class and parent class attributes
+    Assert::true(\in_array('childClassAttribute', $labels, true));
+    Assert::true(\in_array('baseClassAttribute', $labels, true));
+}
+
+function testGetAttributesFromCallStackWithoutParentClassAttributes(): void
+{
+    $obj = new CallStackChildClass();
+    $attributes = $obj->childMethod(CallStackAttribute::class, true, true, false);
+
+    $labels = \array_map(
+        static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
+        $attributes,
+    );
+
+    // Should find only child class attribute, not parent
+    Assert::true(\in_array('childClassAttribute', $labels, true));
+    Assert::false(\in_array('baseClassAttribute', $labels, true));
+}
+
+function testGetAttributesFromCallStackWithLimit(): void
+{
+    $obj = new CallStackTestClass();
+    $attributes = $obj->methodB(CallStackAttribute::class, true, false, true, true, 1);
+
+    // Should return only 1 attribute due to limit
+    Assert::same(1, \count($attributes));
+}
+
+function testGetAttributesFromCallStackWithLimitGreaterThanResults(): void
+{
+    $attributes = topLevelFunction(CallStackAttribute::class, true, false, true, true, 100);
+
+    // Should return all available attributes (less than limit)
+    Assert::same(1, \count($attributes));
+}
+
+function testGetAttributesFromCallStackWithLimitAndNestedCalls(): void
+{
+    $obj = new CallStackTestClass();
+    $attributes = $obj->methodB(CallStackAttribute::class, true, false, true, true, 2);
+
+    // Should return exactly 2 attributes
+    Assert::same(2, \count($attributes));
+
+    $labels = \array_map(
+        static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
+        $attributes,
+    );
+
+    // Should find the first two attributes from the call stack
+    Assert::true(\in_array('methodA', $labels, true));
+    Assert::true(\in_array('methodB', $labels, true));
+}
+
+function testGetAttributesFromCallStackDuplicatesClassAttributesFromHierarchy(): void
+{
+    $obj = new CallStackChildClass();
+    // Call stack: childMethod() -> overriddenMethod()
+    // With includeClasses=true and includeParents=true:
+    // - overriddenMethod scans CallStackChildClass + CallStackBaseClass
+    // - childMethod scans CallStackChildClass + CallStackBaseClass
+    // Result: childClassAttribute appears twice, baseClassAttribute appears twice
+    $attributes = $obj->childMethod(CallStackAttribute::class, true, true, true);
+
+    $labels = \array_map(
+        static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
+        $attributes,
+    );
+
+    // Count occurrences of each label
+    $childClassCount = \count(\array_filter($labels, static fn($l) => $l === 'childClassAttribute'));
+    $baseClassCount = \count(\array_filter($labels, static fn($l) => $l === 'baseClassAttribute'));
+
+    // Both class attributes should appear twice (once per method in call stack)
+    Assert::same(2, $childClassCount);
+    Assert::same(2, $baseClassCount);
+}

@@ -22,13 +22,13 @@ final class TestoAttributesLocatorInterceptorTest
         $this->interceptor = new TestoAttributesLocatorInterceptor();
     }
 
-    #[Test(description: 'Locates test cases from methods with #[Test] attributes')]
     /**
      * Verifies that the interceptor correctly:
      * - Finds methods with #[Test] attribute (methodOne, methodTwo)
      * - Excludes methods without #[Test] attribute (nonTestMethodOne, nonTestMethodTwo)
      * - Excludes non-public methods with #[Test] attribute (nonTestMethodThree)
      */
+    #[Test(description: 'Locates test cases from methods with #[Test] attributes')]
     public function itLocatesTestCasesFromClassWithTestAttributesOnMethods(): void
     {
         $path = $this->fixturesDir . 'TestClassWithMethodLevelAttributes.php';
@@ -53,12 +53,12 @@ final class TestoAttributesLocatorInterceptorTest
             ->doesNotHaveKeys('nonTestMethodOne', 'nonTestMethodTwo', 'nonTestMethodThree');
     }
 
-    #[Test(description: 'Locates all public methods as tests when class has #[Test] attribute')]
     /**
      * Verifies that the interceptor correctly:
      * - Treats all public methods as tests when #[Test] is on the class
      * - Excludes protected and private methods
      */
+    #[Test(description: 'Locates all public methods as tests when class has #[Test] attribute')]
     public function itLocatesAllPublicMethodsAsTestsWhenClassHasTestAttribute(): void
     {
         $path = $this->fixturesDir . 'TestClassWithClassLevelAttribute.php';
