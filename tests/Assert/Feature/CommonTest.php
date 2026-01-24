@@ -7,15 +7,19 @@ namespace Tests\Assert\Feature;
 use Testo\Application\Attribute\Test;
 use Testo\Assert;
 use Testo\Core\Value\Status;
+use Testo\Testing\Attribute\TestingSuite;
+use Testo\Testing\Traits\TestRunner;
 use Tests\Assert\Stub\Common;
-use Tests\Assert\StubRunner;
 
+#[TestingSuite(path: __DIR__ . '/../Stub')]
 final class CommonTest
 {
+    use TestRunner;
+
     #[Test(description: 'A successfully finished test without any assertion marked as Risky')]
     public function noAssertions(): void
     {
-        $result = StubRunner::runTest([Common::class, 'risky']);
+        $result = self::runTest([Common::class, 'risky']);
         Assert::same(Status::Risky, $result->status);
     }
 }

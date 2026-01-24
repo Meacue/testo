@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Assert;
+namespace Testo\Testing\Traits;
 
 use InvalidArgumentException as InvalidArgument;
 use Testo\Application\Application;
@@ -10,9 +10,11 @@ use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
 use Testo\Application\Value\Filter;
+use Testo\Common\Reflection;
 use Testo\Core\Context\TestResult;
+use Testo\Testing\Attribute\TestingSuite;
 
-final class StubRunner
+trait TestRunner
 {
     /**
      * Run a specific test function and return its result.
@@ -30,7 +32,7 @@ final class StubRunner
         $filter = new Filter();
 
         # Run application to get test results
-        $suites = self::app()->run($filter)->results;
+        $suites = self::getTestoApp()->run($filter)->results;
 
         # Find and return the test result for the given test function
         foreach ($suites as $suite) {
@@ -57,28 +59,34 @@ final class StubRunner
         throw new InvalidArgument('Test function not found: ' . $testFunction());
     }
 
-    private static function app(): Application
+    protected static function getTestoApp(): Application
     {
-        # Create and cache application instance
-        static $app = null;
-        if ($app !== null) {
-            return $app;
-        }
+        /**
+         * Try to create Application instance from Call Stack Attributes
+         * @var list<\ReflectionAttribute<TestingSuite>> $suiteConfigs
+         */
+        $suiteConfigs = Reflection::getAttributesFromCallStack(
+            attributeClass: TestingSuite::class,
+            includeClasses: true,
+            limit: 1,
+        );
 
-        $app = Application::createFromConfig(
+        $suiteConfigs === [] and throw new \RuntimeException('Testing Suite is not configured.');
+        $config = \reset($suiteConfigs)->newInstance();
+
+        return Application::createFromConfig(
             new ApplicationConfig(
                 src: null,
                 suites: [
                     new SuiteConfig(
-                        'Stubs',
+                        'Testing',
                         location: new FinderConfig(
-                            include: [__DIR__ . '/Stub'],
+                            include: [$config->path],
                         ),
                     ),
                 ],
             ),
         );
-        return $app;
     }
 
     /**
