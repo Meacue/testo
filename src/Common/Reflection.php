@@ -156,4 +156,53 @@ final class Reflection
 
         return $methods;
     }
+
+    /**
+     * Get all attributes from the current call stack.
+     *
+     * Attributes are returned in the order from the deepest call (closest to the point where this method is invoked)
+     * to the topmost call (root of the call stack). This follows the natural order of {@see debug_backtrace()}.
+     *
+     * @param class-string|null $attributeClass If provided, only attributes of this class will be returned.
+     * @param bool $includePrototypes Whether to include attributes from method prototypes. Only applicable for methods
+     *        in the call stack.
+     * @param ReflectionAttribute::* $flags Flags to pass to {@see ReflectionFunctionAbstract::getAttributes()}.
+     * @return \ReflectionAttribute[]
+     */
+    public static function getAttributesFromCallStack(
+        ?string $attributeClass,
+        bool $includePrototypes = true,
+        int $flags = 0,
+    ): array {
+        $attributes = [];
+        $backtrace = \debug_backtrace(\DEBUG_BACKTRACE_PROVIDE_OBJECT | \DEBUG_BACKTRACE_IGNORE_ARGS);
+        foreach ($backtrace as $frame) {
+            try {
+                $reflection = match (true) {
+                    isset($frame['class'], $frame['function']) => new \ReflectionMethod(
+                        $frame['class'],
+                        $frame['function']
+                    ),
+                    isset($frame['function']) => new \ReflectionFunction($frame['function']),
+                    default => null,
+                };
+
+                $functionAttributes = self::fetchFunctionAttributes(
+                    $reflection,
+                    includePrototypes: $includePrototypes,
+                    attributeClass: $attributeClass,
+                    flags: $flags,
+                );
+                $attributes = \array_merge($attributes, $functionAttributes);
+            } catch (\Throwable) {
+                continue;
+            }
+
+            if ($reflection === null) {
+                continue;
+            }
+        }
+
+        return $attributes;
+    }
 }
