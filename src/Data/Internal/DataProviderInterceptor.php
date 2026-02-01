@@ -225,23 +225,16 @@ final class DataProviderInterceptor implements TestRunInterceptor
         );
 
         dataset:
-        $allFinished = true;
         $dataSet = [];
         $key = [];
         foreach ($generators as $gen) {
-            if ($gen->valid()) {
-                $allFinished = false;
-                $dataSet[] = $gen->current();
-                $key[] = $gen->key();
-                $gen->next();
-            } else {
-                $key[] = '';
-                $dataSet[] = null;
+            if (!$gen->valid()) {
+                return;
             }
-        }
 
-        if ($allFinished) {
-            return;
+            $dataSet[] = $gen->current();
+            $key[] = $gen->key();
+            $gen->next();
         }
 
         yield \implode(self::KEY_SEPARATOR_ZIP, $key) => \array_merge(...$dataSet);

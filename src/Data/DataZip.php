@@ -13,7 +13,7 @@ use Testo\Pipeline\Attribute\Interceptable;
  * Zips multiple data providers together.
  *
  * Each data set will contain one value from each provider, combined into an array.
- * If the providers have different lengths, `null` will be used for missing values.
+ * If the providers have different lengths, the resulting data sets will be as many as the shortest provider.
  *
  * @api
  */

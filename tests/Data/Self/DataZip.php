@@ -19,6 +19,12 @@ final class DataZip
         ];
     }
 
+    public static function aFewLettersProvider(): iterable
+    {
+        yield 'ab' => ['a', 'b'];
+        yield 'cd' => ['c', 'd'];
+    }
+
     public static function lettersProvider(): iterable
     {
         yield 'ab' => ['a', 'b'];
@@ -37,6 +43,19 @@ final class DataZip
             [1, 2, 'a', 'b'],
             [3, 4, 'c', 'd'],
             [5, 6, 'e', 'f'],
+        ], true));
+    }
+
+    #[Test]
+    #[\Testo\Data\DataZip(
+        new DataProvider('numbersProvider'),
+        new DataProvider('aFewLettersProvider'),
+    )]
+    public function sumFew(int $a, int $b, string $c, string $d): void
+    {
+        Assert::true(\in_array([$a, $b, $c, $d], [
+            [1, 2, 'a', 'b'],
+            [3, 4, 'c', 'd'],
         ], true));
     }
 }
