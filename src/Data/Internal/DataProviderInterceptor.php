@@ -9,8 +9,10 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Filter\DataPointer;
 use Testo\Core\Value\Status;
+use Testo\Data\DataCross;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
+use Testo\Data\DataZip;
 use Testo\Data\MultipleResult;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
@@ -26,6 +28,12 @@ use Testo\Pipeline\Policy\ConflictPolicy;
 #[InterceptorOptions(order: InterceptorOptions::ORDER_DATA_PROVIDER, onConflict: ConflictPolicy::First)]
 final class DataProviderInterceptor implements TestRunInterceptor
 {
+    /** Key separator for DataZip (parallel combination). */
+    private const KEY_SEPARATOR_ZIP = '|';
+
+    /** Key separator for DataCross (cartesian product). */
+    private const KEY_SEPARATOR_CROSS = '×';
+
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
     ) {}
@@ -55,11 +63,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
 
                 $attr = $attribute->newInstance();
 
-                $datasets = match (true) {
-                    $attr instanceof DataProvider => self::fromDataProvider($info, $attr),
-                    $attr instanceof DataSet => [($attr->name ?? 0) => $attr->arguments],
-                    default => throw new \RuntimeException('Unknown Data Provider Attribute type.'),
-                };
+                $datasets = self::extractDataSets($info, $attr);
 
                 # Handle each data set
                 $results = [];
@@ -160,6 +164,17 @@ final class DataProviderInterceptor implements TestRunInterceptor
         return $result;
     }
 
+    private static function extractDataSets(TestInfo $info, object $attr): iterable
+    {
+        return match (true) {
+            $attr instanceof DataProvider => self::fromDataProvider($info, $attr),
+            $attr instanceof DataSet => [($attr->name ?? 0) => $attr->arguments],
+            $attr instanceof DataCross => self::fromDataCross($info, $attr),
+            $attr instanceof DataZip => self::fromDataZip($info, $attr),
+            default => throw new \RuntimeException('Unknown Data Provider Attribute type.'),
+        };
+    }
+
     /**
      * Extract data sets from a DataProvider attribute.
      */
@@ -177,7 +192,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
                 $m = $class->getMethod($provider);
                 $provider = match (true) {
                     $m->isStatic() => $m->getClosure(null),
-                    default => static fn() => $m->getClosure($info->caseInfo->instance->getInstance()),
+                    default => static fn () => $m->getClosure($info->caseInfo->instance->getInstance()),
                 };
             }
 
@@ -193,5 +208,97 @@ final class DataProviderInterceptor implements TestRunInterceptor
         );
 
         return $datasets;
+    }
+
+    /**
+     * Extract data sets from a DataZip attribute.
+     */
+    private static function fromDataZip(TestInfo $info, DataZip $attr): iterable
+    {
+        $generators = \array_map(
+            static fn ($providerAttr): DeferredGenerator => DeferredGenerator::fromHandler(
+                static function () use ($info, $providerAttr) {
+                    yield from self::fromDataProvider($info, $providerAttr);
+                },
+            ),
+            $attr->providers,
+        );
+
+        dataset:
+        $allFinished = true;
+        $dataSet = [];
+        $key = [];
+        foreach ($generators as $gen) {
+            if ($gen->valid()) {
+                $allFinished = false;
+                $dataSet[] = $gen->current();
+                $key[] = $gen->key();
+                $gen->next();
+            } else {
+                $key[] = '';
+                $dataSet[] = null;
+            }
+        }
+
+        if ($allFinished) {
+            return;
+        }
+
+        yield \implode(self::KEY_SEPARATOR_ZIP, $key) => \array_merge(...$dataSet);
+        goto dataset;
+    }
+
+    /**
+     * Extract data sets from a DataCross attribute (cartesian product).
+     */
+    private static function fromDataCross(TestInfo $info, DataCross $attr): iterable
+    {
+        // Collect all datasets from each provider into arrays
+        $allDatasets = [];
+        foreach ($attr->providers as $providerAttr) {
+            $datasets = [];
+            foreach (self::extractDataSets($info, $providerAttr) as $key => $dataset) {
+                $datasets[$key] = $dataset;
+            }
+            if ($datasets === []) {
+                return; // If any provider is empty, no combinations possible
+            }
+            $allDatasets[] = $datasets;
+        }
+
+        if ($allDatasets === []) {
+            return;
+        }
+
+        yield from self::cartesianProduct($allDatasets);
+    }
+
+    /**
+     * Generate the cartesian product of multiple arrays of datasets.
+     *
+     * @param list<array<array-key, array>> $arrays Arrays of datasets from each provider.
+     * @param int<0, max> $index Current provider index.
+     * @param list<array> $currentData Accumulated dataset arguments.
+     * @param list<string> $currentKeys Accumulated dataset keys.
+     */
+    private static function cartesianProduct(
+        array $arrays,
+        int $index = 0,
+        array $currentData = [],
+        array $currentKeys = [],
+    ): iterable {
+        if ($index === \count($arrays)) {
+            yield \implode(self::KEY_SEPARATOR_CROSS, $currentKeys) => \array_merge(...$currentData);
+            return;
+        }
+
+        foreach ($arrays[$index] as $key => $dataset) {
+            yield from self::cartesianProduct(
+                $arrays,
+                $index + 1,
+                [...$currentData, $dataset],
+                [...$currentKeys, (string) $key],
+            );
+        }
     }
 }
