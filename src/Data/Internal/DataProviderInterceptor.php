@@ -12,6 +12,7 @@ use Testo\Core\Value\Status;
 use Testo\Data\DataCross;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
+use Testo\Data\DataUnion;
 use Testo\Data\DataZip;
 use Testo\Data\MultipleResult;
 use Testo\Event\Test\TestBatchFinished;
@@ -171,6 +172,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
             $attr instanceof DataSet => [($attr->name ?? 0) => $attr->arguments],
             $attr instanceof DataCross => self::fromDataCross($info, $attr),
             $attr instanceof DataZip => self::fromDataZip($info, $attr),
+            $attr instanceof DataUnion => self::fromDataUnion($info, $attr),
             default => throw new \RuntimeException('Unknown Data Provider Attribute type.'),
         };
     }
@@ -192,7 +194,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
                 $m = $class->getMethod($provider);
                 $provider = match (true) {
                     $m->isStatic() => $m->getClosure(null),
-                    default => static fn () => $m->getClosure($info->caseInfo->instance->getInstance()),
+                    default => static fn() => $m->getClosure($info->caseInfo->instance->getInstance()),
                 };
             }
 
@@ -216,7 +218,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
     private static function fromDataZip(TestInfo $info, DataZip $attr): iterable
     {
         $generators = \array_map(
-            static fn ($providerAttr): DeferredGenerator => DeferredGenerator::fromHandler(
+            static fn($providerAttr): DeferredGenerator => DeferredGenerator::fromHandler(
                 static function () use ($info, $providerAttr) {
                     yield from self::extractDataSets($info, $providerAttr);
                 },
@@ -292,6 +294,16 @@ final class DataProviderInterceptor implements TestRunInterceptor
                 [...$currentData, $dataset],
                 [...$currentKeys, (string) $key],
             );
+        }
+    }
+
+    /**
+     * Extract data sets from a DataUnion attribute (concatenation).
+     */
+    private static function fromDataUnion(TestInfo $info, DataUnion $attr): iterable
+    {
+        foreach ($attr->providers as $providerAttr) {
+            yield from self::extractDataSets($info, $providerAttr);
         }
     }
 }
