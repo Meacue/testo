@@ -22,11 +22,11 @@ use Testo\Pipeline\Attribute\Interceptable;
 final class DataZip implements Interceptable, DataProviderAttribute
 {
     /**
-     * @param array<DataProvider> $providers Data providers to zip together.
+     * @param array<DataProviderAttribute> $providers Data providers to zip together.
      */
     public readonly array $providers;
 
-    public function __construct(DataProvider ...$providers)
+    public function __construct(DataProviderAttribute ...$providers)
     {
         $this->providers = $providers;
     }

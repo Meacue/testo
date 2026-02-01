@@ -7,6 +7,7 @@ namespace Tests\Data\Self;
 use Testo\Application\Attribute\Test;
 use Testo\Assert;
 use Testo\Data\DataProvider;
+use Testo\Data\DataSet;
 
 final class DataZip
 {
@@ -57,5 +58,20 @@ final class DataZip
             [1, 2, 'a', 'b'],
             [3, 4, 'c', 'd'],
         ], true));
+    }
+
+    #[Test]
+    #[\Testo\Data\DataZip(
+        new DataSet([true], 'yes'),
+        new DataProvider('lettersProvider'),
+        new DataSet([42], 'answer'),
+    )]
+    public function mixedProviders(bool $flag, string $c, string $d, int $number): void
+    {
+        // DataSet has only 1 element, so zip stops after first iteration
+        Assert::true($flag);
+        Assert::same('a', $c);
+        Assert::same('b', $d);
+        Assert::same(42, $number);
     }
 }

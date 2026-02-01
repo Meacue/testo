@@ -218,7 +218,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
         $generators = \array_map(
             static fn ($providerAttr): DeferredGenerator => DeferredGenerator::fromHandler(
                 static function () use ($info, $providerAttr) {
-                    yield from self::fromDataProvider($info, $providerAttr);
+                    yield from self::extractDataSets($info, $providerAttr);
                 },
             ),
             $attr->providers,
