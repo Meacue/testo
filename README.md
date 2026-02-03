@@ -9,8 +9,8 @@
 
 <div align="center">
 
-[![Documentation](https://img.shields.io/badge/Documentation-Live-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://php-testo.github.io)
-[![Support on Boosty](https://img.shields.io/static/v1?style=for-the-badge&label=Sponsorship&message=%E2%9D%A4&logo=Boosty&color=%23F15F2C)](https://boosty.to/roxblnfk)
+[![Documentation](https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://php-testo.github.io)
+[![Support on Boosty](https://img.shields.io/static/v1?style=for-the-badge&label=&message=Sponsorship&logo=Boosty&logoColor=white&color=%23F15F2C)](https://boosty.to/roxblnfk)
 
 </div>
 
