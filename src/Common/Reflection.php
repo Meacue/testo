@@ -31,13 +31,12 @@ final class Reflection
             $attributes = \array_merge($attributes, $function->getAttributes($attributeClass, $flags));
 
             if ($includePrototypes && $function instanceof \ReflectionMethod) {
-                # todo use ->hasPrototype() since php 8.2
-                try {
+                if ($function->hasPrototype()) {
                     $function = $function->getPrototype();
                     continue;
-                } catch (\ReflectionException) {
-                    break;
                 }
+
+                break;
             }
 
             break;
@@ -145,12 +144,12 @@ final class Reflection
                     break;
                 }
 
-                # todo use ->hasPrototype() since php 8.2
-                try {
+                if ($method->hasPrototype()) {
                     $method = $method->getPrototype();
-                } catch (\ReflectionException) {
-                    break;
+                    continue;
                 }
+
+                break;
             } while ($includePrototypes);
         }
 
