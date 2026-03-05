@@ -30,4 +30,10 @@ final class RunScope
      */
     #[InputOption('suite')]
     public array $suite = [];
+
+    /**
+     * @var non-empty-string|null
+     */
+    #[InputOption('type')]
+    public ?string $type = null;
 }

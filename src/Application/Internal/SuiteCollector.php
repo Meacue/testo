@@ -20,6 +20,8 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 /**
  * Test suite collection and producer of SuiteInfo.
  * Caches SuiteInfo instances.
+ *
+ * @internal
  */
 final class SuiteCollector
 {
@@ -44,7 +46,7 @@ final class SuiteCollector
     private function createInfo(SuiteConfig $config, Filter $filter): SuiteInfo
     {
         $files = $this->getFilesIterator($config, $filter);
-        $definitions = $this->getCaseDefinitions($config, $files);
+        $definitions = $this->getCaseDefinitions($config, $files, $filter);
 
         $cases = [];
         foreach ($definitions as $definition) {
@@ -78,7 +80,7 @@ final class SuiteCollector
          * @see FileLocatorInterceptor::locateFile()
          * @var callable(TokenizedFile): (null|bool) $pipeline
          */
-        $pipeline = Pipeline::prepare(...$interceptors)
+        $pipeline = Pipeline::prepare($filter->type, ...$interceptors)
             ->with(static fn(TokenizedFile $file): ?bool => null, 'locateFile');
 
         foreach ($locator->getIterator() as $fileReflection) {
@@ -96,7 +98,7 @@ final class SuiteCollector
      * @param iterable<TokenizedFile> $files
      * @return list<CaseDefinition>
      */
-    private function getCaseDefinitions(SuiteConfig $config, iterable $files): array
+    private function getCaseDefinitions(SuiteConfig $config, iterable $files, Filter $filter): array
     {
         $cases = [];
         # Prepare interceptors pipeline
@@ -106,7 +108,7 @@ final class SuiteCollector
          * @see CaseLocatorInterceptor::locateTestCases()
          * @var callable(FileDefinitions): CaseDefinitions $pipeline
          */
-        $pipeline = Pipeline::prepare(...$interceptors)
+        $pipeline = Pipeline::prepare($filter->type, ...$interceptors)
             ->with(
                 static fn(FileDefinitions $definitions): CaseDefinitions => $definitions->cases,
                 'locateTestCases',

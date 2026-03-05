@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Core\Definition;
 
 use Testo\Core\Context\TestInfo;
+use Testo\Core\Value\TestType;
 
 final class CaseDefinition
 {
@@ -13,6 +14,7 @@ final class CaseDefinition
 
         /**
          * @var non-empty-string Type of the test case, e.g. 'test', 'unit', 'inline', 'bench', etc.
+         * @see TestType
          */
         public readonly string $type,
         public readonly ?\ReflectionClass $reflection = null,

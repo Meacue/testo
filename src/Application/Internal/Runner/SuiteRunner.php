@@ -41,7 +41,7 @@ final class SuiteRunner
          * @var callable(SuiteInfo): SuiteResult $pipeline
          */
         $interceptors = $this->interceptorProvider->fromConfig(TestSuiteRunInterceptor::class);
-        $pipeline = Pipeline::prepare(...$interceptors)
+        $pipeline = Pipeline::prepare($filter->type, ...$interceptors)
             ->with(
                 fn(SuiteInfo $info): SuiteResult => $this->run($info, $filter),
                 'runTestSuite',

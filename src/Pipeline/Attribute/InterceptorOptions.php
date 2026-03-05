@@ -50,5 +50,11 @@ final class InterceptorOptions
          */
         public readonly int $order = self::ORDER_DEFAULT,
         public readonly ConflictPolicy $onConflict = ConflictPolicy::First,
+
+        /**
+         * @var list<non-empty-string|\BackedEnum>|non-empty-string|\BackedEnum Type(s) of tests to which
+         *      the interceptor should be applied. If empty, the interceptor is applied to all tests.
+         */
+        public readonly \BackedEnum|array|string $testType = [],
     ) {}
 }

@@ -9,6 +9,7 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Filter\DataPointer;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\TestType;
 use Testo\Data\DataCross;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
@@ -26,7 +27,11 @@ use Testo\Pipeline\Policy\ConflictPolicy;
 /**
  * Interceptor that handles data providers for tests.
  */
-#[InterceptorOptions(order: InterceptorOptions::ORDER_DATA_PROVIDER, onConflict: ConflictPolicy::First)]
+#[InterceptorOptions(
+    order: InterceptorOptions::ORDER_DATA_PROVIDER,
+    onConflict: ConflictPolicy::First,
+    testType: TestType::Test,
+)]
 final class DataProviderInterceptor implements TestRunInterceptor
 {
     /** Key separator for DataZip (parallel combination). */

@@ -37,22 +37,28 @@ final class Pipeline
      */
     private function __construct(
         array $interceptors,
+        private readonly ?string $testType,
     ) {
         // Reset keys
-        $this->interceptors = Sorter::sortAndFilter($interceptors);
+        $this->interceptors = Sorter::sortAndFilter($interceptors, $testType);
     }
 
     /**
-     * Make sure that interceptors implement the same interface.
+     * Create a pipeline with given interceptors.
+     *
      * @template-covariant TInt of TInterceptor
      * @template TIn
      * @template-covariant TOut
+     * @param \BackedEnum|non-empty-string|null $testType Type of tests to filter interceptors by.
+     *        If null, all interceptors are included. {@see CaseDefinition::$type}
      * @param TInterceptor ...$interceptors Instantiated interceptors.
      * @return self<TInt, TIn, TOut>
+     *
+     * @note Make sure that interceptors implement the same interface.
      */
-    public static function prepare(TInterceptor ...$interceptors): self
+    public static function prepare(\BackedEnum|string|null $testType, TInterceptor ...$interceptors): self
     {
-        return new self($interceptors);
+        return new self($interceptors, \is_object($testType) ? $testType->value : $testType);
     }
 
     /**
@@ -71,7 +77,7 @@ final class Pipeline
         # Create a new pipeline with merged interceptors
         $new = clone $this;
         $new->current = 0;
-        $new->interceptors = Sorter::sortAndFilter($interceptors);
+        $new->interceptors = Sorter::sortAndFilter($interceptors, $this->testType);
         return $new;
     }
 

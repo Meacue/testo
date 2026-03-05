@@ -40,7 +40,7 @@ final class CaseRunner
          * @var callable(CaseInfo): CaseResult $pipeline
          */
         $interceptors = $this->interceptorProvider->fromConfig(TestCaseRunInterceptor::class);
-        $pipeline = Pipeline::prepare(...$interceptors)
+        $pipeline = Pipeline::prepare($info->definition->type, ...$interceptors)
             ->with(
                 $this->run(...),
                 'runTestCase',

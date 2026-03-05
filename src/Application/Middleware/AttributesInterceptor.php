@@ -61,7 +61,7 @@ final class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInte
 
         $pipeline = $next instanceof Pipeline
             ? $next->combine(...$interceptors)
-            : Pipeline::prepare(...$interceptors)->with(
+            : Pipeline::prepare($info->caseInfo->definition->type, ...$interceptors)->with(
                 $next,
                 /** @see TestRunInterceptor::runTest() */
                 'runTest',
@@ -97,7 +97,7 @@ final class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInte
 
         $pipeline = $next instanceof Pipeline
             ? $next->combine(...$interceptors)
-            : Pipeline::prepare(...$interceptors)->with(
+            : Pipeline::prepare($info->definition->type, ...$interceptors)->with(
                 $next,
                 /** @see TestRunInterceptor::runTest() */
                 'runTest',

@@ -9,6 +9,7 @@ use Testo\Bench\BenchWith;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\TestType;
 use Testo\Data\MultipleResult;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
@@ -23,7 +24,11 @@ use Testo\Pipeline\Policy\ConflictPolicy;
  *
  * @internal
  */
-#[InterceptorOptions(order: InterceptorOptions::ORDER_DATA_PROVIDER, onConflict: ConflictPolicy::First)]
+#[InterceptorOptions(
+    order: InterceptorOptions::ORDER_DATA_PROVIDER,
+    onConflict: ConflictPolicy::First,
+    testType: TestType::BenchInline,
+)]
 final class BenchWithInterceptor implements TestRunInterceptor
 {
     public function __construct(

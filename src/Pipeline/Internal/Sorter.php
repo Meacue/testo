@@ -21,6 +21,9 @@ final class Sorter
     /** @var array<class-string<TInterceptor>, int> */
     private static array $orderCache = [];
 
+    /** @var array<class-string<TInterceptor>, list<non-empty-string>> */
+    private static array $filterCache = [];
+
     /**
      * Sort and filter interceptors.
      *
@@ -28,11 +31,12 @@ final class Sorter
      *
      * @return list<TInterceptor>
      */
-    public static function sortAndFilter(array $interceptors): array
+    public static function sortAndFilter(array $interceptors, ?string $type = null): array
     {
         # Local caches
         $conflicts = [];
         $orders = [];
+        $filters = [];
 
         /** @var TInterceptor $groups */
         $groups = [];
@@ -40,6 +44,12 @@ final class Sorter
             $class = $interceptor::class;
             $conflict = $conflicts[$class] ??= self::getConflictPolicy($interceptor);
             $order = $orders[$class] ??= self::getOrder($interceptor);
+            if ($type !== null) {
+                $filter = $filters[$class] ??= self::$filterCache[$class] ?? [];
+                if ($filter !== [] && !\in_array($type, $filter, true)) {
+                    continue;
+                }
+            }
 
             switch ($conflict) {
                 case ConflictPolicy::First:
@@ -86,6 +96,7 @@ final class Sorter
         $attribute = $attributes[0]->newInstance();
         self::$conflictPolicyCache[$class] = $attribute->onConflict;
         self::$orderCache[$class] = $attribute->order;
+        self::$filterCache[$class] = self::normalizeTestTypeFilter($attribute->testType);
     }
 
     /**
@@ -106,5 +117,26 @@ final class Sorter
         $class = $interceptor::class;
         \array_key_exists($class, self::$orderCache) or self::warmUpCache($class);
         return self::$orderCache[$class];
+    }
+
+    /**
+     * Get the test type filter of the given interceptor by its attribute.
+     *
+     * @param list<non-empty-string|\BackedEnum>|non-empty-string|\BackedEnum $testType
+     *
+     * @return list<non-empty-string>
+     */
+    private static function normalizeTestTypeFilter(\BackedEnum|array|string $testType): array
+    {
+        if (!\is_array($testType)) {
+            return [\is_string($testType) ? $testType : $testType->value];
+        }
+
+        $result = [];
+        foreach ($testType as $type) {
+            $result[] = \is_string($type) ? $type : $type->value;
+        }
+
+        return $result;
     }
 }

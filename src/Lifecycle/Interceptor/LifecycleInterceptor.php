@@ -10,6 +10,7 @@ use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\CaseInstance;
+use Testo\Core\Value\TestType;
 use Testo\Lifecycle\AfterAll;
 use Testo\Lifecycle\AfterEach;
 use Testo\Lifecycle\BeforeAll;
@@ -22,7 +23,11 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
 /**
  * Processes lifecycle methods like {@see \Testo\Lifecycle\BeforeEach} and {@see \Testo\Lifecycle\AfterEach}.
  */
-#[InterceptorOptions(order: PHP_INT_MAX)]
+#[
+InterceptorOptions(
+    order: PHP_INT_MAX,
+    testType: TestType::Test,
+)]
 final class LifecycleInterceptor implements TestRunInterceptor, TestCaseRunInterceptor
 {
     /**

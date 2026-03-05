@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\TestType;
 use Testo\Data\MultipleResult;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
@@ -21,7 +22,11 @@ use Testo\Pipeline\Policy\ConflictPolicy;
 /**
  * Interceptor that runs the target method as a pure function with provided arguments and expected result.
  */
-#[InterceptorOptions(order: InterceptorOptions::ORDER_DATA_PROVIDER, onConflict: ConflictPolicy::First)]
+#[InterceptorOptions(
+    order: InterceptorOptions::ORDER_DATA_PROVIDER,
+    onConflict: ConflictPolicy::First,
+    testType: TestType::TestInline,
+)]
 final class TestInlineInterceptor implements TestRunInterceptor
 {
     public function __construct(

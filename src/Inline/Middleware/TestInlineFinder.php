@@ -19,7 +19,10 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 /**
  * Finds inline tests defined with the {@see TestInline} attribute.
  */
-#[InterceptorOptions(order: -20_000)]
+#[InterceptorOptions(
+    order: -20_000,
+    testType: TestType::TestInline,
+)]
 final class TestInlineFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     /** @var \Closure(TestInfo): mixed Invoker for the test method. */

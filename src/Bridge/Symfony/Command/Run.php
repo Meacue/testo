@@ -85,6 +85,12 @@ final class Run extends Base
             InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
             'Filter test suites by name',
         );
+        $this->addOption(
+            'type',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Filter test cases by type (e.g. test, test-inline, bench)',
+        );
     }
 
     public function __invoke(

@@ -19,7 +19,7 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 /**
  * Finds benchmarks defined with the {@see BenchWith} attribute.
  */
-#[InterceptorOptions(order: -20_000)]
+#[InterceptorOptions(order: -20_000, testType: TestType::BenchInline)]
 final class BenchFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     /** @var \Closure(TestInfo): mixed Invoker for the test method. */

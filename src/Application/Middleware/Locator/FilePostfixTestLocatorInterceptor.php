@@ -6,6 +6,7 @@ namespace Testo\Application\Middleware\Locator;
 
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Core\Value\TestType;
+use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
 use Testo\Tokenizer\Reflection\FileDefinitions;
@@ -40,6 +41,9 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
  *  function testPasswordStrength(): void { ... }
  * ```
  */
+#[InterceptorOptions(
+    testType: TestType::Test,
+)]
 final class FilePostfixTestLocatorInterceptor implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     #[\Override]

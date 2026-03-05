@@ -33,7 +33,7 @@ final class TestRunner
             # Build interceptors pipeline
             $interceptors = $this->interceptorProvider->fromConfig(TestRunInterceptor::class);
 
-            $result = Pipeline::prepare(...$interceptors)->with(
+            $result = Pipeline::prepare($info->caseInfo->definition->type, ...$interceptors)->with(
                 function (TestInfo $info) use ($description): TestResult {
                     $this->eventDispatcher->dispatch(new TestStarting($info));
 
