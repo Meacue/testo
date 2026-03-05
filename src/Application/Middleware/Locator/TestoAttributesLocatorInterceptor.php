@@ -7,6 +7,7 @@ namespace Testo\Application\Middleware\Locator;
 use Testo\Application\Attribute\Test;
 use Testo\Common\Reflection;
 use Testo\Core\Definition\CaseDefinitions;
+use Testo\Core\Value\TestType;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
 use Testo\Tokenizer\Reflection\FileDefinitions;
@@ -37,7 +38,7 @@ final class TestoAttributesLocatorInterceptor implements FileLocatorInterceptor,
                 foreach ($class->getMethods() as $method) {
                     # Skip potential data providers: we accept only public methods with `void` return type
                     if ($method->isPublic() && (string) $method->getReturnType() === 'void') {
-                        $file->cases->define($class, $file)->tests->define($method);
+                        $file->cases->define($class, $file, type: TestType::Test)->tests->define($method);
                     }
                 }
 
@@ -47,7 +48,7 @@ final class TestoAttributesLocatorInterceptor implements FileLocatorInterceptor,
             # Otherwise, define a test for each public method with attribute Test
             foreach ($class->getMethods() as $method) {
                 if ($method->isPublic() && Reflection::fetchFunctionAttributes($method, attributeClass: Test::class)) {
-                    $file->cases->define($class, $file)->tests->define($method);
+                    $file->cases->define($class, $file, type: TestType::Test)->tests->define($method);
                 }
             }
         }
@@ -61,7 +62,7 @@ final class TestoAttributesLocatorInterceptor implements FileLocatorInterceptor,
         $case = null;
         foreach ($file->functions as $function) {
             if (Reflection::fetchFunctionAttributes($function, attributeClass: Test::class)) {
-                $case ??= $file->cases->define(null, $file);
+                $case ??= $file->cases->define(null, $file, type: TestType::Test);
                 $case->tests->define($function);
             }
         }

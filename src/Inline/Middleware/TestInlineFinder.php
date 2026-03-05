@@ -7,6 +7,7 @@ namespace Testo\Inline\Middleware;
 use Testo\Common\Reflection;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Definition\CaseDefinitions;
+use Testo\Core\Value\TestType;
 use Testo\Inline\Internal\InlineTestInvoker;
 use Testo\Inline\TestInline;
 use Testo\Pipeline\Attribute\InterceptorOptions;
@@ -48,7 +49,7 @@ final class TestInlineFinder implements FileLocatorInterceptor, CaseLocatorInter
             foreach ($class->getMethods() as $method) {
                 if (Reflection::fetchFunctionAttributes($method, attributeClass: TestInline::class)) {
                     if ($case === null) {
-                        $case = $file->cases->define($class, $file);
+                        $case = $file->cases->define($class, $file, TestType::TestInline);
                         $case->invoker = $this->invoker;
                     }
 
@@ -67,7 +68,7 @@ final class TestInlineFinder implements FileLocatorInterceptor, CaseLocatorInter
         foreach ($file->functions as $function) {
             if (Reflection::fetchFunctionAttributes($function, attributeClass: TestInline::class)) {
                 if ($case === null) {
-                    $case = $file->cases->define(null, $file);
+                    $case = $file->cases->define(null, $file, TestType::TestInline);
                     $case->invoker = $this->invoker;
                 }
 

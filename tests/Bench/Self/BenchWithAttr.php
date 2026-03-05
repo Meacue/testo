@@ -15,11 +15,11 @@ final class BenchWithAttr
             'multi' => [self::class, 'sumLinearF3'],
         ],
         arguments: [1, 20_000],
-        calls: 20_000,
+        calls: 20,
         iterations: 10,
     )]
-    // #[TestInline([1, 2000], 2001000)]
-    // #[TestInline([24, 2000], 2000724)]
+    #[TestInline([1, 2000], 2001000)]
+    #[TestInline([24, 2000], 2000724)]
     public static function sumLinearF1(int $a, int $b): int
     {
         $d = $b - $a + 1;
@@ -32,8 +32,8 @@ final class BenchWithAttr
         return (int) (($d - 1) * $d * 0.5) + $a * $d;
     }
 
-    // #[TestInline([1, 2000], 2001000)]
-    // #[TestInline([24, 2000], 2000724)]
+    #[TestInline([1, 2000], 2001000)]
+    #[TestInline([24, 2000], 2000724)]
     public static function sumLinearF2(int $a, int $b): int
     {
         $d = $b - $a + 1;
@@ -46,7 +46,7 @@ final class BenchWithAttr
             'sumLinearF' => [self::class, 'sumLinearF1'],
         ],
         arguments: [1, 5_000],
-        calls: 2000,
+        calls: 20,
         iterations: 10,
     )]
     public static function sumInCycle(int $a, int $b): int
@@ -59,7 +59,7 @@ final class BenchWithAttr
         return $result;
     }
 
-    // #[TestInline([24, 2000], 2000724)]
+    #[TestInline([24, 2000], 2000724)]
     public static function sumRange(int $a, int $b): int
     {
         return \array_sum(\range($a, $b));

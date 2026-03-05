@@ -13,27 +13,35 @@ final class CaseDefinitions
 {
     /**
      * Located test cases.
-     * @var list<CaseDefinition>
+     * @var array<non-empty-string, list<CaseDefinition>>
      */
     private array $cases = [];
 
     public static function fromArray(CaseDefinition ...$values): self
     {
         $self = new self();
-        $self->cases = \array_values($values);
+        foreach ($values as $case) {
+            $self->cases[$case->type][] = $case;
+        }
+
         return $self;
     }
 
-    public function define(?\ReflectionClass $reflection, FileDefinitions $file): CaseDefinition
+    public function define(?\ReflectionClass $reflection, FileDefinitions $file, string|\BackedEnum $type = 'test'): CaseDefinition
     {
-        foreach ($this->cases as $case) {
+        \is_string($type) or $type = (string) $type->value;
+        \assert($type !== '');
+
+        $this->cases[$type] ??= [];
+        foreach ($this->cases[$type] as $case) {
             if ($case->reflection === $reflection) {
                 return $case;
             }
         }
 
-        return $this->cases[] = new CaseDefinition(
+        return $this->cases[$type][] = new CaseDefinition(
             name: $reflection?->getShortName() ?? $file->tokenizedFile->path->name(),
+            type: $type,
             reflection: $reflection,
         );
     }
@@ -45,6 +53,6 @@ final class CaseDefinitions
      */
     public function getCases(): array
     {
-        return $this->cases;
+        return \array_merge(...\array_values($this->cases));
     }
 }

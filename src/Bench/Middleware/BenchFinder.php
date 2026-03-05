@@ -9,6 +9,7 @@ use Testo\Bench\Internal\BenchInvoker;
 use Testo\Common\Reflection;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Definition\CaseDefinitions;
+use Testo\Core\Value\TestType;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
@@ -48,7 +49,7 @@ final class BenchFinder implements FileLocatorInterceptor, CaseLocatorIntercepto
             foreach ($class->getMethods() as $method) {
                 if (Reflection::fetchFunctionAttributes($method, attributeClass: BenchWith::class)) {
                     if ($case === null) {
-                        $case = $file->cases->define($class, $file);
+                        $case = $file->cases->define($class, $file, type: TestType::BenchInline);
                         $case->invoker = $this->invoker;
                     }
 
@@ -67,7 +68,7 @@ final class BenchFinder implements FileLocatorInterceptor, CaseLocatorIntercepto
         foreach ($file->functions as $function) {
             if (Reflection::fetchFunctionAttributes($function, attributeClass: BenchWith::class)) {
                 if ($case === null) {
-                    $case = $file->cases->define(null, $file);
+                    $case = $file->cases->define(null, $file, type: TestType::BenchInline);
                     $case->invoker = $this->invoker;
                 }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Application\Middleware\Locator;
 
 use Testo\Core\Definition\CaseDefinitions;
+use Testo\Core\Value\TestType;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
 use Testo\Tokenizer\Reflection\FileDefinitions;
@@ -52,7 +53,7 @@ final class FilePostfixTestLocatorInterceptor implements FileLocatorInterceptor,
     {
         foreach ($file->classes as $class) {
             if (!$class->isAbstract() && \str_ends_with($class->getName(), 'Test')) {
-                $case = $file->cases->define($class, $file);
+                $case = $file->cases->define($class, $file, type: TestType::Test);
                 foreach ($class->getMethods() as $method) {
                     if ($method->isPublic() && \preg_match('/^test[^a-z]/', $method->getName()) === 1) {
                         $case->tests->define($method);
@@ -70,7 +71,7 @@ final class FilePostfixTestLocatorInterceptor implements FileLocatorInterceptor,
         $case = null;
         foreach ($file->functions as $function) {
             if (\preg_match('/^test[^a-z]/', $function->getShortName()) === 1) {
-                $case ??= $file->cases->define(null, $file);
+                $case ??= $file->cases->define(null, $file, type: TestType::Test);
                 $case->tests->define($function);
             }
         }
