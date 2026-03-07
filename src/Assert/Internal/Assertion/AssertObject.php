@@ -8,6 +8,7 @@ use Testo\Assert\Api\Builtin\ObjectType;
 use Testo\Assert\Internal\StaticState;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Attribute\AssertMethod;
 
 /**
  * Assertion utilities for objects.
@@ -38,6 +39,7 @@ final class AssertObject implements ObjectType
         return new self($value, $parent);
     }
 
+    #[AssertMethod]
     #[\Override]
     public function instanceOf(string $expected, string $message = ''): static
     {
@@ -48,6 +50,7 @@ final class AssertObject implements ObjectType
         return $this;
     }
 
+    #[AssertMethod]
     #[\Override]
     public function hasProperty(string $propertyName, string $message = ''): static
     {

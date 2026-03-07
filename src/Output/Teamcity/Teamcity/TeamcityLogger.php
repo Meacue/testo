@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Teamcity\Teamcity;
+namespace Testo\Output\Teamcity\Teamcity;
 
 use Testo\Assert\State\CompositeRecord;
 use Testo\Assert\State\Record;
@@ -16,6 +16,7 @@ use Testo\Core\Context\SuiteResult;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Output\Rendering\StackTrace;
 
 /**
  * TeamCity logger for test reporting using DTO objects.
@@ -31,14 +32,23 @@ final class TeamcityLogger
     /**
      * Formats a throwable into a detailed string with class, message, file, line, and stack trace.
      */
-    public static function formatThrowable(\Throwable $throwable): string
-    {
-        $class = $throwable::class;
-        $file = $throwable->getFile();
-        $line = $throwable->getLine();
-        $trace = $throwable->getTraceAsString();
+    public static function formatThrowable(
+        \Throwable $throwable,
+        ?\ReflectionFunctionAbstract $boundary = null,
+    ): string {
+        $parts = [];
+        $current = $throwable;
 
-        return "{$class}\nFile: {$file}:{$line}\n\nStack trace:\n{$trace}";
+        do {
+            $class = $current::class;
+            $file = $current->getFile();
+            $line = $current->getLine();
+            $trace = self::formatTrace(StackTrace::cutStackTrace($current->getTrace(), $boundary, false));
+
+            $parts[] = "{$class}\nFile: {$file}:{$line}\n\nStack trace:\n{$trace}";
+        } while ($current = $current->getPrevious());
+
+        return \implode("\n\nCaused by:\n", $parts);
     }
 
     /**
@@ -196,7 +206,9 @@ final class TeamcityLogger
         $message = $failure?->getMessage() ?? 'Test failed';
 
         $assertionHistory = $this->formatAssertionHistory($result);
-        $details = $failure !== null ? self::formatThrowable($failure) : '';
+        $details = $failure !== null
+            ? self::formatThrowable($failure, $result->info->testDefinition->reflection)
+            : '';
 
         if ($assertionHistory !== '') {
             $details = $assertionHistory . $details;
@@ -239,6 +251,26 @@ final class TeamcityLogger
             Status::Cancelled => $this->handleCancelledTest($result, $duration, $overrideName),
             Status::Aborted => $this->handleAbortedTest($result, $duration, $overrideName),
         };
+    }
+
+    /**
+     * @param list<array<string, mixed>> $trace
+     */
+    private static function formatTrace(array $trace): string
+    {
+        $lines = [];
+
+        foreach ($trace as $i => $frame) {
+            $location = isset($frame['file'])
+                ? "{$frame['file']}({$frame['line']})"
+                : '[internal function]';
+            $call = isset($frame['class'])
+                ? "{$frame['class']}{$frame['type']}{$frame['function']}()"
+                : "{$frame['function']}()";
+            $lines[] = "#{$i} {$location}: {$call}";
+        }
+
+        return \implode("\n", $lines);
     }
 
     private static function key(string $name): string
@@ -304,7 +336,9 @@ final class TeamcityLogger
         $message = $failure?->getMessage() ?? 'Test failed';
 
         $assertionHistory = $this->formatAssertionHistory($result);
-        $details = $failure !== null ? self::formatThrowable($failure) : '';
+        $details = $failure !== null
+            ? self::formatThrowable($failure, $result->info->testDefinition->reflection)
+            : '';
 
         if ($assertionHistory !== '') {
             $details = $assertionHistory . $details;
@@ -330,7 +364,9 @@ final class TeamcityLogger
         $name = $overrideName ?? $result->info->name;
 
         $assertionHistory = $this->formatAssertionHistory($result);
-        $details = $result->failure !== null ? self::formatThrowable($result->failure) : '';
+        $details = $result->failure !== null
+            ? self::formatThrowable($result->failure, $result->info->testDefinition->reflection)
+            : '';
 
         if ($assertionHistory !== '') {
             $details = $assertionHistory . $details;
