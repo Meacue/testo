@@ -12,8 +12,10 @@ use Testo\Core\Value\TestType;
  *
  * Can be created manually and passed to Application::run() or populated automatically
  * from CLI arguments.
+ *
+ * @api
  */
-final class Filter
+final readonly class Filter
 {
     public function __construct(
         /**
@@ -21,7 +23,7 @@ final class Filter
          *
          * @var list<non-empty-string>
          */
-        public readonly array $suites = [],
+        public array $suites = [],
 
         /**
          * Class, method, or function names to filter by.
@@ -33,7 +35,7 @@ final class Filter
          *
          * @var list<non-empty-string>
          */
-        public readonly array $names = [],
+        public array $names = [],
 
         /**
          * File or directory paths to filter by.
@@ -42,7 +44,7 @@ final class Filter
          *
          * @var list<non-empty-string>
          */
-        public readonly array $paths = [],
+        public array $paths = [],
 
         /**
          * Optional type filter for test cases, e.g. 'test', 'unit', 'inline', 'bench', etc.
@@ -50,7 +52,7 @@ final class Filter
          *
          * @var non-empty-string|null
          */
-        public readonly ?string $type = null,
+        public ?string $type = null,
     ) {}
 
     /**

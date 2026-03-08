@@ -12,19 +12,21 @@ use Testo\Core\Context\SuiteInfo;
 
 /**
  * Provides test suites.
+ *
+ * @internal
  */
-final class SuiteProvider
+final readonly class SuiteProvider
 {
     use CloneWith;
 
     /** @var list<SuiteConfig> */
-    private readonly array $configs;
+    private array $configs;
 
-    private readonly ?Filter $filter;
+    private ?Filter $filter;
 
     public function __construct(
         ApplicationConfig $applicationConfig,
-        private readonly SuiteCollector $collector,
+        private SuiteCollector $collector,
     ) {
         $this->configs = $applicationConfig->suites;
         $this->filter = null;
@@ -41,7 +43,7 @@ final class SuiteProvider
     /**
      * Gets test suite definitions with applied filter.
      *
-     * @return array<SuiteInfo>
+     * @return array<array{SuiteConfig, SuiteInfo}>
      */
     public function getSuites(): array
     {
@@ -56,7 +58,7 @@ final class SuiteProvider
 
             $info = $this->collector->getOrCreate($config, $this->filter);
             if ($info->testCases->getCases() !== []) {
-                $result[] = $info;
+                $result[] = [$config, $info];
             }
         }
 

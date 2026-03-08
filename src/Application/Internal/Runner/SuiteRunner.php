@@ -23,12 +23,12 @@ use Testo\Pipeline\Middleware\TestSuiteRunInterceptor;
 /**
  * A test suite runner that executes a suite of tests and returns the results.
  */
-final class SuiteRunner
+final readonly class SuiteRunner
 {
     public function __construct(
-        private readonly CaseRunner $caseRunner,
-        private readonly InterceptorProvider $interceptorProvider,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private CaseRunner $caseRunner,
+        private InterceptorProvider $interceptorProvider,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function runSuite(SuiteInfo $info, Filter $filter): SuiteResult

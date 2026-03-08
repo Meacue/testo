@@ -6,21 +6,23 @@ namespace Testo\Application\Config;
 
 /**
  * Test Suite configuration.
+ *
+ * @api
  */
-final class ApplicationConfig
+final readonly class ApplicationConfig
 {
     public function __construct(
         /**
          * Source code location.
          */
-        public readonly ?FinderConfig $src = null,
+        public ?FinderConfig $src = null,
 
         /**
          * Specify one or more Test Suites to be executed.
          *
          * @var non-empty-list<SuiteConfig>
          */
-        public readonly array $suites = [
+        public array $suites = [
             new SuiteConfig(
                 name: 'default',
                 location: new FinderConfig(['tests']),
@@ -32,7 +34,7 @@ final class ApplicationConfig
          *
          * @var PluginConfigurator
          */
-        public readonly array $plugins = [
+        public array $plugins = [
             DefaultServicesConfig::class,
         ],
     ) {

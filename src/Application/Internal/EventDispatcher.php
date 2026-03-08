@@ -10,6 +10,11 @@ use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
 use Testo\Application\Config\EventListenerCollector;
 
+/**
+ * A simple event dispatcher that supports listener priorities and event propagation control.
+ *
+ * @internal
+ */
 final class EventDispatcher implements
     EventListenerCollector,
     ListenerProviderInterface,

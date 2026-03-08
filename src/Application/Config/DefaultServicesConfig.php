@@ -11,14 +11,19 @@ use Testo\Common\Container;
 
 /**
  * Testo default services configuration.
+ *
+ * @api
  */
-class DefaultServicesConfig implements PluginConfigurator
+final readonly class DefaultServicesConfig implements PluginConfigurator
 {
-    public readonly array $services;
+    /**
+     * @var array<class-string, null|class-string|array<string, mixed>|\Closure(Container): object>
+     */
+    public array $services;
 
     /**
-     * @param array<class-string, \Closure|string|array|null> $definitions Service definitions.
-     *        Bindings for the Container {@see \Testo\Common\Container::bind}.
+     * @param array<class-string, null|class-string|array<string, mixed>|\Closure(Container): object> $definitions
+     *        Bindings (service definitions) for the Container {@see Container::bind()}.
      *        You can override the default services by providing your own implementations here with the same keys.
      */
     public function __construct(

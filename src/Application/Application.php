@@ -9,22 +9,25 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\Internal\ConfigInflector;
 use Testo\Application\Config\PluginConfigurator;
+use Testo\Application\Config\SuiteConfig;
 use Testo\Application\Internal\ObjectContainer;
 use Testo\Application\Internal\Runner\SuiteRunner;
 use Testo\Application\Internal\SuiteProvider;
 use Testo\Application\Value\Filter;
 use Testo\Application\Value\RunResult;
 use Testo\Common\Container;
+use Testo\Core\Context\SuiteInfo;
+use Testo\Core\Context\SuiteResult;
 use Testo\Core\Value\Status;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Framework\WorkerFinished;
 use Testo\Event\Framework\WorkerStarting;
 
-final class Application
+final readonly class Application
 {
     private function __construct(
-        private readonly ObjectContainer $container,
+        private ObjectContainer $container,
     ) {
         $config = $container->get(ApplicationConfig::class);
         $this->container->set($config);
@@ -94,16 +97,23 @@ final class Application
         $dispatcher->dispatch(new SessionStarting());
         $dispatcher->dispatch(new WorkerStarting());
 
-
         $suiteProvider = $this->container->get(SuiteProvider::class);
-        $suiteRunner = $this->container->get(SuiteRunner::class);
         $status = Status::Passed;
         $duration = \microtime(true);
 
         # Iterate and run Test Suites
         $suiteResults = [];
-        foreach ($suiteProvider->withFilter($filter)->getSuites() as $suite) {
-            $suiteResults[] = $suiteResult = $suiteRunner->runSuite($suite, $filter);
+        foreach ($suiteProvider->withFilter($filter)->getSuites() as [$config, $suite]) {
+            \assert($suite instanceof SuiteInfo);
+            \assert($config instanceof SuiteConfig);
+            $suiteResults[] = $suiteResult = $this->container->scope(
+                static function (Container $container) use ($suite, $filter, $config): SuiteResult {
+                    // todo apply plugins
+
+                    $suiteRunner = $container->get(SuiteRunner::class);
+                    return $suiteRunner->runSuite($suite, $filter);
+                },
+            );
             $suiteResult->status->isFailure() and $status = Status::Failed;
         }
 
