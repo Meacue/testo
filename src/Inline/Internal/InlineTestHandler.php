@@ -9,7 +9,7 @@ use Testo\Core\Context\TestInfo;
 use Testo\Inline\Exception\TestInlineAttributeMissingException;
 use Testo\Inline\TestInline;
 
-final readonly class InlineTestInvoker
+final readonly class InlineTestHandler
 {
     public function __invoke(TestInfo $info): mixed
     {

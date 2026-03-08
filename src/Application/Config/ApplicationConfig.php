@@ -32,7 +32,7 @@ final readonly class ApplicationConfig
         /**
          * List of plugins to load.
          *
-         * @var PluginConfigurator
+         * @var list<PluginConfigurator>
          */
         public array $plugins = [
             DefaultServicesConfig::class,

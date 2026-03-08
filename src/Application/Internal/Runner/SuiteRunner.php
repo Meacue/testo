@@ -10,7 +10,7 @@ use Testo\Application\Value\Filter;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\SuiteResult;
-use Testo\Core\Internal\DefaultInvoker;
+use Testo\Core\Internal\DefaultTestHandler;
 use Testo\Core\Value\Status;
 use Testo\Event\TestSuite\TestSuiteFinished;
 use Testo\Event\TestSuite\TestSuitePipelineFinished;
@@ -22,6 +22,7 @@ use Testo\Pipeline\Middleware\TestSuiteRunInterceptor;
 
 /**
  * A test suite runner that executes a suite of tests and returns the results.
+ * @internal
  */
 final readonly class SuiteRunner
 {
@@ -68,7 +69,7 @@ final readonly class SuiteRunner
         $status = Status::Passed;
 
         // Todo: unhardcode
-        $invoker = (new DefaultInvoker())(...);
+        $handler = (new DefaultTestHandler())(...);
 
         # Run tests for each case
         foreach ($suite->testCases->getCases() as $caseDefinition) {
@@ -78,7 +79,7 @@ final readonly class SuiteRunner
                     instance: $caseDefinition->reflection === null
                         ? null
                         : new SimpleCaseInstantiator($caseDefinition->reflection),
-                    invoker: $caseDefinition->invoker ?? $invoker,
+                    invoker: $caseDefinition->handler ?? $handler,
                 );
                 $result = $runner->runCase($caseInfo, $filter);
                 $result->status->isFailure() and $status = Status::Failed;

@@ -21,9 +21,9 @@ final class CaseDefinition
         public readonly TestDefinitions $tests = new TestDefinitions(),
 
         /**
-         * @var null|\Closure(TestInfo): mixed Invoker for the test method.
+         * @var null|\Closure(TestInfo): mixed Handler for executing the test methods in this case.
          */
-        public ?\Closure $invoker = null,
+        public ?\Closure $handler = null,
     ) {}
 
     public function with(
@@ -35,7 +35,7 @@ final class CaseDefinition
             $this->type,
             $this->reflection,
             $tests ?? $this->tests,
-            $this->invoker,
+            $this->handler,
         );
     }
 

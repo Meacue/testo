@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Testo\Bench\Middleware;
 
 use Testo\Bench\BenchWith;
-use Testo\Bench\Internal\BenchInvoker;
+use Testo\Bench\Internal\BenchHandler;
 use Testo\Common\Reflection;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Definition\CaseDefinitions;
@@ -23,11 +23,11 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 final class BenchFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     /** @var \Closure(TestInfo): mixed Invoker for the test method. */
-    private readonly \Closure $invoker;
+    private readonly \Closure $handler;
 
-    public function __construct(BenchInvoker $invoker)
+    public function __construct(BenchHandler $handler)
     {
-        $this->invoker = $invoker(...);
+        $this->handler = $handler(...);
     }
 
     #[\Override]
@@ -50,7 +50,7 @@ final class BenchFinder implements FileLocatorInterceptor, CaseLocatorIntercepto
                 if (Reflection::fetchFunctionAttributes($method, attributeClass: BenchWith::class)) {
                     if ($case === null) {
                         $case = $file->cases->define($class, $file, type: TestType::BenchInline);
-                        $case->invoker = $this->invoker;
+                        $case->handler = $this->handler;
                     }
 
                     $case->tests->define($method);
@@ -69,7 +69,7 @@ final class BenchFinder implements FileLocatorInterceptor, CaseLocatorIntercepto
             if (Reflection::fetchFunctionAttributes($function, attributeClass: BenchWith::class)) {
                 if ($case === null) {
                     $case = $file->cases->define(null, $file, type: TestType::BenchInline);
-                    $case->invoker = $this->invoker;
+                    $case->handler = $this->handler;
                 }
 
                 $case->tests->define($function);

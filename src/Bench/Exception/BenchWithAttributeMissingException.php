@@ -9,7 +9,7 @@ use Testo\Bench\Internal\BenchWithInterceptor;
 use Testo\Core\Context\TestInfo;
 
 /**
- * Thrown when {@see BenchWith} attribute is missing in {@see BenchInvoker}.
+ * Thrown when {@see BenchWith} attribute is missing in {@see BenchHandler}.
  *
  * This indicates a broken pipeline where the {@see BenchWithInterceptor} middleware
  * did not execute as expected. The {@see BenchWith} attribute should have been set

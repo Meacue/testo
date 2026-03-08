@@ -31,7 +31,7 @@ final readonly class Application
     ) {
         $config = $container->get(ApplicationConfig::class);
         $this->container->set($config);
-        $this->applyPlugins($config->plugins);
+        self::applyPlugins($this->container, $config->plugins);
     }
 
     /**
@@ -106,9 +106,10 @@ final readonly class Application
         foreach ($suiteProvider->withFilter($filter)->getSuites() as [$config, $suite]) {
             \assert($suite instanceof SuiteInfo);
             \assert($config instanceof SuiteConfig);
+            # Run each suite in a separate container scope to isolate services and plugins.
             $suiteResults[] = $suiteResult = $this->container->scope(
                 static function (Container $container) use ($suite, $filter, $config): SuiteResult {
-                    // todo apply plugins
+                    self::applyPlugins($container, $config->plugins);
 
                     $suiteRunner = $container->get(SuiteRunner::class);
                     return $suiteRunner->runSuite($suite, $filter);
@@ -135,11 +136,11 @@ final readonly class Application
      *
      * @param PluginConfigurator[]|class-string<PluginConfigurator> $plugins
      */
-    private function applyPlugins(array $plugins): void
+    private static function applyPlugins(Container $container, array $plugins): void
     {
         foreach ($plugins as $plugin) {
-            ($plugin instanceof PluginConfigurator ? $plugin : $this->container->make($plugin))
-                ->configure($this->container);
+            ($plugin instanceof PluginConfigurator ? $plugin : $container->make($plugin))
+                ->configure($container);
         }
     }
 }

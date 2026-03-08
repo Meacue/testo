@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Testo\Inline\Exception;
 
 use Testo\Core\Context\TestInfo;
-use Testo\Inline\Internal\InlineTestInvoker;
+use Testo\Inline\Internal\InlineTestHandler;
 use Testo\Inline\Internal\TestInlineInterceptor;
 use Testo\Inline\TestInline;
 
 /**
- * Thrown when {@see TestInline} attribute is missing in {@see InlineTestInvoker}.
+ * Thrown when {@see TestInline} attribute is missing in {@see InlineTestHandler}.
  *
  * This indicates a broken pipeline where the TestInlineInterceptor middleware
  * did not execute as expected. The TestInline attribute should have been set
  * by the interceptor before reaching the invoker.
  *
  * Possible causes:
- * - The {@see InlineTestInvoker} was assigned to a test case incorrectly.
+ * - The {@see InlineTestHandler} was assigned to a test case incorrectly.
  * - Another interceptor in the chain overwrote or removed the {@see TestInline} attribute.
  * - The {@see TestInlineInterceptor} was not registered or failed to execute.
  *

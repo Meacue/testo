@@ -19,12 +19,15 @@ use Testo\Pipeline\InterceptorProvider;
 use Testo\Pipeline\Internal\Pipeline;
 use Testo\Pipeline\Middleware\TestCaseRunInterceptor;
 
-final class CaseRunner
+/**
+ * @internal
+ */
+final readonly class CaseRunner
 {
     public function __construct(
-        private readonly TestRunner $testRunner,
-        private readonly InterceptorProvider $interceptorProvider,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private TestRunner $testRunner,
+        private InterceptorProvider $interceptorProvider,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function runCase(CaseInfo $info, Filter $filter): CaseResult

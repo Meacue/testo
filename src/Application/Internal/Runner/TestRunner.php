@@ -17,11 +17,14 @@ use Testo\Pipeline\InterceptorProvider;
 use Testo\Pipeline\Internal\Pipeline;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 
-final class TestRunner
+/**
+ * @internal
+ */
+final readonly class TestRunner
 {
     public function __construct(
-        private readonly InterceptorProvider $interceptorProvider,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private InterceptorProvider $interceptorProvider,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     public function runTest(TestInfo $info): TestResult

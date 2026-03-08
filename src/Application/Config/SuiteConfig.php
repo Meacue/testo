@@ -19,5 +19,10 @@ final class SuiteConfig
          * @var FinderConfig Configuration for locating test cases.
          */
         public readonly FinderConfig $location,
+
+        /**
+         * @var list<PluginConfigurator>
+         */
+        public array $plugins = [],
     ) {}
 }

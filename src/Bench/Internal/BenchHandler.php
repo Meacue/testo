@@ -16,7 +16,7 @@ use Testo\Core\Context\TestInfo;
 /**
  * @internal
  */
-final class BenchInvoker
+final class BenchHandler
 {
     public function __invoke(TestInfo $info): mixed
     {

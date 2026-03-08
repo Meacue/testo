@@ -6,7 +6,7 @@ namespace Testo\Core\Context;
 
 use Testo\Core\Common\AttributedTrait;
 use Testo\Core\Definition\CaseDefinition;
-use Testo\Core\Internal\DefaultInvoker;
+use Testo\Core\Internal\DefaultTestHandler;
 use Testo\Core\Value\CaseInstance;
 
 /**
@@ -36,7 +36,7 @@ final class CaseInfo
          */
         public readonly ?CaseInstance $instance = null,
         array $attributes = [],
-        callable $invoker = new DefaultInvoker(),
+        callable $invoker = new DefaultTestHandler(),
     ) {
         $this->name = $definition->getName();
         $this->attributes = $attributes;
