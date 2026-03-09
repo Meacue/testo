@@ -6,15 +6,20 @@ namespace Testo\Inline;
 
 use Testo\Application\Config\PluginConfigurator;
 use Testo\Common\Container;
-use Testo\Pipeline\InterceptorProvider;
+use Testo\Inline\Internal\InlineFinder;
+use Testo\Pipeline\InterceptorCollector;
 
 /**
+ * Plugin that enables Inline Tests feature.
+ *
+ * @see TestInline
+ * @link https://php-testo.github.io/docs/inline-tests
  * @api
  */
-final class InlinePlugin implements PluginConfigurator
+final readonly class InlinePlugin implements PluginConfigurator
 {
     public function configure(Container $container): void
     {
-        $container->get(InterceptorProvider::class);
+        $container->get(InterceptorCollector::class)->addInterceptor(InlineFinder::class);
     }
 }

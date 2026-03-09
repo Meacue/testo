@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Testo\Inline;
 
 use Testo\Assert;
-use Testo\Inline\Internal\TestInlineInterceptor;
+use Testo\Inline\Internal\InlineInterceptor;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 
@@ -64,8 +64,8 @@ use Testo\Pipeline\Attribute\Interceptable;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::IS_REPEATABLE)]
-#[FallbackInterceptor(TestInlineInterceptor::class)]
-final class TestInline implements Interceptable
+#[FallbackInterceptor(InlineInterceptor::class)]
+final readonly class TestInline implements Interceptable
 {
     /**
      * @param array $arguments Positional arguments to pass to the method/function
@@ -75,7 +75,7 @@ final class TestInline implements Interceptable
      *        - If null: indicates void or null return type
      */
     public function __construct(
-        public readonly array $arguments,
-        public readonly mixed $result = null,
+        public array $arguments,
+        public mixed $result = null,
     ) {}
 }

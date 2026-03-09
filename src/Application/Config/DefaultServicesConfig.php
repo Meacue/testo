@@ -8,6 +8,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Testo\Application\Internal\EventDispatcher;
 use Testo\Common\Container;
+use Testo\Pipeline\InterceptorCollector;
+use Testo\Pipeline\InterceptorProvider;
 
 /**
  * Testo default services configuration.
@@ -46,6 +48,7 @@ final readonly class DefaultServicesConfig implements PluginConfigurator
             EventDispatcherInterface::class => EventDispatcher::class,
             ListenerProviderInterface::class => EventDispatcher::class,
             EventListenerCollector::class => EventDispatcher::class,
+            InterceptorCollector::class => InterceptorProvider::class,
         ];
     }
 }

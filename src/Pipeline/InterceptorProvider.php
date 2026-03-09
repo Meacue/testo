@@ -12,22 +12,16 @@ use Testo\Assert\Interceptor\AssertCollectorInterceptor;
 use Testo\Assert\Interceptor\ExpectationsInterceptor;
 use Testo\Bench\Middleware\BenchFinder;
 use Testo\Common\Container;
-use Testo\Common\Reflection;
-use Testo\Inline\Middleware\TestInlineFinder;
+use Testo\Inline\Internal\InlineFinder;
 use Testo\Lifecycle\Interceptor\LifecycleInterceptor;
-use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
+use Testo\Pipeline\Internal\Cache;
 use Testo\Pipeline\Internal\InterceptorMarker;
 use Yiisoft\Injector\Injector;
 
-final class InterceptorProvider
+final class InterceptorProvider implements InterceptorCollector
 {
-    /**
-     * Map of interceptable attributes to their interceptors.
-     * @var array<class-string<Interceptable>, null|class-string<InterceptorMarker>>
-     */
-    private array $map = [];
-
+    private array $interceptors = [];
     private readonly Injector $injector;
 
     public function __construct(
@@ -36,11 +30,9 @@ final class InterceptorProvider
         $this->injector = $this->container->get(Injector::class)->withCacheReflections(true);
     }
 
-    public static function createDefault(Container $container): self
+    public function addInterceptor(InterceptorMarker|string $interceptor): void
     {
-        $self = new self($container);
-        $self->map = [];
-        return $self;
+        $this->interceptors[] = $interceptor;
     }
 
     /**
@@ -54,9 +46,8 @@ final class InterceptorProvider
      */
     public function fromConfig(string $class): array
     {
-        return $this->fromClasses($class, ...[
+        return $this->fromClasses($class, ...$this->interceptors, ...[
             FilterInterceptor::class,
-            TestInlineFinder::class,
             BenchFinder::class,
             new FilePostfixTestLocatorInterceptor(),
             new TestoAttributesLocatorInterceptor(),
@@ -111,7 +102,7 @@ final class InterceptorProvider
 
         foreach ($attributes as $attribute) {
             # Get alias interceptor
-            $iClass = $this->resolveAlias($attribute::class) ?? throw new \RuntimeException(
+            $iClass = Cache::resolveAlias($attribute::class) ?? throw new \RuntimeException(
                 \sprintf('No interceptor found for attribute %s.', $attribute::class),
             );
 
@@ -134,31 +125,5 @@ final class InterceptorProvider
     private function createInstance(string $class, array $arguments = []): InterceptorMarker
     {
         return $this->injector->make($class, $arguments);
-    }
-
-    /**
-     * Resolve alias interceptor for the given attribute class.
-     *
-     * @param class-string<Interceptable> $class The attribute class.
-     * @return class-string<InterceptorMarker>|null The interceptor class or null if not found.
-     */
-    private function resolveAlias(string $class): ?string
-    {
-        $c = $class;
-        do {
-            if (\array_key_exists($c, $this->map)) {
-                return $this->map[$c];
-            }
-
-            $c = \get_parent_class($c);
-        } while ($c);
-
-        /**
-         * Resolve fallback handler from the {@see FallbackInterceptor} attribute
-         * @var list<\ReflectionAttribute<FallbackInterceptor>> $attrs
-         */
-        $attrs = Reflection::fetchClassAttributes($class, attributeClass: FallbackInterceptor::class);
-
-        return $this->map[$class] ??= $attrs === [] ? null : $attrs[0]->newInstance()->class;
     }
 }

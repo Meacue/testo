@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Testo\Inline\Middleware;
+namespace Testo\Inline\Internal;
 
 use Testo\Common\Reflection;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Core\Value\TestType;
-use Testo\Inline\Internal\InlineTestHandler;
 use Testo\Inline\TestInline;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
@@ -18,17 +17,19 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
  * Finds inline tests defined with the {@see TestInline} attribute.
+ *
+ * @internal
  */
 #[InterceptorOptions(
     order: -20_000,
     testType: TestType::TestInline,
 )]
-final class TestInlineFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
+final readonly class InlineFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     /** @var \Closure(TestInfo): mixed Invoker for the test method. */
-    private readonly \Closure $handler;
+    private \Closure $handler;
 
-    public function __construct(InlineTestHandler $invoker)
+    public function __construct(InlineHandler $invoker)
     {
         $this->handler = $invoker(...);
     }

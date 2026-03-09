@@ -21,16 +21,18 @@ use Testo\Pipeline\Policy\ConflictPolicy;
 
 /**
  * Interceptor that runs the target method as a pure function with provided arguments and expected result.
+ *
+ * @internal
  */
 #[InterceptorOptions(
     order: InterceptorOptions::ORDER_DATA_PROVIDER,
     onConflict: ConflictPolicy::First,
     testType: TestType::TestInline,
 )]
-final class TestInlineInterceptor implements TestRunInterceptor
+final readonly class InlineInterceptor implements TestRunInterceptor
 {
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     #[\Override]

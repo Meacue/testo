@@ -21,7 +21,7 @@ final class SuiteConfig
         public readonly FinderConfig $location,
 
         /**
-         * @var list<PluginConfigurator>
+         * @var list<PluginConfigurator|class-string<PluginConfigurator>> List of plugins to load for this suite.
          */
         public array $plugins = [],
     ) {}

@@ -18,32 +18,15 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
- * Test suite collection and producer of SuiteInfo.
- * Caches SuiteInfo instances.
- *
  * @internal
  */
-final class SuiteCollector
+final readonly class SuiteFactory
 {
-    /** @var array<string, SuiteInfo> */
-    private array $suites = [];
-
     public function __construct(
-        // private readonly ClassLoader $classLoader,
-        private readonly InterceptorProvider $interceptorProvider,
+        private InterceptorProvider $interceptorProvider,
     ) {}
 
-    public function get(string $name): ?SuiteInfo
-    {
-        return $this->suites[$name] ?? null;
-    }
-
-    public function getOrCreate(SuiteConfig $config, Filter $filter): SuiteInfo
-    {
-        return $this->suites[$config->name] ??= $this->createInfo($config, $filter);
-    }
-
-    private function createInfo(SuiteConfig $config, Filter $filter): SuiteInfo
+    public function create(SuiteConfig $config, Filter $filter): SuiteInfo
     {
         $files = $this->getFilesIterator($config, $filter);
         $definitions = $this->getCaseDefinitions($config, $files, $filter);
