@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Application\Internal;
 
+use Internal\Path;
+use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
 use Testo\Application\Value\Filter;
 use Testo\Common\Container;
@@ -25,14 +27,41 @@ final readonly class SuiteProvider
      */
     public function findSuite(SuiteConfig $config): ?SuiteInfo
     {
+        # FILTERING
         $filter = $this->container->get(Filter::class);
-        $filterNames = $filter?->suites ?? [];
 
-        // Apply suite name filter
+        # Filter by suite name
+        $filterNames = $filter?->suites ?? [];
         if ($filterNames !== [] && !\in_array($config->name, $filterNames, true)) {
             return null;
         }
 
+        # Filter by path
+        if ($filter->paths !== []) {
+            /** @var list<Path> $filterPaths */
+            $filterPaths = \array_map(Path::create(...), $filter->paths);
+            $filterFunc = static function (Path $path) use ($filterPaths): ?Path {
+                foreach ($filterPaths as $fp) {
+                    if ($fp->match("$path*")) {
+                        return $fp;
+                    }
+                    if ($path->match("$fp*")) {
+                        return $path;
+                    }
+                }
+
+                return null;
+            };
+            $includes = \array_filter(\array_map($filterFunc, $config->location->includes));
+
+            if ($includes === []) {
+                return null;
+            }
+
+            $config = $config->with(finder: new FinderConfig(\array_unique($includes), $config->location->excludes));
+        }
+
+        # Create suite info
         $info = $this->container->make(SuiteFactory::class)->create($config, $filter);
         if ($info->testCases->getCases() !== []) {
             return $info;

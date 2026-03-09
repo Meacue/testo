@@ -9,31 +9,19 @@ use Internal\Path;
 /**
  * File system scope configuration.
  */
-final class FinderConfig
+final readonly class FinderConfig
 {
     /**
-     * @var non-empty-string[]
+     * @var Path[]
      * @readonly
      */
-    public array $includeDirs = [];
+    public array $includes;
 
     /**
-     * @var non-empty-string[]
+     * @var Path[]
      * @readonly
      */
-    public array $excludeDirs = [];
-
-    /**
-     * @var non-empty-string[]
-     * @readonly
-     */
-    public array $includeFiles = [];
-
-    /**
-     * @var non-empty-string[]
-     * @readonly
-     */
-    public array $excludeFiles = [];
+    public array $excludes;
 
     /**
      * @param iterable<non-empty-string|Path> $include Include directories or files to the scope
@@ -45,40 +33,20 @@ final class FinderConfig
         iterable $include = [],
         iterable $exclude = [],
     ) {
-        foreach ($include as $dir) {
-            $this->include($dir);
+        $excludes = $includes = [];
+        foreach ($include as $in) {
+            $path = Path::create($in)->absolute();
+            $path->exists() or throw new \InvalidArgumentException("File or directory not found: $path");
+            $includes[] = $path;
         }
 
-        foreach ($exclude as $dir) {
-            $this->exclude($dir);
+        foreach ($exclude as $ex) {
+            $path = Path::create($ex)->absolute();
+            $path->exists() or throw new \InvalidArgumentException("File or directory not found: $path");
+            $excludes[] = $path;
         }
-    }
 
-    /**
-     * Include directory or file to the scope
-     *
-     * @param non-empty-string|Path $path
-     */
-    public function include(string|Path $path): self
-    {
-        $path = Path::create($path);
-        $path->exists() or throw new \InvalidArgumentException("File or directory not found: $path");
-        $path->isDir() and $this->includeDirs[] = (string) $path->absolute();
-        $path->isFile() and $this->includeFiles[] = (string) $path->absolute();
-        return $this;
-    }
-
-    /**
-     * Exclude a directory or a file from the scope
-     *
-     * @param non-empty-string|Path $path
-     */
-    public function exclude(string|Path $path): self
-    {
-        $path = Path::create($path);
-        $path->exists() or throw new \InvalidArgumentException("File or directory not found: $path");
-        $path->isDir() and $this->excludeDirs[] = (string) $path->absolute();
-        $path->isFile() and $this->excludeFiles[] = (string) $path->absolute();
-        return $this;
+        $this->includes = $includes;
+        $this->excludes = $excludes;
     }
 }

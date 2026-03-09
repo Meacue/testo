@@ -22,22 +22,40 @@ final class Finder implements \Countable, \IteratorAggregate
     public function __construct(FinderConfig $config)
     {
         $this->finder = (new SymfonyFinder());
-        $this->finder->in($config->includeDirs);
-        $this->finder->append($config->includeFiles);
 
-        $config->excludeDirs !== [] || $config->excludeFiles !== [] and $this->finder->filter(
-            static function (\SplFileInfo $file) use ($config): bool {
+        # Include
+        $iDirs = $files = [];
+        foreach ($config->includes as $path) {
+            $path->isDir()
+                ? $iDirs[] = (string) $path
+                : $files[] = (string) $path;
+        }
+        $this->finder->in($iDirs);
+        $this->finder->append($files);
+
+        # Exclude
+        $eDirs = $files = [];
+        foreach ($config->excludes as $path) {
+            $path->isDir()
+                ? $eDirs[] = (string) $path
+                : $files[] = (string) $path;
+        }
+        $this->finder->in($eDirs);
+        $this->finder->append($files);
+
+        $eDirs === [] && $files === [] or $this->finder->filter(
+            static function (\SplFileInfo $file) use ($iDirs, $eDirs, $files): bool {
                 $path = Path::create($file->getRealPath())->absolute();
 
                 # Files in excluded files
-                if ($path->isFile() && \in_array((string) $path, $config->excludeFiles, true)) {
+                if ($path->isFile() && \in_array((string) $path, $files, true)) {
                     return false;
                 }
 
                 # Directories in excluded dirs
                 $target = (string) $path;
-                while (!\in_array($target, $config->includeDirs, true)) {
-                    if (\in_array($target, $config->excludeDirs, true)) {
+                while (!\in_array($target, $iDirs, true)) {
+                    if (\in_array($target, $eDirs, true)) {
                         return false;
                     }
 
