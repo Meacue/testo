@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Pipeline\Internal;
 
-use Testo\Pipeline\Internal\InterceptorMarker as TInterceptor;
+use Testo\Pipeline\Interceptor as TInterceptor;
 
 /**
  * Processor for interceptors chain.

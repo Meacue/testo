@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Testo\Pipeline\Middleware;
 
-use Testo\Pipeline\Internal\InterceptorMarker;
+use Testo\Pipeline\Interceptor;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
  * Intercept locating test files.
  *
- * @extends InterceptorMarker<TokenizedFile, null|bool>
+ * @extends \Testo\Pipeline\Interceptor<TokenizedFile, null|bool>
  */
-interface FileLocatorInterceptor extends InterceptorMarker
+interface FileLocatorInterceptor extends Interceptor
 {
     /**
      * Return true if the file might be interesting as a test file.

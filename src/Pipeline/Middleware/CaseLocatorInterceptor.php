@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Testo\Pipeline\Middleware;
 
 use Testo\Core\Definition\CaseDefinitions;
-use Testo\Pipeline\Internal\InterceptorMarker;
+use Testo\Pipeline\Interceptor;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 
 /**
  * Intercept locating test files and test cases.TokenizedFile
  *
- * @extends InterceptorMarker<FileDefinitions, CaseDefinitions>
+ * @extends \Testo\Pipeline\Interceptor<FileDefinitions, CaseDefinitions>
  */
-interface CaseLocatorInterceptor extends InterceptorMarker
+interface CaseLocatorInterceptor extends Interceptor
 {
     /**
      * Locate test cases in the given file.

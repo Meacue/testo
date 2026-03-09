@@ -7,6 +7,7 @@ namespace Testo\Pipeline\Internal;
 use Testo\Common\Reflection;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
+use Testo\Pipeline\Interceptor;
 
 /**
  * Cached map of interceptable attributes to their interceptors.
@@ -17,7 +18,7 @@ use Testo\Pipeline\Attribute\Interceptable;
 final class Cache
 {
     /**
-     * @var array<class-string<Interceptable>, null|class-string<InterceptorMarker>>
+     * @var array<class-string<Interceptable>, null|class-string<Interceptor>>
      */
     private static array $map = [];
 
@@ -25,7 +26,7 @@ final class Cache
      * Resolve alias interceptor for the given attribute class.
      *
      * @param class-string<Interceptable> $class The attribute class.
-     * @return class-string<InterceptorMarker>|null The interceptor class or null if not found.
+     * @return class-string<Interceptor>|null The interceptor class or null if not found.
      */
     public static function resolveAlias(string $class): ?string
     {

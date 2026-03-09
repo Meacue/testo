@@ -6,14 +6,14 @@ namespace Testo\Pipeline\Middleware;
 
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
-use Testo\Pipeline\Internal\InterceptorMarker;
+use Testo\Pipeline\Interceptor;
 
 /**
  * Intercept running a test case.
  *
- * @extends InterceptorMarker<CaseInfo, CaseResult>
+ * @extends Interceptor<CaseInfo, CaseResult>
  */
-interface TestCaseRunInterceptor extends InterceptorMarker
+interface TestCaseRunInterceptor extends Interceptor
 {
     /**
      * @param CaseInfo $info Test case to run.

@@ -6,7 +6,7 @@ namespace Testo\Pipeline\Internal;
 
 use Testo\Common\Reflection;
 use Testo\Pipeline\Attribute\InterceptorOptions;
-use Testo\Pipeline\Internal\InterceptorMarker as TInterceptor;
+use Testo\Pipeline\Interceptor as TInterceptor;
 use Testo\Pipeline\Policy\ConflictPolicy;
 
 /**

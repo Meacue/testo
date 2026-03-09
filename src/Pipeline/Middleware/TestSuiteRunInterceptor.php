@@ -8,14 +8,14 @@ use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\SuiteResult;
-use Testo\Pipeline\Internal\InterceptorMarker;
+use Testo\Pipeline\Interceptor;
 
 /**
  * Intercept running a test suite.
  *
- * @extends InterceptorMarker<CaseInfo, CaseResult>
+ * @extends Interceptor<CaseInfo, CaseResult>
  */
-interface TestSuiteRunInterceptor extends InterceptorMarker
+interface TestSuiteRunInterceptor extends Interceptor
 {
     /**
      * @param SuiteInfo $info Test suite to run.

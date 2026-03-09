@@ -9,7 +9,7 @@ use Testo\Application\Internal\Runner\TestRunner;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
-use Testo\Pipeline\Internal\InterceptorMarker;
+use Testo\Pipeline\Interceptor;
 
 /**
  * Interceptor for running tests.
@@ -22,9 +22,9 @@ use Testo\Pipeline\Internal\InterceptorMarker;
  *   Use this only for critical errors (e.g., configuration issues).
  * - For cleanup after $next(), use try/finally since subsequent interceptors may throw.
  *
- * @extends InterceptorMarker<TestInfo, TestResult>
+ * @extends \Testo\Pipeline\Interceptor<TestInfo, TestResult>
  */
-interface TestRunInterceptor extends InterceptorMarker
+interface TestRunInterceptor extends Interceptor
 {
     /**
      * @param TestInfo $info Information about the test to be run.

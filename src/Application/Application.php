@@ -88,7 +88,7 @@ final readonly class Application
     public function run(?Filter $filter = null): RunResult
     {
         return $this->container->scope(static function (Container $container) use ($filter): RunResult {
-            $filter === null or $this->container->set($filter);
+            $filter === null or $container->set($filter);
             $appConfig = $container->get(ApplicationConfig::class);
             $filter ??= $container->get(Filter::class);
             self::applyPlugins($container, $appConfig->plugins);

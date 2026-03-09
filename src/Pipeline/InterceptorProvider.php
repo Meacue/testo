@@ -12,11 +12,9 @@ use Testo\Assert\Interceptor\AssertCollectorInterceptor;
 use Testo\Assert\Interceptor\ExpectationsInterceptor;
 use Testo\Bench\Middleware\BenchFinder;
 use Testo\Common\Container;
-use Testo\Inline\Internal\InlineFinder;
 use Testo\Lifecycle\Interceptor\LifecycleInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Pipeline\Internal\Cache;
-use Testo\Pipeline\Internal\InterceptorMarker;
 use Yiisoft\Injector\Injector;
 
 final class InterceptorProvider implements InterceptorCollector
@@ -30,7 +28,7 @@ final class InterceptorProvider implements InterceptorCollector
         $this->injector = $this->container->get(Injector::class)->withCacheReflections(true);
     }
 
-    public function addInterceptor(InterceptorMarker|string $interceptor): void
+    public function addInterceptor(Interceptor|string $interceptor): void
     {
         $this->interceptors[] = $interceptor;
     }
@@ -38,11 +36,11 @@ final class InterceptorProvider implements InterceptorCollector
     /**
      * Get interceptors for the given configuration filtered by the given class.
      *
-     * @template-covariant T of InterceptorMarker
+     * @template-covariant T of Interceptor
      *
      * @param class-string<T> $class The target interceptor class.
      *
-     * @return InterceptorMarker Interceptor instances of the given class.
+     * @return Interceptor Interceptor instances of the given class.
      */
     public function fromConfig(string $class): array
     {
@@ -61,15 +59,15 @@ final class InterceptorProvider implements InterceptorCollector
     /**
      * Get interceptors for
      *
-     * @template-covariant T of InterceptorMarker
+     * @template-covariant T of Interceptor
      *
      * @param class-string<T> $class The target interceptor class.
-     * @param class-string<InterceptorMarker>|InterceptorMarker ...$interceptors Interceptor classes or instances
+     * @param class-string<Interceptor>|Interceptor ...$interceptors Interceptor classes or instances
      *        to filter by the given class.
      *
-     * @return InterceptorMarker Interceptor instances of the given class.
+     * @return Interceptor Interceptor instances of the given class.
      */
-    public function fromClasses(string $class, string|InterceptorMarker ...$interceptors): array
+    public function fromClasses(string $class, string|Interceptor ...$interceptors): array
     {
         $result = [];
         foreach ($interceptors as $interceptor) {
@@ -89,12 +87,12 @@ final class InterceptorProvider implements InterceptorCollector
     /**
      * Get interceptors for the given attributes set filtered by the given class.
      *
-     * @template-covariant T of InterceptorMarker
+     * @template-covariant T of Interceptor
      *
      * @param class-string<T> $class The target interceptor class.
      * @param Interceptable ...$attributes Attributes to get interceptors for.
      *
-     * @return InterceptorMarker Interceptors for the given attributes.
+     * @return Interceptor Interceptors for the given attributes.
      */
     public function fromAttributes(string $class, Interceptable ...$attributes): array
     {
@@ -115,14 +113,14 @@ final class InterceptorProvider implements InterceptorCollector
     /**
      * Creates an instance of the given class with the given arguments.
      *
-     * @template T of InterceptorMarker
+     * @template T of Interceptor
      *
      * @param class-string<T> $class The class to create.
      * @param array $arguments The arguments to pass to the constructor.
      *
-     * @return InterceptorMarker The created instance.
+     * @return Interceptor The created instance.
      */
-    private function createInstance(string $class, array $arguments = []): InterceptorMarker
+    private function createInstance(string $class, array $arguments = []): Interceptor
     {
         return $this->injector->make($class, $arguments);
     }

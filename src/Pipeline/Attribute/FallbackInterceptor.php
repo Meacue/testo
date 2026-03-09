@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Pipeline\Attribute;
 
-use Testo\Pipeline\Internal\InterceptorMarker;
+use Testo\Pipeline\Interceptor;
 
 /**
  * Define a fallback interceptor for the {@see Interceptable} attribute.
@@ -26,7 +26,7 @@ final class FallbackInterceptor
         /**
          * Interceptor class that can handle the attribute.
          *
-         * @var class-string<InterceptorMarker>
+         * @var class-string<\Testo\Pipeline\Interceptor>
          */
         public readonly string $class,
     ) {}
