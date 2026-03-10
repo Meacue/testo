@@ -47,9 +47,22 @@ declare(strict_types=1);
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
+use Testo\Bench\BenchmarkPlugin;
+use Testo\Inline\TestInlinePlugin;
 
 return new ApplicationConfig(
     suites: [
+        new SuiteConfig(
+            name: 'Sources',
+            location: new FinderConfig(
+                include: ['src'],
+            ),
+            plugins: [
+                // Allow benchmarking and Inline tests in the project source code
+                BenchmarkPlugin::class,
+                TestInlinePlugin::class,
+            ],
+        ),
         new SuiteConfig(
             name: 'Unit',
             location: new FinderConfig(

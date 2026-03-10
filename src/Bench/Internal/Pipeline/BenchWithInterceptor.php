@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Bench\Internal;
+namespace Testo\Bench\Internal\Pipeline;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Bench\BenchWith;
@@ -29,10 +29,10 @@ use Testo\Pipeline\Policy\ConflictPolicy;
     onConflict: ConflictPolicy::First,
     testType: TestType::BenchInline,
 )]
-final class BenchWithInterceptor implements TestRunInterceptor
+final readonly class BenchWithInterceptor implements TestRunInterceptor
 {
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     #[\Override]

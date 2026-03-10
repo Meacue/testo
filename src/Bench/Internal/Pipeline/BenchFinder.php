@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Bench\Middleware;
+namespace Testo\Bench\Internal\Pipeline;
 
 use Testo\Bench\BenchWith;
 use Testo\Bench\Internal\BenchHandler;
@@ -18,12 +18,14 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
  * Finds benchmarks defined with the {@see BenchWith} attribute.
+ *
+ * @internal
  */
 #[InterceptorOptions(order: -20_000, testType: TestType::BenchInline)]
-final class BenchFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
+final readonly class BenchFinder implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     /** @var \Closure(TestInfo): mixed Invoker for the test method. */
-    private readonly \Closure $handler;
+    private \Closure $handler;
 
     public function __construct(BenchHandler $handler)
     {

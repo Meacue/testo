@@ -11,17 +11,23 @@ final readonly class SuiteConfig
 {
     public function __construct(
         /**
-         * @var non-empty-string A unique name for the test suite.
+         * A unique name for the test suite.
+         *
+         * @var non-empty-string
          */
         public string $name,
 
         /**
-         * @var FinderConfig Configuration for locating test cases.
+         * Configuration for locating test cases.
+         *
+         * @var FinderConfig
          */
         public FinderConfig $location,
 
         /**
-         * @var list<PluginConfigurator|class-string<PluginConfigurator>> List of plugins to load for this suite.
+         * List of plugins to load for this suite.
+         *
+         * @var list<PluginConfigurator|class-string<PluginConfigurator>>
          */
         public array $plugins = [],
     ) {}

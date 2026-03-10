@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
-use Testo\Inline\InlinePlugin;
+use Testo\Inline\TestInlinePlugin;
 
 /**
  * Test suites for Data component.
@@ -16,7 +16,7 @@ return [
             include: [__DIR__ . '/Self'],
         ),
         plugins: [
-            InlinePlugin::class,
+            TestInlinePlugin::class,
         ],
     ),
 ];

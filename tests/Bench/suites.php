@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
+use Testo\Bench\BenchmarkPlugin;
 use Testo\Bench\BenchWith;
-use Testo\Inline\InlinePlugin;
+use Testo\Inline\TestInlinePlugin;
 
 return [
     new SuiteConfig(
@@ -16,7 +17,7 @@ return [
             ],
         ),
         plugins: [
-            InlinePlugin::class,
+            TestInlinePlugin::class,
         ],
     ),
     new SuiteConfig(
@@ -25,7 +26,8 @@ return [
             include: [__DIR__ . '/Self'],
         ),
         plugins: [
-            InlinePlugin::class,
+            BenchmarkPlugin::class,
+            TestInlinePlugin::class,
         ],
     ),
 ];
