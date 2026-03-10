@@ -70,11 +70,13 @@ class AssertException extends \Exception implements Record
         return $this->context;
     }
 
+    #[\Override]
     public function getFailReason(): string
     {
         return '';
     }
 
+    #[\Override]
     public function getFailDetails(): string
     {
         return '';

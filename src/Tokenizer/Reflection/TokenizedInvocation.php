@@ -11,8 +11,10 @@ use Testo\Tokenizer\Exception\ReflectionException;
  * ReflectionInvocation used to represent function or static method call found by ReflectionFile.
  * This reflection is very useful for static analysis and mainly used in Translator component to
  * index translation function usages.
+ *
+ * @psalm-immutable
  */
-final class TokenizedInvocation
+final readonly class TokenizedInvocation
 {
     /**
      * New call reflection.
@@ -25,40 +27,40 @@ final class TokenizedInvocation
         /**
          * Function usage filename.
          */
-        public readonly Path $filename,
+        public Path $filename,
         /**
          * Function usage line.
          */
-        public readonly int $line,
+        public int $line,
         /**
          * Parent class.
-         * @var class-string|''
+         * @var class-string|""
          */
-        public readonly string $class,
+        public string $class,
         /**
          * Method operator (:: or ->).
-         * @var '::'|'->'|''
+         * @var "::"|"->"|""
          */
-        public readonly string $operator,
+        public string $operator,
         /**
          * Function or method name.
          * @var non-empty-string
          */
-        public readonly string $name,
+        public string $name,
         /**
          * All parsed function arguments.
          *
          * @var TokenizedArgument[]
          */
-        public readonly array $arguments,
+        public array $arguments,
         /**
          * Function usage src.
          */
-        public readonly string $source,
+        public string $source,
         /**
          * Invoking level.
          */
-        public readonly int $level,
+        public int $level,
     ) {}
 
     /**

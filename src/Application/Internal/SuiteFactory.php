@@ -10,9 +10,9 @@ use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Definition\CaseDefinition;
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Pipeline\InterceptorProvider;
-use Testo\Pipeline\Internal\Pipeline;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
+use Testo\Pipeline\Pipeline;
 use Testo\Tokenizer\FileLocator;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
@@ -63,7 +63,7 @@ final readonly class SuiteFactory
          * @see FileLocatorInterceptor::locateFile()
          * @var callable(TokenizedFile): (null|bool) $pipeline
          */
-        $pipeline = Pipeline::prepare($filter->type, ...$interceptors)
+        $pipeline = \Testo\Pipeline\Pipeline::prepare($filter->type, ...$interceptors)
             ->with(static fn(TokenizedFile $file): ?bool => null, 'locateFile');
 
         foreach ($locator->getIterator() as $fileReflection) {

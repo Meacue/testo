@@ -11,16 +11,18 @@ use Testo\Pipeline\Attribute\Interceptable;
 
 /**
  * Marks a method to be executed after each test run.
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 #[FallbackInterceptor(LifecycleInterceptor::class)]
-final class AfterEach implements Interceptable, LifecycleAttribute
+final readonly class AfterEach implements Interceptable, LifecycleAttribute
 {
     public function __construct(
         /**
          * The priority of the method.
          * Higher priority methods are executed first.
          */
-        public readonly int $priority = 0,
+        public int $priority = 0,
     ) {}
 }

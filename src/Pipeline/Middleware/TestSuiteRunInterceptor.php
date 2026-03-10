@@ -14,6 +14,8 @@ use Testo\Pipeline\Interceptor;
  * Intercept running a test suite.
  *
  * @extends Interceptor<CaseInfo, CaseResult>
+ *
+ * @api
  */
 interface TestSuiteRunInterceptor extends Interceptor
 {

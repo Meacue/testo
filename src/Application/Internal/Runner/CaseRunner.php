@@ -16,8 +16,8 @@ use Testo\Event\TestCase\TestCasePipelineFinished;
 use Testo\Event\TestCase\TestCasePipelineStarting;
 use Testo\Event\TestCase\TestCaseStarting;
 use Testo\Pipeline\InterceptorProvider;
-use Testo\Pipeline\Internal\Pipeline;
 use Testo\Pipeline\Middleware\TestCaseRunInterceptor;
+use Testo\Pipeline\Pipeline;
 
 /**
  * @internal

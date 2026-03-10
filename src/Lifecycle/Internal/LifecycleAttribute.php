@@ -9,5 +9,6 @@ namespace Testo\Lifecycle\Internal;
  *
  * @property-read int $priority
  * @internal
+ * @psalm-internal Testo\Lifecycle
  */
 interface LifecycleAttribute {}

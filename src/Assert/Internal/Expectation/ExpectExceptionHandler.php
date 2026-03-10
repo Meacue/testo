@@ -36,6 +36,7 @@ final class ExpectExceptionHandler implements ExpectedException
      * @param class-string $class Fully qualified class name.
      * @param string $method Method name.
      */
+    #[\Override]
     public function fromMethod(string $class, string $method): self
     {
         throw new \LogicException('Not implemented yet');
@@ -44,6 +45,7 @@ final class ExpectExceptionHandler implements ExpectedException
     /**
      * The expected exception should have the exact message.
      */
+    #[\Override]
     public function withMessage(string $message): self
     {
         throw new \LogicException('Not implemented yet');
@@ -54,6 +56,7 @@ final class ExpectExceptionHandler implements ExpectedException
      *
      * @param non-empty-string $pattern Regex pattern.
      */
+    #[\Override]
     public function withMessagePattern(string $pattern): self
     {
         throw new \LogicException('Not implemented yet');
@@ -64,6 +67,7 @@ final class ExpectExceptionHandler implements ExpectedException
      *
      * @param non-empty-string $substring Substring to search for.
      */
+    #[\Override]
     public function withMessageContaining(string $substring): self
     {
         throw new \LogicException('Not implemented yet');
@@ -74,6 +78,7 @@ final class ExpectExceptionHandler implements ExpectedException
      *
      * @param int|list<int> $code Expected code or list of expected codes.
      */
+    #[\Override]
     public function withCode(int|array $code): self
     {
         throw new \LogicException('Not implemented yet');
@@ -82,6 +87,7 @@ final class ExpectExceptionHandler implements ExpectedException
     /**
      * The expected exception should not have a previous exception.
      */
+    #[\Override]
     public function withoutPrevious(): self
     {
         throw new \LogicException('Not implemented yet');
@@ -93,6 +99,7 @@ final class ExpectExceptionHandler implements ExpectedException
      * @param class-string|\Throwable $classOrObject Expected previous exception class, interface, or an object.
      * @param (callable(self): mixed)|null $assertion Optional assertion callback for the previous exception.
      */
+    #[\Override]
     public function withPrevious(\Throwable|string $classOrObject, ?callable $assertion = null): self
     {
         throw new \LogicException('Not implemented yet');

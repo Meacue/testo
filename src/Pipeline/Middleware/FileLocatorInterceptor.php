@@ -11,6 +11,8 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
  * Intercept locating test files.
  *
  * @extends \Testo\Pipeline\Interceptor<TokenizedFile, null|bool>
+ *
+ * @api
  */
 interface FileLocatorInterceptor extends Interceptor
 {

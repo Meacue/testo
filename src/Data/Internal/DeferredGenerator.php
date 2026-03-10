@@ -66,6 +66,7 @@ final class DeferredGenerator implements \Iterator
     /**
      * Get the current value of the generator.
      */
+    #[\Override]
     public function current(): mixed
     {
         $this->start();
@@ -75,6 +76,7 @@ final class DeferredGenerator implements \Iterator
     /**
      * Get the current key of the generator.
      */
+    #[\Override]
     public function key(): mixed
     {
         $this->start();
@@ -84,6 +86,7 @@ final class DeferredGenerator implements \Iterator
     /**
      * Start or resume the generator.
      */
+    #[\Override]
     public function next(): void
     {
         if (!$this->started || $this->finished) {
@@ -99,6 +102,7 @@ final class DeferredGenerator implements \Iterator
      *
      * @note It starts the Generator.
      */
+    #[\Override]
     public function valid(): bool
     {
         $this->start();
@@ -106,6 +110,7 @@ final class DeferredGenerator implements \Iterator
         return $result;
     }
 
+    #[\Override]
     public function rewind(): void
     {
         $this->generator->rewind();

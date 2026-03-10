@@ -38,7 +38,7 @@ final class Sorter
         $orders = [];
         $filters = [];
 
-        /** @var TInterceptor $groups */
+        /** @var array<int, array<class-string, TInterceptor>> $groups */
         $groups = [];
         foreach ($interceptors as $interceptor) {
             $class = $interceptor::class;

@@ -46,6 +46,7 @@ final class TerminalRenderer implements PluginConfigurator
         Style::setColorsEnabled($colorMode->shouldUseColors());
     }
 
+    #[\Override]
     public function configure(Container $container): void
     {
         $listeners = $container->get(EventListenerCollector::class);

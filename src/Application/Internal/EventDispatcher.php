@@ -26,6 +26,7 @@ final class EventDispatcher implements
      */
     private array $listeners = [];
 
+    #[\Override]
     public function addListener(string $eventName, callable $callback, int $priority = 0): void
     {
         $this->listeners[$eventName][$priority][] = $callback;
@@ -37,6 +38,7 @@ final class EventDispatcher implements
      * @param T $event
      * @return iterable<callable(T): mixed>
      */
+    #[\Override]
     public function getListenersForEvent(object $event): iterable
     {
         $eventName = $event::class;
@@ -63,6 +65,7 @@ final class EventDispatcher implements
      * @param T $event
      * @return T
      */
+    #[\Override]
     public function dispatch(object $event): object
     {
         /** @var callable $listener */
@@ -79,6 +82,7 @@ final class EventDispatcher implements
         return $event;
     }
 
+    #[\Override]
     public function destroy(): void
     {
         $this->listeners = [];

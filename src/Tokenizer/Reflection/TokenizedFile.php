@@ -148,7 +148,7 @@ final class TokenizedFile
     {
         $result = [];
         foreach ($this->methods as $class => $methods) {
-            foreach ($methods as $method => $location) {
+            foreach ($methods as $method => $_) {
                 $result[] = "$class::$method";
             }
         }
@@ -289,6 +289,7 @@ final class TokenizedFile
             }
         }
 
+        /** @psalm-suppress InaccessibleProperty */
         $this->hasIncludes = $hasIncludes;
 
         //Dropping empty namespace

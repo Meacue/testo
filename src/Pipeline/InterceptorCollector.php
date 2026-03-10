@@ -6,6 +6,8 @@ namespace Testo\Pipeline;
 
 /**
  * Provides API to configure {@see InterceptorProvider}.
+ *
+ * @api
  */
 interface InterceptorCollector
 {

@@ -63,6 +63,7 @@ use Testo\Output\Terminal\TerminalRenderer;
 )]
 final class Run extends Base
 {
+    #[\Override]
     public function configure(): void
     {
         parent::configure();

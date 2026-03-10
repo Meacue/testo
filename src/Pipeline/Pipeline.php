@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Testo\Pipeline\Internal;
+namespace Testo\Pipeline;
 
 use Testo\Pipeline\Interceptor as TInterceptor;
+use Testo\Pipeline\Internal\Sorter;
 
 /**
  * Processor for interceptors chain.
@@ -14,9 +15,6 @@ use Testo\Pipeline\Interceptor as TInterceptor;
  * @template-covariant TOutput of mixed
  *
  * @psalm-immutable
- *
- * @internal
- * @psalm-internal Testo
  */
 final class Pipeline
 {

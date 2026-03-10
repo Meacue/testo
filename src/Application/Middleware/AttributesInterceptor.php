@@ -12,9 +12,9 @@ use Testo\Core\Context\TestResult;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\InterceptorProvider;
-use Testo\Pipeline\Internal\Pipeline;
 use Testo\Pipeline\Middleware\TestCaseRunInterceptor;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
+use Testo\Pipeline\Pipeline;
 
 /**
  * Reads {@see Interceptable} attributes and integrates them into the pipeline.

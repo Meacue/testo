@@ -56,6 +56,7 @@ final class FileLocator implements \IteratorAggregate
      * @return \Generator<int, TokenizedFile, mixed, void>
      * @throws \Exception
      */
+    #[\Override]
     public function getIterator(): \Generator
     {
         foreach ($this->finder->getIterator() as $file) {

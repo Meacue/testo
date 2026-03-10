@@ -18,6 +18,8 @@ use Testo\Pipeline\Interceptor;
  * ```
  *
  * Makes sense only for interceptors that are executed during tests execution.
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class FallbackInterceptor

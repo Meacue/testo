@@ -17,8 +17,8 @@ use Testo\Event\TestSuite\TestSuitePipelineFinished;
 use Testo\Event\TestSuite\TestSuitePipelineStarting;
 use Testo\Event\TestSuite\TestSuiteStarting;
 use Testo\Pipeline\InterceptorProvider;
-use Testo\Pipeline\Internal\Pipeline;
 use Testo\Pipeline\Middleware\TestSuiteRunInterceptor;
+use Testo\Pipeline\Pipeline;
 
 /**
  * A test suite runner that executes a suite of tests and returns the results.

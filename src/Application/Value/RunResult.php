@@ -29,6 +29,7 @@ final class RunResult implements \IteratorAggregate
     /**
      * @return \Traversable<SuiteResult>
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield from $this->results;

@@ -13,16 +13,18 @@ use Testo\Pipeline\Attribute\Interceptable;
  * Marks a method to be executed once before all tests in the test case.
  *
  * Typically used for expensive setup operations that can be shared across all tests.
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 #[FallbackInterceptor(LifecycleInterceptor::class)]
-final class BeforeAll implements Interceptable, LifecycleAttribute
+final readonly class BeforeAll implements Interceptable, LifecycleAttribute
 {
     public function __construct(
         /**
          * The priority of the method.
          * Higher priority methods are executed first.
          */
-        public readonly int $priority = 0,
+        public int $priority = 0,
     ) {}
 }

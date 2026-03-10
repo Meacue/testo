@@ -12,6 +12,8 @@ use Testo\Pipeline\Interceptor;
  * Intercept running a test case.
  *
  * @extends Interceptor<CaseInfo, CaseResult>
+ *
+ * @api
  */
 interface TestCaseRunInterceptor extends Interceptor
 {

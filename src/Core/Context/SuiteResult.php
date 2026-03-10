@@ -26,6 +26,7 @@ final class SuiteResult implements \IteratorAggregate
     /**
      * @return \Traversable<CaseResult>
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield from $this->results;

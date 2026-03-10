@@ -23,6 +23,7 @@ final class CaseResult implements \IteratorAggregate
         public readonly Status $status,
     ) {}
 
+    #[\Override]
     public function getIterator(): \Traversable
     {
         yield from $this->results;

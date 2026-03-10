@@ -8,6 +8,8 @@ use Testo\Pipeline\Policy\ConflictPolicy;
 
 /**
  * Interceptor options.
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_CLASS)]
 final class InterceptorOptions

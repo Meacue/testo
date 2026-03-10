@@ -8,6 +8,8 @@ namespace Testo\Pipeline\Policy;
  * Merge policy for interceptors.
  *
  * Determines how to handle multiple interceptors of the same type.
+ *
+ * @api
  */
 enum ConflictPolicy
 {

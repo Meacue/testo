@@ -33,6 +33,7 @@ final class TeamcityRenderer implements PluginConfigurator
         private readonly TeamcityLogger $logger,
     ) {}
 
+    #[\Override]
     public function configure(Container $container): void
     {
         $listeners = $container->get(EventListenerCollector::class);

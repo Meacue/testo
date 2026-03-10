@@ -22,7 +22,9 @@ use Testo\Pipeline\Interceptor;
  *   Use this only for critical errors (e.g., configuration issues).
  * - For cleanup after $next(), use try/finally since subsequent interceptors may throw.
  *
- * @extends \Testo\Pipeline\Interceptor<TestInfo, TestResult>
+ * @extends Interceptor<TestInfo, TestResult>
+ *
+ * @api
  */
 interface TestRunInterceptor extends Interceptor
 {

@@ -50,6 +50,7 @@ abstract class Base extends Command
      *
      * Adds option for specifying configuration file location.
      */
+    #[\Override]
     public function configure(): void
     {
         parent::configure();
@@ -66,6 +67,7 @@ abstract class Base extends Command
      *
      * @return int Command success code
      */
+    #[\Override]
     protected function execute(
         InputInterface $input,
         OutputInterface $output,

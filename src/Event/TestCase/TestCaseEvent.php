@@ -8,6 +8,8 @@ use Testo\Core\Context\CaseInfo;
 
 /**
  * Test case related event.
+ *
+ * @psalm-immutable
  */
 abstract class TestCaseEvent
 {

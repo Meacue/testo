@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-    errorLevel="1"
+    errorLevel="3"
     hoistConstants="true"
     findUnusedPsalmSuppress="false"
     findUnusedVariablesAndParams="true"
@@ -16,6 +16,15 @@
         <directory name="src" />
         <ignoreFiles>
             <directory name="vendor" />
+            <directory name="src/Tokenizer" />
+            <directory name="src/Output/Teamcity" />
+            <directory name="src/Output/Terminal" />
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <MissingPureAnnotation errorLevel="suppress" />
+        <MissingImmutableAnnotation errorLevel="suppress" />
+        <TypeDoesNotContainType errorLevel="suppress" />
+        <UnnecessaryVarAnnotation errorLevel="suppress" />
+    </issueHandlers>
 </psalm>

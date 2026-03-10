@@ -15,6 +15,9 @@ use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Pipeline\Internal\Cache;
 use Yiisoft\Injector\Injector;
 
+/**
+ * @api
+ */
 final class InterceptorProvider implements InterceptorCollector
 {
     private array $interceptors = [];
@@ -26,6 +29,7 @@ final class InterceptorProvider implements InterceptorCollector
         $this->injector = $this->container->get(Injector::class)->withCacheReflections(true);
     }
 
+    #[\Override]
     public function addInterceptor(Interceptor|string $interceptor): void
     {
         $this->interceptors[] = $interceptor;
@@ -34,11 +38,11 @@ final class InterceptorProvider implements InterceptorCollector
     /**
      * Get interceptors for the given configuration filtered by the given class.
      *
-     * @template-covariant T of Interceptor
+     * @template T of Interceptor
      *
      * @param class-string<T> $class The target interceptor class.
      *
-     * @return Interceptor Interceptor instances of the given class.
+     * @return list<T> Interceptor instances of the given class.
      */
     public function fromConfig(string $class): array
     {
@@ -55,20 +59,20 @@ final class InterceptorProvider implements InterceptorCollector
     /**
      * Get interceptors for
      *
-     * @template-covariant T of Interceptor
+     * @template T of Interceptor
      *
      * @param class-string<T> $class The target interceptor class.
      * @param class-string<Interceptor>|Interceptor ...$interceptors Interceptor classes or instances
      *        to filter by the given class.
      *
-     * @return Interceptor Interceptor instances of the given class.
+     * @return list<T> Interceptor instances of the given class.
      */
     public function fromClasses(string $class, string|Interceptor ...$interceptors): array
     {
         $result = [];
         foreach ($interceptors as $interceptor) {
             if (\is_string($interceptor)) {
-                if (\class_exists($interceptor) && !\is_a($interceptor, $class, true)) {
+                if (!\class_exists($interceptor) || !\is_a($interceptor, $class, true)) {
                     continue;
                 }
 
@@ -77,18 +81,19 @@ final class InterceptorProvider implements InterceptorCollector
 
             $interceptor instanceof $class and $result[] = $interceptor;
         }
+
         return $result;
     }
 
     /**
      * Get interceptors for the given attributes set filtered by the given class.
      *
-     * @template-covariant T of Interceptor
+     * @template T of Interceptor
      *
      * @param class-string<T> $class The target interceptor class.
      * @param Interceptable ...$attributes Attributes to get interceptors for.
      *
-     * @return Interceptor Interceptors for the given attributes.
+     * @return list<T> Interceptors for the given attributes.
      */
     public function fromAttributes(string $class, Interceptable ...$attributes): array
     {
@@ -114,7 +119,7 @@ final class InterceptorProvider implements InterceptorCollector
      * @param class-string<T> $class The class to create.
      * @param array $arguments The arguments to pass to the constructor.
      *
-     * @return Interceptor The created instance.
+     * @return T The created instance.
      */
     private function createInstance(string $class, array $arguments = []): Interceptor
     {

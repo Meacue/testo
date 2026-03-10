@@ -34,6 +34,7 @@ final readonly class DefaultServicesConfig implements PluginConfigurator
         $this->services = $definitions + self::getDefaults();
     }
 
+    #[\Override]
     public function configure(Container $container): void
     {
         foreach ($this->services as $key => $definition) {

@@ -81,11 +81,13 @@ final class Finder implements \Countable, \IteratorAggregate
         return $self;
     }
 
+    #[\Override]
     public function getIterator(): \IteratorAggregate
     {
         return $this->finder;
     }
 
+    #[\Override]
     public function count(): int
     {
         return $this->finder->count();

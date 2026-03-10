@@ -53,6 +53,7 @@ final class ConfigInflector implements Inflector
     /**
      * Hydrates a configuration object with values from the configured sources.
      */
+    #[\Override]
     public function inflect(object $object, Container $container): object
     {
         # Detect inflectable config
