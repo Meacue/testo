@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Lifecycle;
 
-use Testo\Lifecycle\Interceptor\LifecycleInterceptor;
 use Testo\Lifecycle\Internal\LifecycleAttribute;
+use Testo\Lifecycle\Internal\LifecycleInterceptor;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 

@@ -11,7 +11,6 @@ use Testo\Application\Middleware\Locator\TestoAttributesLocatorInterceptor;
 use Testo\Assert\Interceptor\AssertCollectorInterceptor;
 use Testo\Assert\Interceptor\ExpectationsInterceptor;
 use Testo\Common\Container;
-use Testo\Lifecycle\Interceptor\LifecycleInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Pipeline\Internal\Cache;
 use Yiisoft\Injector\Injector;
@@ -50,7 +49,6 @@ final class InterceptorProvider implements InterceptorCollector
             new AssertCollectorInterceptor(),
             AttributesInterceptor::class,
             new ExpectationsInterceptor(),
-            LifecycleInterceptor::class,
         ]);
     }
 

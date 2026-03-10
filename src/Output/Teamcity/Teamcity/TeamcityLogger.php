@@ -60,8 +60,13 @@ final class TeamcityLogger
 
         $this->publish(Formatter::blockOpened('Environment'));
 
-        // echo self::key('OS') . \sprintf('%s (%s)', Environment::getOs(), Environment::getCpu()) . "\n";
-        echo self::key('PHP') . \sprintf('%s (%s, memory: %s)', Environment::getPhpVersion(), \PHP_SAPI, \ini_get('memory_limit') ?: 'unlimited') . "\n";
+        echo self::key('PHP') . \sprintf(
+            '%s %s (%s, memory: %s)',
+            Environment::getPhpVersion(),
+            Environment::getThread(),
+            \PHP_SAPI,
+            \ini_get('memory_limit') ?: 'unlimited',
+        ) . "\n";
 
         $modes = Environment::getXDebugMode();
         $xdebug = match (true) {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Lifecycle\Interceptor;
+namespace Testo\Lifecycle\Internal;
 
 use Testo\Common\Reflection;
 use Testo\Core\Context\CaseInfo;
@@ -15,16 +15,17 @@ use Testo\Lifecycle\AfterAll;
 use Testo\Lifecycle\AfterEach;
 use Testo\Lifecycle\BeforeAll;
 use Testo\Lifecycle\BeforeEach;
-use Testo\Lifecycle\Internal\LifecycleAttribute;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestCaseRunInterceptor;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 
 /**
  * Processes lifecycle methods like {@see \Testo\Lifecycle\BeforeEach} and {@see \Testo\Lifecycle\AfterEach}.
+ *
+ * @internal
+ * @psalm-internal Testo\Lifecycle
  */
-#[
-InterceptorOptions(
+#[InterceptorOptions(
     order: PHP_INT_MAX,
     testType: TestType::Test,
 )]

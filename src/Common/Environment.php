@@ -16,6 +16,7 @@ final class Environment
     private static ?string $xDebugVersion;
     private static bool $opCacheEnabled;
     private static bool $jitEnabled;
+    private static string $thread;
 
     private function __construct() {}
 
@@ -23,6 +24,12 @@ final class Environment
     {
         self::init();
         return self::$phpVersion;
+    }
+
+    public static function getThread(): string
+    {
+        self::init();
+        return self::$thread;
     }
 
     public static function getOs(): string
@@ -83,6 +90,7 @@ final class Environment
 
         $skip = true;
         self::$phpVersion = \phpversion();
+        self::$thread = \PHP_ZTS ? 'ZTS' : 'NTS';
         self::$os = \php_uname('s') . ' ' . \php_uname('r');
         self::$cpu = \php_uname('m');
         self::$xDebugExists = \extension_loaded('xdebug');
