@@ -9,8 +9,8 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Testo\Output\Teamcity\TeamcityRenderer;
-use Testo\Output\Terminal\TerminalRenderer;
+use Testo\Output\Teamcity\TeamcityPlugin;
+use Testo\Output\Terminal\TerminalPlugin;
 
 /**
  * Executes test suites with optional filtering and custom output formatting.
@@ -99,8 +99,8 @@ final class Run extends Base
         OutputInterface $output,
     ): int {
         $input->getOption('teamcity')
-            ? $this->container->get(TeamcityRenderer::class)->configure($this->container)
-            : $this->container->get(TerminalRenderer::class)->configure($this->container);
+            ? $this->container->get(TeamcityPlugin::class)->configure($this->container)
+            : $this->container->get(TerminalPlugin::class)->configure($this->container);
 
         $result = $this->application->run();
 

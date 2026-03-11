@@ -16,7 +16,7 @@ use Testo\Pipeline\InterceptorCollector;
  * @link https://php-testo.github.io/docs/inline-tests
  * @api
  */
-final readonly class TestInlinePlugin implements PluginConfigurator
+final readonly class InlineTestPlugin implements PluginConfigurator
 {
     #[\Override]
     public function configure(Container $container): void

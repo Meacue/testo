@@ -9,6 +9,9 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\DefaultServicesConfig;
 use Testo\Application\Config\Internal\ConfigInflector;
+use Testo\Application\Config\Plugin\ApplicationPlugins;
+use Testo\Application\Config\Plugin\PluginCollection;
+use Testo\Application\Config\Plugin\SuitePlugins;
 use Testo\Application\Config\PluginConfigurator;
 use Testo\Application\Internal\ObjectContainer;
 use Testo\Application\Internal\Runner\SuiteRunner;
@@ -28,7 +31,7 @@ final readonly class Application
     private function __construct(
         private ObjectContainer $container,
     ) {
-        self::applyPlugins($container, [DefaultServicesConfig::class]);
+        (new DefaultServicesConfig())->configure($container);
     }
 
     /**
@@ -91,7 +94,7 @@ final readonly class Application
             $filter === null or $container->set($filter);
             $appConfig = $container->get(ApplicationConfig::class);
             $filter ??= $container->get(Filter::class);
-            self::applyPlugins($container, $appConfig->plugins);
+            self::applyPlugins($container, self::resolvePlugins($appConfig->plugins, ApplicationPlugins::class));
 
             $dispatcher = $container->get(EventDispatcherInterface::class);
             $dispatcher->dispatch(new SessionStarting());
@@ -109,7 +112,7 @@ final readonly class Application
                 $suiteResult = $container->scope(
                     static function (Container $container) use ($filter, $config, $suiteProvider): ?SuiteResult {
                         # Apply plugins first to have all interceptors before suite files scanning
-                        self::applyPlugins($container, $config->plugins);
+                        self::applyPlugins($container, self::resolvePlugins($config->plugins, SuitePlugins::class));
 
                         if (null === $suite = $suiteProvider->findSuite($config)) {
                             return null;
@@ -142,15 +145,28 @@ final readonly class Application
     }
 
     /**
+     * Normalize an iterable of plugins into a resolved flat list.
+     *
+     * @param iterable<PluginConfigurator> $plugins
+     * @param class-string<ApplicationPlugins|SuitePlugins> $facade
+     * @return list<PluginConfigurator>
+     */
+    private static function resolvePlugins(iterable $plugins, string $facade): array
+    {
+        return $plugins instanceof PluginCollection
+            ? $plugins->toArray()
+            : $facade::with(...$plugins)->toArray();
+    }
+
+    /**
      * Apply plugin services to the container.
      *
-     * @param list<PluginConfigurator|class-string<PluginConfigurator>> $plugins
+     * @param list<PluginConfigurator> $plugins
      */
     private static function applyPlugins(Container $container, array $plugins): void
     {
         foreach ($plugins as $plugin) {
-            ($plugin instanceof PluginConfigurator ? $plugin : $container->make($plugin))
-                ->configure($container);
+            $plugin->configure($container);
         }
     }
 }

@@ -3,7 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-    errorLevel="3"
+    errorLevel="2"
     hoistConstants="true"
     findUnusedPsalmSuppress="false"
     findUnusedVariablesAndParams="true"
@@ -26,5 +26,7 @@
         <MissingImmutableAnnotation errorLevel="suppress" />
         <TypeDoesNotContainType errorLevel="suppress" />
         <UnnecessaryVarAnnotation errorLevel="suppress" />
+        <MissingInterfaceImmutableAnnotation errorLevel="info" />
+        <MissingAbstractPureAnnotation errorLevel="info" />
     </issueHandlers>
 </psalm>

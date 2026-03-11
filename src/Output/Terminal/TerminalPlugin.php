@@ -29,7 +29,7 @@ use Testo\Output\Terminal\Renderer\TerminalLogger;
  * Implements StdoutRenderer to ensure only one stdout renderer is active.
  * Supports multiple output formats (Compact, Verbose, Dots) and color modes.
  */
-final class TerminalRenderer implements PluginConfigurator
+final class TerminalPlugin implements PluginConfigurator
 {
     /**
      * Tracks whether we're inside a DataProvider batch.

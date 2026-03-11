@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Application\Config;
 
+use Testo\Application\Config\Plugin\SuitePlugins;
+
 /**
  * Test Suite configuration.
  */
@@ -27,14 +29,17 @@ final readonly class SuiteConfig
         /**
          * List of plugins to load for this suite.
          *
-         * @var list<PluginConfigurator|class-string<PluginConfigurator>>
+         * An array of plugin instances is treated as {@see SuitePlugins::with()}.
+         * Use {@see SuitePlugins} facade for advanced configuration.
+         *
+         * @var iterable<PluginConfigurator>
          */
-        public array $plugins = [],
+        public iterable $plugins = [],
     ) {}
 
     public function with(
         ?FinderConfig $finder = null,
-        ?array $plugins = null,
+        iterable|null $plugins = null,
     ): self {
         return new self(
             name: $this->name,

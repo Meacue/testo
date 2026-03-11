@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Application\Config;
 
+use Testo\Application\Config\Plugin\ApplicationPlugins;
+
 /**
  * Test Suite configuration.
  *
@@ -30,23 +32,22 @@ final readonly class ApplicationConfig
         ],
 
         /**
-         * List of plugins to load.
+         * List of plugins to load at the application level (applied to all suites).
+         *
+         * An array of plugin instances is treated as {@see ApplicationPlugins::with()}.
+         * Use {@see ApplicationPlugins} facade for advanced configuration.
          *
          * @see DefaultServicesConfig for default services bindings, which can be overridden.
          *
-         * @var list<PluginConfigurator|class-string<PluginConfigurator>>
+         * @var iterable<PluginConfigurator>
          */
-        public array $plugins = [],
+        public iterable $plugins = [],
     ) {
         # Validate suite configs
         $suites === [] and throw new \InvalidArgumentException('At least one test suite must be defined.');
         \array_walk($suites, static fn(mixed $suite) => $suite instanceof SuiteConfig
             or throw new \InvalidArgumentException(
                 'Each suite must be an instance of SuiteConfig.',
-            ));
-        \array_walk($plugins, static fn(mixed $plugin) => \is_a($plugin, PluginConfigurator::class, true)
-            or throw new \InvalidArgumentException(
-                'Each plugin must be an instance of PluginConfigurator or a class name string.',
             ));
     }
 }

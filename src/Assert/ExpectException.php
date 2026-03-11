@@ -10,15 +10,17 @@ use Testo\Pipeline\Attribute\Interceptable;
 
 /**
  * Expect exception to be thrown.
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 #[FallbackInterceptor(ExpectExceptionConfigurator::class)]
-final class ExpectException implements Interceptable
+final readonly class ExpectException implements Interceptable
 {
     /**
      * @param class-string<\Throwable> $class Expected exception class.
      */
     public function __construct(
-        public readonly string $class,
+        public string $class,
     ) {}
 }

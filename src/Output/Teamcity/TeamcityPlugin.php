@@ -20,7 +20,7 @@ use Testo\Event\TestSuite\TestSuiteFinished;
 use Testo\Event\TestSuite\TestSuiteStarting;
 use Testo\Output\Teamcity\Teamcity\TeamcityLogger;
 
-final class TeamcityRenderer implements PluginConfigurator
+final class TeamcityPlugin implements PluginConfigurator
 {
     /**
      * Tracks whether we're inside a DataProvider batch.
@@ -29,9 +29,12 @@ final class TeamcityRenderer implements PluginConfigurator
      */
     private array $isBatch = [];
 
-    public function __construct(
-        private readonly TeamcityLogger $logger,
-    ) {}
+    private readonly TeamcityLogger $logger;
+
+    public function __construct()
+    {
+        $this->logger = new TeamcityLogger();
+    }
 
     #[\Override]
     public function configure(Container $container): void
