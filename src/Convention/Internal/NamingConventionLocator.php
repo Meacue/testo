@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Middleware\Locator;
+namespace Testo\Convention\Internal;
 
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Core\Value\TestType;
@@ -13,53 +13,47 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
- * Accepts files with the postfix "Test" and fetches test cases from them.
+ * Locates test files, cases, and tests by configurable naming conventions.
  *
- * E.g. "MyClassTest.php" will be accepted, while "MyClass.php" will not.
- * Then it will look for classes with the postfix "Test" inside the file.
- * If there are no such classes, it tries to find functions and considers them as test cases.
+ * File matching: accepts files whose stem ends with {@see $caseSuffix} (e.g. `*Test.php`).
+ * Case matching: non-abstract classes ending with the same suffix.
+ * Test matching: methods (public by default) and standalone functions
+ * starting with {@see $testPrefix} followed by a non-lowercase character (e.g. `testCreatesUser`).
  *
- * Methods must be public and start with "test" prefix (e.g. testCreatesUser).
- * Functions must match the same pattern.
+ * @see NamingConventionPlugin
  *
- * Example class declaration:
- *
- * ```php
- *  final class UserServiceTest
- *  {
- *      public function testCreatesUser(): void { ... }
- *
- *      public function testDeletesUser(): void { ... }
- *  }
- * ```
- *
- * Example function declaration:
- *
- * ```php
- *  function testEmailValidator(): void { ... }
- *
- *  function testPasswordStrength(): void { ... }
- * ```
+ * @internal
+ * @psalm-internal Testo\Convention
  */
 #[InterceptorOptions(
     testType: TestType::Test,
 )]
-final class FilePostfixTestLocatorInterceptor implements FileLocatorInterceptor, CaseLocatorInterceptor
+final readonly class NamingConventionLocator implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
+    public function __construct(
+        private string $caseSuffix = 'Test',
+        private string $testPrefix = 'test',
+        private bool $allowPrivate = false,
+    ) {}
+
     #[\Override]
     public function locateFile(TokenizedFile $file, callable $next): ?bool
     {
-        return \str_ends_with($file->path->stem(), 'Test') ? true : $next($file);
+        return \str_ends_with($file->path->stem(), $this->caseSuffix) ? true : $next($file);
     }
 
     #[\Override]
     public function locateTestCases(FileDefinitions $file, callable $next): CaseDefinitions
     {
         foreach ($file->classes as $class) {
-            if (!$class->isAbstract() && \str_ends_with($class->getName(), 'Test')) {
+            if (!$class->isAbstract() && \str_ends_with($class->getName(), $this->caseSuffix)) {
                 $case = $file->cases->define($class, $file, type: TestType::Test);
                 foreach ($class->getMethods() as $method) {
-                    if ($method->isPublic() && \preg_match('/^test[^a-z]/', $method->getName()) === 1) {
+                    if (!$this->allowPrivate && !$method->isPublic()) {
+                        continue;
+                    }
+
+                    if ($this->testPrefix === '' || \preg_match("/^{$this->testPrefix}[^a-z]/", $method->getName()) === 1) {
                         $case->tests->define($method);
                     }
                 }
@@ -74,7 +68,7 @@ final class FilePostfixTestLocatorInterceptor implements FileLocatorInterceptor,
         # Implement a lazy case definition
         $case = null;
         foreach ($file->functions as $function) {
-            if (\preg_match('/^test[^a-z]/', $function->getShortName()) === 1) {
+            if ($this->testPrefix === '' || \preg_match("/^{$this->testPrefix}[^a-z]/", $function->getShortName()) === 1) {
                 $case ??= $file->cases->define(null, $file, type: TestType::Test);
                 $case->tests->define($function);
             }
