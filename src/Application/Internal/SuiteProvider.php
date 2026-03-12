@@ -58,7 +58,7 @@ final readonly class SuiteProvider
                 return null;
             }
 
-            $config = $config->with(finder: new FinderConfig(\array_unique($includes), $config->location->excludes));
+            $config = $config->with(location: new FinderConfig(\array_unique($includes), $config->location->excludes));
         }
 
         # Create suite info
