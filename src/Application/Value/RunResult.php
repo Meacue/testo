@@ -12,7 +12,7 @@ use Testo\Core\Value\Status;
  *
  * @implements \IteratorAggregate<SuiteResult>
  */
-final class RunResult implements \IteratorAggregate
+final readonly class RunResult implements \IteratorAggregate
 {
     public function __construct(
         /**
@@ -20,10 +20,10 @@ final class RunResult implements \IteratorAggregate
          *
          * @var iterable<SuiteResult>
          */
-        public readonly iterable $results,
-        public readonly Status $status,
+        public iterable $results,
+        public Status $status,
         /** Duration of the session in seconds. */
-        public readonly float $duration,
+        public float $duration,
     ) {}
 
     /**
