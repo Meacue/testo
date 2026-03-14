@@ -8,6 +8,9 @@ namespace Testo\Data\Internal;
  * A wrapper around a generator that doesn't start the wrapped generator ASAP.
  *
  * @implements \Iterator<mixed, mixed>
+ *
+ * @internal
+ * @psalm-internal Testo\Data
  */
 final class DeferredGenerator implements \Iterator
 {

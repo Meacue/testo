@@ -10,5 +10,6 @@ namespace Testo\Event\TestSuite;
  * This is the first event in the test suite lifecycle, fired before any suite interceptors are invoked.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestSuitePipelineStarting extends TestSuiteEvent {}
+final readonly class TestSuitePipelineStarting extends TestSuiteEvent {}

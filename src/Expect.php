@@ -11,7 +11,9 @@ use Testo\Assert\Internal\Middleware\ExpectationsInterceptor;
 use Testo\Assert\Internal\StaticState;
 
 /**
- * Assertion utilities.
+ * Expectations for the test execution.
+ *
+ * @api
  */
 final class Expect
 {

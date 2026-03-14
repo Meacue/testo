@@ -67,6 +67,11 @@ final class Finder implements \Countable, \IteratorAggregate
         );
     }
 
+    /**
+     * Get Finder for files only.
+     *
+     * @psalm-immutable
+     */
     public function files(): self
     {
         $self = clone $this;
@@ -74,6 +79,11 @@ final class Finder implements \Countable, \IteratorAggregate
         return $self;
     }
 
+    /**
+     * Get Finder for directories only.
+     *
+     * @psalm-immutable
+     */
     public function directories(): self
     {
         $self = clone $this;

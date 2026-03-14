@@ -8,6 +8,9 @@ use Internal\Path;
 
 /**
  * Configure Test Suite for the testing tools.
+ *
+ * @internal
+ * @psalm-internal Testo
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 final readonly class TestingSuite

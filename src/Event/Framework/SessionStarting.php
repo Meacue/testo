@@ -11,5 +11,6 @@ namespace Testo\Event\Framework;
  * Represents the outermost lifecycle boundary of a complete test run.
  *
  * @psalm-immutable
+ * @api
  */
-final class SessionStarting {}
+final readonly class SessionStarting {}

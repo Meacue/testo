@@ -23,6 +23,7 @@ use Testo\Pipeline\Policy\ConflictPolicy;
  * Interceptor that runs the target method as a pure function with provided arguments and expected result.
  *
  * @internal
+ * @psalm-internal Testo\Inline
  */
 #[InterceptorOptions(
     order: InterceptorOptions::ORDER_DATA_PROVIDER,

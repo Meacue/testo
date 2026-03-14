@@ -13,8 +13,9 @@ use Testo\Core\Context\TestInfo;
  * It provides context about which dataset is being executed.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestDataSetStarting extends TestEvent
+final readonly class TestDataSetStarting extends TestEvent
 {
     public function __construct(
         TestInfo $testInfo,
@@ -24,21 +25,21 @@ final class TestDataSetStarting extends TestEvent
          *
          * @var string|int
          */
-        public readonly string|int $dataSetKey,
+        public string|int $dataSetKey,
 
         /**
          * The zero-based index of the DataProvider attribute in case of multiple providers.
          *
          * @var null|int<0, max>
          */
-        public readonly ?int $providerIndex,
+        public ?int $providerIndex,
 
         /**
          * The zero-based index of this dataset in the sequence.
          *
          * @var int<0, max>
          */
-        public readonly int $datasetIndex,
+        public int $datasetIndex,
     ) {
         parent::__construct($testInfo);
     }

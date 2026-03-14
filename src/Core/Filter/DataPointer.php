@@ -21,14 +21,14 @@ use Testo\Application\Middleware\FilterInterceptor;
  *
  * @see FilterInterceptor For usage in test filtering
  */
-final class DataPointer
+final readonly class DataPointer
 {
     /**
      * @param int<0, max> $provider The provider index.
      * @param int<0, max>|null $dataset The dataset index, or null to run all datasets from provider.
      */
     public function __construct(
-        public readonly int $provider,
-        public readonly ?int $dataset,
+        public int $provider,
+        public ?int $dataset,
     ) {}
 }

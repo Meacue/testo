@@ -15,8 +15,9 @@ use Testo\Core\Context\TestResult;
  * and track retry attempts.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestRetrying extends TestEvent
+final readonly class TestRetrying extends TestEvent
 {
     public function __construct(
         TestInfo $testInfo,
@@ -26,12 +27,12 @@ final class TestRetrying extends TestEvent
          *
          * @var int<1, max>
          */
-        public readonly int $attempt,
+        public int $attempt,
 
         /**
          * The result of the previous test run that is being retried.
          */
-        public readonly TestResult $previousRunResult,
+        public TestResult $previousRunResult,
     ) {
         parent::__construct($testInfo);
     }

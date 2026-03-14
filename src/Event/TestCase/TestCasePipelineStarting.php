@@ -10,5 +10,6 @@ namespace Testo\Event\TestCase;
  * This is the first event in the test case lifecycle, fired before any case interceptors are invoked.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestCasePipelineStarting extends TestCaseEvent {}
+final readonly class TestCasePipelineStarting extends TestCaseEvent {}

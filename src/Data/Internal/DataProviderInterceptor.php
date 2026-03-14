@@ -26,13 +26,16 @@ use Testo\Pipeline\Policy\ConflictPolicy;
 
 /**
  * Interceptor that handles data providers for tests.
+ *
+ * @internal
+ * @psalm-internal Testo\Data
  */
 #[InterceptorOptions(
     order: InterceptorOptions::ORDER_DATA_PROVIDER,
     onConflict: ConflictPolicy::First,
     testType: TestType::Test,
 )]
-final class DataProviderInterceptor implements TestRunInterceptor
+final readonly class DataProviderInterceptor implements TestRunInterceptor
 {
     /** Key separator for DataZip (parallel combination). */
     private const KEY_SEPARATOR_ZIP = '|';
@@ -41,7 +44,7 @@ final class DataProviderInterceptor implements TestRunInterceptor
     private const KEY_SEPARATOR_CROSS = '×';
 
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
     ) {}
 
     #[\Override]

@@ -18,7 +18,7 @@ use Testo\Pipeline\Attribute\Interceptable;
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::IS_REPEATABLE)]
 #[FallbackInterceptor(DataProviderInterceptor::class)]
-final class DataSet implements Interceptable, DataProviderAttribute
+final readonly class DataSet implements Interceptable, DataProviderAttribute
 {
     /**
      * @param array $arguments The arguments for the data set.
@@ -26,7 +26,7 @@ final class DataSet implements Interceptable, DataProviderAttribute
      * @param string|null $name An optional name for the data set.
      */
     public function __construct(
-        public readonly array $arguments,
-        public readonly ?string $name = null,
+        public array $arguments,
+        public ?string $name = null,
     ) {}
 }

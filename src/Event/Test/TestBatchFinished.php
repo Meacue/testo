@@ -11,5 +11,6 @@ namespace Testo\Event\Test;
  * of all test runs within the batch.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestBatchFinished extends TestResultEvent {}
+final readonly class TestBatchFinished extends TestResultEvent {}

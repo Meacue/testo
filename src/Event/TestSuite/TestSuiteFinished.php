@@ -14,12 +14,13 @@ use Testo\Core\Context\SuiteResult;
  * It contains the aggregated result of all test cases within the suite.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestSuiteFinished extends TestSuiteEvent
+final readonly class TestSuiteFinished extends TestSuiteEvent
 {
     public function __construct(
         SuiteInfo $suiteInfo,
-        public readonly SuiteResult $suiteResult,
+        public SuiteResult $suiteResult,
     ) {
         parent::__construct($suiteInfo);
     }

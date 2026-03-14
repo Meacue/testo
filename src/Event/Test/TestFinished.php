@@ -11,5 +11,6 @@ namespace Testo\Event\Test;
  * It contains the test result and is fired before any retry logic is applied.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestFinished extends TestResultEvent {}
+final readonly class TestFinished extends TestResultEvent {}

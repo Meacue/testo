@@ -15,6 +15,7 @@ use Testo\Pipeline\Internal\Sorter;
  * @template-covariant TOutput of mixed
  *
  * @psalm-immutable
+ * @api
  */
 final class Pipeline
 {

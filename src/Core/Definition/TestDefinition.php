@@ -6,10 +6,13 @@ namespace Testo\Core\Definition;
 
 use Testo\Attribute\Test;
 
-final class TestDefinition
+/**
+ * @api
+ */
+final readonly class TestDefinition
 {
     public function __construct(
-        public readonly \ReflectionFunctionAbstract $reflection,
+        public \ReflectionFunctionAbstract $reflection,
     ) {}
 
     public function getDescription(): ?string

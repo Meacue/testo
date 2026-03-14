@@ -19,6 +19,7 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
  * Finds inline tests defined with the {@see TestInline} attribute.
  *
  * @internal
+ * @psalm-internal Testo\Inline
  */
 #[InterceptorOptions(
     order: -20_000,
@@ -52,11 +53,7 @@ final readonly class InlineFinder implements FileLocatorInterceptor, CaseLocator
             $case = null;
             foreach ($class->getMethods() as $method) {
                 if (Reflection::fetchFunctionAttributes($method, attributeClass: TestInline::class)) {
-                    if ($case === null) {
-                        $case = $file->cases->define($class, $file, TestType::TestInline);
-                        $case->handler = $this->handler;
-                    }
-
+                    $case ??= $file->cases->define($class, $file, TestType::TestInline, handler: $this->handler);
                     $case->tests->define($method);
                 }
             }
@@ -71,11 +68,7 @@ final readonly class InlineFinder implements FileLocatorInterceptor, CaseLocator
         $case = null;
         foreach ($file->functions as $function) {
             if (Reflection::fetchFunctionAttributes($function, attributeClass: TestInline::class)) {
-                if ($case === null) {
-                    $case = $file->cases->define(null, $file, TestType::TestInline);
-                    $case->handler = $this->handler;
-                }
-
+                $case ??= $file->cases->define(null, $file, TestType::TestInline, handler: $this->handler);
                 $case->tests->define($function);
             }
         }

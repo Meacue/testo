@@ -9,6 +9,8 @@ use Testo\Core\Definition\TestDefinition;
 
 /**
  * Information about run test.
+ *
+ * @api
  */
 final class TestInfo
 {

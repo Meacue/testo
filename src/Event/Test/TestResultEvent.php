@@ -9,12 +9,14 @@ use Testo\Core\Context\TestResult;
 
 /**
  * Test result related event.
+ *
+ * @api
  */
-abstract class TestResultEvent extends TestEvent
+abstract readonly class TestResultEvent extends TestEvent
 {
     public function __construct(
         TestInfo $testInfo,
-        public readonly TestResult $testResult,
+        public TestResult $testResult,
     ) {
         parent::__construct($testInfo);
     }

@@ -10,10 +10,11 @@ use Testo\Core\Context\CaseInfo;
  * Test case related event.
  *
  * @psalm-immutable
+ * @api
  */
-abstract class TestCaseEvent
+abstract readonly class TestCaseEvent
 {
     public function __construct(
-        public readonly CaseInfo $caseInfo,
+        public CaseInfo $caseInfo,
     ) {}
 }

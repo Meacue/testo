@@ -6,5 +6,7 @@ namespace Testo\Data\Internal;
 
 /**
  * Marker interface for all data provider attributes.
+ *
+ * @internal
  */
 interface DataProviderAttribute {}

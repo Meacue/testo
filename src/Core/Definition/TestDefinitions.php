@@ -6,6 +6,8 @@ namespace Testo\Core\Definition;
 
 /**
  * Collection of test definitions located in a Test Case
+ *
+ * @api
  */
 final class TestDefinitions
 {

@@ -6,11 +6,12 @@ namespace Testo\Inline\Internal;
 
 use Testo\Assert;
 use Testo\Core\Context\TestInfo;
-use Testo\Inline\Exception\TestInlineAttributeMissingException;
+use Testo\Inline\Internal\Exception\TestInlineAttributeMissingException;
 use Testo\Inline\TestInline;
 
 /**
  * @internal
+ * @psalm-internal Testo\Inline
  */
 final readonly class InlineHandler
 {

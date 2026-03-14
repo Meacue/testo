@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Inline\Exception;
+namespace Testo\Inline\Internal\Exception;
 
 use Testo\Core\Context\TestInfo;
 use Testo\Inline\Internal\InlineHandler;
@@ -22,6 +22,7 @@ use Testo\Inline\TestInline;
  * - The {@see InlineInterceptor} was not registered or failed to execute.
  *
  * @internal
+ * @psalm-internal Testo\Inline
  */
 final class TestInlineAttributeMissingException extends \LogicException
 {

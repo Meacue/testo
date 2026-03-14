@@ -10,6 +10,7 @@ use Testo\Core\Value\Status;
  * Result of running tests.
  *
  * @implements \IteratorAggregate<TestResult>
+ * @api
  */
 final class CaseResult implements \IteratorAggregate
 {

@@ -14,12 +14,13 @@ use Testo\Core\Context\CaseResult;
  * have completed. It contains the aggregated result of all test runs within the case.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestCaseFinished extends TestCaseEvent
+final readonly class TestCaseFinished extends TestCaseEvent
 {
     public function __construct(
         CaseInfo $caseInfo,
-        public readonly CaseResult $caseResult,
+        public CaseResult $caseResult,
     ) {
         parent::__construct($caseInfo);
     }

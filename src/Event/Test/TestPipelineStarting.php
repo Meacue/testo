@@ -10,5 +10,6 @@ namespace Testo\Event\Test;
  * This is the first event in the test lifecycle, fired before any run interceptors are invoked.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestPipelineStarting extends TestEvent {}
+final readonly class TestPipelineStarting extends TestEvent {}

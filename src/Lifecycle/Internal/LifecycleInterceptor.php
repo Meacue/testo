@@ -29,7 +29,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
     order: PHP_INT_MAX,
     testType: TestType::Test,
 )]
-final class LifecycleInterceptor implements TestRunInterceptor, TestCaseRunInterceptor
+final readonly class LifecycleInterceptor implements TestRunInterceptor, TestCaseRunInterceptor
 {
     /**
      * Collect all the lifecycle methods and cache them for execution during test runs.

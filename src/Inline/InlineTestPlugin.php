@@ -7,6 +7,7 @@ namespace Testo\Inline;
 use Testo\Application\Config\PluginConfigurator;
 use Testo\Common\Container;
 use Testo\Inline\Internal\InlineFinder;
+use Testo\Inline\Internal\InlineHandler;
 use Testo\Pipeline\InterceptorCollector;
 
 /**
@@ -21,6 +22,6 @@ final readonly class InlineTestPlugin implements PluginConfigurator
     #[\Override]
     public function configure(Container $container): void
     {
-        $container->get(InterceptorCollector::class)->addInterceptor(InlineFinder::class);
+        $container->get(InterceptorCollector::class)->addInterceptor(new InlineFinder(new InlineHandler()));
     }
 }

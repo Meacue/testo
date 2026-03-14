@@ -55,6 +55,8 @@ use Testo\Pipeline\Attribute\Interceptable;
  *  #0 app/Testing/ApiAssertions.php(12): Assert::same()
  *  #1 tests/Api/OrderTest.php(28): OrderTest->assertJsonResponse()
  * ```
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 final class AssertMethod implements Interceptable, LifecycleAttribute {}

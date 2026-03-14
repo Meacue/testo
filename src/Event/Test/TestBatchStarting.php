@@ -14,5 +14,6 @@ namespace Testo\Event\Test;
  * This event signals renderers to open a new nesting level to group individual test runs.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestBatchStarting extends TestEvent {}
+final readonly class TestBatchStarting extends TestEvent {}

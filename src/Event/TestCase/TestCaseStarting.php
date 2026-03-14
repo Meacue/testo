@@ -12,5 +12,6 @@ namespace Testo\Event\TestCase;
  * before any batches or individual test runs.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestCaseStarting extends TestCaseEvent {}
+final readonly class TestCaseStarting extends TestCaseEvent {}

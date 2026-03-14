@@ -8,10 +8,12 @@ use Testo\Core\Context\SuiteInfo;
 
 /**
  * Test suite related event.
+ *
+ * @api
  */
-abstract class TestSuiteEvent
+abstract readonly class TestSuiteEvent
 {
     public function __construct(
-        public readonly SuiteInfo $suiteInfo,
+        public SuiteInfo $suiteInfo,
     ) {}
 }

@@ -11,5 +11,6 @@ namespace Testo\Event\Framework;
  * executing its assigned subset of tests.
  *
  * @psalm-immutable
+ * @api
  */
-final class WorkerFinished {}
+final readonly class WorkerFinished {}

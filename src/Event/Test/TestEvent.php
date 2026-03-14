@@ -8,10 +8,12 @@ use Testo\Core\Context\TestInfo;
 
 /**
  * Test related event.
+ *
+ * @api
  */
-abstract class TestEvent
+abstract readonly class TestEvent
 {
     public function __construct(
-        public readonly TestInfo $testInfo,
+        public TestInfo $testInfo,
     ) {}
 }

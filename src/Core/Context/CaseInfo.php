@@ -11,6 +11,8 @@ use Testo\Core\Value\CaseInstance;
 
 /**
  * Information about run test case.
+ *
+ * @api
  */
 final class CaseInfo
 {

@@ -13,10 +13,11 @@ use Testo\Application\Value\RunResult;
  * Carries the complete collection of results for the entire test run.
  *
  * @psalm-immutable
+ * @api
  */
-final class SessionFinished
+final readonly class SessionFinished
 {
     public function __construct(
-        public readonly RunResult $result,
+        public RunResult $result,
     ) {}
 }

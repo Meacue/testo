@@ -7,18 +7,21 @@ namespace Testo\Core\Definition;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Value\TestType;
 
-final class CaseDefinition
+/**
+ * @api
+ */
+final readonly class CaseDefinition
 {
     public function __construct(
-        public readonly ?string $name,
+        public ?string $name,
 
         /**
          * @var non-empty-string Type of the test case, e.g. 'test', 'unit', 'inline', 'bench', etc.
          * @see TestType
          */
-        public readonly string $type,
-        public readonly ?\ReflectionClass $reflection = null,
-        public readonly TestDefinitions $tests = new TestDefinitions(),
+        public string $type,
+        public ?\ReflectionClass $reflection = null,
+        public TestDefinitions $tests = new TestDefinitions(),
 
         /**
          * @var null|\Closure(TestInfo): mixed Handler for executing the test methods in this case.
@@ -29,13 +32,14 @@ final class CaseDefinition
     public function with(
         ?string $name = null,
         ?TestDefinitions $tests = null,
+        ?\Closure $handler = null,
     ): self {
         return new self(
             $name ?? $this->name,
             $this->type,
             $this->reflection,
             $tests ?? $this->tests,
-            $this->handler,
+            $handler ?? $this->handler,
         );
     }
 

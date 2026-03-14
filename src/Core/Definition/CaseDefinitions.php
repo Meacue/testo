@@ -8,6 +8,8 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
 
 /**
  * Collection of test cases located in a file.
+ *
+ * @api
  */
 final class CaseDefinitions
 {
@@ -27,8 +29,12 @@ final class CaseDefinitions
         return $self;
     }
 
-    public function define(?\ReflectionClass $reflection, FileDefinitions $file, string|\BackedEnum $type = 'test'): CaseDefinition
-    {
+    public function define(
+        ?\ReflectionClass $reflection,
+        FileDefinitions $file,
+        string|\BackedEnum $type = 'test',
+        ?\Closure $handler = null,
+    ): CaseDefinition {
         \is_string($type) or $type = (string) $type->value;
         \assert($type !== '');
 
@@ -43,6 +49,7 @@ final class CaseDefinitions
             name: $reflection?->getShortName() ?? $file->tokenizedFile->path->name(),
             type: $type,
             reflection: $reflection,
+            handler: $handler,
         );
     }
 

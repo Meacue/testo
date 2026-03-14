@@ -14,8 +14,9 @@ use Testo\Core\Context\TestResult;
  * providing the result of that specific dataset execution.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestDataSetFinished extends TestResultEvent
+final readonly class TestDataSetFinished extends TestResultEvent
 {
     public function __construct(
         TestInfo $testInfo,
@@ -26,21 +27,21 @@ final class TestDataSetFinished extends TestResultEvent
          *
          * @var string|int
          */
-        public readonly string|int $datasetKey,
+        public string|int $datasetKey,
 
         /**
          * The zero-based index of the DataProvider attribute in case of multiple providers.
          *
          * @var null|int<0, max>
          */
-        public readonly ?int $providerIndex,
+        public ?int $providerIndex,
 
         /**
          * The zero-based index of this dataset in the sequence.
          *
          * @var int<0, max>
          */
-        public readonly int $datasetIndex,
+        public int $datasetIndex,
     ) {
         parent::__construct($testInfo, $testResult);
     }

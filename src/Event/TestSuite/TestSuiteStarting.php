@@ -11,5 +11,6 @@ namespace Testo\Event\TestSuite;
  * This event is fired once per test class, before any test cases are executed.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestSuiteStarting extends TestSuiteEvent {}
+final readonly class TestSuiteStarting extends TestSuiteEvent {}

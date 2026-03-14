@@ -13,12 +13,13 @@ use Testo\Core\Context\SuiteResult;
  * This is the last event in the test suite lifecycle, fired after all suite interceptors have completed.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestSuitePipelineFinished extends TestSuiteEvent
+final readonly class TestSuitePipelineFinished extends TestSuiteEvent
 {
     public function __construct(
         SuiteInfo $suiteInfo,
-        public readonly SuiteResult $suiteResult,
+        public SuiteResult $suiteResult,
     ) {
         parent::__construct($suiteInfo);
     }

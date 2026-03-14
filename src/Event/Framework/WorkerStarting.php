@@ -11,5 +11,6 @@ namespace Testo\Event\Framework;
  * a subset of tests in parallel or isolated mode.
  *
  * @psalm-immutable
+ * @api
  */
-final class WorkerStarting {}
+final readonly class WorkerStarting {}

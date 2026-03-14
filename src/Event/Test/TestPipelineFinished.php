@@ -10,5 +10,6 @@ namespace Testo\Event\Test;
  * This is the last event in the test lifecycle, fired after all run interceptors have completed.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestPipelineFinished extends TestResultEvent {}
+final readonly class TestPipelineFinished extends TestResultEvent {}

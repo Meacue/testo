@@ -14,7 +14,11 @@ use Testo\Common\Reflection;
 use Testo\Core\Context\TestResult;
 use Testo\Testing\Attribute\TestingSuite;
 
-trait TestRunner
+/**
+ * @internal
+ * @psalm-internal Testo
+ */
+final class TestRunner
 {
     /**
      * Run a specific test function and return its result.

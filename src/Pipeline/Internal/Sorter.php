@@ -11,7 +11,9 @@ use Testo\Pipeline\Policy\ConflictPolicy;
 
 /**
  * Sorts and filters interceptors.
+ *
  * @internal
+ * @psalm-internal Testo\Pipeline
  */
 final class Sorter
 {

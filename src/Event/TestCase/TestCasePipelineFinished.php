@@ -13,12 +13,13 @@ use Testo\Core\Context\CaseResult;
  * This is the last event in the test case lifecycle, fired after all case interceptors have completed.
  *
  * @psalm-immutable
+ * @api
  */
-final class TestCasePipelineFinished extends TestCaseEvent
+final readonly class TestCasePipelineFinished extends TestCaseEvent
 {
     public function __construct(
         CaseInfo $caseInfo,
-        public readonly CaseResult $caseResult,
+        public CaseResult $caseResult,
     ) {
         parent::__construct($caseInfo);
     }

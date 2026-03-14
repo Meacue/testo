@@ -10,7 +10,7 @@ use Testo\Core\Context\TestResult;
 /**
  * Collects assertions.
  *
- * The state is stored as an attribute in the test result, and can be accessed by Event Listeners
+ * The state is stored as an attribute in the {@see TestResult}, and can be accessed by Event Listeners
  * and Interceptors.
  *
  * ```

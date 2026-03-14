@@ -17,13 +17,13 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
  *
  * @implements \IteratorAggregate<int, TokenizedFile>
  */
-final class FileLocator implements \IteratorAggregate
+final readonly class FileLocator implements \IteratorAggregate
 {
-    protected readonly Finder $finder;
+    protected Finder $finder;
 
     public function __construct(
         Finder $finder,
-        protected readonly bool $debug = false,
+        protected bool $debug = false,
     ) {
         $this->finder = $finder->files();
     }

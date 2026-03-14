@@ -10,20 +10,24 @@ use Testo\Retry\Interceptor\RetryPolicyRunInterceptor;
 
 /**
  * Retry test on failure.
+ *
+ * A universal retry policy that can be applied to any test.
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::TARGET_CLASS)]
 #[FallbackInterceptor(RetryPolicyRunInterceptor::class)]
-final class RetryPolicy implements Interceptable
+final readonly class RetryPolicy implements Interceptable
 {
     public function __construct(
         /**
          * Maximum number of attempts.
          */
-        public readonly int $maxAttempts = 3,
+        public int $maxAttempts = 3,
 
         /**
          * Mark the test as flaky if it passed on retry.
          */
-        public readonly bool $markFlaky = true,
+        public bool $markFlaky = true,
     ) {}
 }

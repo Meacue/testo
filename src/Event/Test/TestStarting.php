@@ -13,5 +13,6 @@ namespace Testo\Event\Test;
  * - A retry attempt
  *
  * @psalm-immutable
+ * @api
  */
-final class TestStarting extends TestEvent {}
+final readonly class TestStarting extends TestEvent {}

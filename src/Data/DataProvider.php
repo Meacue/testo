@@ -19,9 +19,9 @@ use Testo\Pipeline\Attribute\Interceptable;
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::IS_REPEATABLE)]
 #[FallbackInterceptor(DataProviderInterceptor::class)]
-final class DataProvider implements Interceptable, DataProviderAttribute
+final readonly class DataProvider implements Interceptable, DataProviderAttribute
 {
-    public readonly \Closure|string $provider;
+    public \Closure|string $provider;
 
     /**
      * @param callable(): iterable<array>|non-empty-string $provider The data provider callable or the method name.

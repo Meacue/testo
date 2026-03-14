@@ -28,6 +28,8 @@ use Testo\Attribute\AssertMethod;
 
 /**
  * Assertion utilities.
+ *
+ * @api
  */
 final class Assert
 {

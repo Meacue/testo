@@ -6,6 +6,8 @@ namespace Testo\Attribute;
 
 /**
  * Marks a class (public methods), or a method or a function as a test.
+ *
+ * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::TARGET_CLASS)]
 final class Test

@@ -7,6 +7,9 @@ namespace Testo\Core\Context;
 use Testo\Core\Common\AttributedTrait;
 use Testo\Core\Value\Status;
 
+/**
+ * @api
+ */
 final class TestResult
 {
     use AttributedTrait;

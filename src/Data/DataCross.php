@@ -19,12 +19,12 @@ use Testo\Pipeline\Attribute\Interceptable;
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::IS_REPEATABLE)]
 #[FallbackInterceptor(DataProviderInterceptor::class)]
-final class DataCross implements Interceptable, DataProviderAttribute
+final readonly class DataCross implements Interceptable, DataProviderAttribute
 {
     /**
      * @param array<DataProviderAttribute> $providers Data providers to cross together.
      */
-    public readonly array $providers;
+    public array $providers;
 
     public function __construct(DataProviderAttribute ...$providers)
     {

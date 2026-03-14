@@ -9,7 +9,7 @@ use Testo\Core\Context\TestInfo;
 /**
  * Default test invoker.
  */
-final class DefaultTestHandler
+final readonly class DefaultTestHandler
 {
     public function __invoke(TestInfo $info): mixed
     {

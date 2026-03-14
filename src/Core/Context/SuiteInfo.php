@@ -7,6 +7,9 @@ namespace Testo\Core\Context;
 use Testo\Core\Common\AttributedTrait;
 use Testo\Core\Definition\CaseDefinitions;
 
+/**
+ * @api
+ */
 final class SuiteInfo
 {
     use AttributedTrait;
