@@ -22,6 +22,9 @@ return new ApplicationConfig(
                     new BenchmarkPlugin(),
                 ),
             ),
+        ],
+        # If running in CI, skip the sandbox
+        \filter_var(dump(\getenv('TESTO_CI')), FILTER_VALIDATE_BOOLEAN) ? [] : [
             new SuiteConfig(
                 name: 'sandbox',
                 location: new FinderConfig(

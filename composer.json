@@ -83,6 +83,10 @@
         "psalm": "psalm",
         "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
         "psalm:ci": "psalm --output-format=github --shepherd --show-info=false --stats --threads=4",
-        "test": "bin/testo"
+        "test": "bin/testo",
+        "test:ci": [
+            "@putenv TESTO_CI=1",
+            "bin/testo"
+        ]
     }
 }

@@ -86,7 +86,8 @@ final class Calculator
      * Calculates the root mean square (RMS) of the given values.
      */
     #[TestInline([], result: 0.0)]
-    #[TestInline([3.0], result: 3.0)]
+    #[TestInline([3.0], result: 0.0)]
+    #[TestInline([3.0, 3.0, 3.0, 3.0], result: 0.0)]
     private static function rms(float ...$values): float
     {
         $n = \count($values);
