@@ -12,7 +12,7 @@ use Testo\Assert\State\Assertion\AssertionException;
  *
  * @deprecated use {@see AssertionException} instead.
  */
-class AssertException extends \Exception implements Record
+class AssertException extends \LogicException implements Record
 {
     /**
      * @param non-empty-string $assertion The assertion result (e.g., "Expected exactly 42, got 43").

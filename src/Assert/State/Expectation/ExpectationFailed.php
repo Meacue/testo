@@ -9,7 +9,7 @@ use Testo\Assert\State\Expectation;
 /**
  * Exception representing a failed expectation.
  */
-class ExpectationFailed extends \Exception implements Expectation
+class ExpectationFailed extends \LogicException implements Expectation
 {
     /**
      * @param non-empty-string $expectation The expected condition that was not met.

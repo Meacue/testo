@@ -9,7 +9,7 @@ use Testo\Assert\State\Assertion;
 /**
  * Assertion exception.
  */
-class AssertionException extends \Exception implements Assertion
+class AssertionException extends \LogicException implements Assertion
 {
     /**
      * @param non-empty-string $value The actual value that was asserted.
