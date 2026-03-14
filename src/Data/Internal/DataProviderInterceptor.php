@@ -63,9 +63,7 @@ final readonly class DataProviderInterceptor implements TestRunInterceptor
             # Check Filters
             $dataPointer = $info->getAttribute(DataPointer::class);
 
-            $providerNum = -1;
             foreach ($attributes as $pNum => $attribute) {
-                ++$providerNum;
                 if ($dataPointer !== null && $dataPointer->provider !== $pNum) {
                     continue;
                 }
@@ -96,7 +94,7 @@ final readonly class DataProviderInterceptor implements TestRunInterceptor
                     // }
 
 
-                    $result = $this->run($info, $next, $label, \count($attributes) === 1 ? null : $providerNum, $num, $dataset);
+                    $result = $this->run($info, $next, $label, \count($attributes) === 1 ? null : $pNum, $num, $dataset);
                     $result->status->isFailure() and $status = Status::Failed;
                     $results[] = $result;
                 }

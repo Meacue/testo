@@ -111,9 +111,13 @@ final class TeamcityPlugin implements PluginConfigurator
     {
         // Send testStarted for individual dataset within DataProvider
         $prefix = $event->providerIndex === null ? '' : "$event->providerIndex:";
+        $locationSuffix = $event->providerIndex !== null
+            ? ":$event->dataSetKey:$event->providerIndex"
+            : ":$event->dataSetKey";
         $this->logger->testStartedFromInfo(
             $event->testInfo,
             overrideName: "Dataset #{$prefix}{$event->datasetIndex} [$event->dataSetKey]",
+            locationSuffix: $locationSuffix,
         );
     }
 

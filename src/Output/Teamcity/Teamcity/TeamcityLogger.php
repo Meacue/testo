@@ -187,9 +187,9 @@ final class TeamcityLogger
      *
      * If the test has DataProvider (MultipleResult), starts it as a test suite.
      */
-    public function testStartedFromInfo(TestInfo $info, bool $captureStandardOutput = false, ?string $overrideName = null): void
+    public function testStartedFromInfo(TestInfo $info, bool $captureStandardOutput = false, ?string $overrideName = null, ?string $locationSuffix = null): void
     {
-        $this->publish(Formatter::testStarted($overrideName ?? $info->name, $captureStandardOutput, $info->testDefinition->reflection));
+        $this->publish(Formatter::testStarted($overrideName ?? $info->name, $captureStandardOutput, $info->testDefinition->reflection, $locationSuffix));
     }
 
     /**

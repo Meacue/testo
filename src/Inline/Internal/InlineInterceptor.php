@@ -7,6 +7,7 @@ namespace Testo\Inline\Internal;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
+use Testo\Core\Filter\DataPointer;
 use Testo\Core\Value\Status;
 use Testo\Core\Value\TestType;
 use Testo\Data\MultipleResult;
@@ -53,10 +54,18 @@ final readonly class InlineInterceptor implements TestRunInterceptor
         # Dispatch batch starting event
         $this->eventDispatcher->dispatch(new TestBatchStarting($info));
 
+        # Load Filters
+        $dataPointer = $info->getAttribute(DataPointer::class);
+
         # Run the test for each data set
         $results = [];
         $status = Status::Passed;
         foreach ($attributes as $index => $inline) {
+            # Check Filters
+            if ($dataPointer !== null && $dataPointer->provider !== $index) {
+                continue;
+            }
+
             $newInfo = $info->with(arguments: $inline->arguments)->withAttribute(TestInline::class, $inline);
             $label = "$index";
 
