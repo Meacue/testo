@@ -22,7 +22,7 @@ final class SuiteConfigTest
         $config = new SuiteConfig(name: 'unit', location: $finder);
 
         // Assert
-        Assert::same($finder, $config->location);
+        Assert::same($config->location, $finder);
     }
 
     public function constructWithArrayNormalizesToFinderConfig(): void
@@ -31,8 +31,8 @@ final class SuiteConfigTest
         $config = new SuiteConfig(name: 'unit', location: [__DIR__]);
 
         // Assert
-        Assert::instanceOf(FinderConfig::class, $config->location);
-        Assert::same(1, \count($config->location->includes));
+        Assert::instanceOf($config->location, FinderConfig::class);
+        Assert::same(\count($config->location->includes), 1);
     }
 
     public function constructSetsName(): void
@@ -41,7 +41,7 @@ final class SuiteConfigTest
         $config = new SuiteConfig(name: 'my-suite', location: [__DIR__]);
 
         // Assert
-        Assert::same('my-suite', $config->name);
+        Assert::same($config->name, 'my-suite');
     }
 
     public function constructDefaultParallelIsFalse(): void
@@ -59,7 +59,7 @@ final class SuiteConfigTest
         $config = new SuiteConfig(name: 'unit', location: [__DIR__]);
 
         // Assert
-        Assert::same([], $config->plugins);
+        Assert::same($config->plugins, []);
     }
 
     public function withReturnsNewInstanceWithUpdatedLocation(): void
@@ -72,8 +72,8 @@ final class SuiteConfigTest
         $updated = $original->with(location: $newFinder);
 
         // Assert
-        Assert::same($newFinder, $updated->location);
-        Assert::notSame($original, $updated);
+        Assert::same($updated->location, $newFinder);
+        Assert::notSame($updated, $original);
     }
 
     public function withReturnsNewInstanceWithUpdatedParallel(): void
@@ -99,8 +99,8 @@ final class SuiteConfigTest
         $updated = $original->with(plugins: [$plugin]);
 
         // Assert
-        Assert::same([$plugin], $updated->plugins);
-        Assert::same([], $original->plugins);
+        Assert::same($updated->plugins, [$plugin]);
+        Assert::same($original->plugins, []);
     }
 
     public function withPreservesUnchangedValues(): void
@@ -113,8 +113,8 @@ final class SuiteConfigTest
         $updated = $original->with();
 
         // Assert
-        Assert::same('unit', $updated->name);
-        Assert::same($finder, $updated->location);
+        Assert::same($updated->name, 'unit');
+        Assert::same($updated->location, $finder);
         Assert::true($updated->parallel);
     }
 }

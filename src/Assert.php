@@ -34,13 +34,13 @@ final class Assert
     /**
      * Asserts that two values are the same (identical).
      *
-     * @param mixed $expected The expected value.
      * @param mixed $actual The actual value to compare against the expected value.
+     * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
      * @throws AssertException when the assertion fails.
      */
     #[AssertMethod]
-    public static function same(mixed $expected, mixed $actual, string $message = ''): void
+    public static function same(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual === $expected
             ? StaticState::success($actual, 'is the same', $message)
@@ -50,13 +50,13 @@ final class Assert
     /**
      * Asserts that two values are the not same (not identical).
      *
-     * @param mixed $expected The expected value.
      * @param mixed $actual The actual value to compare against the expected value.
+     * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
      * @throws AssertException when the assertion fails.
      */
     #[AssertMethod]
-    public static function notSame(mixed $expected, mixed $actual, string $message = ''): void
+    public static function notSame(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual !== $expected
             ? StaticState::success($actual, 'is not same as `' . Support::stringify($expected) . '`', $message)
@@ -72,13 +72,13 @@ final class Assert
     /**
      * Asserts that two values are equal (not strict).
      *
-     * @param mixed $expected The expected value.
      * @param mixed $actual The actual value to compare against the expected value.
+     * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
      * @throws AssertException when the assertion fails.
      */
     #[AssertMethod]
-    public static function equals(mixed $expected, mixed $actual, string $message = ''): void
+    public static function equals(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual == $expected
             ? StaticState::success($actual, 'equals to `' . Support::stringify($expected) . '`', $message)
@@ -93,13 +93,13 @@ final class Assert
     /**
      * Asserts that two values are not equal (not strict).
      *
-     * @param mixed $expected The expected value.
      * @param mixed $actual The actual value to compare against the expected value.
+     * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
      * @throws AssertException when the assertion fails.
      */
     #[AssertMethod]
-    public static function notEquals(mixed $expected, mixed $actual, string $message = ''): void
+    public static function notEquals(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual != $expected
             ? StaticState::success($actual, 'is not equals to `' . Support::stringify($expected) . '`', $message)
@@ -157,15 +157,15 @@ final class Assert
      *
      * @template ExpectedType
      *
-     * @param class-string<ExpectedType> $expected Fully-qualified class or interface name.
      * @param mixed $actual The actual object to check.
+     * @param class-string<ExpectedType> $expected Fully-qualified class or interface name.
      * @param string $message Optional message for the assertion.
      * @throws AssertionException when the assertion fails.
      *
      * @psalm-assert ExpectedType $actual
      * @phpstan-assert ExpectedType $actual
      */
-    public static function instanceOf(string $expected, mixed $actual, string $message = ''): ObjectType
+    public static function instanceOf(mixed $actual, string $expected, string $message = ''): ObjectType
     {
         return AssertObject::validateAndCreate($actual)->instanceOf($expected, $message);
     }
@@ -173,12 +173,12 @@ final class Assert
     /**
      * Asserts that given collection contains expected value.
      *
-     * @param mixed $needle The expected value.
      * @param iterable $haystack Iterable (array or Traversable) to search in.
+     * @param mixed $needle The expected value.
      * @param string $message Short description about what exactly is being asserted.
      * @throws AssertException when the assertion fails.
      */
-    public static function contains(mixed $needle, iterable $haystack, string $message = ''): void
+    public static function contains(iterable $haystack, mixed $needle, string $message = ''): void
     {
         foreach ($haystack as $element) {
             if ($needle === $element) {

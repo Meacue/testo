@@ -20,6 +20,6 @@ final class CommonTest
     public function noAssertions(): void
     {
         $result = self::runTest([Common::class, 'risky']);
-        Assert::same(Status::Risky, $result->status);
+        Assert::same($result->status, Status::Risky);
     }
 }

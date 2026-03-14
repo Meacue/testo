@@ -54,7 +54,7 @@ final class DataCross
     {
         // 1 DataSet × 3 letters × 1 DataSet = 3 combinations
         Assert::true($flag);
-        Assert::same(42, $number);
+        Assert::same($number, 42);
         Assert::true(\in_array([$c, $d], [
             ['a', 'b'],
             ['c', 'd'],

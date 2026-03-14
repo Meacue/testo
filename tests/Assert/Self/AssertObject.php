@@ -19,8 +19,8 @@ final class AssertObject
     {
         $obj = new \DateTimeImmutable();
 
-        Assert::instanceOf(\DateTimeInterface::class, $obj);
-        Assert::instanceOf(\DateTimeImmutable::class, $obj);
+        Assert::instanceOf($obj, \DateTimeInterface::class);
+        Assert::instanceOf($obj, \DateTimeImmutable::class);
 
         Assert::object($obj)->instanceOf(\DateTimeInterface::class);
     }

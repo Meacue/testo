@@ -15,7 +15,7 @@ final class StackTraceTest
     public function testEmptyTraceReturnsEmpty(): void
     {
         // Act & Assert
-        Assert::same([], StackTrace::cutStackTrace([]));
+        Assert::same(StackTrace::cutStackTrace([]), []);
     }
 
     public function testCutsFramesBelowAssertMethodFromExceptionTrace(): void
@@ -32,13 +32,13 @@ final class StackTraceTest
 
         // Assert: AssertMethodStub::run is the first frame, ThrowingStub::fail is removed
         Assert::true(\count($result) < \count($trace));
-        Assert::same(AssertMethodStub::class, $result[0]['class']);
-        Assert::same('run', $result[0]['function']);
+        Assert::same($result[0]['class'], AssertMethodStub::class);
+        Assert::same($result[0]['function'], 'run');
         $hasThrowingFrames = \array_filter(
             $result,
             static fn(array $f): bool => ($f['class'] ?? null) === ThrowingStub::class,
         );
-        Assert::same([], $hasThrowingFrames);
+        Assert::same($hasThrowingFrames, []);
     }
 
     public function testCutsFramesBelowAssertMethodFromDebugBacktrace(): void
@@ -51,13 +51,13 @@ final class StackTraceTest
 
         // Assert: AssertMethodStub::run is the first frame, ThrowingStub::captureTrace is removed
         Assert::true(\count($result) < \count($trace));
-        Assert::same(AssertMethodStub::class, $result[0]['class']);
-        Assert::same('run', $result[0]['function']);
+        Assert::same($result[0]['class'], AssertMethodStub::class);
+        Assert::same($result[0]['function'], 'run');
         $hasThrowingFrames = \array_filter(
             $result,
             static fn(array $f): bool => ($f['class'] ?? null) === ThrowingStub::class,
         );
-        Assert::same([], $hasThrowingFrames);
+        Assert::same($hasThrowingFrames, []);
     }
 
     public function testDoesNotAssertMethodWithoutAttribute(): void
@@ -73,7 +73,7 @@ final class StackTraceTest
         $result = StackTrace::cutStackTrace($trace);
 
         // Assert
-        Assert::same($trace, $result);
+        Assert::same($result, $trace);
     }
 
     public function testCutsAtOutermostAssertMethodWithMultipleAttributes(): void
@@ -90,13 +90,13 @@ final class StackTraceTest
 
         // Assert: outer AssertMethod is the first frame, inner AssertMethod and deeper are removed
         Assert::true(\count($result) < \count($trace));
-        Assert::same(AssertMethodStub::class, $result[0]['class']);
-        Assert::same('run', $result[0]['function']);
+        Assert::same($result[0]['class'], AssertMethodStub::class);
+        Assert::same($result[0]['function'], 'run');
         $cutFrames = \array_filter(
             $result,
             static fn(array $f): bool => ($f['class'] ?? null) === AssertMethodStub::class,
         );
-        Assert::same(1, \count($cutFrames));
+        Assert::same(\count($cutFrames), 1);
     }
 
     public function testDoesNotCutBeyondDepthLimit(): void
@@ -112,7 +112,7 @@ final class StackTraceTest
         $result = StackTrace::cutStackTrace($trace);
 
         // Assert: AssertMethod too far from the error, nothing is cut
-        Assert::same($trace, $result);
+        Assert::same($result, $trace);
     }
 
     public function testBoundaryStopsAssertMethodSearch(): void
@@ -129,7 +129,7 @@ final class StackTraceTest
         $result = StackTrace::cutStackTrace($trace, $boundary, false);
 
         // Assert: trace unchanged — AssertMethod is after boundary, not found
-        Assert::same($trace, $result);
+        Assert::same($result, $trace);
     }
 
     public function testBoundaryWithAssertMethodBeforeBoundary(): void
@@ -148,8 +148,8 @@ final class StackTraceTest
         $result = StackTrace::cutStackTrace($trace, $boundary);
 
         // Assert: AssertMethod found before boundary, internal frames cut
-        Assert::same(AssertMethodStub::class, $result[0]['class']);
-        Assert::same('run', $result[0]['function']);
+        Assert::same($result[0]['class'], AssertMethodStub::class);
+        Assert::same($result[0]['function'], 'run');
     }
 
     public function testBoundaryBypassesDepthLimit(): void
@@ -168,8 +168,8 @@ final class StackTraceTest
         $result = StackTrace::cutStackTrace($trace, $boundary);
 
         // Assert: AssertMethod found despite being beyond SEARCH_DEPTH
-        Assert::same(AssertMethodStub::class, $result[0]['class']);
-        Assert::same('run', $result[0]['function']);
+        Assert::same($result[0]['class'], AssertMethodStub::class);
+        Assert::same($result[0]['function'], 'run');
     }
 
     public function testTrimAtBoundaryCutsFramesAfterBoundary(): void
@@ -188,7 +188,7 @@ final class StackTraceTest
         // Assert: trace ends at the boundary method
         Assert::true(\count($result) < \count($trace));
         $lastFrame = $result[\count($result) - 1];
-        Assert::same(MiddlewareStub::class, $lastFrame['class']);
-        Assert::same('run', $lastFrame['function']);
+        Assert::same($lastFrame['class'], MiddlewareStub::class);
+        Assert::same($lastFrame['function'], 'run');
     }
 }

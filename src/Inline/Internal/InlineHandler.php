@@ -30,7 +30,7 @@ final readonly class InlineHandler
             return $result;
         }
 
-        Assert::same($attr->result, $result);
+        Assert::same($result, $attr->result);
         return $result;
     }
 }

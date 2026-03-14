@@ -12,5 +12,5 @@ function simpleFunctionAssertions(): void
 {
     Assert::same(1, 1);
     Assert::null(null);
-    Assert::notSame(42, '42');
+    Assert::notSame('42', 42);
 }

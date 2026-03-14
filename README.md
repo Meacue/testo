@@ -105,8 +105,8 @@ final class CalculatorTest
     {
         $result = 10 / 2;
 
-        Assert::same(5.0, $result);
-        Assert::notSame(5, $result); // Types matter!
+        Assert::same($result, 5.0);
+        Assert::notSame($result, 5); // Types matter!
     }
 
     #[Test]
@@ -116,7 +116,7 @@ final class CalculatorTest
         // Retries up to 3 times if test fails
         $response = $this->makeExternalApiCall();
 
-        Assert::same(200, $response->status);
+        Assert::same($response->status, 200);
     }
 
     #[Test]

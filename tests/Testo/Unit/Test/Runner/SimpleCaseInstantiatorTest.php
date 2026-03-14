@@ -36,7 +36,7 @@ final class SimpleCaseInstantiatorTest
         $instance = $instantiator->getInstance();
 
         // Assert
-        Assert::instanceOf(InstantiableClass::class, $instance);
+        Assert::instanceOf($instance, InstantiableClass::class);
     }
 
     public function testHasInstanceReturnsTrueAfterGetInstance(): void
@@ -64,7 +64,7 @@ final class SimpleCaseInstantiatorTest
         $second = $instantiator->getInstance();
 
         // Assert
-        Assert::same($first, $second);
+        Assert::same($second, $first);
     }
 
     public function testGetInstanceThrowsExceptionWhenCannotInstantiate(): void

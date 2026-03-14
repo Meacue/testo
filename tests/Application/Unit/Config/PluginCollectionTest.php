@@ -21,7 +21,7 @@ final class PluginCollectionTest
 
     public function emptyCollectionIsEmpty(): void
     {
-        Assert::same([], (new PluginCollection())->toArray());
+        Assert::same((new PluginCollection())->toArray(), []);
     }
 
     public function withAddsPluginToDefaults(): void
@@ -34,8 +34,8 @@ final class PluginCollectionTest
         $result = SuitePlugins::with($plugin)->toArray();
 
         // Assert: defaults + stub
-        Assert::same($defaultCount + 1, \count($result));
-        Assert::same($plugin, $result[\count($result) - 1]);
+        Assert::same(\count($result), $defaultCount + 1);
+        Assert::same($result[\count($result) - 1], $plugin);
     }
 
     public function withMultiplePlugins(): void
@@ -49,9 +49,9 @@ final class PluginCollectionTest
         $result = SuitePlugins::with($a, $b)->toArray();
 
         // Assert
-        Assert::same($defaultCount + 2, \count($result));
-        Assert::same($a, $result[\count($result) - 2]);
-        Assert::same($b, $result[\count($result) - 1]);
+        Assert::same(\count($result), $defaultCount + 2);
+        Assert::same($result[\count($result) - 2], $a);
+        Assert::same($result[\count($result) - 1], $b);
     }
 
     public function withoutRemovesPlugin(): void
@@ -65,9 +65,9 @@ final class PluginCollectionTest
 
         // Assert
         foreach ($result as $p) {
-            Assert::notSame($targetClass, $p::class);
+            Assert::notSame($p::class, $targetClass);
         }
-        Assert::same(\count($defaults) - 1, \count($result));
+        Assert::same(\count($result), \count($defaults) - 1);
     }
 
     public function onlyReplacesDefaults(): void
@@ -79,13 +79,13 @@ final class PluginCollectionTest
         $result = SuitePlugins::only($plugin)->toArray();
 
         // Assert
-        Assert::same(1, \count($result));
-        Assert::same($plugin, $result[0]);
+        Assert::same(\count($result), 1);
+        Assert::same($result[0], $plugin);
     }
 
     public function onlyWithNoPluginsReturnsEmpty(): void
     {
-        Assert::same([], SuitePlugins::only()->toArray());
+        Assert::same(SuitePlugins::only()->toArray(), []);
     }
 
     public function chainingWithThenWithout(): void
@@ -102,8 +102,8 @@ final class PluginCollectionTest
         $result = $collection->toArray();
 
         // Assert: only the custom plugin
-        Assert::same(1, \count($result));
-        Assert::same($plugin, $result[0]);
+        Assert::same(\count($result), 1);
+        Assert::same($result[0], $plugin);
     }
 
     public function chainingWithoutThenWith(): void
@@ -120,8 +120,8 @@ final class PluginCollectionTest
         $result = $collection->with($plugin)->toArray();
 
         // Assert
-        Assert::same(1, \count($result));
-        Assert::same($plugin, $result[0]);
+        Assert::same(\count($result), 1);
+        Assert::same($result[0], $plugin);
     }
 
     public function longChain(): void
@@ -144,8 +144,8 @@ final class PluginCollectionTest
             ->toArray();
 
         // Assert: all StubPlugins before last with() removed, only $c remains
-        Assert::same(1, \count($result));
-        Assert::same($c, $result[0]);
+        Assert::same(\count($result), 1);
+        Assert::same($result[0], $c);
     }
 
     public function onlyThenWithChain(): void
@@ -158,9 +158,9 @@ final class PluginCollectionTest
         $result = SuitePlugins::only($a)->with($b)->toArray();
 
         // Assert
-        Assert::same(2, \count($result));
-        Assert::same($a, $result[0]);
-        Assert::same($b, $result[1]);
+        Assert::same(\count($result), 2);
+        Assert::same($result[0], $a);
+        Assert::same($result[1], $b);
     }
 
     #[ExpectException(\TypeError::class)]
@@ -179,7 +179,7 @@ final class PluginCollectionTest
         $result = SuitePlugins::with()->without(StubPlugin::class)->toArray();
 
         // Assert
-        Assert::same($defaultCount, \count($result));
+        Assert::same(\count($result), $defaultCount);
     }
 
     public function orderDefaultsBeforeCustomPlugins(): void
@@ -192,17 +192,17 @@ final class PluginCollectionTest
         $result = SuitePlugins::with($plugin)->toArray();
 
         // Assert: defaults come first, custom last
-        Assert::same($defaults[0]::class, $result[0]::class);
-        Assert::same($plugin, $result[\count($result) - 1]);
+        Assert::same($result[0]::class, $defaults[0]::class);
+        Assert::same($result[\count($result) - 1], $plugin);
     }
 
     public function countReturnsCollectionSize(): void
     {
         $defaultCount = \count(SuitePlugins::defaults());
 
-        Assert::same(0, \count(new PluginCollection()));
-        Assert::same($defaultCount + 1, \count(SuitePlugins::with(new StubPlugin())));
-        Assert::same(0, \count(SuitePlugins::only()));
+        Assert::same(\count(new PluginCollection()), 0);
+        Assert::same(\count(SuitePlugins::with(new StubPlugin())), $defaultCount + 1);
+        Assert::same(\count(SuitePlugins::only()), 0);
     }
 
     public function iterableYieldsPlugins(): void
@@ -217,7 +217,7 @@ final class PluginCollectionTest
         }
 
         // Assert
-        Assert::same($collection->toArray(), $items);
+        Assert::same($items, $collection->toArray());
     }
 
     public function collectionWithIsImmutable(): void
@@ -230,8 +230,8 @@ final class PluginCollectionTest
         $modified = $original->with(new StubPlugin('b'));
 
         // Assert
-        Assert::same($defaultCount + 1, \count($original));
-        Assert::same($defaultCount + 2, \count($modified));
+        Assert::same(\count($original), $defaultCount + 1);
+        Assert::same(\count($modified), $defaultCount + 2);
     }
 
     public function collectionWithoutIsImmutable(): void
@@ -245,7 +245,7 @@ final class PluginCollectionTest
         $modified = $original->without($targetClass);
 
         // Assert
-        Assert::same(\count($defaults), \count($original));
-        Assert::same(\count($defaults) - 1, \count($modified));
+        Assert::same(\count($original), \count($defaults));
+        Assert::same(\count($modified), \count($defaults) - 1);
     }
 }

@@ -42,7 +42,7 @@ final class BeforeAfterAllTest
     {
         // BeforeAll should still be called only once (not twice)
         $beforeAllCount = \array_count_values(self::$log)['beforeAll'] ?? 0;
-        Assert::same(1, $beforeAllCount);
+        Assert::same($beforeAllCount, 1);
         self::$log[] = 'test2';
     }
 }

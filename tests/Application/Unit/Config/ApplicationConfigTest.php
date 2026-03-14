@@ -21,8 +21,8 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig();
 
         // Assert
-        Assert::instanceOf(FinderConfig::class, $config->src);
-        Assert::same([], $config->src->includes);
+        Assert::instanceOf($config->src, FinderConfig::class);
+        Assert::same($config->src->includes, []);
     }
 
     public function constructWithFinderConfigSrc(): void
@@ -34,7 +34,7 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig(src: $finder);
 
         // Assert
-        Assert::same($finder, $config->src);
+        Assert::same($config->src, $finder);
     }
 
     public function constructWithArraySrcNormalizesToFinderConfig(): void
@@ -43,8 +43,8 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig(src: [__DIR__]);
 
         // Assert
-        Assert::instanceOf(FinderConfig::class, $config->src);
-        Assert::same(1, \count($config->src->includes));
+        Assert::instanceOf($config->src, FinderConfig::class);
+        Assert::same(\count($config->src->includes), 1);
     }
 
     public function constructWithDefaultSuites(): void
@@ -53,8 +53,8 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig();
 
         // Assert
-        Assert::same(1, \count($config->suites));
-        Assert::same('default', $config->suites[0]->name);
+        Assert::same(\count($config->suites), 1);
+        Assert::same($config->suites[0]->name, 'default');
     }
 
     public function constructWithCustomSuites(): void
@@ -66,8 +66,8 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig(suites: [$suite]);
 
         // Assert
-        Assert::same(1, \count($config->suites));
-        Assert::same('custom', $config->suites[0]->name);
+        Assert::same(\count($config->suites), 1);
+        Assert::same($config->suites[0]->name, 'custom');
     }
 
     #[ExpectException(\InvalidArgumentException::class)]
@@ -89,7 +89,7 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig();
 
         // Assert
-        Assert::same([], $config->plugins);
+        Assert::same($config->plugins, []);
     }
 
     public function constructWithCustomPlugins(): void
@@ -101,6 +101,6 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig(plugins: [$plugin]);
 
         // Assert
-        Assert::same([$plugin], $config->plugins);
+        Assert::same($config->plugins, [$plugin]);
     }
 }

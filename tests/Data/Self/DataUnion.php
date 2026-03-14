@@ -36,7 +36,7 @@ final class DataUnion
     public function crossWithUnion(string $user, bool $isAdmin, string $permission): void
     {
         // (2 admins + 2 users) × 1 permission = 4 combinations
-        Assert::same('read', $permission);
+        Assert::same($permission, 'read');
         Assert::true(\in_array([$user, $isAdmin], [
             ['root', true],
             ['admin', true],

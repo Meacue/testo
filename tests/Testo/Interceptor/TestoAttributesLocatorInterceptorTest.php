@@ -45,7 +45,7 @@ final class TestoAttributesLocatorInterceptorTest
         $case = $definition->cases->getCases()[0];
         $tests = $case->tests->getTests();
 
-        Assert::same(TestClassWithMethodLevelAttributes::class, $case->reflection->name);
+        Assert::same($case->reflection->name, TestClassWithMethodLevelAttributes::class);
 
         Assert::array($tests)
             ->hasCount(2)
@@ -75,7 +75,7 @@ final class TestoAttributesLocatorInterceptorTest
         $case = $definition->cases->getCases()[0];
         $tests = $case->tests->getTests();
 
-        Assert::same(TestClassWithClassLevelAttribute::class, $case->reflection->name);
+        Assert::same($case->reflection->name, TestClassWithClassLevelAttribute::class);
 
         Assert::array($tests)
             ->hasCount(2)

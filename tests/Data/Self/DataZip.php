@@ -70,8 +70,8 @@ final class DataZip
     {
         // DataSet has only 1 element, so zip stops after first iteration
         Assert::true($flag);
-        Assert::same('a', $c);
-        Assert::same('b', $d);
-        Assert::same(42, $number);
+        Assert::same($c, 'a');
+        Assert::same($d, 'b');
+        Assert::same($number, 42);
     }
 }

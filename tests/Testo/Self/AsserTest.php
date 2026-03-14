@@ -24,14 +24,14 @@ final class AsserTest
     {
         Assert::same(1, 1);
         Assert::null(null);
-        Assert::notSame(42, '42');
+        Assert::notSame('42', 42);
         Assert::true(true);
         Assert::false(false);
-        Assert::contains(1, [1, 2, 3]);
-        Assert::contains(2, new \ArrayIterator([1, 2, 3]));
-        Assert::instanceOf(\Exception::class, new \RuntimeException());
-        Assert::equals(1, '1');
-        Assert::notEquals(42, 43);
+        Assert::contains([1, 2, 3], 1);
+        Assert::contains(new \ArrayIterator([1, 2, 3]), 2);
+        Assert::instanceOf(new \RuntimeException(), \Exception::class);
+        Assert::equals('1', 1);
+        Assert::notEquals(43, 42);
     }
 
     #[Test]
@@ -39,8 +39,8 @@ final class AsserTest
     {
         Assert::same(1, 1, 'One is one btw.');
         Assert::null(null, 'Custom message on null assertion failure.');
-        Assert::notSame(42, '42');
-        Assert::same(0, null);
+        Assert::notSame('42', 42);
+        Assert::same(null, 0);
     }
 
     #[Test]
@@ -57,7 +57,7 @@ final class AsserTest
     {
         static $attempt = 0;
         ++$attempt;
-        Assert::same($attempt, 2);
+        Assert::same(2, $attempt);
     }
 
     #[Test]
@@ -105,7 +105,7 @@ final class AsserTest
     #[DataProvider(new ClassDataProvider())]
     public function classDataProvider(string $val, mixed $eq): void
     {
-        Assert::equals($val, $eq);
+        Assert::equals($eq, $val);
     }
 
     public static function dataForProvider(): iterable

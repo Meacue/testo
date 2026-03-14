@@ -30,7 +30,7 @@ function testFindsDirectlyMarkedMethods(): void
     $names = \array_map(static fn(\ReflectionMethod $m) => $m->getName(), $methods);
     \sort($names);
 
-    Assert::same(['baseMethod', 'overriddenMethod'], $names);
+    Assert::same($names, ['baseMethod', 'overriddenMethod']);
 }
 
 function testFindsInheritedMarkedMethods(): void
@@ -40,7 +40,7 @@ function testFindsInheritedMarkedMethods(): void
     $names = \array_map(static fn(\ReflectionMethod $m) => $m->getName(), $methods);
     \sort($names);
 
-    Assert::same(['baseMethod', 'overriddenMethod'], $names);
+    Assert::same($names, ['baseMethod', 'overriddenMethod']);
 }
 
 function testFindsMethodsMarkedInPrototype(): void
@@ -50,7 +50,7 @@ function testFindsMethodsMarkedInPrototype(): void
     $names = \array_map(static fn(\ReflectionMethod $m) => $m->getName(), $methods);
     \sort($names);
 
-    Assert::same(['baseMethod', 'childMethod', 'interfaceMethod', 'overriddenMethod'], $names);
+    Assert::same($names, ['baseMethod', 'childMethod', 'interfaceMethod', 'overriddenMethod']);
 }
 
 function testFindsMethodsFromInterface(): void
@@ -75,14 +75,14 @@ function testWithoutPrototypesSkipsPrototypeSearch(): void
 
     // baseMethod has attribute directly, childMethod has attribute directly
     // interfaceMethod and overriddenMethod only have attributes in prototypes
-    Assert::same(['baseMethod', 'childMethod'], $names);
+    Assert::same($names, ['baseMethod', 'childMethod']);
 }
 
 function testReturnsEmptyArrayWhenNoMatches(): void
 {
     $methods = Reflection::findMethodsWithAttribute(ClassWithoutMarkedMethods::class, MarkerAttribute::class);
 
-    Assert::same([], $methods);
+    Assert::same($methods, []);
 }
 
 function testFiltersByAttributeClass(): void
@@ -91,7 +91,7 @@ function testFiltersByAttributeClass(): void
 
     $names = \array_map(static fn(\ReflectionMethod $m) => $m->getName(), $methods);
 
-    Assert::same(['middleMethod'], $names);
+    Assert::same($names, ['middleMethod']);
 }
 
 function testAcceptsReflectionClassInstance(): void
@@ -102,24 +102,24 @@ function testAcceptsReflectionClassInstance(): void
     $names = \array_map(static fn(\ReflectionMethod $m) => $m->getName(), $methods);
     \sort($names);
 
-    Assert::same(['baseMethod', 'overriddenMethod'], $names);
+    Assert::same($names, ['baseMethod', 'overriddenMethod']);
 }
 
 function testGetAttributesFromCallStackWithFunction(): void
 {
     $attributes = topLevelFunction(CallStackAttribute::class);
 
-    Assert::same(1, \count($attributes));
-    Assert::same(CallStackAttribute::class, $attributes[0]->getName());
+    Assert::same(\count($attributes), 1);
+    Assert::same($attributes[0]->getName(), CallStackAttribute::class);
     $instance = $attributes[0]->newInstance();
-    Assert::same('topFunction', $instance->label);
+    Assert::same($instance->label, 'topFunction');
 }
 
 function testGetAttributesFromCallStackWithNestedFunctions(): void
 {
     $attributes = nestedFunction(CallStackAttribute::class);
 
-    Assert::same(2, \count($attributes));
+    Assert::same(\count($attributes), 2);
 
     $labels = \array_map(
         static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
@@ -135,8 +135,8 @@ function testGetAttributesFromCallStackWithMethod(): void
     $obj = new CallStackTestClass();
     $attributes = $obj->methodA(CallStackAttribute::class);
 
-    Assert::same(1, \count($attributes));
-    Assert::same('methodA', $attributes[0]->newInstance()->label);
+    Assert::same(\count($attributes), 1);
+    Assert::same($attributes[0]->newInstance()->label, 'methodA');
 }
 
 function testGetAttributesFromCallStackWithNestedMethods(): void
@@ -144,7 +144,7 @@ function testGetAttributesFromCallStackWithNestedMethods(): void
     $obj = new CallStackTestClass();
     $attributes = $obj->methodB(CallStackAttribute::class);
 
-    Assert::same(2, \count($attributes));
+    Assert::same(\count($attributes), 2);
 
     $labels = \array_map(
         static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
@@ -160,8 +160,8 @@ function testGetAttributesFromCallStackWithInheritance(): void
     $obj = new CallStackChildClass();
     $attributes = $obj->baseMethod(CallStackAttribute::class);
 
-    Assert::same(1, \count($attributes));
-    Assert::same('baseMethod', $attributes[0]->newInstance()->label);
+    Assert::same(\count($attributes), 1);
+    Assert::same($attributes[0]->newInstance()->label, 'baseMethod');
 }
 
 function testGetAttributesFromCallStackFindsPrototypeAttributes(): void
@@ -198,7 +198,7 @@ function testGetAttributesFromCallStackReturnsEmptyWhenNoAttributes(): void
 {
     $attributes = unmarkedFunction(CallStackAttribute::class);
 
-    Assert::same([], $attributes);
+    Assert::same($attributes, []);
 }
 
 function testGetAttributesFromCallStackReturnsEmptyWhenNoMatching(): void
@@ -206,7 +206,7 @@ function testGetAttributesFromCallStackReturnsEmptyWhenNoMatching(): void
     $obj = new CallStackTestClass();
     $attributes = $obj->methodA(MarkerAttribute::class);
 
-    Assert::same([], $attributes);
+    Assert::same($attributes, []);
 }
 
 function testGetAttributesFromCallStackWithNullAttributeClass(): void
@@ -283,7 +283,7 @@ function testGetAttributesFromCallStackWithLimit(): void
     $attributes = $obj->methodB(CallStackAttribute::class, true, false, true, true, 1);
 
     // Should return only 1 attribute due to limit
-    Assert::same(1, \count($attributes));
+    Assert::same(\count($attributes), 1);
 }
 
 function testGetAttributesFromCallStackWithLimitGreaterThanResults(): void
@@ -291,7 +291,7 @@ function testGetAttributesFromCallStackWithLimitGreaterThanResults(): void
     $attributes = topLevelFunction(CallStackAttribute::class, true, false, true, true, 100);
 
     // Should return all available attributes (less than limit)
-    Assert::same(1, \count($attributes));
+    Assert::same(\count($attributes), 1);
 }
 
 function testGetAttributesFromCallStackWithLimitAndNestedCalls(): void
@@ -300,7 +300,7 @@ function testGetAttributesFromCallStackWithLimitAndNestedCalls(): void
     $attributes = $obj->methodB(CallStackAttribute::class, true, false, true, true, 2);
 
     // Should return exactly 2 attributes
-    Assert::same(2, \count($attributes));
+    Assert::same(\count($attributes), 2);
 
     $labels = \array_map(
         static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
@@ -332,6 +332,6 @@ function testGetAttributesFromCallStackDuplicatesClassAttributesFromHierarchy():
     $baseClassCount = \count(\array_filter($labels, static fn($l) => $l === 'baseClassAttribute'));
 
     // Both class attributes should appear twice (once per method in call stack)
-    Assert::same(2, $childClassCount);
-    Assert::same(2, $baseClassCount);
+    Assert::same($childClassCount, 2);
+    Assert::same($baseClassCount, 2);
 }

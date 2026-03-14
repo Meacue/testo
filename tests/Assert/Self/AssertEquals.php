@@ -16,9 +16,9 @@ final class AssertEquals
     public function numbers(): void
     {
         Assert::equals(1, 1);
-        Assert::equals(1, 1.0);
         Assert::equals(1.0, 1);
-        Assert::equals("2", 2);
+        Assert::equals(1, 1.0);
+        Assert::equals(2, "2");
     }
 
     #[Test]
@@ -32,8 +32,8 @@ final class AssertEquals
         );
         # Different order
         Assert::equals(
-            ['b' => 2, 'a' => 1],
             ['a' => 1, 'b' => 2],
+            ['b' => 2, 'a' => 1],
         );
     }
 
@@ -41,8 +41,8 @@ final class AssertEquals
     public function objects(): void
     {
         Assert::equals(
-            (object) ['a' => 1, 'b' => 2],
-            (object) ['b' => 2, 'a' => 1],
+            (object)['b' => 2, 'a' => 1],
+            (object)['a' => 1, 'b' => 2],
         );
     }
 }
