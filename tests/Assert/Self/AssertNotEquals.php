@@ -28,8 +28,8 @@ final class AssertNotEquals
     public function objects(): void
     {
         Assert::notEquals(
-            (object)['a' => 2],
-            (object)['a' => 1],
+            (object) ['a' => 2],
+            (object) ['a' => 1],
         );
     }
 }

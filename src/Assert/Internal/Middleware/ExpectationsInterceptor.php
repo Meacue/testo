@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Assert\Interceptor;
+namespace Testo\Assert\Internal\Middleware;
 
 use Testo\Assert\Internal\StaticState;
 use Testo\Assert\State\AssertException;

@@ -32,7 +32,7 @@ final class SuiteConfigTest
 
         // Assert
         Assert::instanceOf($config->location, FinderConfig::class);
-        Assert::same(\count($config->location->includes), 1);
+        Assert::count($config->location->includes, 1);
     }
 
     public function constructSetsName(): void

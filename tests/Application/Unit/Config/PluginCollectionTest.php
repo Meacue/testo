@@ -34,7 +34,7 @@ final class PluginCollectionTest
         $result = SuitePlugins::with($plugin)->toArray();
 
         // Assert: defaults + stub
-        Assert::same(\count($result), $defaultCount + 1);
+        Assert::count($result, $defaultCount + 1);
         Assert::same($result[\count($result) - 1], $plugin);
     }
 
@@ -49,7 +49,7 @@ final class PluginCollectionTest
         $result = SuitePlugins::with($a, $b)->toArray();
 
         // Assert
-        Assert::same(\count($result), $defaultCount + 2);
+        Assert::count($result, $defaultCount + 2);
         Assert::same($result[\count($result) - 2], $a);
         Assert::same($result[\count($result) - 1], $b);
     }
@@ -67,7 +67,7 @@ final class PluginCollectionTest
         foreach ($result as $p) {
             Assert::notSame($p::class, $targetClass);
         }
-        Assert::same(\count($result), \count($defaults) - 1);
+        Assert::count($result, \count($defaults) - 1);
     }
 
     public function onlyReplacesDefaults(): void
@@ -79,7 +79,7 @@ final class PluginCollectionTest
         $result = SuitePlugins::only($plugin)->toArray();
 
         // Assert
-        Assert::same(\count($result), 1);
+        Assert::count($result, 1);
         Assert::same($result[0], $plugin);
     }
 
@@ -102,7 +102,7 @@ final class PluginCollectionTest
         $result = $collection->toArray();
 
         // Assert: only the custom plugin
-        Assert::same(\count($result), 1);
+        Assert::count($result, 1);
         Assert::same($result[0], $plugin);
     }
 
@@ -120,7 +120,7 @@ final class PluginCollectionTest
         $result = $collection->with($plugin)->toArray();
 
         // Assert
-        Assert::same(\count($result), 1);
+        Assert::count($result, 1);
         Assert::same($result[0], $plugin);
     }
 
@@ -144,7 +144,7 @@ final class PluginCollectionTest
             ->toArray();
 
         // Assert: all StubPlugins before last with() removed, only $c remains
-        Assert::same(\count($result), 1);
+        Assert::count($result, 1);
         Assert::same($result[0], $c);
     }
 
@@ -158,7 +158,7 @@ final class PluginCollectionTest
         $result = SuitePlugins::only($a)->with($b)->toArray();
 
         // Assert
-        Assert::same(\count($result), 2);
+        Assert::count($result, 2);
         Assert::same($result[0], $a);
         Assert::same($result[1], $b);
     }
@@ -179,7 +179,7 @@ final class PluginCollectionTest
         $result = SuitePlugins::with()->without(StubPlugin::class)->toArray();
 
         // Assert
-        Assert::same(\count($result), $defaultCount);
+        Assert::count($result, $defaultCount);
     }
 
     public function orderDefaultsBeforeCustomPlugins(): void
@@ -200,9 +200,9 @@ final class PluginCollectionTest
     {
         $defaultCount = \count(SuitePlugins::defaults());
 
-        Assert::same(\count(new PluginCollection()), 0);
-        Assert::same(\count(SuitePlugins::with(new StubPlugin())), $defaultCount + 1);
-        Assert::same(\count(SuitePlugins::only()), 0);
+        Assert::count(new PluginCollection(), 0);
+        Assert::count(SuitePlugins::with(new StubPlugin()), $defaultCount + 1);
+        Assert::count(SuitePlugins::only(), 0);
     }
 
     public function iterableYieldsPlugins(): void
@@ -230,8 +230,8 @@ final class PluginCollectionTest
         $modified = $original->with(new StubPlugin('b'));
 
         // Assert
-        Assert::same(\count($original), $defaultCount + 1);
-        Assert::same(\count($modified), $defaultCount + 2);
+        Assert::count($original, $defaultCount + 1);
+        Assert::count($modified, $defaultCount + 2);
     }
 
     public function collectionWithoutIsImmutable(): void
@@ -245,7 +245,7 @@ final class PluginCollectionTest
         $modified = $original->without($targetClass);
 
         // Assert
-        Assert::same(\count($original), \count($defaults));
-        Assert::same(\count($modified), \count($defaults) - 1);
+        Assert::count($original, \count($defaults));
+        Assert::count($modified, \count($defaults) - 1);
     }
 }

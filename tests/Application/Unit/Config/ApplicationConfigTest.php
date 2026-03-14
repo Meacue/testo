@@ -44,7 +44,7 @@ final class ApplicationConfigTest
 
         // Assert
         Assert::instanceOf($config->src, FinderConfig::class);
-        Assert::same(\count($config->src->includes), 1);
+        Assert::count($config->src->includes, 1);
     }
 
     public function constructWithDefaultSuites(): void
@@ -53,7 +53,7 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig();
 
         // Assert
-        Assert::same(\count($config->suites), 1);
+        Assert::count($config->suites, 1);
         Assert::same($config->suites[0]->name, 'default');
     }
 
@@ -66,7 +66,7 @@ final class ApplicationConfigTest
         $config = new ApplicationConfig(suites: [$suite]);
 
         // Assert
-        Assert::same(\count($config->suites), 1);
+        Assert::count($config->suites, 1);
         Assert::same($config->suites[0]->name, 'custom');
     }
 

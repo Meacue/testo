@@ -49,9 +49,9 @@ final class AssertArray
     #[Test]
     public function assertEvery(): void
     {
-        Assert::array([1, 2, 3])->every(fn ($value) => is_int($value));
+        Assert::array([1, 2, 3])->every(static fn($value) => \is_int($value));
 
         Expect::exception(AssertionException::class);
-        Assert::array([1, 2, 3, 'testo'])->every(fn ($value) => is_int($value));
+        Assert::array([1, 2, 3, 'testo'])->every(static fn($value) => \is_int($value));
     }
 }

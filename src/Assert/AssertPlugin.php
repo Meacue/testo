@@ -6,13 +6,15 @@ namespace Testo\Assert;
 
 use Testo\Application\Config\PluginConfigurator;
 use Testo\Assert;
-use Testo\Assert\Interceptor\AssertCollectorInterceptor;
-use Testo\Assert\Interceptor\ExpectationsInterceptor;
+use Testo\Assert\Internal\Middleware\AssertCollectorInterceptor;
+use Testo\Assert\Internal\Middleware\ExpectationsInterceptor;
 use Testo\Common\Container;
 use Testo\Expect;
 use Testo\Pipeline\InterceptorCollector;
 
 /**
+ * Helps with collecting assertions and expectations for tests.
+ *
  * @see Assert
  * @see Expect
  *

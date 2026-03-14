@@ -109,7 +109,7 @@ function testGetAttributesFromCallStackWithFunction(): void
 {
     $attributes = topLevelFunction(CallStackAttribute::class);
 
-    Assert::same(\count($attributes), 1);
+    Assert::count($attributes, 1);
     Assert::same($attributes[0]->getName(), CallStackAttribute::class);
     $instance = $attributes[0]->newInstance();
     Assert::same($instance->label, 'topFunction');
@@ -119,7 +119,7 @@ function testGetAttributesFromCallStackWithNestedFunctions(): void
 {
     $attributes = nestedFunction(CallStackAttribute::class);
 
-    Assert::same(\count($attributes), 2);
+    Assert::count($attributes, 2);
 
     $labels = \array_map(
         static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
@@ -135,7 +135,7 @@ function testGetAttributesFromCallStackWithMethod(): void
     $obj = new CallStackTestClass();
     $attributes = $obj->methodA(CallStackAttribute::class);
 
-    Assert::same(\count($attributes), 1);
+    Assert::count($attributes, 1);
     Assert::same($attributes[0]->newInstance()->label, 'methodA');
 }
 
@@ -144,7 +144,7 @@ function testGetAttributesFromCallStackWithNestedMethods(): void
     $obj = new CallStackTestClass();
     $attributes = $obj->methodB(CallStackAttribute::class);
 
-    Assert::same(\count($attributes), 2);
+    Assert::count($attributes, 2);
 
     $labels = \array_map(
         static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,
@@ -160,7 +160,7 @@ function testGetAttributesFromCallStackWithInheritance(): void
     $obj = new CallStackChildClass();
     $attributes = $obj->baseMethod(CallStackAttribute::class);
 
-    Assert::same(\count($attributes), 1);
+    Assert::count($attributes, 1);
     Assert::same($attributes[0]->newInstance()->label, 'baseMethod');
 }
 
@@ -283,7 +283,7 @@ function testGetAttributesFromCallStackWithLimit(): void
     $attributes = $obj->methodB(CallStackAttribute::class, true, false, true, true, 1);
 
     // Should return only 1 attribute due to limit
-    Assert::same(\count($attributes), 1);
+    Assert::count($attributes, 1);
 }
 
 function testGetAttributesFromCallStackWithLimitGreaterThanResults(): void
@@ -291,7 +291,7 @@ function testGetAttributesFromCallStackWithLimitGreaterThanResults(): void
     $attributes = topLevelFunction(CallStackAttribute::class, true, false, true, true, 100);
 
     // Should return all available attributes (less than limit)
-    Assert::same(\count($attributes), 1);
+    Assert::count($attributes, 1);
 }
 
 function testGetAttributesFromCallStackWithLimitAndNestedCalls(): void
@@ -300,7 +300,7 @@ function testGetAttributesFromCallStackWithLimitAndNestedCalls(): void
     $attributes = $obj->methodB(CallStackAttribute::class, true, false, true, true, 2);
 
     // Should return exactly 2 attributes
-    Assert::same(\count($attributes), 2);
+    Assert::count($attributes, 2);
 
     $labels = \array_map(
         static fn(\ReflectionAttribute $attr) => $attr->newInstance()->label,

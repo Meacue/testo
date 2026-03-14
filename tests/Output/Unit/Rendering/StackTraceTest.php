@@ -96,7 +96,7 @@ final class StackTraceTest
             $result,
             static fn(array $f): bool => ($f['class'] ?? null) === AssertMethodStub::class,
         );
-        Assert::same(\count($cutFrames), 1);
+        Assert::count($cutFrames, 1);
     }
 
     public function testDoesNotCutBeyondDepthLimit(): void

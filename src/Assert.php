@@ -243,6 +243,35 @@ final class Assert
     }
 
     /**
+     * Asserts that the given value has the expected count.
+     *
+     * @param \Countable|iterable $actual The actual value to check for count.
+     * @param int $expected The expected count.
+     * @param string $message Short description about what exactly is being asserted.
+     * @throws AssertException when the assertion fails.
+     */
+    #[AssertMethod]
+    public static function count(\Countable|iterable $actual, int $expected, string $message = ''): void
+    {
+        if ($actual instanceof \Countable) {
+            $count = \count($actual);
+            if ($count === $expected) {
+                StaticState::success($actual, "A \Countable has count `$expected`", $message);
+                return;
+            }
+
+            StaticState::fail(AssertException::compare(
+                $expected,
+                $count,
+                $message,
+                'Failed asserting that count of \Countable is `%1$s`, got `%2$s`',
+            ));
+        }
+
+        AssertIterable::validateAndCreate($actual)->hasCount($expected);
+    }
+
+    /**
      * Asserts that the given value is of `string` data type.
      *
      * @throws AssertException when the assertion fails.
