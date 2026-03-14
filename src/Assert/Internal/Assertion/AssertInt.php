@@ -14,14 +14,15 @@ use Testo\Assert\State\Assertion\AssertionException;
  * Assertion utilities for integer data type.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-class AssertInt implements IntType
+final readonly class AssertInt implements IntType
 {
     use NumericTrait;
 
     public function __construct(
-        private readonly int $value,
-        private readonly AssertionComposite $parent,
+        private int $value,
+        private AssertionComposite $parent,
     ) {}
 
     /**

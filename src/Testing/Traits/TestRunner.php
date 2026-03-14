@@ -76,7 +76,7 @@ trait TestRunner
 
         return Application::createFromConfig(
             new ApplicationConfig(
-                src: null,
+                src: [],
                 suites: [
                     new SuiteConfig(
                         'Testing',

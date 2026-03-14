@@ -17,14 +17,14 @@ unset($_);
  * Application-level plugin configuration facade.
  *
  * ```
- * // Add to defaults
- * ApplicationPlugins::with(new MyPlugin())
+ *  // Add to defaults
+ *  ApplicationPlugins::with(new MyPlugin())
  *
- * // Replace defaults entirely
- * ApplicationPlugins::only(new MyPlugin())
+ *  // Replace defaults entirely
+ *  ApplicationPlugins::only(new MyPlugin())
  *
- * // Chaining
- * ApplicationPlugins::with(new A())->without(B::class)->with(new C())
+ *  // Chaining
+ *  ApplicationPlugins::with(new A())->without(B::class)->with(new C())
  * ```
  *
  * @api

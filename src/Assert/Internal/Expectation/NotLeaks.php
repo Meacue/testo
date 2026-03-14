@@ -15,6 +15,7 @@ use Testo\Core\Value\Status;
  *
  * @see Expect::notLeaks()
  * @internal
+ * @psalm-internal Testo\Assert
  */
 final class NotLeaks
 {

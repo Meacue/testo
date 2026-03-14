@@ -6,7 +6,7 @@ namespace Testo\Assert\Exception;
 
 use Testo\Assert\Interceptor\AssertCollectorInterceptor;
 
-class StateNotFound extends \RuntimeException
+final class StateNotFound extends \RuntimeException
 {
     public function __construct()
     {

@@ -19,7 +19,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
  * @note Must be placed right before the test execution.
  */
 #[InterceptorOptions(order: 10_000)]
-final class ExpectationsInterceptor implements TestRunInterceptor
+final readonly class ExpectationsInterceptor implements TestRunInterceptor
 {
     /**
      * @throws AssertException When the expected exception is not thrown.

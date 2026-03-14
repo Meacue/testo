@@ -15,12 +15,13 @@ use Testo\Attribute\AssertMethod;
  * Assertion utilities for string data type.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-class AssertString implements StringType
+final readonly class AssertString implements StringType
 {
     public function __construct(
-        private readonly string $value,
-        private readonly AssertionComposite $parent,
+        private string $value,
+        private AssertionComposite $parent,
     ) {}
 
     /**

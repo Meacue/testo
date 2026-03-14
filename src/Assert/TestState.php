@@ -9,6 +9,15 @@ use Testo\Core\Context\TestResult;
 
 /**
  * Collects assertions.
+ *
+ * The state is stored as an attribute in the test result, and can be accessed by Event Listeners
+ * and Interceptors.
+ *
+ * ```
+ *  $testState = $result->getAttribute(TestState::class);
+ * ```
+ *
+ * @api
  */
 final class TestState
 {

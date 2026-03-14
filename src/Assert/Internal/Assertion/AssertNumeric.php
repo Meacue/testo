@@ -12,8 +12,9 @@ use Testo\Assert\State\Assertion\AssertionComposite;
  * Assertion utilities for numeric data type.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-class AssertNumeric implements IntType
+final readonly class AssertNumeric implements IntType
 {
     use NumericTrait;
 

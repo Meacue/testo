@@ -14,14 +14,15 @@ use Testo\Assert\State\Assertion\AssertionException;
  * Assertion utilities for iterables.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-class AssertIterable implements IterableType
+final readonly class AssertIterable implements IterableType
 {
     use IterableTrait;
 
     public function __construct(
-        private readonly iterable $value,
-        private readonly AssertionComposite $parent,
+        private iterable $value,
+        private AssertionComposite $parent,
     ) {}
 
     /**

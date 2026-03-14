@@ -20,7 +20,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
  * Supports both synchronous and asynchronous (Fiber-based) environments.
  */
 #[InterceptorOptions(order: InterceptorOptions::ORDER_ASSERTIONS - 10)]
-final class AssertCollectorInterceptor implements TestRunInterceptor
+final readonly class AssertCollectorInterceptor implements TestRunInterceptor
 {
     #[\Override]
     public function runTest(TestInfo $info, callable $next): TestResult

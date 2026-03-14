@@ -14,14 +14,15 @@ use Testo\Assert\State\Assertion\AssertionException;
  * Assertion utilities for integer data type.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-class AssertFloat implements FloatType
+final readonly class AssertFloat implements FloatType
 {
     use NumericTrait;
 
     public function __construct(
-        private readonly float $value,
-        private readonly AssertionComposite $parent,
+        private float $value,
+        private AssertionComposite $parent,
     ) {}
 
     /**

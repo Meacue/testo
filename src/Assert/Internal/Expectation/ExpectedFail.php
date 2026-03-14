@@ -14,11 +14,14 @@ use Testo\Core\Value\Status;
  * ended successfully without throwing this is suspicious behavior, mark the test as Risky.
  *
  * todo: create Fail exception
+ *
+ * @internal
+ * @psalm-internal Testo\Assert
  */
-final class ExpectedFail
+final readonly class ExpectedFail
 {
     public function __construct(
-        public readonly Fail $fail,
+        public Fail $fail,
     ) {}
 
     public function __invoke(TestResult $result, TestState $state): TestResult

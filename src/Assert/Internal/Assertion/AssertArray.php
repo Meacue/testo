@@ -15,14 +15,15 @@ use Testo\Attribute\AssertMethod;
  * Assertion utilities for arrays.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-class AssertArray implements ArrayType
+final readonly class AssertArray implements ArrayType
 {
     use IterableTrait;
 
     public function __construct(
-        private readonly array $value,
-        private readonly AssertionComposite $parent,
+        private array $value,
+        private AssertionComposite $parent,
     ) {}
 
     /**

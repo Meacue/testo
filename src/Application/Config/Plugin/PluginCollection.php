@@ -9,7 +9,7 @@ use Testo\Application\Config\PluginConfigurator;
 /**
  * Immutable plugin collection.
  *
- * Use {@see SuitePlugins} facade to create instances with default plugins.
+ * Use {@see SuitePlugins} or {@see ApplicationPlugins} facades to create instances with default plugins.
  *
  * @implements \IteratorAggregate<int, PluginConfigurator>
  *

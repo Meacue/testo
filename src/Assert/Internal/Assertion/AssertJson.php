@@ -16,12 +16,13 @@ use Testo\Attribute\AssertMethod;
  * Implementation of JSON assertions.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-class AssertJson implements JsonAbstract
+final readonly class AssertJson implements JsonAbstract
 {
     public function __construct(
         private mixed $value,
-        private readonly AssertionComposite $parent,
+        private AssertionComposite $parent,
     ) {}
 
     /**

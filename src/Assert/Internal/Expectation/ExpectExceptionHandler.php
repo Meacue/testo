@@ -17,14 +17,15 @@ use Testo\Core\Value\Status;
  * Expected exception declaration.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-final class ExpectExceptionHandler implements ExpectedException
+final readonly class ExpectExceptionHandler implements ExpectedException
 {
     /**
      * @param class-string|\Throwable $classOrObject Expected exception class, interface, or an object.
      */
     public function __construct(
-        public readonly string|\Throwable $classOrObject,
+        public string|\Throwable $classOrObject,
     ) {}
 
     /**

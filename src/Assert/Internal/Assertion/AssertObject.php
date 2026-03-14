@@ -14,12 +14,13 @@ use Testo\Attribute\AssertMethod;
  * Assertion utilities for objects.
  *
  * @internal
+ * @psalm-internal Testo\Assert
  */
-final class AssertObject implements ObjectType
+final readonly class AssertObject implements ObjectType
 {
     public function __construct(
-        private readonly object $value,
-        private readonly AssertionComposite $parent,
+        private object $value,
+        private AssertionComposite $parent,
     ) {}
 
     /**

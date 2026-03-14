@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace Testo\Application\Config\Plugin;
 
 use Testo\Application\Config\PluginConfigurator;
+use Testo\Assert\AssertPlugin;
 use Testo\Bench\BenchmarkPlugin;
 use Testo\Inline\InlineTestPlugin;
 use Testo\Lifecycle\LifecyclePlugin;
 
 $_ = [];
-\class_exists(LifecyclePlugin::class) and $_[] = new LifecyclePlugin();
+\class_exists(AssertPlugin::class) and $_[] = new AssertPlugin();
 \class_exists(BenchmarkPlugin::class) and $_[] = new BenchmarkPlugin();
 \class_exists(InlineTestPlugin::class) and $_[] = new InlineTestPlugin();
+\class_exists(LifecyclePlugin::class) and $_[] = new LifecyclePlugin();
 
 \define([__NAMESPACE__ . '\DEFAULT_SUITE_PLUGINS'][0], $_);
 unset($_);
@@ -21,17 +23,17 @@ unset($_);
  * Plugin configuration facade.
  *
  * ```
- * // Add to defaults
- * SuitePlugins::with(new MyPlugin())
+ *  // Add to defaults
+ *  SuitePlugins::with(new MyPlugin())
  *
- * // Remove specific defaults
- * SuitePlugins::without(LifecyclePlugin::class)
+ *  // Remove specific defaults
+ *  SuitePlugins::without(LifecyclePlugin::class)
  *
- * // Replace defaults entirely
- * SuitePlugins::only(new MyPlugin())
+ *  // Replace defaults entirely
+ *  SuitePlugins::only(new MyPlugin())
  *
- * // Chaining
- * SuitePlugins::with(new A())->without(B::class)->with(new C())
+ *  // Chaining
+ *  SuitePlugins::with(new A())->without(B::class)->with(new C())
  * ```
  *
  * @api

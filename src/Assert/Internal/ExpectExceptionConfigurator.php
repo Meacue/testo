@@ -14,6 +14,9 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
 
 /**
  * Configures expected exceptions for a test based on the {@see ExpectException} attribute.
+ *
+ * @internal
+ * @psalm-internal Testo\Assert
  */
 #[InterceptorOptions(order: InterceptorOptions::ORDER_ASSERTIONS + 10)]
 final class ExpectExceptionConfigurator implements TestRunInterceptor

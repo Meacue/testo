@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal;
 
+/**
+ * @internal
+ * @psalm-internal Testo\Assert
+ */
 final class Support
 {
     /**
