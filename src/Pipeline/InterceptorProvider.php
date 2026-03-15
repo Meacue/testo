@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Testo\Pipeline;
 
-use Testo\Application\Middleware\AttributesInterceptor;
 use Testo\Common\Container;
 use Testo\Pipeline\Attribute\Interceptable;
+use Testo\Pipeline\Internal\AttributesInterceptor;
 use Testo\Pipeline\Internal\Cache;
 use Yiisoft\Injector\Injector;
 
@@ -15,7 +15,9 @@ use Yiisoft\Injector\Injector;
  */
 final class InterceptorProvider implements InterceptorCollector
 {
-    private array $interceptors = [];
+    private array $interceptors = [
+        AttributesInterceptor::class, // todo: make it optional and move to a separate plugin?
+    ];
     private readonly Injector $injector;
 
     public function __construct(
@@ -41,9 +43,7 @@ final class InterceptorProvider implements InterceptorCollector
      */
     public function fromConfig(string $class): array
     {
-        return $this->fromClasses($class, ...$this->interceptors, ...[
-            AttributesInterceptor::class,
-        ]);
+        return $this->fromClasses($class, ...$this->interceptors);
     }
 
     /**

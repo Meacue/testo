@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Core\Context;
 
-use Testo\Core\Common\AttributedTrait;
+use Testo\Core\Internal\Attributed;
 use Testo\Core\Definition\CaseDefinitions;
 
 /**
@@ -12,7 +12,7 @@ use Testo\Core\Definition\CaseDefinitions;
  */
 final class SuiteInfo
 {
-    use AttributedTrait;
+    use Attributed;
 
     /**
      * @param array<non-empty-string, mixed> $attributes

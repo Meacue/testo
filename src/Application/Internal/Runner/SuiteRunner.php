@@ -22,7 +22,9 @@ use Testo\Pipeline\Pipeline;
 
 /**
  * A test suite runner that executes a suite of tests and returns the results.
+ *
  * @internal
+ * @psalm-internal Testo\Application
  */
 final readonly class SuiteRunner
 {

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Testo\Pipeline\Attribute;
 
-use Testo\Pipeline\Interceptor;
-
 /**
  * Define a fallback interceptor for the {@see Interceptable} attribute.
  *

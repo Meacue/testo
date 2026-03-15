@@ -19,6 +19,7 @@ use Testo\Pipeline\Pipeline;
 
 /**
  * @internal
+ * @psalm-internal Testo\Application
  */
 final readonly class TestRunner
 {

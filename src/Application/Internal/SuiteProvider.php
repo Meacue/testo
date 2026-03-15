@@ -15,6 +15,7 @@ use Testo\Filter;
  * Provides test suites.
  *
  * @internal
+ * @psalm-internal Testo\Application
  */
 final readonly class SuiteProvider
 {

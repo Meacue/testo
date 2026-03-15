@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Core\Filter;
+namespace Testo\Filter;
 
 use Testo\Filter\Internal\FilterInterceptor;
 

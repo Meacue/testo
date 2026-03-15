@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Value;
+namespace Testo\Core\Context;
 
-use Testo\Core\Context\SuiteResult;
 use Testo\Core\Value\Status;
 
 /**

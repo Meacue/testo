@@ -9,6 +9,7 @@ use Testo\Core\Value\CaseInstance;
 
 /**
  * @internal
+ * @psalm-internal Testo\Application
  */
 final class SimpleCaseInstantiator implements CaseInstance
 {

@@ -19,6 +19,7 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
  * @internal
+ * @psalm-internal Testo\Application
  */
 final readonly class SuiteFactory
 {

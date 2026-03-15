@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Testo\Common;
+namespace Testo\Core\Internal;
 
 /**
  * Common trait to implement immutable "with" methods with readonly properties.
  *
  * @internal
+ * @psalm-internal Testo
  */
 trait CloneWith
 {

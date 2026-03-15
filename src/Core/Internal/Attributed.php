@@ -2,16 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Testo\Core\Common;
-
-use Testo\Common\CloneWith;
+namespace Testo\Core\Internal;
 
 /**
  * Trait providing attribute management functionality.
- *
- * @api
  */
-trait AttributedTrait
+trait Attributed
 {
     use CloneWith;
 

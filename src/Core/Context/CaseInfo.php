@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Core\Context;
 
-use Testo\Core\Common\AttributedTrait;
+use Testo\Core\Internal\Attributed;
 use Testo\Core\Definition\CaseDefinition;
 use Testo\Core\Internal\DefaultTestHandler;
 use Testo\Core\Value\CaseInstance;
@@ -16,7 +16,7 @@ use Testo\Core\Value\CaseInstance;
  */
 final class CaseInfo
 {
-    use AttributedTrait;
+    use Attributed;
 
     public readonly string $name;
 

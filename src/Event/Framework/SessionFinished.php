@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Event\Framework;
 
-use Testo\Application\Value\RunResult;
+use Testo\Core\Context\RunResult;
 
 /**
  * Event triggered when the testing session finishes.

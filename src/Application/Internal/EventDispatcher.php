@@ -14,6 +14,7 @@ use Testo\Common\EventListenerCollector;
  * A simple event dispatcher that supports listener priorities and event propagation control.
  *
  * @internal
+ * @psalm-internal Testo\Application
  */
 final class EventDispatcher implements
     EventListenerCollector,

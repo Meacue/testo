@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Core\Context;
 
-use Testo\Core\Common\AttributedTrait;
+use Testo\Core\Internal\Attributed;
 use Testo\Core\Value\Status;
 
 /**
@@ -12,7 +12,7 @@ use Testo\Core\Value\Status;
  */
 final class TestResult
 {
-    use AttributedTrait;
+    use Attributed;
 
     /**
      * @param array<non-empty-string, mixed> $attributes

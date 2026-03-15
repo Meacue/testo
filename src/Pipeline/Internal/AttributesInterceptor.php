@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Middleware;
+namespace Testo\Pipeline\Internal;
 
 use Testo\Common\Reflection;
 use Testo\Core\Context\CaseInfo;
@@ -19,12 +19,15 @@ use Testo\Pipeline\Pipeline;
 /**
  * Reads {@see Interceptable} attributes and integrates them into the pipeline.
  * Also maps the found attributes into the info DTO attributes.
+ *
+ * @internal
+ * @psalm-internal Testo\Pipeline
  */
 #[InterceptorOptions(order: InterceptorOptions::ORDER_ATTRIBUTES)]
-final class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInterceptor
+final readonly class AttributesInterceptor implements TestRunInterceptor, TestCaseRunInterceptor
 {
     public function __construct(
-        private readonly InterceptorProvider $interceptorProvider,
+        private InterceptorProvider $interceptorProvider,
     ) {}
 
     #[\Override]

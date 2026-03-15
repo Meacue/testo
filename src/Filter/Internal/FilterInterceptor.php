@@ -8,8 +8,8 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Core\Definition\TestDefinitions;
-use Testo\Core\Filter\DataPointer;
 use Testo\Filter;
+use Testo\Filter\DataPointer;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
@@ -23,7 +23,7 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
  *
  * Stage 1 (FileLocatorInterceptor): Pre-filters test files before loading for reflection analysis.
  * Stage 2 (CaseLocatorInterceptor): Filters test cases and individual tests before execution.
- * Stage 3 (TestRunInterceptor): Injects {@see DataPointer} to tests metadata for data provider filtering.
+ * Stage 3 (TestRunInterceptor): Injects {@see \Testo\Filter\DataPointer} to tests metadata for data provider filtering.
  *
  * Supports three filter formats with optional DataProvider indices:
  * - FQN: `Namespace\ClassName:0:1` - provider 0, dataset 1
@@ -57,7 +57,7 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
      *
      * Indices are extracted during parsing and stored separately in DataPointer.
      *
-     * @var list<array{non-empty-string, null|DataPointer}> Tuple of [cleanName, pointer]
+     * @var list<array{non-empty-string, null|\Testo\Filter\DataPointer}> Tuple of [cleanName, pointer]
      */
     private readonly array $fqn;
 
@@ -67,7 +67,7 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
      *
      * Indices are extracted during parsing and stored separately in DataPointer.
      *
-     * @var list<array{non-empty-string, non-empty-string, null|DataPointer}> Tuple of [className, methodName, pointer]
+     * @var list<array{non-empty-string, non-empty-string, null|\Testo\Filter\DataPointer}> Tuple of [className, methodName, pointer]
      */
     private readonly array $method;
 
@@ -77,7 +77,7 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
      *
      * Indices are extracted during parsing and stored separately in DataPointer.
      *
-     * @var list<array{non-empty-string, null|DataPointer}> Tuple of [fragment, pointer]
+     * @var list<array{non-empty-string, null|\Testo\Filter\DataPointer}> Tuple of [fragment, pointer]
      */
     private readonly array $fragment;
 
@@ -218,7 +218,7 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
     /**
      * Stage 3: Inject data pointers to individual tests before execution.
      *
-     * The {@see DataPointer} attribute can be used by data providers or test runners to
+     * The {@see \Testo\Filter\DataPointer} attribute can be used by data providers or test runners to
      * identify which dataset of which provider is being referred to.
      *
      * @param TestInfo $info Test information
@@ -249,7 +249,7 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
     }
 
     /**
-     * Extract {@see DataPointer} from target string and remove indices from target.
+     * Extract {@see \Testo\Filter\DataPointer} from target string and remove indices from target.
      *
      * Parses format: `name:providerIndex:datasetIndex` where datasetIndex is optional.
      * Modifies $target by reference, removing `:providerIndex:datasetIndex` parts.
@@ -260,7 +260,7 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
      * - "testMethod" -> target unchanged, returns null
      *
      * @param non-empty-string &$target Name with optional indices. Indices removed after parsing.
-     * @return null|DataPointer DataPointer if indices present, null otherwise
+     * @return null|\Testo\Filter\DataPointer DataPointer if indices present, null otherwise
      */
     private static function extractDataPointer(string &$target): ?DataPointer
     {
