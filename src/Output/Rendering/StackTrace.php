@@ -11,10 +11,10 @@ use Testo\Attribute\AssertMethod;
  */
 final class StackTrace
 {
-    /** Max number of frames to scan for {@see AssertMethod} before giving up. Resets on each match. */
+    /** Max number of frames to scan for {@see \Testo\Attribute\AssertMethod} before giving up. Resets on each match. */
     private const SEARCH_DEPTH = 3;
 
-    /** @var array<string, bool> Cached {@see AssertMethod} attribute lookup results */
+    /** @var array<string, bool> Cached {@see \Testo\Attribute\AssertMethod} attribute lookup results */
     private static array $cutTraceCache = [];
 
     /**

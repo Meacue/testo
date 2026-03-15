@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Testo\Self\TestCase;
 
 use Testo\Assert;
-use Testo\Attribute\Test;
+use Testo\Test;
 
 /**
  * By default, the same test case instance is used for the each non-static test method.

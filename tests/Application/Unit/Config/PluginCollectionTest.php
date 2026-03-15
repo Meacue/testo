@@ -8,7 +8,7 @@ use Testo\Application\Config\Plugin\PluginCollection;
 use Testo\Application\Config\Plugin\SuitePlugins;
 use Testo\Assert;
 use Testo\Assert\ExpectException;
-use Testo\Attribute\Test;
+use Testo\Test;
 use Tests\Application\Stub\StubPlugin;
 
 #[Test]

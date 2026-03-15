@@ -48,6 +48,7 @@ use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\Plugin\SuitePlugins;
 use Testo\Application\Config\SuiteConfig;
+use Testo\Assert\AssertPlugin;
 use Testo\Bench\BenchmarkPlugin;
 use Testo\Inline\InlineTestPlugin;
 
@@ -55,20 +56,17 @@ return new ApplicationConfig(
     suites: [
         new SuiteConfig(
             name: 'Sources',
-            location: new FinderConfig(
-                include: ['src'],
-            ),
-            // Only Benchmarking and Inline Tests for source code suite
+            location: ['src'],
+            // Only Benchmarking and Inline Tests for Source files
             plugins: SuitePlugins::only(
                 new InlineTestPlugin(),
                 new BenchmarkPlugin(),
+                new AssertPlugin(),
             ),
         ),
         new SuiteConfig(
             name: 'Unit',
-            location: new FinderConfig(
-                include: ['tests/Unit'],
-            ),
+            location: ['tests'],
         ),
     ],
 );
@@ -95,8 +93,8 @@ namespace Tests;
 
 use Testo\Assert;
 use Testo\Assert\ExpectException;
-use Testo\Attribute\Test;
 use Testo\Retry\RetryPolicy;
+use Testo\Test;
 
 final class CalculatorTest
 {

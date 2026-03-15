@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Lifecycle\Self;
 
 use Testo\Assert;
-use Testo\Attribute\Test;
 use Testo\Lifecycle\AfterAll;
 use Testo\Lifecycle\BeforeAll;
+use Testo\Test;
 
 /**
  * Self-tests for BeforeAll and AfterAll lifecycle attributes.

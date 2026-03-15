@@ -9,7 +9,7 @@ use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
 use Testo\Assert;
 use Testo\Assert\ExpectException;
-use Testo\Attribute\Test;
+use Testo\Test;
 use Tests\Application\Stub\StubPlugin;
 
 #[Test]

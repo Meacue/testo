@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fixture\Interceptor;
+namespace Tests\Test\Unit\Fixture;
 
-final class PlainClassWithoutTestAttributes
+use Testo\Test;
+
+#[Test]
+final class TestClassWithClassLevelAttribute
 {
     public function methodOne(): void {}
 

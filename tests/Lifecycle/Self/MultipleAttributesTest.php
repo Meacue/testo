@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Lifecycle\Self;
 
 use Testo\Assert;
-use Testo\Attribute\Test;
 use Testo\Lifecycle\AfterEach;
 use Testo\Lifecycle\BeforeEach;
+use Testo\Test;
 
 /**
  * Self-tests for multiple Before/After methods on a single class.

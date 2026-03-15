@@ -2,21 +2,24 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Middleware\Locator;
+namespace Testo\Test\Internal;
 
-use Testo\Attribute\Test;
 use Testo\Common\Reflection;
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Core\Value\TestType;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
+use Testo\Test;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
  * Accepts files that contain classes or functions with the Test attribute and fetches test cases from them.
+ *
+ * @internal
+ * @psalm-internal Testo\Test
  */
-final class TestoAttributesLocatorInterceptor implements FileLocatorInterceptor, CaseLocatorInterceptor
+final readonly class TestoAttributesLocatorInterceptor implements FileLocatorInterceptor, CaseLocatorInterceptor
 {
     #[\Override]
     public function locateFile(TokenizedFile $file, callable $next): ?bool

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
-use Testo\Attribute\Test;
+use Testo\Test;
 
 /**
  * Assertion examples.

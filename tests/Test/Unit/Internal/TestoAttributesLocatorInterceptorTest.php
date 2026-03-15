@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Testo\Interceptor;
+namespace Tests\Test\Unit\Internal;
 
-use Testo\Application\Middleware\Locator\TestoAttributesLocatorInterceptor;
 use Testo\Assert;
-use Testo\Attribute\Test;
+use Testo\Test;
+use Testo\Test\Internal\TestoAttributesLocatorInterceptor;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
-use Tests\Fixture\Interceptor\TestClassWithClassLevelAttribute;
-use Tests\Fixture\Interceptor\TestClassWithMethodLevelAttributes;
+use Tests\Test\Unit\Fixture\TestClassWithClassLevelAttribute;
+use Tests\Test\Unit\Fixture\TestClassWithMethodLevelAttributes;
 
 final class TestoAttributesLocatorInterceptorTest
 {
@@ -39,8 +39,8 @@ final class TestoAttributesLocatorInterceptorTest
             ),
         );
 
-        Assert::true($this->interceptor->locateFile($file, fn($f) => true));
-        $this->interceptor->locateTestCases($definition, fn(FileDefinitions $f) => $f->cases);
+        Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
+        $this->interceptor->locateTestCases($definition, static fn(FileDefinitions $f) => $f->cases);
 
         $case = $definition->cases->getCases()[0];
         $tests = $case->tests->getTests();
@@ -69,8 +69,8 @@ final class TestoAttributesLocatorInterceptorTest
             ),
         );
 
-        Assert::true($this->interceptor->locateFile($file, fn($f) => true));
-        $this->interceptor->locateTestCases($definition, fn(FileDefinitions $f) => $f->cases);
+        Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
+        $this->interceptor->locateTestCases($definition, static fn(FileDefinitions $f) => $f->cases);
 
         $case = $definition->cases->getCases()[0];
         $tests = $case->tests->getTests();
@@ -94,7 +94,7 @@ final class TestoAttributesLocatorInterceptorTest
             ),
         );
 
-        Assert::true($this->interceptor->locateFile($file, fn($f) => true));
+        Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
         Assert::array($definition->cases->getCases())->hasCount(0);
     }
 }

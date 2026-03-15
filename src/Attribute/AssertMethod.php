@@ -59,4 +59,4 @@ use Testo\Pipeline\Attribute\Interceptable;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
-final class AssertMethod implements Interceptable, LifecycleAttribute {}
+final readonly class AssertMethod implements Interceptable, LifecycleAttribute {}

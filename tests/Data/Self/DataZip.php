@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Tests\Data\Self;
 
 use Testo\Assert;
-use Testo\Attribute\Test;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
+use Testo\Test;
 
 final class DataZip
 {

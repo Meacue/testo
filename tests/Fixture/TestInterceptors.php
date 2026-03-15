@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Fixture;
 
-use Testo\Attribute\Test;
 use Testo\Retry\RetryPolicy;
+use Testo\Test;
 
 final class TestInterceptors
 {

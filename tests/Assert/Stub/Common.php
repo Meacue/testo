@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Assert\Stub;
 
-use Testo\Attribute\Test;
+use Testo\Test;
 
 final class Common
 {

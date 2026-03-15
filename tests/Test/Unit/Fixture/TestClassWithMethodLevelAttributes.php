@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Tests\Fixture\Interceptor;
+namespace Tests\Test\Unit\Fixture;
 
-use Testo\Attribute\Test;
+use Testo\Test;
 
 final class TestClassWithMethodLevelAttributes
 {

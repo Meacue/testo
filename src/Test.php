@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Attribute;
+namespace Testo;
 
 /**
  * Marks a class (public methods), or a method or a function as a test.
@@ -10,7 +10,7 @@ namespace Testo\Attribute;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::TARGET_CLASS)]
-final class Test
+final readonly class Test
 {
     public function __construct(
         public string $description = '',

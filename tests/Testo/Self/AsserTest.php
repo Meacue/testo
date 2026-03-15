@@ -7,11 +7,11 @@ namespace Tests\Testo\Self;
 use Testo\Assert;
 use Testo\Assert\ExpectException;
 use Testo\Assert\State\AssertException;
-use Testo\Attribute\Test;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
 use Testo\Expect;
 use Testo\Retry\RetryPolicy;
+use Testo\Test;
 use Tests\Fixture\ClassDataProvider;
 
 /**

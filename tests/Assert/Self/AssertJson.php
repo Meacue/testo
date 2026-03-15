@@ -6,8 +6,8 @@ namespace Tests\Assert\Self;
 
 use Testo\Assert;
 use Testo\Assert\Api\Json\JsonAbstract;
-use Testo\Attribute\Test;
 use Testo\Data\DataProvider;
+use Testo\Test;
 
 /**
  * @see Assert::json()

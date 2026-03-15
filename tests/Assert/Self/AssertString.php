@@ -5,10 +5,9 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
-use Testo\Attribute\Test;
 use Testo\Expect;
+use Testo\Test;
 
 /**
  * @see Assert::string()

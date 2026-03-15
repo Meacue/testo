@@ -6,8 +6,8 @@ namespace Tests\Assert\Self;
 
 use Testo\Assert;
 use Testo\Assert\State\AssertException;
-use Testo\Attribute\Test;
 use Testo\Expect;
+use Testo\Test;
 
 /**
  * Assertion examples.

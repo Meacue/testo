@@ -6,8 +6,8 @@ namespace Tests\Assert\Self;
 
 use Testo\Assert\ExpectException;
 use Testo\Assert\State\Expectation\ExpectNotLeaksFailure;
-use Testo\Attribute\Test;
 use Testo\Expect;
+use Testo\Test;
 
 /**
  * @see Expect::leaks()

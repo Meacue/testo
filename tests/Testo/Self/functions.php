@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Testo\Self;
 
 use Testo\Assert;
-use Testo\Attribute\Test;
+use Testo\Test;
 
 #[Test]
 function simpleFunctionAssertions(): void

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Core\Definition;
 
-use Testo\Attribute\Test;
+use Testo\Test;
 
 /**
  * @api
@@ -22,7 +22,7 @@ final readonly class TestDefinition
             return null;
         }
 
-        /** @var \Testo\Attribute\Test $testAttribute */
+        /** @var \Testo\Test $testAttribute */
         $testAttribute = $attributes[0]->newInstance();
         return $testAttribute->description !== '' ? $testAttribute->description : null;
     }
