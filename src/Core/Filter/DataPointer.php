@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Core\Filter;
 
-use Testo\Application\Middleware\FilterInterceptor;
+use Testo\Filter\Internal\FilterInterceptor;
 
 /**
  * Data provider index pointer for test filtering.

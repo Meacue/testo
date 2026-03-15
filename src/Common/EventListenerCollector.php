@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Config;
+namespace Testo\Common;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 

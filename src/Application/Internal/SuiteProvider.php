@@ -7,9 +7,9 @@ namespace Testo\Application\Internal;
 use Internal\Path;
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
-use Testo\Application\Value\Filter;
 use Testo\Common\Container;
 use Testo\Core\Context\SuiteInfo;
+use Testo\Filter;
 
 /**
  * Provides test suites.

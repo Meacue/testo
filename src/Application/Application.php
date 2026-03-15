@@ -12,19 +12,19 @@ use Testo\Application\Config\Internal\ConfigInflector;
 use Testo\Application\Config\Plugin\ApplicationPlugins;
 use Testo\Application\Config\Plugin\PluginCollection;
 use Testo\Application\Config\Plugin\SuitePlugins;
-use Testo\Application\Config\PluginConfigurator;
 use Testo\Application\Internal\ObjectContainer;
 use Testo\Application\Internal\Runner\SuiteRunner;
 use Testo\Application\Internal\SuiteProvider;
-use Testo\Application\Value\Filter;
 use Testo\Application\Value\RunResult;
 use Testo\Common\Container;
+use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Value\Status;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Framework\WorkerFinished;
 use Testo\Event\Framework\WorkerStarting;
+use Testo\Filter;
 
 final readonly class Application
 {
@@ -83,18 +83,16 @@ final readonly class Application
 
         # Register Config inflector
         $container->addInflector($container->make(ConfigInflector::class, $args));
-        $container->bind(Filter::class, Filter::fromScope(...));
 
         return new self($container);
     }
 
-    public function run(?Filter $filter = null): RunResult
+    public function run(): RunResult
     {
-        return $this->container->scope(static function (Container $container) use ($filter): RunResult {
-            $filter === null or $container->set($filter);
+        return $this->container->scope(static function (Container $container): RunResult {
             $appConfig = $container->get(ApplicationConfig::class);
-            $filter ??= $container->get(Filter::class);
             self::applyPlugins($container, self::resolvePlugins($appConfig->plugins, ApplicationPlugins::class));
+            $filter = $container->get(Filter::class);
 
             $dispatcher = $container->get(EventDispatcherInterface::class);
             $dispatcher->dispatch(new SessionStarting());

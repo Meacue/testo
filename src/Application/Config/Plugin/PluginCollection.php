@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Application\Config\Plugin;
 
-use Testo\Application\Config\PluginConfigurator;
+use Testo\Common\PluginConfigurator;
 
 /**
  * Immutable plugin collection.
@@ -36,7 +36,7 @@ final readonly class PluginCollection implements \IteratorAggregate, \Countable
     /**
      * Remove plugins by class name.
      *
-     * @param class-string<PluginConfigurator> ...$pluginClasses
+     * @param class-string<\Testo\Common\PluginConfigurator> ...$pluginClasses
      */
     public function without(string ...$pluginClasses): self
     {
@@ -55,7 +55,7 @@ final readonly class PluginCollection implements \IteratorAggregate, \Countable
     }
 
     /**
-     * @return \ArrayIterator<int, PluginConfigurator>
+     * @return \ArrayIterator<int, \Testo\Common\PluginConfigurator>
      */
     #[\Override]
     public function getIterator(): \ArrayIterator

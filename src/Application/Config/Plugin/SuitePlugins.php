@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Testo\Application\Config\Plugin;
 
-use Testo\Application\Config\PluginConfigurator;
 use Testo\Assert\AssertPlugin;
 use Testo\Bench\BenchmarkPlugin;
+use Testo\Common\PluginConfigurator;
 use Testo\Inline\InlineTestPlugin;
 use Testo\Lifecycle\LifecyclePlugin;
 use Testo\Test\TestPlugin;
@@ -53,7 +53,7 @@ final class SuitePlugins
     /**
      * Default plugins minus the specified classes.
      *
-     * @param class-string<PluginConfigurator> ...$pluginClasses
+     * @param class-string<\Testo\Common\PluginConfigurator> ...$pluginClasses
      */
     public static function without(string ...$pluginClasses): PluginCollection
     {

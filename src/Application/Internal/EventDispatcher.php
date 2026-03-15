@@ -8,7 +8,7 @@ use Internal\Destroy\Destroyable;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Psr\EventDispatcher\StoppableEventInterface;
-use Testo\Application\Config\EventListenerCollector;
+use Testo\Common\EventListenerCollector;
 
 /**
  * A simple event dispatcher that supports listener priorities and event propagation control.

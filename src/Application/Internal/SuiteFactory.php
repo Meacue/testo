@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace Testo\Application\Internal;
 
 use Testo\Application\Config\SuiteConfig;
-use Testo\Application\Value\Filter;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Definition\CaseDefinition;
 use Testo\Core\Definition\CaseDefinitions;
+use Testo\Filter;
 use Testo\Pipeline\InterceptorProvider;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;

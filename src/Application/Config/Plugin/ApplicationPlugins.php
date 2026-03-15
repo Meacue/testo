@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Testo\Application\Config\Plugin;
 
-use Testo\Application\Config\PluginConfigurator;
+use Testo\Common\PluginConfigurator;
+use Testo\Filter\FilterPlugin;
 
 $_ = [];
 // \class_exists(TeamcityPlugin::class) and $_[] = new TeamcityPlugin();
 // \class_exists(TerminalPlugin::class) and $_[] = new TerminalPlugin();
+\class_exists(FilterPlugin::class) and $_[] = new FilterPlugin();
 
 \define([__NAMESPACE__ . '\DEFAULT_APPLICATION_PLUGINS'][0], $_);
 unset($_);

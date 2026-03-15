@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Test;
 
-use Testo\Application\Config\PluginConfigurator;
 use Testo\Common\Container;
+use Testo\Common\PluginConfigurator;
 use Testo\Pipeline\InterceptorCollector;
 use Testo\Test;
 use Testo\Test\Internal\TestoAttributesLocatorInterceptor;

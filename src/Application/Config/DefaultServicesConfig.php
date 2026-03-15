@@ -8,6 +8,8 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Testo\Application\Internal\EventDispatcher;
 use Testo\Common\Container;
+use Testo\Common\EventListenerCollector;
+use Testo\Common\PluginConfigurator;
 use Testo\Pipeline\InterceptorCollector;
 use Testo\Pipeline\InterceptorProvider;
 

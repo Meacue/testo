@@ -6,6 +6,7 @@ namespace Testo\Application\Config;
 
 use Internal\Path;
 use Testo\Application\Config\Plugin\SuitePlugins;
+use Testo\Common\PluginConfigurator;
 
 /**
  * Test Suite configuration.

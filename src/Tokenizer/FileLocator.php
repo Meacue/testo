@@ -6,7 +6,7 @@ namespace Testo\Tokenizer;
 
 use Internal\Path;
 use Testo\Application\Config\FinderConfig;
-use Testo\Application\Value\Filter;
+use Testo\Filter;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**

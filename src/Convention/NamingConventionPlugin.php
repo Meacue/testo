@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Convention;
 
-use Testo\Application\Config\PluginConfigurator;
 use Testo\Common\Container;
+use Testo\Common\PluginConfigurator;
 use Testo\Convention\Internal\NamingConventionLocator;
 use Testo\Pipeline\InterceptorCollector;
 

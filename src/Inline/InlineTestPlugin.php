@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Inline;
 
-use Testo\Application\Config\PluginConfigurator;
 use Testo\Common\Container;
+use Testo\Common\PluginConfigurator;
 use Testo\Inline\Internal\InlineFinder;
 use Testo\Inline\Internal\InlineHandler;
 use Testo\Pipeline\InterceptorCollector;

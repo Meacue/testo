@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Testo\Output\Teamcity;
 
-use Testo\Application\Config\EventListenerCollector;
-use Testo\Application\Config\PluginConfigurator;
 use Testo\Common\Container;
+use Testo\Common\EventListenerCollector;
+use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\TestInfo;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Test\TestBatchFinished;

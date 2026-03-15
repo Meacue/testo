@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Testo\Pipeline;
 
 use Testo\Application\Middleware\AttributesInterceptor;
-use Testo\Application\Middleware\FilterInterceptor;
 use Testo\Common\Container;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Pipeline\Internal\Cache;
-use Testo\Test\Internal\TestoAttributesLocatorInterceptor;
 use Yiisoft\Injector\Injector;
 
 /**
@@ -44,7 +42,6 @@ final class InterceptorProvider implements InterceptorCollector
     public function fromConfig(string $class): array
     {
         return $this->fromClasses($class, ...$this->interceptors, ...[
-            FilterInterceptor::class,
             AttributesInterceptor::class,
         ]);
     }

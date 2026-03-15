@@ -9,7 +9,6 @@ use Testo\Application\Application;
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
-use Testo\Application\Value\Filter;
 use Testo\Common\Reflection;
 use Testo\Core\Context\TestResult;
 use Testo\Testing\Attribute\TestingSuite;
@@ -32,11 +31,8 @@ final class TestRunner
     {
         $isFunction = self::isFunction($testFunction);
 
-        # todo Configure Filter to run only the given test function
-        $filter = new Filter();
-
         # Run application to get test results
-        $suites = self::getTestoApp()->run($filter)->results;
+        $suites = self::getTestoApp()->run()->results;
 
         # Find and return the test result for the given test function
         foreach ($suites as $suite) {

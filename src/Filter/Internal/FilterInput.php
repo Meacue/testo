@@ -2,16 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Input;
+namespace Testo\Filter\Internal;
 
 use Testo\Application\Config\Internal\Attribute\InflectableConfig;
 use Testo\Application\Config\Internal\Attribute\InputOption;
 
 /**
- * File system scope configuration.
+ * @internal
+ * @psalm-internal Testo\Filter
  */
 #[InflectableConfig]
-final class RunScope
+final class FilterInput
 {
     /**
      * @var non-empty-string[]

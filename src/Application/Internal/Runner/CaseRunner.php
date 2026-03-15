@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Testo\Application\Internal\Runner;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Testo\Application\Value\Filter;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\TestInfo;
@@ -15,6 +14,7 @@ use Testo\Event\TestCase\TestCaseFinished;
 use Testo\Event\TestCase\TestCasePipelineFinished;
 use Testo\Event\TestCase\TestCasePipelineStarting;
 use Testo\Event\TestCase\TestCaseStarting;
+use Testo\Filter;
 use Testo\Pipeline\InterceptorProvider;
 use Testo\Pipeline\Middleware\TestCaseRunInterceptor;
 use Testo\Pipeline\Pipeline;

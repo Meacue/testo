@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Config;
-
-use Testo\Common\Container;
+namespace Testo\Common;
 
 /**
  * Plugin config handler.

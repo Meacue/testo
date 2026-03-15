@@ -6,7 +6,6 @@ namespace Testo\Application\Internal\Runner;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Application\Internal\SimpleCaseInstantiator;
-use Testo\Application\Value\Filter;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\SuiteResult;
@@ -16,6 +15,7 @@ use Testo\Event\TestSuite\TestSuiteFinished;
 use Testo\Event\TestSuite\TestSuitePipelineFinished;
 use Testo\Event\TestSuite\TestSuitePipelineStarting;
 use Testo\Event\TestSuite\TestSuiteStarting;
+use Testo\Filter;
 use Testo\Pipeline\InterceptorProvider;
 use Testo\Pipeline\Middleware\TestSuiteRunInterceptor;
 use Testo\Pipeline\Pipeline;

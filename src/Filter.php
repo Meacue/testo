@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Value;
+namespace Testo;
 
 use Internal\Path;
-use Testo\Application\Input\RunScope;
 use Testo\Core\Value\TestType;
 
 /**
@@ -57,7 +56,7 @@ final readonly class Filter
     /**
      * @param list<non-empty-string> $suites Test suite names to filter by
      * @param list<non-empty-string> $names Class, method, or function names to filter by
-     * @param list<non-empty-string|Path> $paths File or directory paths to filter by (supports glob patterns)
+     * @param Path $paths File or directory paths to filter by (supports glob patterns)
      * @param non-empty-string|null $type Optional type filter for test cases
      */
     public function __construct(
@@ -73,40 +72,11 @@ final readonly class Filter
     }
 
     /**
-     * Create Filter from RunScope populated by CLI arguments.
-     *
-     * Automatically categorizes filter values from CLI:
-     * - Values containing dots or existing file paths → paths
-     * - Other values → names
-     * - Suite values → testSuites
-     *
-     * @param RunScope $scope Configuration scope with CLI arguments
-     *
-     * @return self New Filter instance with categorized criteria
-     */
-    public static function fromScope(RunScope $scope): self
-    {
-        // TODO remove in the future
-        $files = \array_filter(
-            $scope->filter,
-            static fn($value) => \str_contains($value, '.') || \file_exists($value),
-        );
-        $filter = \array_diff($scope->filter, $files);
-
-        return new self(
-            suites: $scope->suite,
-            names: $filter,
-            paths: \array_merge($scope->path, $files),
-            type: $scope->type,
-        );
-    }
-
-    /**
      * Create a new Filter instance with modified properties.
      *
      * @param list<non-empty-string>|null $testSuites New test suite names, or null to keep existing
      * @param list<non-empty-string>|null $names New names, or null to keep existing
-     * @param list<non-empty-string|Path>|null $paths New paths, or null to keep existing
+     * @param Path|null $paths New paths, or null to keep existing
      * @param string|null $type New type, empty string to set null, or null to keep existing
      *
      * @return self New Filter instance with updated properties

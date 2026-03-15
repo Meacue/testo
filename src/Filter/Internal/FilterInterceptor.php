@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Testo\Application\Middleware;
+namespace Testo\Filter\Internal;
 
-use Testo\Application\Value\Filter;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Core\Definition\TestDefinitions;
 use Testo\Core\Filter\DataPointer;
+use Testo\Filter;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
@@ -41,6 +41,9 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
  * - If test case name doesn't match: filter individual methods/functions
  *   - If any methods/functions match: case passes with only matched tests
  *   - If no methods/functions match: case is skipped entirely
+ *
+ * @internal
+ * @psalm-internal Testo\Filter
  */
 #[InterceptorOptions(order: InterceptorOptions::ORDER_FILTER, onConflict: ConflictPolicy::First)]
 final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInterceptor, TestRunInterceptor
