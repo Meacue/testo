@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Bench;
+namespace Testo;
 
 use Testo\Bench\Internal\Pipeline\BenchWithInterceptor;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
@@ -13,7 +13,7 @@ use Testo\Pipeline\Attribute\Interceptable;
  * the provided callables.
  *
  * The marked method (or function) automatically receives the alias `current`.
- * All callables listed in {@see BenchWith::$callables} are benchmarked under the same conditions.
+ * All callables listed in {@see Bench::$callables} are benchmarked under the same conditions.
  * Results are ranked by filtered average time — the fastest callable takes first place
  * and serves as the baseline for relative comparison.
  *
@@ -69,7 +69,7 @@ use Testo\Pipeline\Attribute\Interceptable;
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::IS_REPEATABLE)]
 #[FallbackInterceptor(BenchWithInterceptor::class)]
-final readonly class BenchWith implements Interceptable
+final readonly class Bench implements Interceptable
 {
     public function __construct(
         /**

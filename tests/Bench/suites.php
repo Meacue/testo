@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
-use Testo\Bench\BenchWith;
 
 return [
     new SuiteConfig(

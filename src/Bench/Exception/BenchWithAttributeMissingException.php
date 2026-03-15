@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace Testo\Bench\Exception;
 
-use Testo\Bench\BenchWith;
-use Testo\Bench\Internal\Pipeline\BenchWithInterceptor;
+use Testo\Bench;
 use Testo\Core\Context\TestInfo;
 
 /**
- * Thrown when {@see BenchWith} attribute is missing in {@see BenchHandler}.
+ * Thrown when {@see \Testo\Bench} attribute is missing in {@see BenchHandler}.
  *
  * This indicates a broken pipeline where the {@see \Testo\Bench\Internal\Pipeline\BenchWithInterceptor} middleware
- * did not execute as expected. The {@see BenchWith} attribute should have been set
+ * did not execute as expected. The {@see \Testo\Bench} attribute should have been set
  * by the interceptor before reaching the invoker.
  *
  * @internal

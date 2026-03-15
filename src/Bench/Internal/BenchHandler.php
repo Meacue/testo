@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Bench\Internal;
 
-use Testo\Bench\BenchWith;
+use Testo\Bench;
 use Testo\Bench\Dto\BenchResult;
 use Testo\Bench\Dto\CaseResult;
 use Testo\Bench\Dto\CaseSet;
@@ -20,8 +20,8 @@ final class BenchHandler
 {
     public function __invoke(TestInfo $info): mixed
     {
-        $attr = $info->getAttribute(BenchWith::class);
-        $attr instanceof BenchWith or throw BenchWithAttributeMissingException::fromTestInfo($info);
+        $attr = $info->getAttribute(Bench::class);
+        $attr instanceof Bench or throw BenchWithAttributeMissingException::fromTestInfo($info);
 
         # Current function callable
         $fn = $info->caseInfo->instance === null || $info->testDefinition->reflection->isStatic()

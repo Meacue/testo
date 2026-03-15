@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Tests\Bench\Self;
 
-use Testo\Bench\BenchWith;
+use Testo\Bench;
 use Testo\Inline\TestInline;
 
 final class BenchWithAttr
 {
-    #[BenchWith(
+    #[Bench(
         [
             'shift' => [self::class, 'sumLinearF2'],
             'multi' => [self::class, 'sumLinearF3'],
@@ -40,7 +40,7 @@ final class BenchWithAttr
         return ((($d - 1) * $d) >> 1) + $a * $d;
     }
 
-    #[BenchWith(
+    #[Bench(
         [
             'sumInArray' => [self::class, 'sumRange'],
             'sumLinearF' => [self::class, 'sumLinearF1'],

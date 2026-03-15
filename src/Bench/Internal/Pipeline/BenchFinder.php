@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Bench\Internal\Pipeline;
 
-use Testo\Bench\BenchWith;
+use Testo\Bench;
 use Testo\Bench\Internal\BenchHandler;
 use Testo\Common\Reflection;
 use Testo\Core\Context\TestInfo;
@@ -17,7 +17,7 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
 /**
- * Finds benchmarks defined with the {@see BenchWith} attribute.
+ * Finds benchmarks defined with the {@see Bench} attribute.
  *
  * @internal
  */
@@ -49,7 +49,7 @@ final readonly class BenchFinder implements FileLocatorInterceptor, CaseLocatorI
 
             $case = null;
             foreach ($class->getMethods() as $method) {
-                if (Reflection::fetchFunctionAttributes($method, attributeClass: BenchWith::class)) {
+                if (Reflection::fetchFunctionAttributes($method, attributeClass: Bench::class)) {
                     $case ??= $file->cases->define($class, $file, type: TestType::BenchInline, handler: $this->handler);
                     $case->tests->define($method);
                 }
@@ -64,7 +64,7 @@ final readonly class BenchFinder implements FileLocatorInterceptor, CaseLocatorI
         // Implement a lazy case definition
         $case = null;
         foreach ($file->functions as $function) {
-            if (Reflection::fetchFunctionAttributes($function, attributeClass: BenchWith::class)) {
+            if (Reflection::fetchFunctionAttributes($function, attributeClass: Bench::class)) {
                 $case ??= $file->cases->define(null, $file, type: TestType::BenchInline, handler: $this->handler);
                 $case->tests->define($function);
             }

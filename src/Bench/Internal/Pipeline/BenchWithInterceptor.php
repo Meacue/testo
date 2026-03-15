@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Testo\Bench\Internal\Pipeline;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Testo\Bench\BenchWith;
+use Testo\Bench;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
@@ -20,7 +20,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
 use Testo\Pipeline\Policy\ConflictPolicy;
 
 /**
- * Handles {@see BenchWith} attribute by running
+ * Handles {@see \Testo\Bench} attribute by running
  *
  * @internal
  */
@@ -38,15 +38,15 @@ final readonly class BenchWithInterceptor implements TestRunInterceptor
     #[\Override]
     public function runTest(TestInfo $info, callable $next): TestResult
     {
-        /** @var BenchWith[] $attributes */
-        $attributes = $info->getAttribute(BenchWith::class);
+        /** @var \Testo\Bench[] $attributes */
+        $attributes = $info->getAttribute(Bench::class);
         if ($attributes === []) {
             return $next($info);
         }
 
         if (\count($attributes) === 1) {
             $attr = \reset($attributes);
-            return $next($info->with(arguments: $attr->arguments)->withAttribute(BenchWith::class, $attr));
+            return $next($info->with(arguments: $attr->arguments)->withAttribute(Bench::class, $attr));
         }
 
         # Dispatch batch starting event
@@ -56,7 +56,7 @@ final readonly class BenchWithInterceptor implements TestRunInterceptor
         $results = [];
         $status = Status::Passed;
         foreach ($attributes as $index => $attr) {
-            $newInfo = $info->with(arguments: $attr->arguments)->withAttribute(BenchWith::class, $attr);
+            $newInfo = $info->with(arguments: $attr->arguments)->withAttribute(Bench::class, $attr);
             $label = "$index";
 
             # Dispatch dataset starting event
