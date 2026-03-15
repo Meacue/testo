@@ -6,7 +6,7 @@ namespace Testo\Assert\Internal\Assertion\Traits;
 
 use Testo\Assert\Internal\Support;
 use Testo\Assert\State\Assertion\AssertionComposite;
-use Testo\Attribute\AssertMethod;
+use Testo\Common\Attribute\AssertMethod;
 
 /**
  * Contains assertion methods for iterable values.

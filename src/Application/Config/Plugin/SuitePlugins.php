@@ -9,12 +9,14 @@ use Testo\Assert\AssertPlugin;
 use Testo\Bench\BenchmarkPlugin;
 use Testo\Inline\InlineTestPlugin;
 use Testo\Lifecycle\LifecyclePlugin;
+use Testo\Test\TestPlugin;
 
 $_ = [];
 \class_exists(AssertPlugin::class) and $_[] = new AssertPlugin();
 \class_exists(BenchmarkPlugin::class) and $_[] = new BenchmarkPlugin();
 \class_exists(InlineTestPlugin::class) and $_[] = new InlineTestPlugin();
 \class_exists(LifecyclePlugin::class) and $_[] = new LifecyclePlugin();
+\class_exists(TestPlugin::class) and $_[] = new TestPlugin();
 
 \define([__NAMESPACE__ . '\DEFAULT_SUITE_PLUGINS'][0], $_);
 unset($_);

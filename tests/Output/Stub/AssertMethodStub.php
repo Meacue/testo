@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Output\Stub;
 
-use Testo\Attribute\AssertMethod;
+use Testo\Common\Attribute\AssertMethod;
 
 final class AssertMethodStub
 {

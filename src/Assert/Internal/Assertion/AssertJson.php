@@ -10,7 +10,7 @@ use Testo\Assert\Api\Json\JsonCommon;
 use Testo\Assert\Api\Json\JsonObject;
 use Testo\Assert\Api\Json\JsonStructure;
 use Testo\Assert\State\Assertion\AssertionComposite;
-use Testo\Attribute\AssertMethod;
+use Testo\Common\Attribute\AssertMethod;
 
 /**
  * Implementation of JSON assertions.

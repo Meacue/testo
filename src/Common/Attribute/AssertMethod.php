@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Attribute;
+namespace Testo\Common\Attribute;
 
 use Testo\Lifecycle\Internal\LifecycleAttribute;
 use Testo\Pipeline\Attribute\Interceptable;

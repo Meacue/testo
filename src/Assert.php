@@ -24,7 +24,7 @@ use Testo\Assert\Internal\Support;
 use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Test\Fail;
-use Testo\Attribute\AssertMethod;
+use Testo\Common\Attribute\AssertMethod;
 
 /**
  * Assertion utilities.
