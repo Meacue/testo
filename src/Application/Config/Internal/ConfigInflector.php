@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Application\Config\Internal;
 
+use Internal\Container\Container;
+use Internal\Container\Inflector;
 use Testo\Application\Config\Internal\Attribute\ConfigAttribute;
 use Testo\Application\Config\Internal\Attribute\Env;
 use Testo\Application\Config\Internal\Attribute\InflectableConfig;
@@ -13,8 +15,6 @@ use Testo\Application\Config\Internal\Attribute\PhpIni;
 use Testo\Application\Config\Internal\Attribute\XPath;
 use Testo\Application\Config\Internal\Attribute\XPathEmbed;
 use Testo\Application\Config\Internal\Attribute\XPathEmbedList;
-use Testo\Common\Container;
-use Testo\Common\Inflector;
 
 /**
  * Configuration loader service.

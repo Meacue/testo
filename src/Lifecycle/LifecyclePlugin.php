@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Lifecycle;
 
-use Testo\Common\Container;
+use Internal\Container\Container;
 use Testo\Common\PluginConfigurator;
 use Testo\Lifecycle\Internal\LifecycleInterceptor;
 use Testo\Pipeline\InterceptorCollector;

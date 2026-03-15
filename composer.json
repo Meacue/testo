@@ -42,8 +42,12 @@
     "prefer-stable": true,
     "autoload": {
         "psr-4": {
-            "Testo\\": "src/"
+            "Testo\\": "src/",
+            "Internal\\Container\\": "internal/container/src"
         }
+    },
+    "replace": {
+        "internal/container": "*"
     },
     "autoload-dev": {
         "psr-4": {

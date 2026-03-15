@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Testo\Application\Config;
 
+use Internal\Container\Container;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\EventDispatcher\ListenerProviderInterface;
 use Testo\Application\Internal\EventDispatcher;
-use Testo\Common\Container;
 use Testo\Common\EventListenerCollector;
 use Testo\Common\PluginConfigurator;
 use Testo\Pipeline\InterceptorCollector;
@@ -21,13 +21,13 @@ use Testo\Pipeline\InterceptorProvider;
 final readonly class DefaultServicesConfig implements PluginConfigurator
 {
     /**
-     * @var array<class-string, null|class-string|array<string, mixed>|\Closure(Container): object>
+     * @var array<class-string, null|class-string|array<string, mixed>|\Closure(\Internal\Container\Container): object>
      */
     public array $services;
 
     /**
-     * @param array<class-string, null|class-string|array<string, mixed>|\Closure(Container): object> $definitions
-     *        Bindings (service definitions) for the Container {@see Container::bind()}.
+     * @param array<class-string, null|class-string|array<string, mixed>|\Closure(\Testo\Container\\Testo\Container): object> $definitions
+     *        Bindings (service definitions) for the Container {@see \Testo\Container::bind()}.
      *        You can override the default services by providing your own implementations here with the same keys.
      */
     public function __construct(

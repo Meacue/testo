@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Bridge\Symfony\Command;
 
+use Internal\Container\Container;
 use Internal\Path;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,7 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\StyleInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Testo\Application\Application;
-use Testo\Common\Container;
 use Yiisoft\Injector\Injector;
 
 /**
@@ -40,7 +40,7 @@ use Yiisoft\Injector\Injector;
  */
 abstract class Base extends Command
 {
-    /** @var Container IoC container with services */
+    /** @var \Internal\Container\Container IoC container with services */
     protected Container $container;
 
     protected Application $application;

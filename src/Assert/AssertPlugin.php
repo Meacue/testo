@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Testo\Assert;
 
+use Internal\Container\Container;
 use Testo\Assert;
 use Testo\Assert\Internal\Middleware\AssertCollectorInterceptor;
 use Testo\Assert\Internal\Middleware\ExpectationsInterceptor;
-use Testo\Common\Container;
 use Testo\Common\PluginConfigurator;
 use Testo\Expect;
 use Testo\Pipeline\InterceptorCollector;

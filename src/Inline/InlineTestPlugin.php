@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Inline;
 
-use Testo\Common\Container;
+use Internal\Container\Container;
 use Testo\Common\PluginConfigurator;
 use Testo\Inline\Internal\InlineFinder;
 use Testo\Inline\Internal\InlineHandler;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Application;
 
+use Internal\Container\Container;
+use Internal\Container\ObjectContainer;
 use Internal\Path;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Application\Config\ApplicationConfig;
@@ -12,10 +14,8 @@ use Testo\Application\Config\Internal\ConfigInflector;
 use Testo\Application\Config\Plugin\ApplicationPlugins;
 use Testo\Application\Config\Plugin\PluginCollection;
 use Testo\Application\Config\Plugin\SuitePlugins;
-use Testo\Application\Internal\ObjectContainer;
 use Testo\Application\Internal\Runner\SuiteRunner;
 use Testo\Application\Internal\SuiteProvider;
-use Testo\Common\Container;
 use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\RunResult;
 use Testo\Core\Context\SuiteResult;

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Testo\Application\Internal;
 
+use Internal\Container\Container;
 use Internal\Path;
 use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\SuiteConfig;
-use Testo\Common\Container;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Filter;
 

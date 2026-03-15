@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Output\Teamcity;
 
-use Testo\Common\Container;
+use Internal\Container\Container;
 use Testo\Common\EventListenerCollector;
 use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\TestInfo;

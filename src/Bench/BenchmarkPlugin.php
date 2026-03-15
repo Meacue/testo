@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Testo\Bench;
 
+use Internal\Container\Container;
 use Testo\Bench;
 use Testo\Bench\Internal\Pipeline\BenchFinder;
-use Testo\Common\Container;
 use Testo\Common\PluginConfigurator;
 use Testo\Pipeline\InterceptorCollector;
 

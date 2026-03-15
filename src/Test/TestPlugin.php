@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Test;
 
-use Testo\Common\Container;
+use Internal\Container\Container;
 use Testo\Common\PluginConfigurator;
 use Testo\Pipeline\InterceptorCollector;
 use Testo\Test;

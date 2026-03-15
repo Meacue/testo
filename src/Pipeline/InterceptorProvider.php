@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Pipeline;
 
-use Testo\Common\Container;
+use Internal\Container\Container;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Pipeline\Internal\AttributesInterceptor;
 use Testo\Pipeline\Internal\Cache;

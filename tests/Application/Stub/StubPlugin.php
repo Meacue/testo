@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Application\Stub;
 
-use Testo\Common\Container;
+use Internal\Container\Container;
 use Testo\Common\PluginConfigurator;
 
 final readonly class StubPlugin implements PluginConfigurator
