@@ -93,7 +93,7 @@ namespace Tests;
 
 use Testo\Assert;
 use Testo\Assert\ExpectException;
-use Testo\Retry\RetryPolicy;
+use Testo\Retry;
 use Testo\Test;
 
 final class CalculatorTest
@@ -108,7 +108,7 @@ final class CalculatorTest
     }
 
     #[Test]
-    #[RetryPolicy(maxAttempts: 3)]
+    #[Retry(maxAttempts: 3)]
     public function flakyApiCall(): void
     {
         // Retries up to 3 times if test fails

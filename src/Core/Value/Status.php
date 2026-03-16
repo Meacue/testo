@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Core\Value;
 
-use Testo\Retry\RetryPolicy;
+use Testo\Retry;
 
 /**
  * Possible statuses of a test execution.
@@ -39,7 +39,7 @@ enum Status
     /**
      * COMPLETED but after RETRIES due to intermittent failures.
      *
-     * @see RetryPolicy
+     * @see Retry
      */
     case Flaky;
 

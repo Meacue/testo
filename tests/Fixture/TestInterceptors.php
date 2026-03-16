@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace Tests\Fixture;
 
-use Testo\Retry\RetryPolicy;
+use Testo\Retry;
 use Testo\Test;
 
 final class TestInterceptors
 {
     #[Test]
-    #[RetryPolicy(maxAttempts: 3)]
+    #[Retry(maxAttempts: 3)]
     public function withRetryPolicy(): int
     {
         static $runs = 0;

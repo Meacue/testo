@@ -12,12 +12,12 @@ use Testo\Event\Test\TestRetrying;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 use Testo\Pipeline\Policy\ConflictPolicy;
-use Testo\Retry\RetryPolicy;
+use Testo\Retry;
 
 /**
  * Interceptor that retries a test execution based on the provided retry policy.
  *
- * @see RetryPolicy
+ * @see Retry
  *
  * @api
  */
@@ -25,7 +25,7 @@ use Testo\Retry\RetryPolicy;
 final readonly class RetryPolicyRunInterceptor implements TestRunInterceptor
 {
     public function __construct(
-        private RetryPolicy $options,
+        private Retry $options,
         private EventDispatcherInterface $eventDispatcher,
     ) {}
 

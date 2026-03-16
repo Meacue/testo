@@ -10,7 +10,7 @@ use Testo\Assert\State\AssertException;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
 use Testo\Expect;
-use Testo\Retry\RetryPolicy;
+use Testo\Retry;
 use Testo\Test;
 use Tests\Fixture\ClassDataProvider;
 
@@ -52,7 +52,7 @@ final class AsserTest
     }
 
     #[Test]
-    #[RetryPolicy(maxAttempts: 2)]
+    #[Retry(maxAttempts: 2)]
     public function flaky(): void
     {
         static $attempt = 0;
