@@ -708,7 +708,7 @@ final class TokenizedFile
      */
     private function endingToken(int $tokenID): int
     {
-        $level = null;
+        $level = 0;
         for ($localID = $tokenID; $localID < $this->countTokens; ++$localID) {
             $token = $this->tokens[$localID];
             if ($token[self::TOKEN_CODE] === '{') {

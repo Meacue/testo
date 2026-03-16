@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Testo\Core\Value;
 
-use Testo\Assert;
 use Testo\Retry\RetryPolicy;
 
 /**
@@ -14,15 +13,11 @@ enum Status
 {
     /**
      * Test executed successfully and all ASSERTIONS PASSED without other issues.
-     *
-     * @see Assert
      */
     case Passed;
 
     /**
      * Test failed due to ASSERTION or an EXPECTATION failure.
-     *
-     * @see Assert
      */
     case Failed;
 

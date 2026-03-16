@@ -17,6 +17,7 @@ final readonly class TestDefinition
 
     public function getDescription(): ?string
     {
+        // todo eliminate Test attribute dependency
         $attributes = $this->reflection->getAttributes(Test::class);
         if (\count($attributes) === 0) {
             return null;
