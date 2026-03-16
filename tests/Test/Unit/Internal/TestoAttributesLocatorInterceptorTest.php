@@ -11,10 +11,12 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 use Tests\Test\Unit\Fixture\TestClassWithClassLevelAttribute;
 use Tests\Test\Unit\Fixture\TestClassWithMethodLevelAttributes;
+use Tests\Test\Unit\Fixture\TestClassWithMixedTestAttributes;
+use Tests\Test\Unit\Fixture\TestClassWithNeverReturnType;
 
 final class TestoAttributesLocatorInterceptorTest
 {
-    private string $fixturesDir = __DIR__ . '/../../Fixture/Interceptor/';
+    private string $fixturesDir = __DIR__ . '/../Fixture/';
     private TestoAttributesLocatorInterceptor $interceptor;
 
     public function __construct()
@@ -81,6 +83,68 @@ final class TestoAttributesLocatorInterceptorTest
             ->hasCount(2)
             ->hasKeys('methodOne', 'methodTwo')
             ->doesNotHaveKeys('protectedMethod', 'privateMethod');
+    }
+
+    /**
+     * Verifies that the interceptor correctly:
+     * - Includes public methods with void return type
+     * - Includes public methods with never return type
+     * - Excludes public methods with other return types (e.g. string)
+     */
+    #[Test(description: 'Locates methods with never return type as tests when class has #[Test] attribute')]
+    public function itLocatesNeverReturnTypeMethodsAsTestsWhenClassHasTestAttribute(): void
+    {
+        $path = $this->fixturesDir . 'TestClassWithNeverReturnType.php';
+        $definition = new FileDefinitions(
+            $file = new TokenizedFile(
+                file: new \SplFileInfo($path),
+                path: $path,
+            ),
+        );
+
+        Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
+        $this->interceptor->locateTestCases($definition, static fn(FileDefinitions $f) => $f->cases);
+
+        $case = $definition->cases->getCases()[0];
+        $tests = $case->tests->getTests();
+
+        Assert::same($case->reflection->name, TestClassWithNeverReturnType::class);
+
+        Assert::array($tests)
+            ->hasCount(2)
+            ->hasKeys('voidMethod', 'neverMethod')
+            ->doesNotHaveKeys('stringMethod');
+    }
+
+    /**
+     * Verifies that the interceptor correctly:
+     * - Includes public void methods from class-level #[Test]
+     * - Includes public methods with non-void return type if they have method-level #[Test]
+     * - Excludes public methods without void/never return type and without #[Test]
+     */
+    #[Test(description: 'Locates method-level #[Test] with non-void return type in a class-level #[Test] class')]
+    public function itLocatesMethodWithTestAttributeRegardlessOfReturnType(): void
+    {
+        $path = $this->fixturesDir . 'TestClassWithMixedTestAttributes.php';
+        $definition = new FileDefinitions(
+            $file = new TokenizedFile(
+                file: new \SplFileInfo($path),
+                path: $path,
+            ),
+        );
+
+        Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
+        $this->interceptor->locateTestCases($definition, static fn(FileDefinitions $f) => $f->cases);
+
+        $case = $definition->cases->getCases()[0];
+        $tests = $case->tests->getTests();
+
+        Assert::same($case->reflection->name, TestClassWithMixedTestAttributes::class);
+
+        Assert::array($tests)
+            ->hasCount(2)
+            ->hasKeys('voidMethod', 'intMethod')
+            ->doesNotHaveKeys('stringMethod');
     }
 
     #[Test(description: 'Verifies that classes without #[Test] attributes (neither on class nor methods) are ignored by the interceptor.')]

@@ -39,5 +39,6 @@ return new ApplicationConfig(
         require 'tests/Bench/suites.php',
         require 'tests/Application/suites.php',
         require 'tests/Output/suites.php',
+        require 'tests/Test/suites.php',
     ),
 );
