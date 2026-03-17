@@ -325,8 +325,11 @@ final class Formatter
         $result = "{$indent}{$symbol} {$item->name}{$durationStr}\n";
 
         if ($item->description !== '') {
-            $descriptionStr = Style::dim("{$item->description}");
-            $result .= "{$indent}  {$descriptionStr}\n";
+            $descriptionPadding = "{$indent}  ";
+            $descriptionStr = Style::dim(
+                \str_replace("\n", "\n{$descriptionPadding}", $item->description),
+            );
+            $result .= "{$descriptionPadding}{$descriptionStr}\n";
         }
 
         return $result;

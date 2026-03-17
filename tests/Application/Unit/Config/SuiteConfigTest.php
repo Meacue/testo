@@ -44,15 +44,6 @@ final class SuiteConfigTest
         Assert::same($config->name, 'my-suite');
     }
 
-    public function constructDefaultParallelIsFalse(): void
-    {
-        // Act
-        $config = new SuiteConfig(name: 'unit', location: [__DIR__]);
-
-        // Assert
-        Assert::false($config->parallel);
-    }
-
     public function constructDefaultPluginsAreEmpty(): void
     {
         // Act
@@ -76,19 +67,6 @@ final class SuiteConfigTest
         Assert::notSame($updated, $original);
     }
 
-    public function withReturnsNewInstanceWithUpdatedParallel(): void
-    {
-        // Arrange
-        $original = new SuiteConfig(name: 'unit', location: [__DIR__]);
-
-        // Act
-        $updated = $original->with(parallel: true);
-
-        // Assert
-        Assert::true($updated->parallel);
-        Assert::false($original->parallel);
-    }
-
     public function withReturnsNewInstanceWithUpdatedPlugins(): void
     {
         // Arrange
@@ -107,7 +85,7 @@ final class SuiteConfigTest
     {
         // Arrange
         $finder = new FinderConfig([__DIR__]);
-        $original = new SuiteConfig(name: 'unit', location: $finder, parallel: true);
+        $original = new SuiteConfig(name: 'unit', location: $finder);
 
         // Act
         $updated = $original->with();
@@ -115,6 +93,5 @@ final class SuiteConfigTest
         // Assert
         Assert::same($updated->name, 'unit');
         Assert::same($updated->location, $finder);
-        Assert::true($updated->parallel);
     }
 }

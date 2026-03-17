@@ -14,7 +14,10 @@ use Tests\Assert\Stub\Common;
 #[TestingSuite(path: __DIR__ . '/../Stub')]
 final class CommonTest
 {
-    #[Test(description: 'A successfully finished test without any assertion marked as Risky')]
+    /**
+     * A successfully finished test without any assertion marked as Risky
+     */
+    #[Test]
     public function noAssertions(): void
     {
         $result = TestRunner::runTest([Common::class, 'risky']);

@@ -10,6 +10,7 @@ return [
         name: 'Test/Unit',
         location: new FinderConfig(
             include: [__DIR__ . '/Unit'],
+            exclude: [__DIR__ . '/Unit/Fixture'],
         ),
     ),
 ];

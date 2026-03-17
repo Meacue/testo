@@ -91,7 +91,10 @@ final class AsserTest
         throw new \RuntimeException('This is an expected exception.');
     }
 
-    #[Test(description: 'Data provider example')]
+    /**
+     * Data provider example
+     */
+    #[Test]
     #[DataProvider([self::class, 'dataForProvider'])]
     #[DataSet(['zero'])]
     #[DataSet(['first'])]
@@ -101,7 +104,10 @@ final class AsserTest
         return $arg === 'zero' ? throw new \RuntimeException() : $arg;
     }
 
-    #[Test(description: 'Invokable Class as a Data Provider example')]
+    /**
+     * Invokable Class as a Data Provider example
+     */
+    #[Test]
     #[DataProvider(new ClassDataProvider())]
     public function classDataProvider(string $val, mixed $eq): void
     {

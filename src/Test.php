@@ -10,9 +10,4 @@ namespace Testo;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::TARGET_CLASS)]
-final readonly class Test
-{
-    public function __construct(
-        public string $description = '',
-    ) {}
-}
+final readonly class Test {}
