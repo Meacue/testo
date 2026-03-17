@@ -20,7 +20,7 @@ enum TestType: string
     case TestInline = 'inline';
 
     /**
-     * A benchmark declared in metadata of the compared unit, e.g. a method with #[BenchWith] attribute.
+     * A benchmark declared in metadata of the compared unit, e.g. a method with #[Bench] attribute.
      */
     case BenchInline = 'bench';
 

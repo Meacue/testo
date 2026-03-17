@@ -28,10 +28,18 @@ final class AssertNumeric
         // actual is greater than min threshold
         Assert::int(42)->greaterThan(41);
         Assert::float(42.1)->greaterThan(42.0);
+    }
 
+    #[Test]
+    public function checkGreaterThanFailsForInt(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::int(42)->greaterThan(43);
+    }
 
+    #[Test]
+    public function checkGreaterThanFailsForFloat(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::float(42.1)->greaterThan(42.2);
     }
@@ -45,10 +53,18 @@ final class AssertNumeric
 
         Assert::float(42.1)->greaterThanOrEqual(42.0);
         Assert::float(42.1)->greaterThanOrEqual(42.1);
+    }
 
+    #[Test]
+    public function checkGreaterThanOrEqualFailsForInt(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::int(42)->greaterThanOrEqual(43);
+    }
 
+    #[Test]
+    public function checkGreaterThanOrEqualFailsForFloat(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::float(42.1)->greaterThanOrEqual(43.0);
     }
@@ -59,10 +75,18 @@ final class AssertNumeric
         // actual is less than max threshold
         Assert::int(42)->lessThan(43);
         Assert::float(42.1)->lessThan(42.2);
+    }
 
+    #[Test]
+    public function checkLessThanFailsForEqualInt(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::int(42)->lessThan(42);
+    }
 
+    #[Test]
+    public function checkLessThanFailsForFloat(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::int(42.1)->lessThan(42.0);
     }
@@ -76,10 +100,18 @@ final class AssertNumeric
 
         Assert::float(42.0)->lessThanOrEqual(42.1);
         Assert::float(42.1)->lessThanOrEqual(42.1);
+    }
 
+    #[Test]
+    public function checkLessThanOrEqualFailsForInt(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::int(43)->lessThanOrEqual(42);
+    }
 
+    #[Test]
+    public function checkLessThanOrEqualFailsForFloat(): never
+    {
         Expect::exception(AssertionException::class);
         Assert::float(42.1)->lessThanOrEqual(42.0);
     }

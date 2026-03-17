@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Testo;
 
-use Testo\Bench\Internal\Pipeline\BenchWithInterceptor;
+use Testo\Bench\Internal\Pipeline\BenchInterceptor;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 
@@ -35,14 +35,14 @@ use Testo\Pipeline\Attribute\Interceptable;
  * Basic — compare the current method against one alternative:
  *
  * ```
- *  #[BenchWith(['array_sum' => [self::class, 'sumWithArraySum']])]
+ *  #[Bench(['array_sum' => [self::class, 'sumWithArraySum']])]
  *  public static function sumWithLoop(int $a, int $b): int { ... }
  * ```
  *
  * With arguments and tuning parameters:
  *
  * ```
- *  #[BenchWith(
+ *  #[Bench(
  *      [
  *          'shift'  => [self::class, 'secondImpl'],
  *          'multi'  => [self::class, 'thirdImpl'],
@@ -68,7 +68,7 @@ use Testo\Pipeline\Attribute\Interceptable;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION | \Attribute::IS_REPEATABLE)]
-#[FallbackInterceptor(BenchWithInterceptor::class)]
+#[FallbackInterceptor(BenchInterceptor::class)]
 final readonly class Bench implements Interceptable
 {
     public function __construct(

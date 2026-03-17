@@ -10,7 +10,7 @@ use Testo\Bench\Dto\CaseResult;
 use Testo\Bench\Dto\CaseSet;
 use Testo\Bench\Dto\IterationSet;
 use Testo\Bench\Dto\Snap;
-use Testo\Bench\Exception\BenchWithAttributeMissingException;
+use Testo\Bench\Exception\BenchAttributeMissingException;
 use Testo\Core\Context\TestInfo;
 
 /**
@@ -21,7 +21,7 @@ final class BenchHandler
     public function __invoke(TestInfo $info): mixed
     {
         $attr = $info->getAttribute(Bench::class);
-        $attr instanceof Bench or throw BenchWithAttributeMissingException::fromTestInfo($info);
+        $attr instanceof Bench or throw BenchAttributeMissingException::fromTestInfo($info);
 
         # Current function callable
         $fn = $info->caseInfo->instance === null || $info->testDefinition->reflection->isStatic()

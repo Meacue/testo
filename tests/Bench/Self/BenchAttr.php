@@ -7,7 +7,7 @@ namespace Tests\Bench\Self;
 use Testo\Bench;
 use Testo\Inline\TestInline;
 
-final class BenchWithAttr
+final class BenchAttr
 {
     #[Bench(
         [

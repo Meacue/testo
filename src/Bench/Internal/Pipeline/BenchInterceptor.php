@@ -29,7 +29,7 @@ use Testo\Pipeline\Policy\ConflictPolicy;
     onConflict: ConflictPolicy::First,
     testType: TestType::BenchInline,
 )]
-final readonly class BenchWithInterceptor implements TestRunInterceptor
+final readonly class BenchInterceptor implements TestRunInterceptor
 {
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
