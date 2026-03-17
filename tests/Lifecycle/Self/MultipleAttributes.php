@@ -5,37 +5,37 @@ declare(strict_types=1);
 namespace Tests\Lifecycle\Self;
 
 use Testo\Assert;
-use Testo\Lifecycle\AfterEach;
-use Testo\Lifecycle\BeforeEach;
+use Testo\Lifecycle\AfterTest;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 /**
  * Self-tests for multiple Before/After methods on a single class.
  */
-final class MultipleAttributesTest
+final class MultipleAttributes
 {
     /** @var list<string> */
     private array $log = [];
 
-    #[BeforeEach]
+    #[BeforeTest]
     public function firstBefore(): void
     {
         $this->log[] = 'before-1';
     }
 
-    #[BeforeEach]
+    #[BeforeTest]
     public function secondBefore(): void
     {
         $this->log[] = 'before-2';
     }
 
-    #[AfterEach]
+    #[AfterTest]
     public function firstAfter(): void
     {
         $this->log[] = 'after-1';
     }
 
-    #[AfterEach]
+    #[AfterTest]
     public function secondAfter(): void
     {
         $this->log[] = 'after-2';

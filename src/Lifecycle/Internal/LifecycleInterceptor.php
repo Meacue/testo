@@ -11,16 +11,16 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\CaseInstance;
 use Testo\Core\Value\TestType;
-use Testo\Lifecycle\AfterAll;
-use Testo\Lifecycle\AfterEach;
-use Testo\Lifecycle\BeforeAll;
-use Testo\Lifecycle\BeforeEach;
+use Testo\Lifecycle\AfterClass;
+use Testo\Lifecycle\AfterTest;
+use Testo\Lifecycle\BeforeClass;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestCaseRunInterceptor;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 
 /**
- * Processes lifecycle methods like {@see \Testo\Lifecycle\BeforeEach} and {@see \Testo\Lifecycle\AfterEach}.
+ * Processes lifecycle methods like {@see \Testo\Lifecycle\BeforeTest} and {@see \Testo\Lifecycle\AfterTest}.
  *
  * @internal
  * @psalm-internal Testo\Lifecycle
@@ -76,16 +76,16 @@ final readonly class LifecycleInterceptor implements TestRunInterceptor, TestCas
             $result[$class] = \array_merge(...$methodsByPriority);
         }
 
-        # Execute BeforeAll methods
-        foreach ($result[BeforeAll::class] ?? [] as $method) {
+        # Execute BeforeClass methods
+        foreach ($result[BeforeClass::class] ?? [] as $method) {
             self::execute($info->instance, $method);
         }
 
         try {
             return $next($info->withAttribute(self::class, $result));
         } finally {
-            # Execute AfterAll methods
-            foreach ($result[AfterAll::class] ?? [] as $method) {
+            # Execute AfterClass methods
+            foreach ($result[AfterClass::class] ?? [] as $method) {
                 self::execute($info->instance, $method);
             }
         }
@@ -100,14 +100,14 @@ final readonly class LifecycleInterceptor implements TestRunInterceptor, TestCas
             return $next($info);
         }
 
-        foreach ($methods[BeforeEach::class] ?? [] as $method) {
+        foreach ($methods[BeforeTest::class] ?? [] as $method) {
             self::execute($info->caseInfo->instance, $method);
         }
 
         try {
             return $next($info);
         } finally {
-            foreach ($methods[AfterEach::class] ?? [] as $method) {
+            foreach ($methods[AfterTest::class] ?? [] as $method) {
                 self::execute($info->caseInfo->instance, $method);
             }
         }

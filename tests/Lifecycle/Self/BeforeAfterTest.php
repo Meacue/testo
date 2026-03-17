@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Tests\Lifecycle\Self;
 
 use Testo\Assert;
-use Testo\Lifecycle\AfterEach;
-use Testo\Lifecycle\BeforeEach;
+use Testo\Lifecycle\AfterTest;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 /**
@@ -17,13 +17,13 @@ final class BeforeAfterTest
     /** @var list<string> */
     private array $executionLog = [];
 
-    #[BeforeEach]
+    #[BeforeTest]
     public function setupFirst(): void
     {
         $this->executionLog[] = 'before';
     }
 
-    #[AfterEach]
+    #[AfterTest]
     public function teardownFirst(): void
     {
         $this->executionLog[] = 'after';

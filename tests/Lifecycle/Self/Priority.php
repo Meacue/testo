@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Lifecycle\Self;
 
 use Testo\Assert;
-use Testo\Lifecycle\BeforeEach;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 /**
@@ -13,24 +13,24 @@ use Testo\Test;
  *
  * Higher priority methods are executed first.
  */
-final class PriorityTest
+final class Priority
 {
     /** @var list<string> */
     private array $beforeLog = [];
 
-    #[BeforeEach(priority: 10)]
+    #[BeforeTest(priority: 10)]
     public function highPriorityBefore(): void
     {
         $this->beforeLog[] = 'high';
     }
 
-    #[BeforeEach(priority: 0)]
+    #[BeforeTest(priority: 0)]
     public function defaultPriorityBefore(): void
     {
         $this->beforeLog[] = 'default';
     }
 
-    #[BeforeEach(priority: -10)]
+    #[BeforeTest(priority: -10)]
     public function lowPriorityBefore(): void
     {
         $this->beforeLog[] = 'low';

@@ -49,6 +49,15 @@ final class BenchAttr
         calls: 20,
         iterations: 10,
     )]
+    #[Bench(
+        [
+            'sumInArray' => [self::class, 'sumRange'],
+            'sumLinearF' => [self::class, 'sumLinearF1'],
+        ],
+        arguments: [1, 5_000],
+        calls: 20,
+        iterations: 10,
+    )]
     public static function sumInCycle(int $a, int $b): int
     {
         $result = 0;

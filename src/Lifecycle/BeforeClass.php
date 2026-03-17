@@ -18,7 +18,7 @@ use Testo\Pipeline\Attribute\Interceptable;
  */
 #[\Attribute(\Attribute::TARGET_METHOD)]
 #[FallbackInterceptor(LifecycleInterceptor::class)]
-final readonly class BeforeAll implements Interceptable, LifecycleAttribute
+final readonly class BeforeClass implements Interceptable, LifecycleAttribute
 {
     public function __construct(
         /**

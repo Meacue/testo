@@ -14,10 +14,10 @@ use Testo\Pipeline\InterceptorCollector;
  *
  * Lifecycle methods are methods that are executed before or after tests.
  * They are defined by the following attributes:
- * - {@see BeforeAll}
- * - {@see BeforeEach}
- * - {@see AfterEach}
- * - {@see AfterAll}
+ * - {@see BeforeClass}
+ * - {@see BeforeTest}
+ * - {@see AfterTest}
+ * - {@see AfterClass}
  *
  * @api
  */
