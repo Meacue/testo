@@ -54,7 +54,7 @@ final class ExpectExceptionHandler implements ExpectedException
      * @param non-empty-string $method Method name.
      */
     #[\Override]
-    public function fromMethod(string $class, string $method): self
+    public function fromMethod(string $class, string $method): static
     {
         $this->fromMethod[] = [$class, $method];
         return $this;
@@ -64,42 +64,42 @@ final class ExpectExceptionHandler implements ExpectedException
      * The expected exception should have the exact message.
      */
     #[\Override]
-    public function withMessage(string $message): self
+    public function withMessage(string $message): static
     {
         $this->expectedMessage = $message;
         return $this;
     }
 
     #[\Override]
-    public function withMessagePattern(string $pattern): self
+    public function withMessagePattern(string $pattern): static
     {
         $this->expectedMessagePattern = $pattern;
         return $this;
     }
 
     #[\Override]
-    public function withMessageContaining(string $substring): self
+    public function withMessageContaining(string $substring): static
     {
         $this->expectedMessageContaining[] = $substring;
         return $this;
     }
 
     #[\Override]
-    public function withCode(int|array $code): self
+    public function withCode(int|array $code): static
     {
         $this->expectedCodes[] = $code;
         return $this;
     }
 
     #[\Override]
-    public function withoutPrevious(): self
+    public function withoutPrevious(): static
     {
         $this->expectNoPrevious = true;
         return $this;
     }
 
     #[\Override]
-    public function withPrevious(\Throwable|string $classOrObject, ?callable $assertion = null): self
+    public function withPrevious(\Throwable|string $classOrObject, ?callable $assertion = null): static
     {
         $this->expectedPrevious = [$classOrObject, $assertion];
         return $this;

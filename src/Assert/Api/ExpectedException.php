@@ -25,38 +25,38 @@ interface ExpectedException
      *       not at the `throw` statement. Therefore, the expected method must be in the call chain where
      *       the exception was instantiated.
      */
-    public function fromMethod(string $class, string $method): self;
+    public function fromMethod(string $class, string $method): static;
 
     /**
      * The expected exception should have the exact message.
      */
-    public function withMessage(string $message): self;
+    public function withMessage(string $message): static;
 
     /**
      * The expected exception message should match the given pattern.
      *
      * @param non-empty-string $pattern Regex pattern.
      */
-    public function withMessagePattern(string $pattern): self;
+    public function withMessagePattern(string $pattern): static;
 
     /**
      * The expected exception message should contain the given substring.
      *
      * @param non-empty-string $substring Substring to search for.
      */
-    public function withMessageContaining(string $substring): self;
+    public function withMessageContaining(string $substring): static;
 
     /**
      * The expected exception should have the given code or one of the given codes.
      *
      * @param int|list<int> $code Expected code or list of expected codes.
      */
-    public function withCode(int|array $code): self;
+    public function withCode(int|array $code): static;
 
     /**
      * The expected exception should not have a previous exception.
      */
-    public function withoutPrevious(): self;
+    public function withoutPrevious(): static;
 
     /**
      * The expected exception was caused by the given previous exception.
@@ -64,5 +64,5 @@ interface ExpectedException
      * @param class-string|\Throwable $classOrObject Expected previous exception class, interface, or an object.
      * @param (callable(self): mixed)|null $assertion Optional assertion callback for the previous exception.
      */
-    public function withPrevious(\Throwable|string $classOrObject, ?callable $assertion = null): self;
+    public function withPrevious(\Throwable|string $classOrObject, ?callable $assertion = null): static;
 }
