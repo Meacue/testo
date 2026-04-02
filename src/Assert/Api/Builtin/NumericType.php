@@ -10,6 +10,9 @@ use Testo\Assert\State\Assertion\AssertionException;
  * Assertion utilities for numeric data types.
  *
  * Numeric data types include integers, floats, and numeric strings.
+ *
+ * @note This interface is not intended to be implemented by userland code.
+ *       New methods may be added in minor versions without a major version bump.
  */
 interface NumericType
 {

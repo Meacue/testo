@@ -13,6 +13,8 @@ use Testo\Assert\State\Assertion\AssertionException;
  * The {@see iterable} type includes {@see array} and objects implementing {@see \Traversable} interface.
  *
  * @note A {@see \Generator} can be iterated only once. Using this interface on a generator will exhaust it.
+ * @note This interface is not intended to be implemented by userland code.
+ *       New methods may be added in minor versions without a major version bump.
  */
 interface IterableType
 {

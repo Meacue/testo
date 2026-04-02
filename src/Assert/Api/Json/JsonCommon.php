@@ -6,6 +6,9 @@ namespace Testo\Assert\Api\Json;
 
 /**
  * Common methods for JSON assertions.
+ *
+ * @note This interface is not intended to be implemented by userland code.
+ *       New methods may be added in minor versions without a major version bump.
  */
 interface JsonCommon
 {
@@ -25,8 +28,6 @@ interface JsonCommon
      *  Assert::json('[{"id": 1, "name": "test"}]')
      *      ->matchesType('list<array{id: positive-int, name: non-empty-string}>');
      * ```
-     *
-     * @deprecated To be implemented
      */
     public function matchesType(string $type): static;
 
@@ -34,8 +35,6 @@ interface JsonCommon
      * Assert that the JSON structure matches the specified JSON schema.
      *
      * @param non-empty-string $schema The JSON schema to validate against.
-     *
-     * @deprecated To be implemented
      */
     public function matchesSchema(string $schema): static;
 
@@ -43,8 +42,6 @@ interface JsonCommon
      * Get the decoded JSON value.
      *
      * @return mixed The decoded JSON value.
-     *
-     * @deprecated To be implemented
      */
     public function decode(): mixed;
 }
