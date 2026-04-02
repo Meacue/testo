@@ -110,4 +110,29 @@ trait NumericTrait
             context: $message,
         );
     }
+
+    /**
+     * Asserts that the numeric value is between the given minimum and maximum (inclusive).
+     *
+     * @param int|float $min Minimum threshold (inclusive).
+     * @param int|float $max Maximum threshold (inclusive).
+     * @param string $message Optional message for the assertion.
+     * @throws AssertException when the assertion fails.
+     */
+    #[AssertMethod]
+    #[\Override]
+    public function between(int|float $min, int|float $max, string $message = ''): static
+    {
+        $str = "between `{$min}` and `{$max}`";
+        if ($this->value >= $min && $this->value <= $max) {
+            $this->parent->success($str, $message);
+            return $this;
+        }
+
+        throw $this->parent->fail(
+            assertion: $str,
+            reason: "the value is not between {$min} and {$max}",
+            context: $message,
+        );
+    }
 }

@@ -51,4 +51,14 @@ interface NumericType
      * @throws AssertionException when the assertion fails.
      */
     public function lessThanOrEqual(int|float $max, string $message = ''): static;
+
+    /**
+     * Asserts that the numeric value is between the given minimum and maximum (inclusive).
+     *
+     * @param int|float $min Minimum threshold (inclusive).
+     * @param int|float $max Maximum threshold (inclusive).
+     * @param string $message Optional message for the assertion.
+     * @throws AssertionException when the assertion fails.
+     */
+    public function between(int|float $min, int|float $max, string $message = ''): static;
 }
