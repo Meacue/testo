@@ -25,7 +25,7 @@ final class BenchHandler
 
         # Current function callable
         $fn = $info->caseInfo->instance === null || $info->testDefinition->reflection->isStatic()
-            ? $info->testDefinition->reflection->getClosure(null)
+            ? $info->testDefinition->reflection->getClosure()
             : $info->testDefinition->reflection->getClosure($info->caseInfo->instance->getInstance());
 
         $aliases = ['current'];
