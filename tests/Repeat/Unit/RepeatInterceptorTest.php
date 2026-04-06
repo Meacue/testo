@@ -121,9 +121,9 @@ final class RepeatInterceptorTest
     #[DataSet([Status::Passed, false])]
     #[DataSet([Status::Risky, false])]
     #[DataSet([Status::Flaky, false])]
-    #[DataSet([Status::Skipped, false])]
-    #[DataSet([Status::Cancelled, false])]
-    #[DataSet([Status::Aborted, false])]
+    #[DataSet([Status::Skipped, true])]
+    #[DataSet([Status::Cancelled, true])]
+    #[DataSet([Status::Aborted, true])]
     #[DataSet([Status::Failed, true])]
     #[DataSet([Status::Error, true])]
     public function statusBehavior(Status $status, bool $stopsLoop): void

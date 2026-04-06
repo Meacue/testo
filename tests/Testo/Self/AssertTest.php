@@ -58,7 +58,7 @@ final class AssertTest
     {
         static $counter = 0;
         ++$counter;
-        $counter > 1 ? Assert::same(2, $counter) : Assert::same(1, $counter);
+        $counter > 1 ? Assert::same($counter, 2) : Assert::same($counter, 1);
     }
 
     #[Test]
