@@ -10,6 +10,7 @@ use Testo\Assert\State\AssertException;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
 use Testo\Expect;
+use Testo\Repeat;
 use Testo\Retry;
 use Testo\Test;
 use Tests\Fixture\ClassDataProvider;
@@ -49,6 +50,30 @@ final class AssertTest
         $nested = new \RuntimeException('Inner exception');
         $e = new \InvalidArgumentException('Outer exception', 42, $nested);
         throw new \RuntimeException('Test exception with previous', 69, $e);
+    }
+
+    #[Test]
+    #[Repeat()]
+    public function repeatSuccess(): void
+    {
+        static $counter = 0;
+        ++$counter;
+        $counter > 1 ? Assert::same(2, $counter) : Assert::same(1, $counter);
+    }
+
+    #[Test]
+    #[Retry(maxAttempts: 3)]
+    #[Repeat(times: 3)]
+    public function repeatFail(): void
+    {
+        static $counter = 0;
+        ++$counter;
+        try {
+            Assert::int($counter)->lessThanOrEqual(2);
+        } catch (\Throwable $t) {
+            $counter = 0;
+            throw $t;
+        }
     }
 
     #[Test]
