@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Testo\Codecov\Internal\Driver;
 
 use Testo\Application\Config\FinderConfig;
-use Testo\Codecov\CoverageDriver;
-use Testo\Codecov\CoverageLevel;
-use Testo\Codecov\Dto\CoverageResult;
+use Testo\Codecov\Config\CoverageLevel;
+use Testo\Codecov\Result\CoverageResult;
+use Testo\Codecov\Internal\CoverageDriver;
 
 /**
  * PCOV-based coverage driver.
@@ -17,14 +17,26 @@ use Testo\Codecov\Dto\CoverageResult;
 final readonly class PcovDriver implements CoverageDriver
 {
     use NormalizePath;
+
     /**
      * @param list<non-empty-string> $includes
      * @param list<non-empty-string> $excludes
      */
-    public function __construct(
+    private function __construct(
         private array $includes = [],
         private array $excludes = [],
     ) {}
+
+    /**
+     * Creates a new PCOV driver.
+     */
+    public static function create(FinderConfig $src): self
+    {
+        return new self(
+            \array_map(self::normalizePath(...), $src->includes),
+            \array_map(self::normalizePath(...), $src->excludes),
+        );
+    }
 
     #[\Override]
     public function withFilter(FinderConfig $filter): static

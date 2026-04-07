@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Testo\Codecov\Internal\Driver;
 
 use Testo\Application\Config\FinderConfig;
-use Testo\Codecov\CoverageDriver;
-use Testo\Codecov\CoverageLevel;
-use Testo\Codecov\Dto\CoverageResult;
+use Testo\Codecov\Config\CoverageLevel;
+use Testo\Codecov\Result\CoverageResult;
+use Testo\Codecov\Internal\CoverageDriver;
+use Testo\Inline\TestInline;
 
 /**
  * XDebug-based coverage driver.
@@ -19,22 +20,36 @@ use Testo\Codecov\Dto\CoverageResult;
 final readonly class XdebugDriver implements CoverageDriver
 {
     use NormalizePath;
+
     /**
      * @param list<non-empty-string> $includes
      * @param list<non-empty-string> $excludes
      */
-    public function __construct(
+    private function __construct(
         private array $includes = [],
         private array $excludes = [],
         private CoverageLevel $level = CoverageLevel::Line,
-    ) {
-        # Tag files not yet loaded by the autoloader for engine-level filtering.
-        # Files already compiled are filtered in collect() as a fallback.
-        $this->includes !== [] and \xdebug_set_filter(
+    ) {}
+
+    /**
+     * Creates a new XDebug driver and sets the global engine-level filter.
+     *
+     * `xdebug_set_filter()` tags files at first include/require and cannot re-tag
+     * already loaded files. It must be called once with the broadest scope (e.g. `src/`).
+     * Per-test narrowing is handled in {@see collect()} at PHP level.
+     */
+    public static function create(FinderConfig $src): self
+    {
+        $includes = \array_map(self::normalizePath(...), $src->includes);
+        $excludes = \array_map(self::normalizePath(...), $src->excludes);
+
+        $includes !== [] and \xdebug_set_filter(
             \XDEBUG_FILTER_CODE_COVERAGE,
             \XDEBUG_PATH_INCLUDE,
-            $this->includes,
+            $includes,
         );
+
+        return new self($includes, $excludes);
     }
 
     #[\Override]
@@ -71,12 +86,12 @@ final readonly class XdebugDriver implements CoverageDriver
 
         if ($this->includes !== [] || $this->excludes !== []) {
             foreach ($data as $filePath => $_) {
-                if ($this->includes !== [] && !$this->matchesAny($filePath, $this->includes)) {
+                if ($this->includes !== [] && !self::matchesAny($filePath, $this->includes)) {
                     unset($data[$filePath]);
                     continue;
                 }
 
-                if ($this->matchesAny($filePath, $this->excludes)) {
+                if (self::matchesAny($filePath, $this->excludes)) {
                     unset($data[$filePath]);
                 }
             }
@@ -88,13 +103,20 @@ final readonly class XdebugDriver implements CoverageDriver
     #[\Override]
     public function clear(): void
     {
-        # XDebug clears data on \\xdebug_stop_code_coverage() by default.
+        # XDebug clears data on \xdebug_stop_code_coverage() by default.
     }
 
     /**
      * @param list<non-empty-string> $prefixes
      */
-    private function matchesAny(string $path, array $prefixes): bool
+    #[TestInline(['/src/Foo.php', ['/src/']], result: true)]
+    #[TestInline(['/src/Bar/Baz.php', ['/src/', '/lib/']], result: true)]
+    #[TestInline(['/vendor/Foo.php', ['/src/']], result: false)]
+    #[TestInline(['/src/Foo.php', []], result: false)]
+    #[TestInline(['', ['/src/']], result: false)]
+    #[TestInline(['/src/', ['/src/']], result: true)]
+    #[TestInline(['C:\\project\\src\\Foo.php', ['C:\\project\\src\\']], result: true)]
+    private static function matchesAny(string $path, array $prefixes): bool
     {
         foreach ($prefixes as $prefix) {
             if (\str_starts_with($path, $prefix)) {

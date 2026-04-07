@@ -42,10 +42,11 @@ return new ApplicationConfig(
         require 'tests/Output/suites.php',
         require 'tests/Test/suites.php',
         require 'tests/Codecov/suites.php',
+        require 'tests/Repeat/suites.php',
     ),
     plugins: [
         new \Testo\Codecov\CodecovPlugin(
-            level: \Testo\Codecov\CoverageLevel::Path,
+            level: \Testo\Codecov\Config\CoverageLevel::Line,
             reports: [
                 new \Testo\Codecov\Report\CloverReport(__DIR__ . '/clover.xml', 'Testo'),
                 new \Testo\Codecov\Report\CoberturaReport(__DIR__ . '/cobertura.xml'),
