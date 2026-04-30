@@ -709,10 +709,12 @@ final class TokenizedFile
     private function endingToken(int $tokenID): int
     {
         $level = 0;
+        $entered = false;
         for ($localID = $tokenID; $localID < $this->countTokens; ++$localID) {
             $token = $this->tokens[$localID];
             if ($token[self::TOKEN_CODE] === '{') {
                 ++$level;
+                $entered = true;
                 continue;
             }
 
@@ -720,7 +722,7 @@ final class TokenizedFile
                 --$level;
             }
 
-            if ($level === 0) {
+            if ($entered && $level === 0) {
                 break;
             }
         }
