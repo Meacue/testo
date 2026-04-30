@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Codecov\Report;
 
+use Internal\Path;
 use Testo\Codecov\Result\CoverageResult;
 use Testo\Codecov\Result\FileCoverage;
 use Testo\Codecov\Result\LineStatus;
@@ -27,21 +28,12 @@ final readonly class PhpUnitXmlReport implements CoverageReport
     public function __construct(
         /** @var non-empty-string Output directory for the report. Created if missing. */
         private string $outputDir,
-
-        /**
-         * Override source root. Empty string falls back to {@see CoverageResult::$sourceRoot}
-         * (stamped by the framework from `ApplicationConfig::$src`) or {@see \getcwd()}.
-         */
-        private string $sourceRoot = '',
     ) {}
 
     #[\Override]
     public function generate(CoverageResult $result): void
     {
-        $sourceRoot = $this->sourceRoot !== ''
-            ? $this->sourceRoot
-            : ($result->sourceRoot ?? (string) \getcwd());
-        $sourceRoot = \rtrim(\str_replace('\\', '/', $sourceRoot), '/');
+        $sourceRoot = (string) Path::create($result->sourceRoot ?? (string) \getcwd());
 
         \is_dir($this->outputDir) or \mkdir($this->outputDir, 0o755, true);
 

@@ -30,7 +30,7 @@ final class CoberturaReportTest
         $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
 
         // Act
-        (new CoberturaReport($path, '/project'))->generate($result);
+        (new CoberturaReport($path))->generate($result->withSourceRoot('/project'));
 
         // Assert
         $xml = \simplexml_load_file($path);
@@ -59,7 +59,7 @@ final class CoberturaReportTest
         $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
 
         // Act
-        (new CoberturaReport($path, '/project'))->generate($result);
+        (new CoberturaReport($path))->generate($result->withSourceRoot('/project'));
 
         // Assert
         $xml = \simplexml_load_file($path);
@@ -80,7 +80,7 @@ final class CoberturaReportTest
         $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
 
         // Act
-        (new CoberturaReport($path, '/project'))->generate($result);
+        (new CoberturaReport($path))->generate($result->withSourceRoot('/project'));
 
         // Assert
         $xml = \simplexml_load_file($path);
@@ -110,7 +110,7 @@ final class CoberturaReportTest
         $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
 
         // Act
-        (new CoberturaReport($path, '/'))->generate($result);
+        (new CoberturaReport($path))->generate($result->withSourceRoot('/'));
 
         // Assert
         $xml = \simplexml_load_file($path);
@@ -147,7 +147,7 @@ final class CoberturaReportTest
         $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
 
         // Act
-        (new CoberturaReport($path, '/'))->generate($result);
+        (new CoberturaReport($path))->generate($result->withSourceRoot('/'));
 
         // Assert
         $xml = \simplexml_load_file($path);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Codecov;
 
 use Internal\Container\Container;
+use Internal\Path;
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\FinderConfig;
 use Testo\Codecov\Config\CoverageLevel;
@@ -121,18 +122,16 @@ final readonly class CodecovPlugin implements PluginConfigurator
             return null;
         }
 
-        $paths = \array_map(
-            static fn($p): string => \rtrim(\str_replace('\\', '/', (string) $p), '/'),
-            $src->includes,
-        );
-
-        if (\count($paths) === 1) {
-            $parent = \dirname($paths[0]);
-            return $parent === '' || $parent === '.' ? null : $parent;
+        if (\count($src->includes) === 1) {
+            $parent = (string) $src->includes[0]->parent();
+            return $parent === '.' ? null : $parent;
         }
 
         // Common prefix at the directory-segment level.
-        $segments = \array_map(static fn(string $p): array => \explode('/', $p), $paths);
+        $segments = \array_map(
+            static fn(Path $p): array => \explode('/', (string) $p),
+            $src->includes,
+        );
         $first = $segments[0];
         $commonLen = \count($first);
         foreach ($segments as $seg) {
