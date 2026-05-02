@@ -1,5 +1,5 @@
 {
-    "name": "testo/bridge-symfony",
+    "name": "testo/bridge-symfony-console",
     "description": "Symfony Console bridge for the Testo testing framework.",
     "license": "BSD-3-Clause",
     "type": "library",
@@ -27,9 +27,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Testo\\Bridge\\Symfony\\": "src/"
+            "Testo\\Bridge\\Symfony\\Console\\": "src/"
         }
     },
+    "bin": [
+        "bin/testo"
+    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {

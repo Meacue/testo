@@ -19,7 +19,7 @@
 > [!IMPORTANT]
 > ## 🪞 This is a read-only mirror.
 >
-> Active development of the Testo project lives in [**php-testo/testo**](https://github.com/php-testo/testo) under `bridge/symfony/`. This repository is **automatically synchronized** from there on every release.
+> Active development of the Testo project lives in [**php-testo/testo**](https://github.com/php-testo/testo) under `bridge/symfony-console/`. This repository is **automatically synchronized** from there on every release.
 >
 > File issues and pull requests in the [main monorepo](https://github.com/php-testo/testo/issues), not here.
 
@@ -30,10 +30,10 @@ Wires Testo into Symfony Console: provides the `bin/testo` entry point, the `run
 ## Install
 
 ```bash
-composer require --dev testo/bridge-symfony
+composer require --dev testo/bridge-symfony-console
 ```
 
-[![PHP](https://img.shields.io/packagist/php-v/testo/bridge-symfony.svg?style=flat-square&logo=php)](https://packagist.org/packages/testo/bridge-symfony)
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/testo/bridge-symfony.svg?style=flat-square&logo=packagist)](https://packagist.org/packages/testo/bridge-symfony)
-[![License](https://img.shields.io/packagist/l/testo/bridge-symfony.svg?style=flat-square)](https://github.com/php-testo/testo/blob/1.x/LICENSE.md)
-[![Total Downloads](https://img.shields.io/packagist/dt/testo/bridge-symfony.svg?style=flat-square)](https://packagist.org/packages/testo/bridge-symfony/stats)
+[![PHP](https://img.shields.io/packagist/php-v/testo/bridge-symfony-console.svg?style=flat-square&logo=php)](https://packagist.org/packages/testo/bridge-symfony-console)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/testo/bridge-symfony-console.svg?style=flat-square&logo=packagist)](https://packagist.org/packages/testo/bridge-symfony-console)
+[![License](https://img.shields.io/packagist/l/testo/bridge-symfony-console.svg?style=flat-square)](https://github.com/php-testo/testo/blob/1.x/LICENSE.md)
+[![Total Downloads](https://img.shields.io/packagist/dt/testo/bridge-symfony-console.svg?style=flat-square)](https://packagist.org/packages/testo/bridge-symfony-console/stats)

@@ -33,7 +33,7 @@
         "symfony/finder": "^6.4 || ^7 || ^8.0",
         "testo/assert": "^1.0@dev",
         "testo/bench": "^1.0@dev",
-        "testo/bridge-symfony": "^1.0@dev",
+        "testo/bridge-symfony-console": "^1.0@dev",
         "testo/codecov": "^1.0@dev",
         "testo/convention": "^1.0@dev",
         "testo/data": "^1.0@dev",
@@ -80,9 +80,6 @@
             "tests/Fixture/functions.php"
         ]
     },
-    "bin": [
-        "bin/testo"
-    ],
     "repositories": [
         {
             "type": "path",
@@ -170,7 +167,7 @@
         },
         {
             "type": "path",
-            "url": "bridge/symfony",
+            "url": "bridge/symfony-console",
             "options": {
                 "symlink": true
             }
@@ -203,10 +200,10 @@
         "psalm": "psalm",
         "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
         "psalm:ci": "psalm --output-format=github --shepherd --show-info=false --stats --threads=4",
-        "test": "bin/testo",
+        "test": "testo",
         "test:ci": [
             "@putenv TESTO_CI=1",
-            "bin/testo"
+            "testo"
         ]
     }
 }

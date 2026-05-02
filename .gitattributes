@@ -18,12 +18,9 @@
 /README.md       -export-ignore
 /CHANGELOG.md    -export-ignore
 
-# CLI entry point (registered in composer.json `bin`).
-/bin             -export-ignore
-/bin/**          -export-ignore
-
 # Core source code (`Testo\` namespace) and the bundled `internal/container`
-# (mapped through composer.json `replace`).
+# (mapped through composer.json `replace`). The `bin/testo` CLI entry point
+# now ships with the `testo/bridge-symfony-console` package.
 /core            -export-ignore
 /core/**         -export-ignore
 /internal        -export-ignore
