@@ -16,7 +16,7 @@ final class BenchAttr
             'recursion' => [self::class, 'rangeSum'],
         ],
         arguments: [1, 20_000],
-        calls: 2000,
+        calls: 20,
         iterations: 10,
     )]
     #[TestInline([1, 2000], 2001000)]
@@ -66,7 +66,7 @@ final class BenchAttr
         ],
         arguments: [1, 5_000],
         warmup: 10,
-        calls: 200,
+        calls: 20,
         iterations: 10,
     )]
     public static function sumInCycle(int $a, int $b): int

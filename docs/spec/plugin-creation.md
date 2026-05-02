@@ -75,7 +75,7 @@ git mv plugin/<short-name>/src/<MovedFile>.php plugin/<short-name>/src/Internal/
     "prefer-stable": true,
     "extra": {
         "branch-alias": {
-            "dev-1.x": "0.1.x-dev"
+            "dev-1.x": "1.x-dev"
         }
     }
 }
@@ -99,7 +99,7 @@ In root `composer.json`:
   ```json
   "testo/<short-name>": "^1.0@dev"
   ```
-  > Composer rejects a bare `"@dev"` constraint here. Pin to `^1.0@dev` for consistency with the rest of the plugins — the `@dev` stability flag combined with the package's `branch-alias: dev-1.x → 0.1.x-dev` lets Composer resolve the path-repo development version.
+  > `composer validate --strict` rejects unbound (`@dev`) and exact-version (`1.x-dev` as a require constraint) values. Use `^1.0@dev` everywhere for consistency, and keep the plugin's `branch-alias: dev-1.x → 1.x-dev` so the caret matches the path-repo dev version. After the first stable release the constraint stays the same — just drop the `@dev` flag (`^1.0`).
 - **`repositories`**:
   ```json
   {
@@ -266,7 +266,7 @@ Once the first split has populated the repository:
 - **Top-level class name must equal the plugin short name.** `Repeat` from `testo/repeat`, `Assert` from `testo/assert`. No arbitrary classes in `Testo\` from a plugin.
 - **`autoload-dev` from a path-repo dependency is ignored** — Composer only loads `autoload-dev` of the root project. That's why test namespaces are mapped in the root `composer.json`.
 - **Tag pattern in split-publish** — keep the `[0-9]*` suffix to avoid false triggers from non-release tags like `repeat-experimental`.
-- **Branch alias version** — bump `extra.branch-alias.dev-1.x` to match the plugin's current minor (e.g. `0.2.x-dev` after the first 0.2 release). This affects users who require `dev-1.x` directly.
+- **Branch alias version** — keep `extra.branch-alias.dev-1.x` aligned with the major the `^1.0@dev` constraint expects (`1.x-dev` for the `1.x` line). Bump only on major-line transitions (e.g. `2.x-dev` once a `2.x` branch is born), not on every minor.
 
 ## Reference files
 
