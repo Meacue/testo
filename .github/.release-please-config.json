@@ -43,6 +43,12 @@
             "component": "test",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/assert": {
+            "package-name": "testo/assert",
+            "component": "assert",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,

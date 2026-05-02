@@ -33,7 +33,7 @@ return new ApplicationConfig(
         //         ),
         //     ),
         // ],
-        require 'tests/Assert/suites.php',
+        require 'plugin/assert/tests/suites.php',
         require 'tests/Common/suites.php',
         require 'plugin/lifecycle/tests/suites.php',
         require 'tests/Data/suites.php',

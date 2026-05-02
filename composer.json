@@ -31,6 +31,7 @@
         "psr/event-dispatcher": "^1.0",
         "symfony/console": "^6.4 || ^7 || ^8.0",
         "symfony/finder": "^6.4 || ^7 || ^8.0",
+        "testo/assert": "^1.0@dev",
         "testo/convention": "^1.0@dev",
         "testo/filter": "^1.0@dev",
         "testo/lifecycle": "^1.0@dev",
@@ -62,6 +63,7 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/",
+            "Tests\\Assert\\": "plugin/assert/tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
             "Tests\\Test\\": "plugin/test/tests/"
@@ -119,6 +121,13 @@
         {
             "type": "path",
             "url": "plugin/test",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/assert",
             "options": {
                 "symlink": true
             }
