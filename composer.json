@@ -31,6 +31,7 @@
         "psr/event-dispatcher": "^1.0",
         "symfony/console": "^6.4 || ^7 || ^8.0",
         "symfony/finder": "^6.4 || ^7 || ^8.0",
+        "testo/convention": "^1.0@dev",
         "testo/repeat": "^1.0@dev",
         "yiisoft/injector": "^1.2"
     },
@@ -77,6 +78,13 @@
         {
             "type": "path",
             "url": "plugin/repeat",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/convention",
             "options": {
                 "symlink": true
             }

@@ -13,6 +13,12 @@
             "component": "repeat",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/convention": {
+            "package-name": "testo/convention",
+            "component": "convention",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,
