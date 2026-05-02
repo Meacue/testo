@@ -35,6 +35,7 @@
         "testo/convention": "^1.0@dev",
         "testo/data": "^1.0@dev",
         "testo/filter": "^1.0@dev",
+        "testo/inline": "^1.0@dev",
         "testo/lifecycle": "^1.0@dev",
         "testo/repeat": "^1.0@dev",
         "testo/retry": "^1.0@dev",
@@ -137,6 +138,13 @@
         {
             "type": "path",
             "url": "plugin/data",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/inline",
             "options": {
                 "symlink": true
             }

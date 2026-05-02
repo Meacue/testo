@@ -55,6 +55,12 @@
             "component": "data",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/inline": {
+            "package-name": "testo/inline",
+            "component": "inline",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,

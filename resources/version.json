@@ -7,5 +7,6 @@
     "plugin/filter": "0.1.0",
     "plugin/test": "0.1.0",
     "plugin/assert": "0.1.0",
-    "plugin/data": "0.1.0"
+    "plugin/data": "0.1.0",
+    "plugin/inline": "0.1.0"
 }
