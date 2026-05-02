@@ -61,6 +61,12 @@
             "component": "inline",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/bench": {
+            "package-name": "testo/bench",
+            "component": "bench",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,

@@ -1,0 +1,34 @@
+{
+    "name": "testo/bench",
+    "description": "Benchmark plugin for the Testo testing framework.",
+    "license": "BSD-3-Clause",
+    "type": "library",
+    "keywords": ["testo", "benchmark"],
+    "authors": [
+        {
+            "name": "Aleksei Gagarin (roxblnfk)",
+            "homepage": "https://github.com/roxblnfk"
+        }
+    ],
+    "require": {
+        "php": ">=8.2",
+        "testo/data": "^1.0@dev",
+        "testo/inline": "^1.0@dev",
+        "testo/testo": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Testo\\Bench\\": "src/"
+        },
+        "files": [
+            "Bench.php"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "branch-alias": {
+            "dev-1.x": "1.x-dev"
+        }
+    }
+}
