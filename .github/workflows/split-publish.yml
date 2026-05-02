@@ -33,6 +33,7 @@ on:  # yamllint disable-line rule:truthy
       - 'filter-[0-9]*'
       - 'test-[0-9]*'
       - 'assert-[0-9]*'
+      - 'data-[0-9]*'
 
 name: 📦 Split publish
 
@@ -293,6 +294,43 @@ jobs:
           package_directory: plugin/assert
           repository_organization: php-testo
           repository_name: assert
+          branch: ${{ steps.branch.outputs.name }}
+          user_name: testo-bot
+          user_email: bot@testo.dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+  split-data:
+    name: ↪ plugin/data → php-testo/data
+    if: startsWith(github.ref, 'refs/tags/data-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵ Checkout monorepo (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷 Extract bare version from component tag
+        id: tag
+        run: echo "version=${GITHUB_REF_NAME#data-}" >> "$GITHUB_OUTPUT"
+
+      - name: 🌿 Resolve source branch for the tag
+        id: branch
+        run: |
+          branch=$(git branch --remotes --contains "${GITHUB_REF_NAME}" \
+                    | sed 's|origin/||' \
+                    | grep -v 'HEAD' \
+                    | head -n 1 \
+                    | tr -d ' ')
+          echo "name=${branch}" >> "$GITHUB_OUTPUT"
+
+      - name: 🚀 Push subtree to php-testo/data
+        uses: symplify/monorepo-split-github-action@v2.3.0
+        with:
+          tag: ${{ steps.tag.outputs.version }}
+          package_directory: plugin/data
+          repository_organization: php-testo
+          repository_name: data
           branch: ${{ steps.branch.outputs.name }}
           user_name: testo-bot
           user_email: bot@testo.dev

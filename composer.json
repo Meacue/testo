@@ -33,6 +33,7 @@
         "symfony/finder": "^6.4 || ^7 || ^8.0",
         "testo/assert": "^1.0@dev",
         "testo/convention": "^1.0@dev",
+        "testo/data": "^1.0@dev",
         "testo/filter": "^1.0@dev",
         "testo/lifecycle": "^1.0@dev",
         "testo/repeat": "^1.0@dev",
@@ -64,6 +65,7 @@
         "psr-4": {
             "Tests\\": "tests/",
             "Tests\\Assert\\": "plugin/assert/tests/",
+            "Tests\\Data\\": "plugin/data/tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
             "Tests\\Test\\": "plugin/test/tests/"
@@ -128,6 +130,13 @@
         {
             "type": "path",
             "url": "plugin/assert",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/data",
             "options": {
                 "symlink": true
             }
