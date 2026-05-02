@@ -25,14 +25,14 @@ return new ApplicationConfig(
             ),
         ],
         # If running in CI, skip the sandbox
-        \filter_var(\getenv('TESTO_CI'), FILTER_VALIDATE_BOOLEAN) ? [] : [
-            new SuiteConfig(
-                name: 'sandbox',
-                location: new FinderConfig(
-                    include: ['tests/Testo'],
-                ),
-            ),
-        ],
+        // \filter_var(\getenv('TESTO_CI'), FILTER_VALIDATE_BOOLEAN) ? [] : [
+        //     new SuiteConfig(
+        //         name: 'sandbox',
+        //         location: new FinderConfig(
+        //             include: ['tests/Testo'],
+        //         ),
+        //     ),
+        // ],
         require 'tests/Assert/suites.php',
         require 'tests/Common/suites.php',
         require 'plugin/lifecycle/tests/suites.php',
@@ -40,7 +40,7 @@ return new ApplicationConfig(
         require 'tests/Bench/suites.php',
         require 'tests/Application/suites.php',
         require 'tests/Output/suites.php',
-        require 'tests/Test/suites.php',
+        require 'plugin/test/tests/suites.php',
         require 'tests/Codecov/suites.php',
         require 'plugin/repeat/tests/suites.php',
         require 'tests/Tokenizer/suites.php',

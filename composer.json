@@ -36,6 +36,7 @@
         "testo/lifecycle": "^1.0@dev",
         "testo/repeat": "^1.0@dev",
         "testo/retry": "^1.0@dev",
+        "testo/test": "^1.0@dev",
         "yiisoft/injector": "^1.2"
     },
     "require-dev": {
@@ -62,7 +63,8 @@
         "psr-4": {
             "Tests\\": "tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
-            "Tests\\Repeat\\": "plugin/repeat/tests/"
+            "Tests\\Repeat\\": "plugin/repeat/tests/",
+            "Tests\\Test\\": "plugin/test/tests/"
         },
         "files": [
             "tests/Fixture/functions.php"
@@ -110,6 +112,13 @@
         {
             "type": "path",
             "url": "plugin/filter",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/test",
             "options": {
                 "symlink": true
             }

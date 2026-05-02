@@ -37,6 +37,12 @@
             "component": "filter",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/test": {
+            "package-name": "testo/test",
+            "component": "test",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,
