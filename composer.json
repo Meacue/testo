@@ -33,6 +33,7 @@
         "symfony/finder": "^6.4 || ^7 || ^8.0",
         "testo/assert": "^1.0@dev",
         "testo/bench": "^1.0@dev",
+        "testo/bridge-symfony": "^1.0@dev",
         "testo/codecov": "^1.0@dev",
         "testo/convention": "^1.0@dev",
         "testo/data": "^1.0@dev",
@@ -171,6 +172,13 @@
         {
             "type": "path",
             "url": "plugin/output-teamcity",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "bridge/symfony",
             "options": {
                 "symlink": true
             }
