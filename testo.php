@@ -10,13 +10,13 @@ use Testo\Bench\BenchmarkPlugin;
 use Testo\Inline\InlineTestPlugin;
 
 return new ApplicationConfig(
-    src: ['src'],
+    src: ['core'],
     suites: \array_merge(
         [
             new SuiteConfig(
                 name: 'SRC',
                 location: new FinderConfig(
-                    include: ['src'],
+                    include: ['core'],
                 ),
                 plugins: SuitePlugins::only(
                     new InlineTestPlugin(),

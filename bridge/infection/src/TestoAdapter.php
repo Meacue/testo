@@ -108,19 +108,23 @@ final class TestoAdapter implements TestFrameworkAdapter
 
         // Narrow Testo's discovery to the test files Infection knows cover this mutant.
         // This avoids tokenizing every test file in every suite just to filter most of them out.
+        // `TestLocation::filePath` is populated only when Infection reads a JUnit report;
+        // since `hasJUnitReport()` returns false, we resolve the path from the class name.
         $paths = [];
+        $methods = [];
         foreach ($coverageTests as $test) {
-            $filePath = $test->getFilePath();
-            $filePath === null or $paths[$filePath] = true;
+            $method = self::stripDataSetSuffix($test->getMethod());
+            $methods[$method] = true;
+            $path = self::resolveTestFilePath($method);
+            $path === null or $paths[$path] = true;
         }
         foreach (\array_keys($paths) as $path) {
             $cmd[] = '--path';
             $cmd[] = $path;
         }
-
-        foreach ($coverageTests as $test) {
+        foreach (\array_keys($methods) as $method) {
             $cmd[] = '--filter';
-            $cmd[] = self::stripDataSetSuffix($test->getMethod());
+            $cmd[] = $method;
         }
 
         $extraOptions === '' or $cmd[] = $extraOptions;
@@ -169,5 +173,31 @@ final class TestoAdapter implements TestFrameworkAdapter
     {
         $pos = \strpos($method, ' with data set ');
         return $pos === false ? $method : \substr($method, 0, $pos);
+    }
+
+    /**
+     * Resolves a test method id (`Class::method` or free function) to its source file
+     * via reflection. Returns null if the class/function is missing or its file is unknown
+     * (e.g. defined in C / eval'd code).
+     */
+    private static function resolveTestFilePath(string $method): ?string
+    {
+        $pos = \strpos($method, '::');
+        $name = $pos === false ? $method : \substr($method, 0, $pos);
+
+        try {
+            $reflection = $pos === false
+                ? (\function_exists($name) ? new \ReflectionFunction($name) : null)
+                : (\class_exists($name) || \trait_exists($name) ? new \ReflectionClass($name) : null);
+        } catch (\ReflectionException) {
+            return null;
+        }
+
+        if ($reflection === null) {
+            return null;
+        }
+
+        $file = $reflection->getFileName();
+        return $file === false ? null : $file;
     }
 }

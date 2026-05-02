@@ -13,12 +13,12 @@
     addParamDefaultToDocblockType="true"
 >
     <projectFiles>
-        <directory name="src" />
+        <directory name="core" />
         <ignoreFiles>
             <directory name="vendor" />
-            <directory name="src/Tokenizer" />
-            <directory name="src/Output/Teamcity" />
-            <directory name="src/Output/Terminal" />
+            <directory name="core/Tokenizer" />
+            <directory name="core/Output/Teamcity" />
+            <directory name="core/Output/Terminal" />
         </ignoreFiles>
     </projectFiles>
     <issueHandlers>
