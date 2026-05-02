@@ -1,9 +1,33 @@
-# testo/repeat
+<p align="center">
+    <a href="https://github.com/php-testo/testo"><img alt="TESTO"
+         src="https://github.com/php-testo/.github/blob/1.x/resources/logo-full.svg?raw=true"
+         style="width: 2in; display: block"
+    /></a>
+</p>
 
-Repeat policy plugin for the [Testo](https://github.com/php-testo/testo) testing framework.
+<p align="center">Repeat policy plugin</p>
 
-Apply `#[Repeat]` to a test method/function/class to run the test multiple times in a row.
-Combined with `#[Retry]`, the repeat cycle runs inside each retry attempt.
+<div align="center">
+
+[![Documentation](https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://php-testo.github.io)
+[![Support on Boosty](https://img.shields.io/static/v1?style=for-the-badge&label=&message=Sponsorship&logo=Boosty&logoColor=white&color=%23F15F2C)](https://boosty.to/roxblnfk)
+
+</div>
+
+<br />
+
+> [!IMPORTANT]
+> ## 🪞 This is a read-only mirror.
+>
+> Active development of the Testo project lives in [**php-testo/testo**](https://github.com/php-testo/testo) under `plugin/repeat/`. This repository is **automatically synchronized** from there on every release.
+>
+> File issues and pull requests in the [main monorepo](https://github.com/php-testo/testo/issues), not here.
+
+## About
+
+Repeats the execution of a test multiple times within a single run. Useful for surfacing flaky behaviour, catching intermittent regressions, and verifying that an operation produces consistent results across repeated invocations.
+
+The repeat policy is opt-in per test or per test class, and composes naturally with the rest of the Testo plugin ecosystem.
 
 ## Install
 
@@ -11,29 +35,7 @@ Combined with `#[Retry]`, the repeat cycle runs inside each retry attempt.
 composer require --dev testo/repeat
 ```
 
-## Usage
-
-```php
-use Testo\Repeat;
-use Testo\Test;
-
-#[Test]
-final class FlakyDetectionTest
-{
-    #[Repeat(times: 5)]
-    public function probablyDeterministic(): void
-    {
-        // executed 5 times; any single failure stops the loop and reports failure
-    }
-}
-```
-
-`#[Repeat]` can be placed on a method, a free function, or a whole class. When attached to a class, every test in it inherits the repeat policy unless overridden at the method level.
-
-## Source
-
-This package is split-published from the [`php-testo/testo`](https://github.com/php-testo/testo) monorepo (`plugin/repeat/`). Issues and pull requests should target the monorepo, not this read-only mirror.
-
-## License
-
-BSD-3-Clause. See [LICENSE](https://github.com/php-testo/testo/blob/1.x/LICENSE.md) in the monorepo.
+[![PHP](https://img.shields.io/packagist/php-v/testo/repeat.svg?style=flat-square&logo=php)](https://packagist.org/packages/testo/repeat)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/testo/repeat.svg?style=flat-square&logo=packagist)](https://packagist.org/packages/testo/repeat)
+[![License](https://img.shields.io/packagist/l/testo/repeat.svg?style=flat-square)](https://github.com/php-testo/testo/blob/1.x/LICENSE.md)
+[![Total Downloads](https://img.shields.io/packagist/dt/testo/repeat.svg?style=flat-square)](https://packagist.org/packages/testo/repeat/stats)
