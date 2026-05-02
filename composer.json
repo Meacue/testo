@@ -33,6 +33,7 @@
         "symfony/finder": "^6.4 || ^7 || ^8.0",
         "testo/assert": "^1.0@dev",
         "testo/bench": "^1.0@dev",
+        "testo/codecov": "^1.0@dev",
         "testo/convention": "^1.0@dev",
         "testo/data": "^1.0@dev",
         "testo/filter": "^1.0@dev",
@@ -68,6 +69,7 @@
             "Tests\\": "tests/",
             "Tests\\Assert\\": "plugin/assert/tests/",
             "Tests\\Bench\\": "plugin/bench/tests/",
+            "Tests\\Codecov\\": "plugin/codecov/tests/",
             "Tests\\Data\\": "plugin/data/tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
@@ -154,6 +156,13 @@
         {
             "type": "path",
             "url": "plugin/bench",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/codecov",
             "options": {
                 "symlink": true
             }

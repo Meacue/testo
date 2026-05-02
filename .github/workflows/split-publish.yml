@@ -36,6 +36,7 @@ on:  # yamllint disable-line rule:truthy
       - 'data-[0-9]*'
       - 'inline-[0-9]*'
       - 'bench-[0-9]*'
+      - 'codecov-[0-9]*'
 
 name: 📦 Split publish
 
@@ -407,6 +408,43 @@ jobs:
           package_directory: plugin/bench
           repository_organization: php-testo
           repository_name: bench
+          branch: ${{ steps.branch.outputs.name }}
+          user_name: testo-bot
+          user_email: bot@testo.dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+  split-codecov:
+    name: ↪ plugin/codecov → php-testo/codecov
+    if: startsWith(github.ref, 'refs/tags/codecov-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵ Checkout monorepo (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷 Extract bare version from component tag
+        id: tag
+        run: echo "version=${GITHUB_REF_NAME#codecov-}" >> "$GITHUB_OUTPUT"
+
+      - name: 🌿 Resolve source branch for the tag
+        id: branch
+        run: |
+          branch=$(git branch --remotes --contains "${GITHUB_REF_NAME}" \
+                    | sed 's|origin/||' \
+                    | grep -v 'HEAD' \
+                    | head -n 1 \
+                    | tr -d ' ')
+          echo "name=${branch}" >> "$GITHUB_OUTPUT"
+
+      - name: 🚀 Push subtree to php-testo/codecov
+        uses: symplify/monorepo-split-github-action@v2.3.0
+        with:
+          tag: ${{ steps.tag.outputs.version }}
+          package_directory: plugin/codecov
+          repository_organization: php-testo
+          repository_name: codecov
           branch: ${{ steps.branch.outputs.name }}
           user_name: testo-bot
           user_email: bot@testo.dev

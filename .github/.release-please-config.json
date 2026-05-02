@@ -67,6 +67,12 @@
             "component": "bench",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/codecov": {
+            "package-name": "testo/codecov",
+            "component": "codecov",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,
