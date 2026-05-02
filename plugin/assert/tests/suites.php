@@ -16,7 +16,7 @@ return [
         ),
     ),
     new SuiteConfig(
-        name: 'Assert: Self Testing',
+        name: 'Assert/Self',
         location: new FinderConfig(
             include: [__DIR__ . '/Self'],
         ),

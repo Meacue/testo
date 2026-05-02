@@ -16,7 +16,7 @@ return new ApplicationConfig(
             new SuiteConfig(
                 name: 'SRC',
                 location: new FinderConfig(
-                    include: ['core', 'plugin/bench/src', 'plugin/codecov/src', 'plugin/inline/src'],
+                    include: ['core'],
                 ),
                 plugins: SuitePlugins::only(
                     new InlineTestPlugin(),
@@ -38,6 +38,7 @@ return new ApplicationConfig(
         require 'plugin/lifecycle/tests/suites.php',
         require 'plugin/data/tests/suites.php',
         require 'plugin/bench/tests/suites.php',
+        require 'plugin/inline/tests/suites.php',
         require 'tests/Application/suites.php',
         require 'tests/Output/suites.php',
         require 'plugin/test/tests/suites.php',
