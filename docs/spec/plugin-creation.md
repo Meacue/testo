@@ -63,6 +63,12 @@ git mv plugin/<short-name>/src/<MovedFile>.php plugin/<short-name>/src/Internal/
             "homepage": "https://github.com/roxblnfk"
         }
     ],
+    "funding": [
+        {
+            "type": "boosty",
+            "url": "https://boosty.to/roxblnfk"
+        }
+    ],
     "require": {
         "php": ">=8.2",
         "testo/testo": "*"
