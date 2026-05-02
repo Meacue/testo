@@ -32,6 +32,7 @@
         "symfony/console": "^6.4 || ^7 || ^8.0",
         "symfony/finder": "^6.4 || ^7 || ^8.0",
         "testo/convention": "^1.0@dev",
+        "testo/filter": "^1.0@dev",
         "testo/lifecycle": "^1.0@dev",
         "testo/repeat": "^1.0@dev",
         "yiisoft/injector": "^1.2"
@@ -94,6 +95,13 @@
         {
             "type": "path",
             "url": "plugin/lifecycle",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/filter",
             "options": {
                 "symlink": true
             }
