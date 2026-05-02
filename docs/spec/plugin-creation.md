@@ -103,14 +103,14 @@ In root `composer.json`:
 
 - **`require`** (alphabetically):
   ```json
-  "testo/<short-name>": "^1.0@dev"
+  "testo/<short-name>": "0.1 - 1"
   ```
-  > `composer validate --strict` rejects unbound (`@dev`) and exact-version (`1.x-dev` as a require constraint) values. Use `^1.0@dev` everywhere for consistency, and keep the plugin's `branch-alias: dev-1.x → 1.x-dev` so the caret matches the path-repo dev version. After the first stable release the constraint stays the same — just drop the `@dev` flag (`^1.0`).
+  > `0.1 - 1` is a Composer range constraint (`>=0.1.0 <2.0.0`). It covers all of pre-1.0 (any `0.x` minor bump of the plugin doesn't force a constraint update in core) and the entire stable `1.x` line. After the first `2.0` release the constraint becomes `0.1 - 2`. The constraint is stable-stability — Packagist users with default `minimum-stability: stable` install the package without trouble.
 - **`repositories`** — there is already a glob entry for `plugin/*`. Just add one line to its `options.versions` map:
   ```json
-  "testo/<short-name>": "1.x-dev"
+  "testo/<short-name>": "0.1.x-dev"
   ```
-  > The explicit `versions` map pins what the path repo reports as the package version, regardless of which git branch CI happens to be on. Without it, Composer derives the version from the current branch name and breaks on release-please PR branches like `release-please--branches--1.x-…`. Using `<major>.x-dev` also lets different plugins live on independent major series in the same monorepo (one on `1.x-dev`, another on `2.x-dev`) without affecting each other.
+  > The explicit `versions` map pins what the path repo reports as the package version, regardless of which git branch CI happens to be on. Without it, Composer derives the version from the current branch name and breaks on release-please PR branches like `release-please--branches--1.x-…`. Each plugin's entry is independent, so different plugins can live on different minor lines (one on `0.1.x-dev`, another on `0.2.x-dev`) without affecting each other. Bump the value when the plugin's `resources/version.json` entry crosses a minor.
 
   For bridges the line goes under the `bridge/*` glob entry instead.
 - **`autoload-dev.psr-4`** — map test namespace if the plugin has tests under `Tests\<UpperShortName>\`:
@@ -121,7 +121,7 @@ In root `composer.json`:
 Then install:
 
 ```bash
-composer require "testo/<short-name>:^1.0@dev"
+composer require "testo/<short-name>:0.1 - 1"
 ```
 
 The plugin should land in `vendor/testo/<short-name>` as a symlink/junction.
@@ -272,7 +272,7 @@ Once the first split has populated the repository:
 - **Top-level class name must equal the plugin short name.** `Repeat` from `testo/repeat`, `Assert` from `testo/assert`. No arbitrary classes in `Testo\` from a plugin.
 - **`autoload-dev` from a path-repo dependency is ignored** — Composer only loads `autoload-dev` of the root project. That's why test namespaces are mapped in the root `composer.json`.
 - **Tag pattern in split-publish** — keep the `[0-9]*` suffix to avoid false triggers from non-release tags like `repeat-experimental`.
-- **Branch alias version** — keep `extra.branch-alias.dev-1.x` aligned with the major the `^1.0@dev` constraint expects (`1.x-dev` for the `1.x` line). Bump only on major-line transitions (e.g. `2.x-dev` once a `2.x` branch is born), not on every minor.
+- **Branch alias** — `extra.branch-alias.dev-1.x` in the plugin's `composer.json` is mostly a fallback. Composer normally reads the path-repo version from the monorepo's `options.versions` map, which makes the alias unused day-to-day. Keep it pointing at the major line (`1.x-dev`) for safety against tooling that bypasses the explicit map.
 
 ## Reference files
 

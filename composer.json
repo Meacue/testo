@@ -31,18 +31,18 @@
         "psr/event-dispatcher": "^1.0",
         "symfony/console": "^6.4 || ^7 || ^8.0",
         "symfony/finder": "^6.4 || ^7 || ^8.0",
-        "testo/assert": "^1.0@dev",
-        "testo/bench": "^1.0@dev",
-        "testo/bridge-symfony-console": "^1.0@dev",
-        "testo/codecov": "^1.0@dev",
-        "testo/convention": "^1.0@dev",
-        "testo/data": "^1.0@dev",
-        "testo/filter": "^1.0@dev",
-        "testo/inline": "^1.0@dev",
-        "testo/lifecycle": "^1.0@dev",
-        "testo/repeat": "^1.0@dev",
-        "testo/retry": "^1.0@dev",
-        "testo/test": "^1.0@dev",
+        "testo/assert": "0.1 - 1",
+        "testo/bench": "0.1 - 1",
+        "testo/bridge-symfony-console": "0.1 - 1",
+        "testo/codecov": "0.1 - 1",
+        "testo/convention": "0.1 - 1",
+        "testo/data": "0.1 - 1",
+        "testo/filter": "0.1 - 1",
+        "testo/inline": "0.1 - 1",
+        "testo/lifecycle": "0.1 - 1",
+        "testo/repeat": "0.1 - 1",
+        "testo/retry": "0.1 - 1",
+        "testo/test": "0.1 - 1",
         "yiisoft/injector": "^1.2"
     },
     "require-dev": {
@@ -51,7 +51,7 @@
         "internal/dload": "^1.6",
         "roxblnfk/unpoly": "1.8.2",
         "spiral/code-style": "^2.2.2",
-        "testo/bridge-infection": "^1.0@dev",
+        "testo/bridge-infection": "0.1 - 1",
         "vimeo/psalm": "^7.0@dev"
     },
     "minimum-stability": "dev",
@@ -87,17 +87,17 @@
             "options": {
                 "symlink": true,
                 "versions": {
-                    "testo/assert": "1.x-dev",
-                    "testo/bench": "1.x-dev",
-                    "testo/codecov": "1.x-dev",
-                    "testo/convention": "1.x-dev",
-                    "testo/data": "1.x-dev",
-                    "testo/filter": "1.x-dev",
-                    "testo/inline": "1.x-dev",
-                    "testo/lifecycle": "1.x-dev",
-                    "testo/repeat": "1.x-dev",
-                    "testo/retry": "1.x-dev",
-                    "testo/test": "1.x-dev"
+                    "testo/assert": "0.1.x-dev",
+                    "testo/bench": "0.1.x-dev",
+                    "testo/codecov": "0.1.x-dev",
+                    "testo/convention": "0.1.x-dev",
+                    "testo/data": "0.1.x-dev",
+                    "testo/filter": "0.1.x-dev",
+                    "testo/inline": "0.1.x-dev",
+                    "testo/lifecycle": "0.1.x-dev",
+                    "testo/repeat": "0.1.x-dev",
+                    "testo/retry": "0.1.x-dev",
+                    "testo/test": "0.1.x-dev"
                 }
             }
         },
@@ -107,8 +107,8 @@
             "options": {
                 "symlink": true,
                 "versions": {
-                    "testo/bridge-infection": "1.x-dev",
-                    "testo/bridge-symfony-console": "1.x-dev"
+                    "testo/bridge-infection": "0.1.x-dev",
+                    "testo/bridge-symfony-console": "0.1.x-dev"
                 }
             }
         }

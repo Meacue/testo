@@ -21,9 +21,9 @@
     ],
     "require": {
         "php": ">=8.2",
-        "testo/assert": "^1.0@dev",
-        "testo/data": "^1.0@dev",
-        "testo/filter": "^1.0@dev",
+        "testo/assert": "0.1 - 1",
+        "testo/data": "0.1 - 1",
+        "testo/filter": "0.1 - 1",
         "testo/testo": "*"
     },
     "autoload": {
