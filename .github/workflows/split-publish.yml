@@ -28,6 +28,7 @@ on:  # yamllint disable-line rule:truthy
     tags:
       - 'repeat-[0-9]*'
       - 'convention-[0-9]*'
+      - 'lifecycle-[0-9]*'
 
 name: 📦 Split publish
 
@@ -103,6 +104,43 @@ jobs:
           package_directory: plugin/convention
           repository_organization: php-testo
           repository_name: convention
+          branch: ${{ steps.branch.outputs.name }}
+          user_name: testo-bot
+          user_email: bot@testo.dev
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+  split-lifecycle:
+    name: ↪ plugin/lifecycle → php-testo/lifecycle
+    if: startsWith(github.ref, 'refs/tags/lifecycle-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⤵ Checkout monorepo (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🏷 Extract bare version from component tag
+        id: tag
+        run: echo "version=${GITHUB_REF_NAME#lifecycle-}" >> "$GITHUB_OUTPUT"
+
+      - name: 🌿 Resolve source branch for the tag
+        id: branch
+        run: |
+          branch=$(git branch --remotes --contains "${GITHUB_REF_NAME}" \
+                    | sed 's|origin/||' \
+                    | grep -v 'HEAD' \
+                    | head -n 1 \
+                    | tr -d ' ')
+          echo "name=${branch}" >> "$GITHUB_OUTPUT"
+
+      - name: 🚀 Push subtree to php-testo/lifecycle
+        uses: symplify/monorepo-split-github-action@v2.3.0
+        with:
+          tag: ${{ steps.tag.outputs.version }}
+          package_directory: plugin/lifecycle
+          repository_organization: php-testo
+          repository_name: lifecycle
           branch: ${{ steps.branch.outputs.name }}
           user_name: testo-bot
           user_email: bot@testo.dev

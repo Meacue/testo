@@ -19,6 +19,12 @@
             "component": "convention",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/lifecycle": {
+            "package-name": "testo/lifecycle",
+            "component": "lifecycle",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,

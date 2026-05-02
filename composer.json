@@ -32,6 +32,7 @@
         "symfony/console": "^6.4 || ^7 || ^8.0",
         "symfony/finder": "^6.4 || ^7 || ^8.0",
         "testo/convention": "^1.0@dev",
+        "testo/lifecycle": "^1.0@dev",
         "testo/repeat": "^1.0@dev",
         "yiisoft/injector": "^1.2"
     },
@@ -58,6 +59,7 @@
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/",
+            "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/"
         },
         "files": [
@@ -85,6 +87,13 @@
         {
             "type": "path",
             "url": "plugin/convention",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "plugin/lifecycle",
             "options": {
                 "symlink": true
             }

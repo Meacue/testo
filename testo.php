@@ -35,7 +35,7 @@ return new ApplicationConfig(
         ],
         require 'tests/Assert/suites.php',
         require 'tests/Common/suites.php',
-        require 'tests/Lifecycle/suites.php',
+        require 'plugin/lifecycle/tests/suites.php',
         require 'tests/Data/suites.php',
         require 'tests/Bench/suites.php',
         require 'tests/Application/suites.php',
