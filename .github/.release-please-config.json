@@ -26,6 +26,12 @@
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
         },
+        "plugin/retry": {
+            "package-name": "testo/retry",
+            "component": "retry",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
+        },
         "plugin/filter": {
             "package-name": "testo/filter",
             "component": "filter",
