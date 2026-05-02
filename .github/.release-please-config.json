@@ -73,6 +73,12 @@
             "component": "codecov",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "plugin/output-teamcity": {
+            "package-name": "testo/output-teamcity",
+            "component": "output-teamcity",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,
