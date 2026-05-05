@@ -139,7 +139,7 @@
         "infect:ci": [
             "@putenv TESTO_CI=1",
             "@putenv XDEBUG_MODE=coverage",
-            "infection --ansi --configuration=infection.json --logger-github --ignore-msi-with-no-mutations --only-covered"
+            "infection --ansi --configuration=infection.json --logger-github"
         ],
         "psalm": "psalm",
         "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
