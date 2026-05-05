@@ -22,6 +22,14 @@ final class TestoAdapter implements TestFrameworkAdapter
         private readonly string $projectDir,
         /** @var non-empty-string Infection's tmp directory; safe to drop per-mutant bootstrap files in. */
         private readonly string $tmpDir,
+        /**
+         * @var non-empty-string Path where Infection expects the JUnit XML
+         *      report. We pass it back to Testo via `--log-junit=<path>` and
+         *      probe its existence in {@see hasJUnitReport()} to decide
+         *      whether to use JUnit-driven test mapping or fall back to
+         *      reflection-based resolution.
+         */
+        private readonly string $jUnitFilePath,
     ) {
         // On Windows, Infection's TestFrameworkFinder may hand us `bin/testo.bat`.
         // We can't `php testo.bat` — strip the `.bat` and run the sibling PHP script directly.
@@ -45,10 +53,19 @@ final class TestoAdapter implements TestFrameworkAdapter
         return 'unknown';
     }
 
+    /**
+     * Reports whether a JUnit XML file is on disk at the path Infection
+     * expects. Probed dynamically rather than declared statically: if Testo
+     * succeeded in writing the report (it does so when `--log-junit=<path>` is
+     * passed and `JUnitPlugin` is configured), Infection switches to
+     * JUnit-driven test→file mapping. If the file is missing for any reason
+     * (Testo crashed before flush, plugin replaced, etc.), the bridge stays
+     * on the reflection-based fallback in {@see getMutantCommandLine()}.
+     */
     #[\Override]
     public function hasJUnitReport(): bool
     {
-        return false;
+        return \is_file($this->jUnitFilePath);
     }
 
     /**
@@ -81,6 +98,11 @@ final class TestoAdapter implements TestFrameworkAdapter
 
         $skipCoverage or $cmd[] = '--coverage';
 
+        // Always request JUnit output at Infection's expected path. The
+        // default JUnitPlugin in `ApplicationPlugins::defaults()` is inert
+        // until activated by this flag; user-added instances ignore it.
+        $cmd[] = '--log-junit=' . $this->jUnitFilePath;
+
         $extraOptions === '' or $cmd[] = $extraOptions;
 
         return $cmd;
@@ -108,13 +130,24 @@ final class TestoAdapter implements TestFrameworkAdapter
 
         // Narrow Testo's discovery to the test files Infection knows cover this mutant.
         // This avoids tokenizing every test file in every suite just to filter most of them out.
-        // `TestLocation::filePath` is populated only when Infection reads a JUnit report;
-        // since `hasJUnitReport()` returns false, we resolve the path from the class name.
+        //
+        // `TestLocation::filePath` is populated when Infection consumed a JUnit
+        // report (see {@see hasJUnitReport()}). When it's not — either because
+        // the report was missing or because that particular test wasn't found
+        // in the XML (e.g. free-function tests) — we resolve the path from
+        // the class/function name via reflection.
         $paths = [];
         $methods = [];
         foreach ($coverageTests as $test) {
             $method = self::stripDataSetSuffix($test->getMethod());
             $methods[$method] = true;
+
+            $filePath = $test->getFilePath();
+            if ($filePath !== null && $filePath !== '') {
+                $paths[$filePath] = true;
+                continue;
+            }
+
             $path = self::resolveTestFilePath($method);
             $path === null or $paths[$path] = true;
         }
@@ -130,39 +163,6 @@ final class TestoAdapter implements TestFrameworkAdapter
         $extraOptions === '' or $cmd[] = $extraOptions;
 
         return $cmd;
-    }
-
-    /**
-     * Writes a per-mutant auto_prepend_file with the original/mutant paths baked in.
-     *
-     * Avoids relying on env-variable inheritance, which Symfony Process does not reliably
-     * propagate to child processes started without an explicit `env` argument.
-     *
-     * @return non-empty-string Absolute path to the generated bootstrap file.
-     */
-    private function writeMutantBootstrap(string $hash, string $original, string $mutant): string
-    {
-        \is_dir($this->tmpDir) or \mkdir($this->tmpDir, 0o755, true);
-
-        $autoload = $this->projectDir . '/vendor/autoload.php';
-
-        $contents = \sprintf(
-            <<<'PHP'
-                <?php
-                declare(strict_types=1);
-                require %s;
-                \Infection\StreamWrapper\IncludeInterceptor::intercept(%s, %s);
-                \Infection\StreamWrapper\IncludeInterceptor::enable();
-                PHP,
-            \var_export($autoload, true),
-            \var_export($original, true),
-            \var_export($mutant, true),
-        );
-
-        $path = $this->tmpDir . '/testo-bootstrap-' . $hash . '.php';
-        \file_put_contents($path, $contents);
-
-        return $path;
     }
 
     /**
@@ -199,5 +199,38 @@ final class TestoAdapter implements TestFrameworkAdapter
 
         $file = $reflection->getFileName();
         return $file === false ? null : $file;
+    }
+
+    /**
+     * Writes a per-mutant auto_prepend_file with the original/mutant paths baked in.
+     *
+     * Avoids relying on env-variable inheritance, which Symfony Process does not reliably
+     * propagate to child processes started without an explicit `env` argument.
+     *
+     * @return non-empty-string Absolute path to the generated bootstrap file.
+     */
+    private function writeMutantBootstrap(string $hash, string $original, string $mutant): string
+    {
+        \is_dir($this->tmpDir) or \mkdir($this->tmpDir, 0o755, true);
+
+        $autoload = $this->projectDir . '/vendor/autoload.php';
+
+        $contents = \sprintf(
+            <<<'PHP'
+                <?php
+                declare(strict_types=1);
+                require %s;
+                \Infection\StreamWrapper\IncludeInterceptor::intercept(%s, %s);
+                \Infection\StreamWrapper\IncludeInterceptor::enable();
+                PHP,
+            \var_export($autoload, true),
+            \var_export($original, true),
+            \var_export($mutant, true),
+        );
+
+        $path = $this->tmpDir . '/testo-bootstrap-' . $hash . '.php';
+        \file_put_contents($path, $contents);
+
+        return $path;
     }
 }

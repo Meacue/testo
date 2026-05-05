@@ -29,6 +29,7 @@ final class TestoAdapterFactory implements TestFrameworkAdapterFactory
             testFrameworkExecutable: $testFrameworkExecutable,
             projectDir: $projectDir,
             tmpDir: $tmpDir,
+            jUnitFilePath: $jUnitFilePath,
         );
     }
 
