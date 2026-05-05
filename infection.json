@@ -8,9 +8,6 @@
     "timeout": 10,
     "testFramework": "testo",
     "tmpDir": "runtime",
-    "phpUnit": {
-        "configDir": "bridge/infection"
-    },
     "logs": {
         "text": "runtime/infection.log",
         "html": "runtime/infection.html"

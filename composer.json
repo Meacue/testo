@@ -47,7 +47,7 @@
     },
     "require-dev": {
         "buggregator/trap": "^1.10",
-        "infection/infection": "^0.32.6",
+        "infection/infection": "dev-testo-bridge-82 as 0.32.6",
         "internal/dload": "^1.6",
         "roxblnfk/unpoly": "1.8.2",
         "spiral/code-style": "^2.2.2",
@@ -111,6 +111,10 @@
                     "testo/bridge-symfony-console": "0.1.x-dev"
                 }
             }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/roxblnfk/infection"
         }
     ],
     "config": {
