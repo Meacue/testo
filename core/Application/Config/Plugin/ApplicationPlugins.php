@@ -6,11 +6,13 @@ namespace Testo\Application\Config\Plugin;
 
 use Testo\Common\PluginConfigurator;
 use Testo\Filter\FilterPlugin;
+use Testo\Output\JUnit\JUnitPlugin;
 
 $_ = [];
 // \class_exists(TeamcityPlugin::class) and $_[] = new TeamcityPlugin();
 // \class_exists(TerminalPlugin::class) and $_[] = new TerminalPlugin();
 \class_exists(FilterPlugin::class) and $_[] = new FilterPlugin();
+\class_exists(JUnitPlugin::class) and $_[] = new JUnitPlugin();
 
 \define([__NAMESPACE__ . '\DEFAULT_APPLICATION_PLUGINS'][0], $_);
 unset($_);

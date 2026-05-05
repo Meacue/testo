@@ -17,6 +17,7 @@
         <ignoreFiles>
             <directory name="vendor" />
             <directory name="core/Tokenizer" />
+            <directory name="core/Output/JUnit" />
             <directory name="core/Output/Teamcity" />
             <directory name="core/Output/Terminal" />
         </ignoreFiles>

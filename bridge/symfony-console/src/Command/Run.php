@@ -104,6 +104,13 @@ final class Run extends Base
             InputOption::VALUE_NONE,
             'Disable code coverage collection',
         );
+        $this->addOption(
+            'log-junit',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Write JUnit XML report to the given path (overrides JUnitPlugin config). '
+            . 'Flag name mirrors PHPUnit / Pest / ParaTest.',
+        );
     }
 
     public function __invoke(
