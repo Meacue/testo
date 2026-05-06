@@ -25,3 +25,5 @@
 /core/**         -export-ignore
 /internal        -export-ignore
 /internal/**     -export-ignore
+/resources       -export-ignore
+/resources/**    -export-ignore
