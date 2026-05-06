@@ -17,4 +17,10 @@ return [
             new InlineTestPlugin(),
         ),
     ),
+    new SuiteConfig(
+        name: 'Inline/Self',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Self'],
+        ),
+    ),
 ];

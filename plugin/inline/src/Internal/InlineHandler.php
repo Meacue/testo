@@ -20,10 +20,11 @@ final readonly class InlineHandler
         $attr = $info->getAttribute(TestInline::class);
         $attr instanceof TestInline or throw TestInlineAttributeMissingException::fromTestInfo($info);
 
-        # Execute the method
-        $result = $info->caseInfo->instance === null || $info->testDefinition->reflection->isStatic()
-            ? $info->testDefinition->reflection->invoke(null, ...$info->arguments)
-            : $info->testDefinition->reflection->invoke($info->caseInfo->instance->getInstance(), ...$info->arguments);
+        # Execute the method or function
+        $fn = $info->caseInfo->instance === null || $info->testDefinition->reflection->isStatic()
+            ? $info->testDefinition->reflection->getClosure()
+            : $info->testDefinition->reflection->getClosure($info->caseInfo->instance->getInstance());
+        $result = $fn(...$info->arguments);
 
         # Verify the expected result
         if ($attr->result instanceof \Closure) {
