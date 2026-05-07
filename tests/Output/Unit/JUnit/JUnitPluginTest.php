@@ -30,6 +30,7 @@ use Testo\Event\TestCase\TestCaseStarting;
 use Testo\Event\TestSuite\TestSuiteFinished;
 use Testo\Event\TestSuite\TestSuiteStarting;
 use Testo\Output\JUnit\Internal\JUnitInput;
+use Testo\Output\JUnit\Internal\JUnitWriter;
 use Testo\Output\JUnit\JUnitPlugin;
 use Testo\Test;
 use Tests\Output\Stub\JUnit\SampleTestClass;
@@ -169,6 +170,224 @@ final class JUnitPluginTest
             $cases = $xml->testsuite->testsuite->testcase;
             Assert::same((string) $cases[0]['name'], 'passingTest [0:k]');
             Assert::same((string) $cases[1]['name'], 'passingTest [1:k]');
+        } finally {
+            self::cleanup($path);
+        }
+    }
+
+    public function dataSetRowsCarryTestoNamespacedCoordinates(): void
+    {
+        // Arrange — DataProvider-style batch with explicit provider indices.
+        // Each <testcase> row must expose its provider/dataset coordinates so
+        // the Infection bridge can build a `Class::method:provider:dataset`
+        // CLI filter without re-parsing the human-readable name suffix.
+        $path = self::tmpPath();
+        try {
+            $dispatcher = self::wirePlugin(new JUnitPlugin($path));
+
+            $suiteInfo = self::makeSuiteInfo('CoreSuite');
+            $caseInfo = self::makeCaseInfo();
+            $testInfo = self::makeTestInfo('passingTest');
+            $result = new TestResult(info: $testInfo, status: Status::Passed);
+            $aggregate = new TestResult(info: $testInfo, status: Status::Passed);
+
+            // Act
+            $dispatcher->dispatch(new SessionStarting());
+            $dispatcher->dispatch(new TestSuiteStarting($suiteInfo));
+            $dispatcher->dispatch(new TestCaseStarting($caseInfo));
+            $dispatcher->dispatch(new TestBatchStarting($testInfo));
+            // providerIndex set (multi-provider DataProvider).
+            $dispatcher->dispatch(new TestDataSetFinished($testInfo, $result, 'alpha', 0, 0));
+            $dispatcher->dispatch(new TestDataSetFinished($testInfo, $result, 'beta', 1, 3));
+            $dispatcher->dispatch(new TestBatchFinished($testInfo, $aggregate));
+            $dispatcher->dispatch(new TestPipelineFinished($testInfo, $aggregate));
+            $dispatcher->dispatch(new TestCaseFinished($caseInfo, new CaseResult([$aggregate], Status::Passed)));
+            $dispatcher->dispatch(new TestSuiteFinished($suiteInfo, new SuiteResult([], Status::Passed)));
+            $dispatcher->dispatch(self::sessionFinished());
+
+            // Assert — namespace declared on root, attributes on each row,
+            // values match the dispatched indices/keys.
+            $dom = new \DOMDocument();
+            Assert::true($dom->load($path));
+
+            $ns = JUnitWriter::TESTO_NS;
+            Assert::same($dom->documentElement->getAttribute('xmlns:testo'), $ns);
+
+            $cases = $dom->getElementsByTagName('testcase');
+            Assert::same($cases->length, 2);
+            $first = $cases->item(0);
+            Assert::same($first->getAttributeNS($ns, 'data-provider'), '0');
+            Assert::same($first->getAttributeNS($ns, 'data-set'), '0');
+            Assert::same($first->getAttributeNS($ns, 'data-set-key'), 'alpha');
+
+            $second = $cases->item(1);
+            Assert::same($second->getAttributeNS($ns, 'data-provider'), '1');
+            Assert::same($second->getAttributeNS($ns, 'data-set'), '3');
+            Assert::same($second->getAttributeNS($ns, 'data-set-key'), 'beta');
+        } finally {
+            self::cleanup($path);
+        }
+    }
+
+    public function singleProviderDatasetNormalisesProviderIndexToZero(): void
+    {
+        // Arrange — `InlineInterceptor` and similar single-provider batches
+        // dispatch TestDataSetFinished with providerIndex === null. The writer
+        // must normalise that to "0" on emit so the (provider-index, dataset-index)
+        // pair on the testcase is always usable as a CLI filter `:0:N` directly.
+        $path = self::tmpPath();
+        try {
+            $dispatcher = self::wirePlugin(new JUnitPlugin($path));
+
+            $suiteInfo = self::makeSuiteInfo('CoreSuite');
+            $caseInfo = self::makeCaseInfo();
+            $testInfo = self::makeTestInfo('passingTest');
+            $result = new TestResult(info: $testInfo, status: Status::Passed);
+            $aggregate = new TestResult(info: $testInfo, status: Status::Passed);
+
+            // Act — null providerIndex emulates InlineInterceptor's dispatch.
+            $dispatcher->dispatch(new SessionStarting());
+            $dispatcher->dispatch(new TestSuiteStarting($suiteInfo));
+            $dispatcher->dispatch(new TestCaseStarting($caseInfo));
+            $dispatcher->dispatch(new TestBatchStarting($testInfo));
+            $dispatcher->dispatch(new TestDataSetFinished($testInfo, $result, '2', null, 2));
+            $dispatcher->dispatch(new TestBatchFinished($testInfo, $aggregate));
+            $dispatcher->dispatch(new TestPipelineFinished($testInfo, $aggregate));
+            $dispatcher->dispatch(new TestCaseFinished($caseInfo, new CaseResult([$aggregate], Status::Passed)));
+            $dispatcher->dispatch(new TestSuiteFinished($suiteInfo, new SuiteResult([], Status::Passed)));
+            $dispatcher->dispatch(self::sessionFinished());
+
+            // Assert
+            $dom = new \DOMDocument();
+            Assert::true($dom->load($path));
+            $case = $dom->getElementsByTagName('testcase')->item(0);
+            Assert::same($case->getAttributeNS(JUnitWriter::TESTO_NS, 'data-provider'), '0');
+            Assert::same($case->getAttributeNS(JUnitWriter::TESTO_NS, 'data-set'), '2');
+        } finally {
+            self::cleanup($path);
+        }
+    }
+
+    public function regularPipelineTestcaseHasNoTestoAttributes(): void
+    {
+        // Arrange — non-dataset rows must stay clean: no testo:* attributes
+        // so the bridge can rely on their presence as a "this is a dataset row"
+        // signal.
+        $path = self::tmpPath();
+        try {
+            $dispatcher = self::wirePlugin(new JUnitPlugin($path));
+
+            $suiteInfo = self::makeSuiteInfo('CoreSuite');
+            $caseInfo = self::makeCaseInfo();
+            $testInfo = self::makeTestInfo('passingTest');
+            $result = new TestResult(info: $testInfo, status: Status::Passed);
+
+            // Act
+            $dispatcher->dispatch(new SessionStarting());
+            $dispatcher->dispatch(new TestSuiteStarting($suiteInfo));
+            $dispatcher->dispatch(new TestCaseStarting($caseInfo));
+            $dispatcher->dispatch(new TestPipelineFinished($testInfo, $result));
+            $dispatcher->dispatch(new TestCaseFinished($caseInfo, new CaseResult([$result], Status::Passed)));
+            $dispatcher->dispatch(new TestSuiteFinished($suiteInfo, new SuiteResult([], Status::Passed)));
+            $dispatcher->dispatch(self::sessionFinished());
+
+            // Assert
+            $dom = new \DOMDocument();
+            Assert::true($dom->load($path));
+            $case = $dom->getElementsByTagName('testcase')->item(0);
+            Assert::false($case->hasAttributeNS(JUnitWriter::TESTO_NS, 'data-provider'));
+            Assert::false($case->hasAttributeNS(JUnitWriter::TESTO_NS, 'data-set'));
+            Assert::false($case->hasAttributeNS(JUnitWriter::TESTO_NS, 'data-set-key'));
+        } finally {
+            self::cleanup($path);
+        }
+    }
+
+    public function freeFunctionEmitsPerFunctionSuiteWithFqnName(): void
+    {
+        // Arrange — free-function case (no class reflection). The case wraps a
+        // file that may contain several functions, so the case-level <testsuite>
+        // must NOT be the level Infection's `//testsuite[@name="FQN"]` lookup
+        // resolves against. The plugin instead opens a per-function synthetic
+        // suite around each test result.
+        require_once __DIR__ . '/../../Stub/JUnit/free_function_helper.php';
+        $functionFqn = 'Tests\\Output\\Stub\\JUnit\\junitFreeFunction';
+        $functionFile = (new \ReflectionFunction($functionFqn))->getFileName();
+
+        $path = self::tmpPath();
+        try {
+            $dispatcher = self::wirePlugin(new JUnitPlugin($path, testTypes: []));
+
+            $suiteInfo = self::makeSuiteInfo('CoreSuite');
+            $caseInfo = self::makeFreeFunctionCaseInfo();
+            $testInfo = self::makeFreeFunctionTestInfo($caseInfo, $functionFqn);
+            $result = new TestResult(info: $testInfo, status: Status::Passed, attributes: ['duration' => 3]);
+
+            // Act — full lifecycle of a single (non-batch) free-function test.
+            $dispatcher->dispatch(new SessionStarting());
+            $dispatcher->dispatch(new TestSuiteStarting($suiteInfo));
+            $dispatcher->dispatch(new TestCaseStarting($caseInfo));
+            $dispatcher->dispatch(new TestPipelineFinished($testInfo, $result));
+            $dispatcher->dispatch(new TestCaseFinished($caseInfo, new CaseResult([$result], Status::Passed)));
+            $dispatcher->dispatch(new TestSuiteFinished($suiteInfo, new SuiteResult([], Status::Passed)));
+            $dispatcher->dispatch(self::sessionFinished());
+
+            // Assert — outer plugin suite contains a per-function synthetic
+            // suite (not the case-level "filename [type]" suite); its name is
+            // the function FQN and its file is the function's source.
+            $xml = \simplexml_load_file($path);
+            Assert::notSame($xml, false);
+            Assert::same((string) $xml->testsuite['name'], 'CoreSuite');
+            $functionSuite = $xml->testsuite->testsuite;
+            Assert::same((string) $functionSuite['name'], $functionFqn);
+            Assert::same((string) $functionSuite['file'], $functionFile);
+            // Single testcase inside; classname mirrors the suite name.
+            Assert::count($functionSuite->testcase, 1);
+            Assert::same((string) $functionSuite->testcase['classname'], $functionFqn);
+        } finally {
+            self::cleanup($path);
+        }
+    }
+
+    public function freeFunctionBatchSharesPerFunctionSuiteAcrossDataSets(): void
+    {
+        // Arrange — multi-#[TestInline] / DataProvider on a free function.
+        // All dataset rows must land under the same per-function <testsuite>,
+        // opened on TestBatchStarting and closed on TestBatchFinished.
+        require_once __DIR__ . '/../../Stub/JUnit/free_function_helper.php';
+        $functionFqn = 'Tests\\Output\\Stub\\JUnit\\junitFreeFunction';
+
+        $path = self::tmpPath();
+        try {
+            $dispatcher = self::wirePlugin(new JUnitPlugin($path, testTypes: []));
+
+            $suiteInfo = self::makeSuiteInfo('CoreSuite');
+            $caseInfo = self::makeFreeFunctionCaseInfo();
+            $testInfo = self::makeFreeFunctionTestInfo($caseInfo, $functionFqn);
+            $datasetA = new TestResult(info: $testInfo, status: Status::Passed, attributes: ['duration' => 1]);
+            $datasetB = new TestResult(info: $testInfo, status: Status::Passed, attributes: ['duration' => 2]);
+            $aggregate = new TestResult(info: $testInfo, status: Status::Passed);
+
+            // Act
+            $dispatcher->dispatch(new SessionStarting());
+            $dispatcher->dispatch(new TestSuiteStarting($suiteInfo));
+            $dispatcher->dispatch(new TestCaseStarting($caseInfo));
+            $dispatcher->dispatch(new TestBatchStarting($testInfo));
+            $dispatcher->dispatch(new TestDataSetFinished($testInfo, $datasetA, '0', null, 0));
+            $dispatcher->dispatch(new TestDataSetFinished($testInfo, $datasetB, '1', null, 1));
+            $dispatcher->dispatch(new TestBatchFinished($testInfo, $aggregate));
+            $dispatcher->dispatch(new TestPipelineFinished($testInfo, $aggregate));
+            $dispatcher->dispatch(new TestCaseFinished($caseInfo, new CaseResult([$aggregate], Status::Passed)));
+            $dispatcher->dispatch(new TestSuiteFinished($suiteInfo, new SuiteResult([], Status::Passed)));
+            $dispatcher->dispatch(self::sessionFinished());
+
+            // Assert — exactly one function-level suite, both dataset rows inside.
+            $xml = \simplexml_load_file($path);
+            Assert::notSame($xml, false);
+            Assert::count($xml->testsuite->testsuite, 1);
+            $functionSuite = $xml->testsuite->testsuite;
+            Assert::same((string) $functionSuite['name'], $functionFqn);
+            Assert::count($functionSuite->testcase, 2);
         } finally {
             self::cleanup($path);
         }
@@ -324,6 +543,31 @@ final class JUnitPluginTest
             name: $method,
             caseInfo: self::makeCaseInfo(),
             testDefinition: new TestDefinition(new \ReflectionMethod(SampleTestClass::class, $method)),
+        );
+    }
+
+    private static function makeFreeFunctionCaseInfo(): CaseInfo
+    {
+        // No class reflection — emulates how Testo builds a case for a file
+        // containing free-function tests (see CaseDefinitions::define).
+        return new CaseInfo(
+            definition: new CaseDefinition(
+                name: 'free_function_helper.php',
+                type: 'test',
+                reflection: null,
+            ),
+        );
+    }
+
+    /**
+     * @param non-empty-string $functionFqn
+     */
+    private static function makeFreeFunctionTestInfo(CaseInfo $caseInfo, string $functionFqn): TestInfo
+    {
+        return new TestInfo(
+            name: 'free',
+            caseInfo: $caseInfo,
+            testDefinition: new TestDefinition(new \ReflectionFunction($functionFqn)),
         );
     }
 

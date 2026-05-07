@@ -22,5 +22,26 @@ final readonly class JUnitCaseNode
         public float $time,
         public Status $status,
         public ?JUnitCaseOutcome $outcome,
+
+        /**
+         * Index of the data-provider this row was produced from. Null for
+         * single-provider tests.
+         * Mapped to `testo:data-provider` on `<testcase>`.
+         */
+        public ?int $providerIndex = null,
+
+        /**
+         * Zero-based position of this dataset within its provider. Null when
+         * the testcase isn't a data-provider row (regular pipeline test).
+         * Mapped to `testo:data-set` on `<testcase>`.
+         */
+        public ?int $datasetIndex = null,
+
+        /**
+         * Human-readable dataset label from the `yield <key> => …` form, kept
+         * as-is for diagnostics. Filtering goes through the integer index.
+         * Mapped to `testo:data-set-key` on `<testcase>` when set.
+         */
+        public string|int|null $datasetKey = null,
     ) {}
 }

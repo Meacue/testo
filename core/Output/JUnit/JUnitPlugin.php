@@ -242,51 +242,130 @@ final class JUnitPlugin implements PluginConfigurator
         // For class-bound cases, emit the bare FQN as the suite name (no
         // `[type]` suffix) and tag it with the class file. This matches
         // PHPUnit's JUnit shape and is what Infection's `JUnitTestFileDataProvider`
-        // looks up via `//testsuite[@name="FQN"]`. Free-function cases keep
-        // the human-readable `caseInfo->name` and have no source file.
+        // looks up via `//testsuite[@name="FQN"]`.
+        //
+        // Free-function cases (no class reflection) wrap a whole file that may
+        // contain several test functions; a case-level suite keyed on the file
+        // basename can't satisfy Infection's per-function FQN lookup. We skip
+        // the case-level <testsuite> here and open a per-function synthetic
+        // suite around each test result instead — see openFunctionSuite().
         $reflection = $caseInfo->definition->reflection;
-        $name = $reflection?->getName() ?? $caseInfo->name;
+        if ($reflection === null) {
+            return;
+        }
+
+        $name = $reflection->getName();
         \assert($name !== '');
 
-        $file = $reflection?->getFileName();
-        $file = ($file === false || $file === null || $file === '') ? null : $file;
+        $file = $reflection->getFileName();
+        $file = ($file === false || $file === '') ? null : $file;
 
         $this->writer->startSuite($name, $file);
     }
 
     private function onTestCaseFinished(TestCaseFinished $event): void
     {
+        if ($this->isFilteredOut($event->caseInfo)) {
+            return;
+        }
+
+        if ($event->caseInfo->definition->reflection === null) {
+            return;
+        }
+
         $this->writer->finishSuite();
     }
 
     private function onTestBatchStarting(TestBatchStarting $event): void
     {
+        $caseInfo = $event->testInfo->caseInfo;
+        if ($this->isFilteredOut($caseInfo)) {
+            return;
+        }
+
+        // Free-function batch (DataProvider/multi-#[TestInline]): open a
+        // per-function suite that all dataset rows of this batch will land in.
+        // Closed in onTestBatchFinished.
+        $caseInfo->definition->reflection === null and $this->openFunctionSuite($event->testInfo);
+
         $id = self::getId($event->testInfo);
         $this->isBatch[$id] = true;
     }
 
     private function onTestBatchFinished(TestBatchFinished $event): void
     {
-        // Marker is cleared in TestPipelineFinished, which fires after this.
+        $caseInfo = $event->testInfo->caseInfo;
+        if ($this->isFilteredOut($caseInfo)) {
+            return;
+        }
+
+        // Counterpart to the per-function suite opened in onTestBatchStarting.
+        // Marker for the dataset/pipeline split is cleared in TestPipelineFinished.
+        $caseInfo->definition->reflection === null and $this->writer->finishSuite();
     }
 
     private function onTestDataSetFinished(TestDataSetFinished $event): void
     {
+        if ($this->isFilteredOut($event->testInfo->caseInfo)) {
+            return;
+        }
+
         $name = $event->testResult->info->name . ' [' . self::formatDatasetSuffix($event->datasetKey, $event->providerIndex) . ']';
         \assert($name !== '');
 
-        $this->writer->addTestResult($event->testResult, $name);
+        // Stamp provider/dataset coordinates onto the <testcase> via Testo's
+        // private namespace so the bridge can recover them without re-deriving
+        // from the human-readable name suffix.
+        $this->writer->addTestResult(
+            $event->testResult,
+            $name,
+            providerIndex: $event->providerIndex,
+            datasetIndex: $event->datasetIndex,
+            datasetKey: $event->datasetKey,
+        );
     }
 
     private function onTestPipelineFinished(TestPipelineFinished $event): void
     {
+        if ($this->isFilteredOut($event->testInfo->caseInfo)) {
+            return;
+        }
+
         $id = self::getId($event->testInfo);
         if (isset($this->isBatch[$id])) {
-            // DataProvider test — individual datasets were already emitted.
+            // DataProvider/multi-inline test — individual datasets were already emitted.
             unset($this->isBatch[$id]);
             return;
         }
 
+        // Free-function single-shot test: wrap the testcase in a per-function
+        // synthetic <testsuite> so Infection's `//testsuite[@name="FQN"]` lookup
+        // resolves. Class-bound tests already sit inside their case-level FQN suite.
+        if ($event->testInfo->caseInfo->definition->reflection === null) {
+            $this->openFunctionSuite($event->testInfo);
+            $this->writer->addTestResult($event->testResult);
+            $this->writer->finishSuite();
+            return;
+        }
+
         $this->writer->addTestResult($event->testResult);
+    }
+
+    /**
+     * Opens a synthetic <testsuite> named after the test function's FQN, with
+     * its source file attached. Used for free-function cases so Infection can
+     * resolve `<covered by="Function\Fqn">` entries from the coverage XML back
+     * to a test file via `//testsuite[@name="Function\Fqn"]`.
+     */
+    private function openFunctionSuite(TestInfo $testInfo): void
+    {
+        $reflection = $testInfo->testDefinition->reflection;
+        $name = $reflection->getName();
+        \assert($name !== '');
+
+        $file = $reflection->getFileName();
+        $file = ($file === false || $file === '') ? null : $file;
+
+        $this->writer->startSuite($name, $file);
     }
 }

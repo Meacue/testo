@@ -31,6 +31,17 @@ use Testo\Output\Rendering\StackTrace;
 final class JUnitWriter
 {
     /**
+     * Namespace URI for Testo-specific attributes that travel inside the JUnit
+     * XML. CI test reporters that don't recognise this prefix simply skip the
+     * attributes; the Testo Infection bridge reads them via `getAttributeNS`
+     * to recover provider/dataset coordinates that aren't in the standard
+     * JUnit dialect (and aren't carried in the per-line coverage XML either).
+     *
+     * Mapped to the `testo:` prefix declared on the root `<testsuites>` element.
+     */
+    public const TESTO_NS = 'https://php-testo.github.io/schema/junit/1';
+
+    /**
      * Top-level suites — children of the root `<testsuites>` node.
      *
      * @var list<JUnitSuiteNode>
@@ -91,9 +102,24 @@ final class JUnitWriter
      * created to host the test case.
      *
      * @param non-empty-string|null $overrideName Replaces the test name (used for data-provider rows).
+     * @param int|null $providerIndex Index of the data-provider attribute, when this row
+     *        belongs to a data-provider batch. Stamped as `testo:provider-index`.
+     *        Null providerIndex on a dataset row is normalised to `0` on emit so the
+     *        attribute is always present alongside `testo:dataset-index`.
+     * @param int|null $datasetIndex Zero-based dataset position within the provider.
+     *        Stamped as `testo:dataset-index`. Setting this turns the testcase into
+     *        a "dataset row" — the trio of testo: attributes is emitted only when
+     *        this is non-null.
+     * @param string|int|null $datasetKey The original dataset label (yield key).
+     *        Stamped as `testo:dataset-key` for diagnostics.
      */
-    public function addTestResult(TestResult $result, ?string $overrideName = null): void
-    {
+    public function addTestResult(
+        TestResult $result,
+        ?string $overrideName = null,
+        ?int $providerIndex = null,
+        ?int $datasetIndex = null,
+        string|int|null $datasetKey = null,
+    ): void {
         $info = $result->info;
         $name = $overrideName ?? $info->name;
         $duration = (int) $result->getAttribute('duration');
@@ -113,6 +139,9 @@ final class JUnitWriter
             time: $time,
             status: $result->status,
             outcome: self::outcomeFor($result),
+            providerIndex: $providerIndex,
+            datasetIndex: $datasetIndex,
+            datasetKey: $datasetKey,
         );
 
         $suite = $this->currentSuite();
@@ -163,6 +192,9 @@ final class JUnitWriter
         $xml->startDocument('1.0', 'UTF-8');
 
         $xml->startElement('testsuites');
+        // Declared once on root so per-testcase emission stays terse and so
+        // CI consumers see a single namespace declaration to skip over.
+        $xml->writeAttribute('xmlns:testo', self::TESTO_NS);
         $xml->writeAttribute('name', $rootName);
         $xml->writeAttribute('tests', (string) $totals['tests']);
         $xml->writeAttribute('failures', (string) $totals['failures']);
@@ -234,8 +266,12 @@ final class JUnitWriter
             return $caseReflection->getName();
         }
 
-        $namespace = $reflection->getNamespaceName();
-        return $namespace === '' ? '<global>' : $namespace;
+        // Free-function test: use the function's FQN, matching the per-function
+        // synthetic <testsuite name="..."> opened by JUnitPlugin. Keeps the
+        // testcase's classname aligned with the wrapping suite so Infection
+        // and CI tools can match the two unambiguously.
+        $name = $reflection->getName();
+        return $name === '' ? '<global>' : $name;
     }
 
     private static function outcomeFor(TestResult $result): ?JUnitCaseOutcome
@@ -404,6 +440,16 @@ final class JUnitWriter
         $case->file !== null and $xml->writeAttribute('file', $case->file);
         $case->line !== null and $xml->writeAttribute('line', (string) $case->line);
         $xml->writeAttribute('time', self::formatTime($case->time));
+
+        // Testo-private dataset coordinates. Only present on data-provider rows
+        // (datasetIndex != null). The CLI accepts `Class::method:provider:dataset`
+        // — null providerIndex on a dataset row collapses to 0 to keep the pair
+        // consumable without conditional logic on the reader side.
+        if ($case->datasetIndex !== null) {
+            $xml->writeAttribute('testo:data-provider', (string) ($case->providerIndex ?? 0));
+            $xml->writeAttribute('testo:data-set', (string) $case->datasetIndex);
+            $case->datasetKey === null or $xml->writeAttribute('testo:data-set-key', (string) $case->datasetKey);
+        }
 
         $outcome = $case->outcome;
         if ($outcome !== null) {

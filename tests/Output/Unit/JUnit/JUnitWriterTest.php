@@ -326,9 +326,9 @@ final class JUnitWriterTest
         Assert::count($inner->testcase, 2);
     }
 
-    public function freeFunctionUsesNamespaceAsClassname(): void
+    public function freeFunctionUsesFqnAsClassname(): void
     {
-        // Arrange — closure declared in `Tests\Output\Stub\JUnit` namespace.
+        // Arrange — function declared in `Tests\Output\Stub\JUnit` namespace.
         require_once __DIR__ . '/../../Stub/JUnit/free_function_helper.php';
         $reflection = new \ReflectionFunction('Tests\\Output\\Stub\\JUnit\\junitFreeFunction');
 
@@ -340,8 +340,13 @@ final class JUnitWriterTest
         // Act
         $xml = self::loadXml($writer->generate('Testo'));
 
-        // Assert: namespace serves as classname for free-function tests.
-        Assert::same((string) $xml->testsuite->testcase['classname'], 'Tests\\Output\\Stub\\JUnit');
+        // Assert: function FQN serves as classname for free-function tests so
+        // it matches the per-function <testsuite name="..."> opened by the plugin
+        // and Infection's `<covered by="...">` mapping.
+        Assert::same(
+            (string) $xml->testsuite->testcase['classname'],
+            'Tests\\Output\\Stub\\JUnit\\junitFreeFunction',
+        );
     }
 
     public function writeCreatesParentDirectory(): void
