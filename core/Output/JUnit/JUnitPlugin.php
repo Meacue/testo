@@ -8,7 +8,9 @@ use Internal\Container\Container;
 use Internal\Path;
 use Testo\Common\EventListenerCollector;
 use Testo\Common\PluginConfigurator;
+use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\TestInfo;
+use Testo\Core\Value\TestType;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Test\TestBatchFinished;
@@ -104,6 +106,9 @@ final class JUnitPlugin implements PluginConfigurator
 
     private readonly JUnitWriter $writer;
 
+    /** @var list<non-empty-string> */
+    private readonly array $testTypes;
+
     /**
      * @param non-empty-string|null $outputPath Where to write the JUnit XML.
      *        When set, the plugin always writes to this path. When null, the
@@ -113,14 +118,26 @@ final class JUnitPlugin implements PluginConfigurator
      *        root `<testsuites>` element. CI reporters display it as the title
      *        of the run; useful for distinguishing multiple JUnit reports
      *        produced by the same pipeline (e.g. `'Unit'` vs `'Integration'`).
+     * @param list<non-empty-string|\BackedEnum> $testTypes Test case types to include in
+     *        the report. Cases of any other type are skipped entirely — no
+     *        `<testsuite>`/`<testcase>` element is emitted for them. Empty array means
+     *        all types. Use {@see TestType} cases or custom string identifiers.
+     *        Defaults to {@see TestType::Test} only, since the primary JUnit consumers
+     *        (Infection, CI test reporters) look up class-bound test methods by FQN
+     *        and inline/bench/profile cases would pollute that mapping.
      */
     public function __construct(
         ?string $outputPath = null,
         private readonly string $rootName = 'Testo',
+        array $testTypes = [TestType::Test, TestType::TestInline],
     ) {
         $this->resolvedPath = $outputPath !== null && $outputPath !== ''
             ? Path::create($outputPath)
             : null;
+        $this->testTypes = \array_map(
+            static fn(string|\BackedEnum $t): string => $t instanceof \BackedEnum ? $t->value : $t,
+            $testTypes,
+        );
         $this->writer = new JUnitWriter();
     }
 
@@ -183,6 +200,16 @@ final class JUnitPlugin implements PluginConfigurator
             : "{$providerIndex}:{$datasetKey}";
     }
 
+    /**
+     * Drops cases whose type isn't on the allow-list. Filtering at the case level is
+     * sufficient because all events for tests inside a case (batch, dataset, pipeline)
+     * share the same `caseInfo->definition->type`.
+     */
+    private function isFilteredOut(CaseInfo $caseInfo): bool
+    {
+        return $this->testTypes !== [] && !\in_array($caseInfo->definition->type, $this->testTypes, true);
+    }
+
     private function onSessionStarting(SessionStarting $event): void
     {
         $this->writer->reset();
@@ -207,12 +234,16 @@ final class JUnitPlugin implements PluginConfigurator
 
     private function onTestCaseStarting(TestCaseStarting $event): void
     {
+        $caseInfo = $event->caseInfo;
+        if ($this->isFilteredOut($caseInfo)) {
+            return;
+        }
+
         // For class-bound cases, emit the bare FQN as the suite name (no
         // `[type]` suffix) and tag it with the class file. This matches
         // PHPUnit's JUnit shape and is what Infection's `JUnitTestFileDataProvider`
         // looks up via `//testsuite[@name="FQN"]`. Free-function cases keep
         // the human-readable `caseInfo->name` and have no source file.
-        $caseInfo = $event->caseInfo;
         $reflection = $caseInfo->definition->reflection;
         $name = $reflection?->getName() ?? $caseInfo->name;
         \assert($name !== '');
