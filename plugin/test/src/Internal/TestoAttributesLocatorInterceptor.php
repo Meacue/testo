@@ -38,9 +38,9 @@ final readonly class TestoAttributesLocatorInterceptor implements FileLocatorInt
 
             # Check if the class has attribute Test, if so define a case for all its public methods
             if (Reflection::fetchClassAttributes($class, attributeClass: Test::class) !== []) {
-                foreach ($class->getMethods() as $method) {
+                foreach ($class->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
                     # Skip potential data providers: we accept only public methods with `void` or `never` return type
-                    if ($method->isPublic() && \in_array((string) $method->getReturnType(), ['void', 'never'])) {
+                    if (\in_array((string) $method->getReturnType(), ['void', 'never'])) {
                         $file->cases->define($class, $file, type: TestType::Test)->tests->define($method);
                     }
                 }
@@ -48,7 +48,7 @@ final readonly class TestoAttributesLocatorInterceptor implements FileLocatorInt
 
             # Otherwise, define a test for each public method with attribute Test
             foreach ($class->getMethods() as $method) {
-                if ($method->isPublic() && Reflection::fetchFunctionAttributes($method, attributeClass: Test::class)) {
+                if (Reflection::fetchFunctionAttributes($method, attributeClass: Test::class)) {
                     $file->cases->define($class, $file, type: TestType::Test)->tests->define($method);
                 }
             }

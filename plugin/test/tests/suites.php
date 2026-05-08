@@ -13,4 +13,10 @@ return [
             exclude: [__DIR__ . '/Unit/Fixture'],
         ),
     ),
+    new SuiteConfig(
+        name: 'Test/Feature',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Feature'],
+        ),
+    ),
 ];

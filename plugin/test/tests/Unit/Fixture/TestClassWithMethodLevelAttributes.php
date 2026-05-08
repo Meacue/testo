@@ -9,16 +9,16 @@ use Testo\Test;
 final class TestClassWithMethodLevelAttributes
 {
     #[Test]
-    public function methodOne(): void {}
+    public function publicTest(): void {}
 
     #[Test]
-    protected function nonTestMethodOne(): void {}
+    protected function protectedTest(): void {}
 
-    public function nonTestMethodTwo(): void {}
-
-    #[Test]
-    private function nonTestMethodThree(): void {}
+    public function publicWithoutAttribute(): void {}
 
     #[Test]
-    public function methodTwo(): void {}
+    private function privateTest(): void {}
+
+    #[Test]
+    public function anotherPublicTest(): void {}
 }
