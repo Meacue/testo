@@ -23,6 +23,8 @@ final readonly class TestDefinition
 
     /**
      * Cut the PHPDoc comment to get the description.
+     *
+     * The description ends at the first block annotation (a line starting with `@`).
      */
     #[TestInline(["/**\n * Foo bar\n */"], 'Foo bar')]
     #[TestInline(["/**\n *\n * Foo bar\n *\n */"], 'Foo bar')]
@@ -32,10 +34,19 @@ final readonly class TestDefinition
     #[TestInline(["/**\n * Foo * bar\n */"], 'Foo * bar')]
     #[TestInline(["/**\n * Foo\n * bar\n */"], "Foo\nbar")]
     #[TestInline(["/**\n\t* Foo\n\t*\n\t* - bar\n */"], "Foo\n\n- bar")]
+    #[TestInline(["/**\n * Foo bar\n * @api\n */"], 'Foo bar')]
+    #[TestInline(["/**\n * Foo bar\n *\n * @param string \$x\n * @return void\n */"], 'Foo bar')]
+    #[TestInline(["/**\n * Foo\n * bar\n *\n * @api\n */"], "Foo\nbar")]
+    #[TestInline(["/**\n * @api\n */"], '')]
+    #[TestInline(["/** @api */"], '')]
+    #[TestInline(["/**\n  @api\n*/"], '')]
+    #[TestInline(["/**\n  Foo bar\n  @api\n*/"], 'Foo bar')]
+    #[TestInline(["/**\n * Email like foo@bar.com\n */"], 'Email like foo@bar.com')]
     private static function clearPhpDoc(string $doc): string
     {
         $doc = \preg_replace('#^\s*/\*\*|\*/\s*$#', '', $doc);
         $doc = \preg_replace('#^\s*+\*[ \x0B\t\f\r]?#m', '', $doc);
+        $doc = \preg_replace('#^[ \t]*@.*#ms', '', $doc);
 
         return \trim($doc);
     }
