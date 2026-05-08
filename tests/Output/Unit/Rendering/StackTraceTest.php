@@ -6,19 +6,26 @@ namespace Tests\Output\Unit\Rendering;
 
 use Testo\Assert;
 use Testo\Output\Rendering\StackTrace;
+use Testo\Test;
 use Tests\Output\Stub\AssertMethodStub;
 use Tests\Output\Stub\MiddlewareStub;
 use Tests\Output\Stub\ThrowingStub;
 
+#[Test]
 final class StackTraceTest
 {
-    public function testEmptyTraceReturnsEmpty(): void
+    public function emptyTraceReturnsEmpty(): void
     {
         // Act & Assert
         Assert::same(StackTrace::cutStackTrace([]), []);
     }
 
-    public function testCutsFramesBelowAssertMethodFromExceptionTrace(): void
+    /**
+     * `Throwable::getTrace()` and `debug_backtrace()` produce slightly different frame
+     * layouts (the former omits the throwing site itself). Both shapes must trim the
+     * same way, so the behavior is exercised against each — this one covers exceptions.
+     */
+    public function cutsFramesBelowAssertMethodFromExceptionTrace(): void
     {
         // Arrange
         try {
@@ -41,7 +48,12 @@ final class StackTraceTest
         Assert::same($hasThrowingFrames, []);
     }
 
-    public function testCutsFramesBelowAssertMethodFromDebugBacktrace(): void
+    /**
+     * Companion to {@see cutsFramesBelowAssertMethodFromExceptionTrace} — same trim
+     * behavior is required when the trace was captured via `debug_backtrace()` rather
+     * than thrown.
+     */
+    public function cutsFramesBelowAssertMethodFromDebugBacktrace(): void
     {
         // Arrange
         $trace = AssertMethodStub::run(ThrowingStub::captureTrace(...));
@@ -60,7 +72,7 @@ final class StackTraceTest
         Assert::same($hasThrowingFrames, []);
     }
 
-    public function testDoesNotAssertMethodWithoutAttribute(): void
+    public function doesNotAssertMethodWithoutAttribute(): void
     {
         // Arrange
         try {
@@ -76,7 +88,7 @@ final class StackTraceTest
         Assert::same($result, $trace);
     }
 
-    public function testCutsAtOutermostAssertMethodWithMultipleAttributes(): void
+    public function cutsAtOutermostAssertMethodWithMultipleAttributes(): void
     {
         // Arrange: outer AssertMethod -> closure -> inner AssertMethod -> fail
         try {
@@ -99,7 +111,12 @@ final class StackTraceTest
         Assert::count($cutFrames, 1);
     }
 
-    public function testDoesNotCutBeyondDepthLimit(): void
+    /**
+     * Without a boundary, the search is capped at {@see StackTrace::SEARCH_DEPTH} frames
+     * to keep the scan cheap. `MiddlewareStub::runDeep` injects enough internal frames
+     * to push the AssertMethod past that cap, so it must not be found.
+     */
+    public function doesNotCutBeyondDepthLimit(): void
     {
         // Arrange: AssertMethod is beyond SEARCH_DEPTH from the start
         try {
@@ -115,7 +132,12 @@ final class StackTraceTest
         Assert::same($result, $trace);
     }
 
-    public function testBoundaryStopsAssertMethodSearch(): void
+    /**
+     * The boundary represents the test function frame: anything below it is application
+     * code, anything above is runner internals. AssertMethod is only meaningful below
+     * the boundary, so reaching the boundary must abort the search.
+     */
+    public function boundaryStopsAssertMethodSearch(): void
     {
         // Arrange: AssertMethod -> middleware -> boundary (no AssertMethod between error and boundary)
         try {
@@ -132,7 +154,12 @@ final class StackTraceTest
         Assert::same($result, $trace);
     }
 
-    public function testBoundaryWithAssertMethodBeforeBoundary(): void
+    /**
+     * Inverse of {@see boundaryStopsAssertMethodSearch}: when AssertMethod sits between
+     * the error and the boundary, it is found first and frames below it are trimmed
+     * normally.
+     */
+    public function boundaryWithAssertMethodBeforeBoundary(): void
     {
         // Arrange: error -> AssertMethod -> middleware -> boundary
         try {
@@ -152,7 +179,12 @@ final class StackTraceTest
         Assert::same($result[0]['function'], 'run');
     }
 
-    public function testBoundaryBypassesDepthLimit(): void
+    /**
+     * The {@see StackTrace::SEARCH_DEPTH} cap exists only to bound an open-ended scan.
+     * Once a boundary is supplied, the search has a natural stop point, so the cap is
+     * lifted and an AssertMethod arbitrarily deep before the boundary still trims.
+     */
+    public function boundaryBypassesDepthLimit(): void
     {
         // Arrange: AssertMethod is beyond SEARCH_DEPTH but before boundary
         try {
@@ -172,7 +204,12 @@ final class StackTraceTest
         Assert::same($result[0]['function'], 'run');
     }
 
-    public function testTrimAtBoundaryCutsFramesAfterBoundary(): void
+    /**
+     * `trimAtBoundary: true` makes the boundary act as the trace tail — frames *above*
+     * the boundary (runner internals invoking the test) are dropped, leaving the
+     * boundary itself as the last frame of the result.
+     */
+    public function trimAtBoundaryCutsFramesAfterBoundary(): void
     {
         // Arrange
         try {
