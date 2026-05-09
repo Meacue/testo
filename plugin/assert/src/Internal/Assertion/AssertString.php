@@ -6,7 +6,6 @@ namespace Testo\Assert\Internal\Assertion;
 
 use Testo\Assert\Api\Builtin\StringType;
 use Testo\Assert\Internal\StaticState;
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionComposite;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Common\Attribute\AssertMethod;
@@ -45,7 +44,7 @@ final readonly class AssertString implements StringType
      *
      * @param non-empty-string $needle Substring to search for.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     #[\Override]
@@ -63,7 +62,7 @@ final readonly class AssertString implements StringType
      *
      * @param non-empty-string $needle Substring to search for.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     #[\Override]

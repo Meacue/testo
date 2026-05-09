@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Testo\Assert\Internal\Middleware;
 
 use Testo\Assert\Internal\StaticState;
-use Testo\Assert\State\AssertException;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Record;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
@@ -22,7 +22,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
 final readonly class ExpectationsInterceptor implements TestRunInterceptor
 {
     /**
-     * @throws AssertException When the expected exception is not thrown.
+     * @throws AssertionException When the expected exception is not thrown.
      */
     #[\Override]
     public function runTest(TestInfo $info, callable $next): TestResult

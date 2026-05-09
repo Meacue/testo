@@ -21,7 +21,6 @@ use Testo\Assert\Internal\Assertion\AssertObject;
 use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\Internal\StaticState;
 use Testo\Assert\Internal\Support;
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Test\Fail;
 use Testo\Common\Attribute\AssertMethod;
@@ -39,14 +38,20 @@ final class Assert
      * @param mixed $actual The actual value to compare against the expected value.
      * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function same(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual === $expected
             ? StaticState::success($actual, 'is the same', $message)
-            : StaticState::fail(AssertException::compare($expected, $actual, $message));
+            : StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: 'is the same as `' . Support::stringify($expected) . '`',
+                context: $message,
+                reason: 'expected `' . Support::stringify($expected) . '`, got `' . Support::stringify($actual) . '`',
+                details: '',
+            ));
     }
 
     /**
@@ -55,19 +60,19 @@ final class Assert
      * @param mixed $actual The actual value to compare against the expected value.
      * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function notSame(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual !== $expected
             ? StaticState::success($actual, 'is not same as `' . Support::stringify($expected) . '`', $message)
-            : StaticState::fail(AssertException::compare(
-                $expected,
-                $actual,
-                $message,
-                pattern: 'Failed asserting that `%s` is not identical to `%s`',
-                showDiff: false,
+            : StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: 'is not the same as `' . Support::stringify($expected) . '`',
+                context: $message,
+                reason: 'both values are identical',
+                details: '',
             ));
     }
 
@@ -77,18 +82,19 @@ final class Assert
      * @param mixed $actual The actual value to compare against the expected value.
      * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function equals(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual == $expected
             ? StaticState::success($actual, 'equals to `' . Support::stringify($expected) . '`', $message)
-            : StaticState::fail(AssertException::compare(
-                $expected,
-                $actual,
-                $message,
-                pattern: 'Failed asserting that `%1s` is equals to `%2s`',
+            : StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: 'equals to `' . Support::stringify($expected) . '`',
+                context: $message,
+                reason: 'expected `' . Support::stringify($expected) . '`, got `' . Support::stringify($actual) . '`',
+                details: '',
             ));
     }
 
@@ -98,19 +104,19 @@ final class Assert
      * @param mixed $actual The actual value to compare against the expected value.
      * @param mixed $expected The expected value.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function notEquals(mixed $actual, mixed $expected, string $message = ''): void
     {
         $actual != $expected
             ? StaticState::success($actual, 'is not equals to `' . Support::stringify($expected) . '`', $message)
-            : StaticState::fail(AssertException::compare(
-                $expected,
-                $actual,
-                $message,
-                pattern: 'Failed asserting that `%1s` is not equals to `%2s`',
-                showDiff: false,
+            : StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: 'is not equals to `' . Support::stringify($expected) . '`',
+                context: $message,
+                reason: 'both values are equal',
+                details: '',
             ));
     }
 
@@ -119,18 +125,19 @@ final class Assert
      *
      * @param mixed $actual The actual value to check.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function true(mixed $actual, string $message = ''): void
     {
         $actual === true
             ? StaticState::success($actual, 'is exactly `true`', $message)
-            : StaticState::fail(AssertException::compare(
-                true,
-                $actual,
-                $message,
-                'Failed asserting that value `%2$s` is `%1$s`',
+            : StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: 'is exactly `true`',
+                context: $message,
+                reason: 'expected `true`, got `' . Support::stringify($actual) . '`',
+                details: '',
             ));
     }
 
@@ -139,18 +146,19 @@ final class Assert
      *
      * @param mixed $actual The actual value to check.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function false(mixed $actual, string $message = ''): void
     {
         $actual === false
             ? StaticState::success($actual, 'is exactly `false`', $message)
-            : StaticState::fail(AssertException::compare(
-                false,
-                $actual,
-                $message,
-                'Failed asserting that value `%2$s` is `%1$s`',
+            : StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: 'is exactly `false`',
+                context: $message,
+                reason: 'expected `false`, got `' . Support::stringify($actual) . '`',
+                details: '',
             ));
     }
 
@@ -178,7 +186,7 @@ final class Assert
      * @param iterable $haystack Iterable (array or Traversable) to search in.
      * @param mixed $needle The expected value.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public static function contains(iterable $haystack, mixed $needle, string $message = ''): void
     {
@@ -188,11 +196,13 @@ final class Assert
                 return;
             }
         }
-        StaticState::fail(AssertException::compare(
-            $needle,
-            $haystack,
-            $message,
-            'Failed asserting that `%2$s` contains `%1$s`',
+
+        StaticState::fail(new AssertionException(
+            value: Support::stringify($haystack),
+            assertion: 'contains `' . Support::stringify($needle) . '`',
+            context: $message,
+            reason: '`' . Support::stringify($needle) . '` not found',
+            details: '',
         ));
     }
 
@@ -201,7 +211,7 @@ final class Assert
      *
      * @param mixed $actual The actual value to check for null.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function null(
@@ -210,7 +220,13 @@ final class Assert
     ): void {
         $actual === null
             ? StaticState::success($actual, 'is exactly `null`', $message)
-            : StaticState::fail(AssertException::compare(null, $actual, $message));
+            : StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: 'is exactly `null`',
+                context: $message,
+                reason: 'expected `null`, got `' . Support::stringify($actual) . '`',
+                details: '',
+            ));
     }
 
     /**
@@ -223,7 +239,7 @@ final class Assert
      * since they represent valid data.
      * @param mixed $actual The actual value to check for blank.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function blank(
@@ -236,11 +252,13 @@ final class Assert
             StaticState::success($actual, 'is blank', $message);
             return;
         }
-        StaticState::fail(AssertException::compare(
-            null,
-            $actual,
-            $message,
-            'Failed asserting that `%2$s` does not contain any data',
+
+        StaticState::fail(new AssertionException(
+            value: Support::stringify($actual),
+            assertion: 'is blank',
+            context: $message,
+            reason: 'value contains data',
+            details: '',
         ));
     }
 
@@ -250,7 +268,7 @@ final class Assert
      * @param \Countable|iterable $actual The actual value to check for count.
      * @param int $expected The expected count.
      * @param string $message Short description about what exactly is being asserted.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function count(\Countable|iterable $actual, int $expected, string $message = ''): void
@@ -262,11 +280,12 @@ final class Assert
                 return;
             }
 
-            StaticState::fail(AssertException::compare(
-                $expected,
-                $count,
-                $message,
-                'Failed asserting that count of \Countable is `%1$s`, got `%2$s`',
+            StaticState::fail(new AssertionException(
+                value: Support::stringify($actual),
+                assertion: "has count `$expected`",
+                context: $message,
+                reason: "expected `$expected`, got `$count`",
+                details: '',
             ));
         }
 
@@ -276,7 +295,7 @@ final class Assert
     /**
      * Asserts that the given value is of `string` data type.
      *
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     public static function string(mixed $actual): StringType
@@ -372,7 +391,7 @@ final class Assert
      * If the test catches this exception and continues execution, it will be marked as Risky.
      *
      * @param string $message The reason for the failure.
-     * @throws AssertException
+     * @throws Fail
      */
     #[AssertMethod]
     public static function fail(string $message = ''): never

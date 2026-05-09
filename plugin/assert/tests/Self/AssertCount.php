@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Expect;
 use Testo\Test;
@@ -24,7 +23,7 @@ final readonly class AssertCount
     #[Test]
     public function countableWithWrongCount(): void
     {
-        Expect::exception(AssertException::class);
+        Expect::exception(AssertionException::class);
         Assert::count(new \ArrayObject([1, 2, 3]), 5);
     }
 

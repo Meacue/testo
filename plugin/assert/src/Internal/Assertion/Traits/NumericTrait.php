@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Internal\Assertion\Traits;
 
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionComposite;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Common\Attribute\AssertMethod;
 
 /**
@@ -20,7 +20,7 @@ trait NumericTrait
      *
      * @param int|float $min Minimum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     #[\Override]
@@ -44,7 +44,7 @@ trait NumericTrait
      *
      * @param int|float $min Minimum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     #[\Override]
@@ -68,7 +68,7 @@ trait NumericTrait
      *
      * @param int|float $max Maximum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     #[\Override]
@@ -92,7 +92,7 @@ trait NumericTrait
      *
      * @param int|float $max Maximum threshold to compare with.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     #[\Override]
@@ -117,7 +117,7 @@ trait NumericTrait
      * @param int|float $min Minimum threshold (inclusive).
      * @param int|float $max Maximum threshold (inclusive).
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     #[AssertMethod]
     #[\Override]

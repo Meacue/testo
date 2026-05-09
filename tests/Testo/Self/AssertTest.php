@@ -6,7 +6,7 @@ namespace Tests\Testo\Self;
 
 use Testo\Assert;
 use Testo\Assert\ExpectException;
-use Testo\Assert\State\AssertException;
+use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Codecov\CoversNothing;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
@@ -165,7 +165,7 @@ final class AssertTest
         try {
             // Assert::fail() sets expectation and throws
             Assert::fail('This exception will be caught');
-        } catch (AssertException $e) {
+        } catch (AssertionException $e) {
             // Catching the exception prevents the test from failing
             // But the expectation was set, so this should be marked as Risky
         }

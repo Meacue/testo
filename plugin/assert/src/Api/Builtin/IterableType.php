@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Testo\Assert\Api\Builtin;
 
-use Testo\Assert\State\AssertException;
 use Testo\Assert\State\Assertion\AssertionException;
 
 /**
@@ -67,7 +66,7 @@ interface IterableType
      *
      * @param callable(mixed): bool $callback A predicate function that receives each element and returns true if it satisfies the condition.
      * @param string $message Optional message for the assertion.
-     * @throws AssertException when the assertion fails.
+     * @throws AssertionException when the assertion fails.
      */
     public function every(callable $callback, string $message = ''): static;
 }

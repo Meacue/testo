@@ -91,6 +91,10 @@ final class StaticState
 
     /**
      * Log a failed assertion and throw the given exception.
+     *
+     * @template T
+     * @param T $failure The exception to throw.
+     * @throws T
      */
     public static function fail(Record&\Throwable $failure): never
     {
