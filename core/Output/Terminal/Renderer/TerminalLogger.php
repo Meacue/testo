@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Output\Terminal\Renderer;
 
+use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Assert\TestState;
 use Testo\Common\Environment;
 use Testo\Core\Context\CaseInfo;
@@ -351,6 +352,11 @@ final class TerminalLogger
                     maxPreviousDepth: 1,
                 )
                 : '';
+
+            if ($throwable instanceof ComparisonFailure) {
+                $diffBlock = Formatter::comparisonBlock($throwable);
+                $details = $details === '' ? $diffBlock : $diffBlock . "\n\n" . $details;
+            }
 
             $testName = self::buildFullTestName(
                 $result->info,

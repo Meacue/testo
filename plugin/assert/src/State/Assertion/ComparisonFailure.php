@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Assert\State\Assertion;
 
+use Testo\Assert\Internal\Support;
+
 /**
  * Assertion exception for value comparisons.
  *
@@ -36,5 +38,25 @@ class ComparisonFailure extends AssertionException
             reason: $reason,
             details: $details,
         );
+    }
+
+    /**
+     * Multi-line string representation of the expected value, suitable for diff rendering.
+     *
+     * @return non-empty-string
+     */
+    public function getExpectedAsString(): string
+    {
+        return Support::dump($this->expected);
+    }
+
+    /**
+     * Multi-line string representation of the actual value, suitable for diff rendering.
+     *
+     * @return non-empty-string
+     */
+    public function getActualAsString(): string
+    {
+        return Support::dump($this->actual);
     }
 }

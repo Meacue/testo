@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Output\Teamcity\Teamcity;
 
+use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Assert\State\CompositeRecord;
 use Testo\Assert\State\Record;
 use Testo\Assert\TestState;
@@ -219,11 +220,16 @@ final class TeamcityLogger
             $details = $assertionHistory . $details;
         }
 
+        $isComparison = $failure instanceof ComparisonFailure;
+
         $this->publish(
             Formatter::testFailed(
                 name: $result->info->name,
                 message: $message,
                 details: $details,
+                type: $isComparison ? 'comparisonFailure' : null,
+                expected: $isComparison ? $failure->getExpectedAsString() : null,
+                actual: $isComparison ? $failure->getActualAsString() : null,
             ),
         );
     }
@@ -349,11 +355,16 @@ final class TeamcityLogger
             $details = $assertionHistory . $details;
         }
 
+        $isComparison = $failure instanceof ComparisonFailure;
+
         $this->publish(
             Formatter::testFailed(
                 name: $name,
                 message: $message,
                 details: $details,
+                type: $isComparison ? 'comparisonFailure' : null,
+                expected: $isComparison ? $failure->getExpectedAsString() : null,
+                actual: $isComparison ? $failure->getActualAsString() : null,
             ),
         );
         $this->publish(Formatter::testFinished($name, $duration));

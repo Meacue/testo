@@ -7,7 +7,6 @@ namespace Tests\Testo\Self;
 use Testo\Assert;
 use Testo\Assert\ExpectException;
 use Testo\Assert\State\Assertion\AssertionException;
-use Testo\Codecov\CoversNothing;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
 use Testo\Expect;
@@ -17,10 +16,23 @@ use Testo\Test;
 use Tests\Fixture\ClassDataProvider;
 
 /**
- * Assertion examples.
+ * Aassertions sandbox
  */
 final class AssertTest
 {
+    public static function dataForProvider(): iterable
+    {
+        yield ['zero'];
+        yield 1 => ['first-1'];
+        yield 1 => ['first-2'];
+        yield 1 => ['first-3'];
+        yield 1 => ['first-4'];
+        yield ['second'];
+        yield 'name' => ['third'];
+        yield 'name' => ['conflict'];
+        yield 'Any warrior can change the world.' => ['yep'];
+    }
+
     #[Test]
     public function simpleAssertions(): void
     {
@@ -54,12 +66,28 @@ final class AssertTest
     }
 
     #[Test]
-    #[Repeat()]
+    #[Repeat]
     public function repeatSuccess(): void
     {
         static $counter = 0;
         ++$counter;
         $counter > 1 ? Assert::same($counter, 2) : Assert::same($counter, 1);
+    }
+
+    #[Test]
+    public function teamcityDiff(): void
+    {
+        Assert::same([
+            'line1',
+            'line2',
+            'line3',
+            'line4',
+        ], [
+            'line0',
+            'line1',
+            'line2',
+            'line3',
+        ]);
     }
 
     #[Test]
@@ -138,19 +166,6 @@ final class AssertTest
     public function classDataProvider(string $val, mixed $eq): void
     {
         Assert::equals($eq, $val);
-    }
-
-    public static function dataForProvider(): iterable
-    {
-        yield ['zero'];
-        yield 1 => ['first-1'];
-        yield 1 => ['first-2'];
-        yield 1 => ['first-3'];
-        yield 1 => ['first-4'];
-        yield ['second'];
-        yield 'name' => ['third'];
-        yield 'name' => ['conflict'];
-        yield 'Any warrior can change the world.' => ['yep'];
     }
 
     #[Test]
