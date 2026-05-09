@@ -22,6 +22,7 @@ use Testo\Assert\Internal\Assertion\AssertString;
 use Testo\Assert\Internal\StaticState;
 use Testo\Assert\Internal\Support;
 use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Assert\State\Test\Fail;
 use Testo\Common\Attribute\AssertMethod;
 
@@ -45,12 +46,13 @@ final class Assert
     {
         $actual === $expected
             ? StaticState::success($actual, 'is the same', $message)
-            : StaticState::fail(new AssertionException(
+            : StaticState::fail(new ComparisonFailure(
+                expected: $expected,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: 'is the same as `' . Support::stringify($expected) . '`',
                 context: $message,
                 reason: 'expected `' . Support::stringify($expected) . '`, got `' . Support::stringify($actual) . '`',
-                details: '',
             ));
     }
 
@@ -67,12 +69,13 @@ final class Assert
     {
         $actual !== $expected
             ? StaticState::success($actual, 'is not same as `' . Support::stringify($expected) . '`', $message)
-            : StaticState::fail(new AssertionException(
+            : StaticState::fail(new ComparisonFailure(
+                expected: $expected,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: 'is not the same as `' . Support::stringify($expected) . '`',
                 context: $message,
                 reason: 'both values are identical',
-                details: '',
             ));
     }
 
@@ -89,12 +92,13 @@ final class Assert
     {
         $actual == $expected
             ? StaticState::success($actual, 'equals to `' . Support::stringify($expected) . '`', $message)
-            : StaticState::fail(new AssertionException(
+            : StaticState::fail(new ComparisonFailure(
+                expected: $expected,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: 'equals to `' . Support::stringify($expected) . '`',
                 context: $message,
                 reason: 'expected `' . Support::stringify($expected) . '`, got `' . Support::stringify($actual) . '`',
-                details: '',
             ));
     }
 
@@ -111,12 +115,13 @@ final class Assert
     {
         $actual != $expected
             ? StaticState::success($actual, 'is not equals to `' . Support::stringify($expected) . '`', $message)
-            : StaticState::fail(new AssertionException(
+            : StaticState::fail(new ComparisonFailure(
+                expected: $expected,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: 'is not equals to `' . Support::stringify($expected) . '`',
                 context: $message,
                 reason: 'both values are equal',
-                details: '',
             ));
     }
 
@@ -132,12 +137,13 @@ final class Assert
     {
         $actual === true
             ? StaticState::success($actual, 'is exactly `true`', $message)
-            : StaticState::fail(new AssertionException(
+            : StaticState::fail(new ComparisonFailure(
+                expected: true,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: 'is exactly `true`',
                 context: $message,
                 reason: 'expected `true`, got `' . Support::stringify($actual) . '`',
-                details: '',
             ));
     }
 
@@ -153,12 +159,13 @@ final class Assert
     {
         $actual === false
             ? StaticState::success($actual, 'is exactly `false`', $message)
-            : StaticState::fail(new AssertionException(
+            : StaticState::fail(new ComparisonFailure(
+                expected: false,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: 'is exactly `false`',
                 context: $message,
                 reason: 'expected `false`, got `' . Support::stringify($actual) . '`',
-                details: '',
             ));
     }
 
@@ -197,12 +204,13 @@ final class Assert
             }
         }
 
-        StaticState::fail(new AssertionException(
+        StaticState::fail(new ComparisonFailure(
+            expected: $needle,
+            actual: $haystack,
             value: Support::stringify($haystack),
             assertion: 'contains `' . Support::stringify($needle) . '`',
             context: $message,
             reason: '`' . Support::stringify($needle) . '` not found',
-            details: '',
         ));
     }
 
@@ -220,12 +228,13 @@ final class Assert
     ): void {
         $actual === null
             ? StaticState::success($actual, 'is exactly `null`', $message)
-            : StaticState::fail(new AssertionException(
+            : StaticState::fail(new ComparisonFailure(
+                expected: null,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: 'is exactly `null`',
                 context: $message,
                 reason: 'expected `null`, got `' . Support::stringify($actual) . '`',
-                details: '',
             ));
     }
 
@@ -280,12 +289,13 @@ final class Assert
                 return;
             }
 
-            StaticState::fail(new AssertionException(
+            StaticState::fail(new ComparisonFailure(
+                expected: $expected,
+                actual: $actual,
                 value: Support::stringify($actual),
                 assertion: "has count `$expected`",
                 context: $message,
                 reason: "expected `$expected`, got `$count`",
-                details: '',
             ));
         }
 
