@@ -74,6 +74,7 @@
             "Tests\\Data\\": "plugin/data/tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
+            "Tests\\Retry\\": "plugin/retry/tests/",
             "Tests\\Test\\": "plugin/test/tests/"
         },
         "files": [

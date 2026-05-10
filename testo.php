@@ -20,6 +20,7 @@ return new ApplicationConfig(
             'plugin/inline/tests',
             'plugin/lifecycle/tests',
             'plugin/repeat/tests',
+            'plugin/retry/tests',
             'plugin/test/tests',
         ],
     ),
@@ -56,6 +57,7 @@ return new ApplicationConfig(
         require 'plugin/test/tests/suites.php',
         require 'plugin/codecov/tests/suites.php',
         require 'plugin/repeat/tests/suites.php',
+        require 'plugin/retry/tests/suites.php',
         require 'tests/Tokenizer/suites.php',
     ),
     plugins: [
