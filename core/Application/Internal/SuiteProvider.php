@@ -39,27 +39,23 @@ final readonly class SuiteProvider
 
         # Filter by path
         if ($filter->paths !== []) {
-            /** @var list<Path> $filterPaths */
-            $filterPaths = \array_map(Path::create(...), $filter->paths);
-            $filterFunc = static function (Path $path) use ($filterPaths): ?Path {
-                foreach ($filterPaths as $fp) {
-                    if ($fp->match("$path*")) {
-                        return $fp;
-                    }
-                    if ($path->match("$fp*")) {
-                        return $path;
-                    }
+            $includes = [];
+            foreach ($config->location->includes as $include) {
+                foreach ($filter->paths as $fp) {
+                    $match = match (true) {
+                        $fp->match("$include*") => $fp,
+                        $include->match("$fp*") => $include,
+                        default => null,
+                    };
+                    $match === null or $includes[(string) $match] = $match;
                 }
-
-                return null;
-            };
-            $includes = \array_filter(\array_map($filterFunc, $config->location->includes));
+            }
 
             if ($includes === []) {
                 return null;
             }
 
-            $config = $config->with(location: new FinderConfig(\array_unique($includes), $config->location->excludes));
+            $config = $config->with(location: new FinderConfig(\array_values($includes), $config->location->excludes));
         }
 
         # Create suite info
