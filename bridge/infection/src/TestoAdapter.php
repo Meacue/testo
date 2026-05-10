@@ -154,7 +154,7 @@ final class TestoAdapter implements TestFrameworkAdapter
         }
         foreach (\array_keys($paths) as $path) {
             $cmd[] = '--path';
-            $cmd[] = $path;
+            $cmd[] = $this->relativizeToProjectDir($path);
         }
         foreach (\array_keys($methods) as $method) {
             $cmd[] = '--filter';
@@ -200,6 +200,26 @@ final class TestoAdapter implements TestFrameworkAdapter
 
         $file = $reflection->getFileName();
         return $file === false ? null : $file;
+    }
+
+    /**
+     * Make a path relative to the project directory when possible, to keep the
+     * mutant command line short. Windows caps `CreateProcess` arguments at ~32 KB,
+     * so emitting absolute paths for every `--path` flag (one per covering test
+     * file) can exceed the limit on large projects with `proc_open(): CreateProcess
+     * failed, error code: 206`.
+     *
+     * Testo runs with cwd = project dir (inherited from Infection), so relative
+     * paths resolve correctly.
+     */
+    private function relativizeToProjectDir(string $path): string
+    {
+        $base = \rtrim(\str_replace('\\', '/', $this->projectDir), '/');
+        $normalized = \str_replace('\\', '/', $path);
+
+        return \str_starts_with($normalized, $base . '/')
+            ? \substr($normalized, \strlen($base) + 1)
+            : $path;
     }
 
     /**
