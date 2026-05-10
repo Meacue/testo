@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Bridge\Infection;
 
 use Infection\AbstractTestFramework\TestFrameworkAdapter;
+use Infection\StreamWrapper\IncludeInterceptor;
 
 /**
  * Bridges Infection mutation testing with Testo.
@@ -214,18 +215,25 @@ final class TestoAdapter implements TestFrameworkAdapter
         \is_dir($this->tmpDir) or \mkdir($this->tmpDir, 0o755, true);
 
         $autoload = $this->projectDir . '/vendor/autoload.php';
+        $interceptor = IncludeInterceptor::LOCATION;
 
+        # Load the interceptor and enable it BEFORE requiring Composer's autoload, so that
+        # `files`-autoloaded sources (e.g. `plugin/*/Repeat.php`, `Retry.php`) go through
+        # the stream wrapper. Otherwise they'd be loaded with original content before the
+        # interceptor is active, and mutations on those files would silently survive.
         $contents = \sprintf(
             <<<'PHP'
                 <?php
                 declare(strict_types=1);
-                require %s;
+                require_once %s;
                 \Infection\StreamWrapper\IncludeInterceptor::intercept(%s, %s);
                 \Infection\StreamWrapper\IncludeInterceptor::enable();
+                require %s;
                 PHP,
-            \var_export($autoload, true),
+            \var_export($interceptor, true),
             \var_export($original, true),
             \var_export($mutant, true),
+            \var_export($autoload, true),
         );
 
         $path = $this->tmpDir . '/testo-bootstrap-' . $hash . '.php';
