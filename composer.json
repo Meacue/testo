@@ -71,6 +71,7 @@
             "Tests\\Assert\\": "plugin/assert/tests/",
             "Tests\\Bench\\": "plugin/bench/tests/",
             "Tests\\Codecov\\": "plugin/codecov/tests/",
+            "Tests\\Convention\\": "plugin/convention/tests/",
             "Tests\\Data\\": "plugin/data/tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
