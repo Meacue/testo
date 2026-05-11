@@ -99,6 +99,133 @@ final class RepeatInterceptorTest
         Assert::same($result->status, Status::Failed);
     }
 
+    public function toleratesFailuresWithinMaxFailures(): void
+    {
+        $interceptor = new RepeatInterceptor(new Repeat(times: 5, maxFailures: 2));
+        $info = self::createTestInfo();
+        $callCount = 0;
+        $next = static function (TestInfo $info) use (&$callCount): TestResult {
+            $callCount++;
+            return new TestResult(
+                info: $info,
+                status: \in_array($callCount, [2, 4], true) ? Status::Failed : Status::Passed,
+            );
+        };
+
+        $result = $interceptor->runTest($info, $next);
+
+        Assert::same($callCount, 5);
+        Assert::same($result->status, Status::Flaky);
+    }
+
+    public function failsWhenFailuresExceedMaxFailures(): void
+    {
+        $interceptor = new RepeatInterceptor(new Repeat(times: 10, maxFailures: 2));
+        $info = self::createTestInfo();
+        $callCount = 0;
+        $next = static function (TestInfo $info) use (&$callCount): TestResult {
+            $callCount++;
+            return new TestResult(
+                info: $info,
+                status: $callCount <= 3 ? Status::Failed : Status::Passed,
+            );
+        };
+
+        $result = $interceptor->runTest($info, $next);
+
+        Assert::same($callCount, 3);
+        Assert::same($result->status, Status::Failed);
+    }
+
+    public function stopsImmediatelyWhenMaxFailuresExceededByErrorStatus(): void
+    {
+        $interceptor = new RepeatInterceptor(new Repeat(times: 5, maxFailures: 1));
+        $info = self::createTestInfo();
+        $callCount = 0;
+        $next = static function (TestInfo $info) use (&$callCount): TestResult {
+            $callCount++;
+            return new TestResult(info: $info, status: Status::Error);
+        };
+
+        $result = $interceptor->runTest($info, $next);
+
+        Assert::same($callCount, 2);
+        Assert::same($result->status, Status::Error);
+    }
+
+    public function staysPassedWhenAllRepetitionsPassEvenWithMaxFailures(): void
+    {
+        $interceptor = new RepeatInterceptor(new Repeat(times: 3, maxFailures: 2));
+        $info = self::createTestInfo();
+        $callCount = 0;
+        $next = static function (TestInfo $info) use (&$callCount): TestResult {
+            $callCount++;
+            return new TestResult(info: $info, status: Status::Passed);
+        };
+
+        $result = $interceptor->runTest($info, $next);
+
+        Assert::same($callCount, 3);
+        Assert::same($result->status, Status::Passed);
+    }
+
+    public function failureWithinThresholdDoesNotMarkFlakyWhenDisabled(): void
+    {
+        $interceptor = new RepeatInterceptor(
+            new Repeat(times: 4, maxFailures: 2, markFlaky: false),
+        );
+        $info = self::createTestInfo();
+        $callCount = 0;
+        $next = static function (TestInfo $info) use (&$callCount): TestResult {
+            $callCount++;
+            return new TestResult(
+                info: $info,
+                status: $callCount === 2 ? Status::Failed : Status::Passed,
+            );
+        };
+
+        $result = $interceptor->runTest($info, $next);
+
+        Assert::same($callCount, 4);
+        Assert::same($result->status, Status::Passed);
+    }
+
+    public function preservesFailureThrowableWhenMarkingFlaky(): void
+    {
+        $throwable = new \RuntimeException('boom');
+        $interceptor = new RepeatInterceptor(new Repeat(times: 3, maxFailures: 1));
+        $info = self::createTestInfo();
+        $callCount = 0;
+        $next = static function (TestInfo $info) use (&$callCount, $throwable): TestResult {
+            $callCount++;
+            return $callCount === 3
+                ? new TestResult(info: $info, status: Status::Failed, failure: $throwable)
+                : new TestResult(info: $info, status: Status::Passed);
+        };
+
+        $result = $interceptor->runTest($info, $next);
+
+        Assert::same($callCount, 3);
+        Assert::same($result->status, Status::Flaky);
+        Assert::same($result->failure, $throwable);
+    }
+
+    public function skippedAbortsLoopRegardlessOfMaxFailures(): void
+    {
+        $interceptor = new RepeatInterceptor(new Repeat(times: 5, maxFailures: 3));
+        $info = self::createTestInfo();
+        $callCount = 0;
+        $next = static function (TestInfo $info) use (&$callCount): TestResult {
+            $callCount++;
+            return new TestResult(info: $info, status: Status::Skipped);
+        };
+
+        $result = $interceptor->runTest($info, $next);
+
+        Assert::same($callCount, 1);
+        Assert::same($result->status, Status::Skipped);
+    }
+
     /**
      * Verifies repeat behavior per status: failure statuses stop the loop, others continue.
      */

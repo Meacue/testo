@@ -47,6 +47,44 @@ final class RepeatTest
         self::assertThrowsInvalidArgument(\PHP_INT_MIN);
     }
 
+    public function defaultMaxFailuresIsZero(): void
+    {
+        $repeat = new Repeat();
+
+        Assert::same($repeat->maxFailures, 0);
+    }
+
+    public function customMaxFailures(): void
+    {
+        $repeat = new Repeat(maxFailures: 3);
+
+        Assert::same($repeat->maxFailures, 3);
+    }
+
+    public function defaultMarkFlakyIsTrue(): void
+    {
+        $repeat = new Repeat();
+
+        Assert::true($repeat->markFlaky);
+    }
+
+    public function customMarkFlaky(): void
+    {
+        $repeat = new Repeat(markFlaky: false);
+
+        Assert::false($repeat->markFlaky);
+    }
+
+    public function negativeMaxFailuresThrowsException(): void
+    {
+        self::assertThrowsForMaxFailures(-1);
+    }
+
+    public function intMinMaxFailuresThrowsException(): void
+    {
+        self::assertThrowsForMaxFailures(\PHP_INT_MIN);
+    }
+
     private static function assertThrowsInvalidArgument(int $times): void
     {
         $thrown = null;
@@ -58,5 +96,18 @@ final class RepeatTest
 
         Assert::instanceOf($thrown, \InvalidArgumentException::class);
         Assert::same($thrown->getMessage(), 'Times must be greater than 0.');
+    }
+
+    private static function assertThrowsForMaxFailures(int $maxFailures): void
+    {
+        $thrown = null;
+        try {
+            new Repeat(maxFailures: $maxFailures);
+        } catch (\InvalidArgumentException $e) {
+            $thrown = $e;
+        }
+
+        Assert::instanceOf($thrown, \InvalidArgumentException::class);
+        Assert::same($thrown->getMessage(), 'Max failures must be greater than or equal to 0.');
     }
 }
