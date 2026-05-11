@@ -17,6 +17,7 @@
 /LICENSE.md      -export-ignore
 /README.md       -export-ignore
 /CHANGELOG.md    -export-ignore
+/AGENTS.md       -export-ignore
 
 # Core source code (`Testo\` namespace) and the bundled `internal/container`
 # (mapped through composer.json `replace`). The `bin/testo` CLI entry point

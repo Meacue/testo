@@ -1,8 +1,9 @@
 ## Important
 
-- There is a guideline about writing PHP code: docs/guidelines/how-to-write-php-code-best-practices.mdhow-to-write-php-code-best-practices.md
-- To write tests using Testo read https://php-testo.github.io/llms.txt
-- About Self-Tests read tests/README.md
+- There is a guideline about writing PHP code: [docs/guidelines/how-to-write-php-code-best-practices.md](docs/guidelines/how-to-write-php-code-best-practices.md)
+- To write tests using Testo read <https://php-testo.github.io/llms.txt> (concise) and <https://php-testo.github.io/llms-full.txt> (full).
+- About Self-Tests read [tests/README.md](tests/README.md)
+- [AGENTS.md](AGENTS.md) is shipped to downstream users of the `testo/testo` package — keep it user-facing, not contributor-facing. This file (`CLAUDE.md`) is the contributor-facing entry point and is **not** included in `composer archive`.
 
 ## Project Overview
 
