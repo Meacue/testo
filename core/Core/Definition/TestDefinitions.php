@@ -35,6 +35,14 @@ final class TestDefinitions
     }
 
     /**
+     * Remove a previously defined test by its short name.
+     */
+    public function undefine(string $name): void
+    {
+        unset($this->tests[$name]);
+    }
+
+    /**
      * Get all located test cases.
      *
      * @return array<non-empty-string, TestDefinition>
