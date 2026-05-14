@@ -15,6 +15,7 @@
             "homepage": "https://github.com/roxblnfk"
         }
     ],
+    "homepage": "https://php-testo.github.io/",
     "support": {
         "issues": "https://github.com/php-testo/testo/issues",
         "source": "https://github.com/php-testo/testo",
@@ -136,6 +137,11 @@
         },
         "process-timeout": 0,
         "sort-packages": true
+    },
+    "extra": {
+        "skills": {
+            "source": "skills"
+        }
     },
     "scripts": {
         "post-update-cmd": "dload get --no-interaction -v || \"echo can't dload binaries\"",
