@@ -207,7 +207,8 @@ final class InitCommandTest
 
     public function customPathPlacesTestsAndConfigUnderSubdirectory(): void
     {
-        $this->sandbox->makeDir('src');
+        // --path is the project root: everything (src, tests, composer.json, testo.php) is resolved relative to it.
+        $this->sandbox->makeDir('app/src');
         $this->sandbox->writeFile(
             'app/composer.json',
             \json_encode(['name' => 'acme/sub-app'], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . "\n",
@@ -247,11 +248,32 @@ final class InitCommandTest
             $rootComposer,
             'the project-root composer.json must be left untouched when --path is set',
         );
+
+        // Simulate `cd app && vendor/bin/testo`: paths inside testo.php are relative to it.
+        $previousCwd = (string) \getcwd();
+        \chdir($this->sandbox->path('app'));
+        try {
+            $config = require $this->sandbox->path('app/testo.php');
+        } finally {
+            \chdir($previousCwd);
+        }
+
+        Assert::instanceOf(
+            $config,
+            ApplicationConfig::class,
+            'generated config under --path must be a valid ApplicationConfig',
+        );
+        // src is written relative to testo.php — so 'src' (not '../src' or 'app/src') resolves to app/src at runtime.
+        Assert::same(\count($config->src->includes), 1, 'src must contain exactly one include');
+        Assert::true(
+            \str_ends_with(\str_replace('\\', '/', (string) $config->src->includes[0]), 'app/src'),
+            'src must resolve to app/src when testo.php is loaded from app/; got: ' . (string) $config->src->includes[0],
+        );
     }
 
     public function skipsComposerJsonWhenAbsentUnderCustomPath(): void
     {
-        $this->sandbox->makeDir('src');
+        $this->sandbox->makeDir('app/src');
         // composer.json only at project root — irrelevant for --path=app
         $rootComposer = \json_encode(['name' => 'acme/root'], \JSON_PRETTY_PRINT | \JSON_UNESCAPED_SLASHES) . "\n";
         $this->sandbox->writeFile('composer.json', $rootComposer);
@@ -271,6 +293,72 @@ final class InitCommandTest
             \file_get_contents($this->sandbox->path('composer.json')),
             $rootComposer,
             'project-root composer.json must be left untouched when --path is set elsewhere',
+        );
+
+        // Summary must not advertise `composer test:*` commands that don't exist; the raw CLI is suggested instead.
+        $display = $tester->getDisplay();
+        Assert::true(
+            \str_contains($display, 'vendor/bin/testo'),
+            'summary must fall back to a raw vendor/bin/testo hint when composer.json is absent; got: ' . $display,
+        );
+        Assert::false(
+            \str_contains($display, '$ composer test'),
+            'summary must not suggest `composer test*` commands when no composer.json was updated; got: ' . $display,
+        );
+    }
+
+    public function declinedOverwriteSuppressesSummary(): void
+    {
+        $this->givenMinimalProject();
+        $existing = "<?php\nreturn 'sentinel';\n";
+        $this->sandbox->writeFile('testo.php', $existing);
+
+        $tester = new CommandTester(new Init());
+        $tester->setInputs(['no']);                       // refuse the overwrite prompt
+        $tester->execute(
+            ['--path' => '.'],
+            ['interactive' => true, 'capture_stderr_separately' => false],
+        );
+
+        Assert::same(
+            $tester->getStatusCode(),
+            Command::SUCCESS,
+            'declining overwrite is a clean SUCCESS, not a FAILURE; output: ' . $tester->getDisplay(),
+        );
+        Assert::same(
+            \file_get_contents($this->sandbox->path('testo.php')),
+            $existing,
+            'testo.php must remain untouched when the user declines overwrite',
+        );
+
+        $display = $tester->getDisplay();
+        Assert::true(
+            \str_contains($display, 'Left existing'),
+            'a clear "left untouched" note must replace the summary; got: ' . $display,
+        );
+        Assert::false(
+            \str_contains($display, 'Run tests'),
+            'the "Run tests" summary block must be suppressed when no config was written; got: ' . $display,
+        );
+    }
+
+    public function failsWhenSrcMissingUnderCustomPathInNonInteractiveMode(): void
+    {
+        // composer.json at the sub-app root, but no app/src/ — the lookup is relative to --path, not CWD.
+        $this->sandbox->writeFile('app/composer.json', "{}\n");
+        // A project-root src/ would be picked up under the old CWD-relative behavior — assert it isn't.
+        $this->sandbox->makeDir('src');
+
+        $tester = $this->run(['--path' => 'app']);
+
+        Assert::same(
+            $tester->getStatusCode(),
+            Command::FAILURE,
+            'init must fail when src/ is missing under --path, even if one exists at the CWD',
+        );
+        Assert::true(
+            \str_contains($tester->getDisplay(), 'src/ directory not found in app'),
+            'failure must clearly name the directory it was looking under; got: ' . $tester->getDisplay(),
         );
     }
 

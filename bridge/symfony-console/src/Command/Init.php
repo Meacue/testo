@@ -57,7 +57,7 @@ final class Init extends Command
             $basePath = Path::create((string) $input->getOption('path'));
             self::ensureDirectory($basePath, $io);
 
-            $srcPath = self::discoverSourceDirectory($input, $io);
+            $srcPath = self::discoverSourceDirectory($input, $basePath, $io);
 
             $testsPath = $basePath->join('tests');
             self::ensureDirectory($testsPath, $io);
@@ -73,8 +73,11 @@ final class Init extends Command
                 return Command::SUCCESS;
             }
 
-            self::writeConfig($configPath, $srcPath, $suites, $io);
-            self::printSummary($configPath, $composerKeys, $io);
+            if (self::writeConfig($configPath, $srcPath, $suites, $io)) {
+                self::printSummary($configPath, $composerKeys, $io);
+            } else {
+                $io->note(\sprintf('Left existing %s untouched.', $configPath));
+            }
         } catch (\Throwable $exception) {
             $output->writeln('');
             $output->writeln(\sprintf('<fg=red>%s</>', $exception->getMessage()));
@@ -94,24 +97,37 @@ final class Init extends Command
         $io->success(\sprintf('Created %s/', $path));
     }
 
-    private static function discoverSourceDirectory(InputInterface $input, SymfonyStyle $io): Path
+    /**
+     * Find the production source directory **under the chosen base path**: `--path`
+     * is treated as the project root, so the lookup, the interactive validation, and
+     * the value baked into the generated testo.php are all kept relative to it. This
+     * keeps the generated config self-consistent — paths like `src` always resolve
+     * next to testo.php, regardless of where the user runs the command from.
+     */
+    private static function discoverSourceDirectory(InputInterface $input, Path $basePath, SymfonyStyle $io): Path
     {
-        $srcPath = Path::create('src');
-        if ($srcPath->isDir()) {
-            return $srcPath;
+        if ($basePath->join('src')->isDir()) {
+            return Path::create('src');
         }
 
         if (!$input->isInteractive()) {
-            throw new \RuntimeException('src/ directory not found. Skipping (non-interactive mode).');
+            throw new \RuntimeException(\sprintf(
+                'src/ directory not found in %s — non-interactive mode requires it to exist.',
+                $basePath,
+            ));
         }
 
         return Path::create((string) $io->ask(
-            question: 'Path to source code',
+            question: 'Path to source code (relative to project root)',
             default: 'src',
-            validator: static function (?string $value): string {
+            validator: static function (?string $value) use ($basePath): string {
                 $value ??= 'src';
-                if (!Path::create($value)->isDir()) {
-                    throw new \RuntimeException(\sprintf("Directory '%s' does not exist.", $value));
+                if (!$basePath->join($value)->isDir()) {
+                    throw new \RuntimeException(\sprintf(
+                        "Directory '%s' does not exist under %s.",
+                        $value,
+                        $basePath,
+                    ));
                 }
                 return $value;
             },
@@ -144,20 +160,22 @@ final class Init extends Command
     /**
      * Merge `test` and `test:<suite>` scripts into the composer.json colocated with
      * the chosen base path (so monorepo sub-apps update their own composer.json, not
-     * a parent one). Existing entries are preserved. Returns the full list of script
-     * keys (for the final hint).
+     * a parent one). Existing entries are preserved. Returns the list of script keys
+     * that are actually available to `composer run` — empty when no composer.json is
+     * present, so the summary can fall back to a raw `vendor/bin/testo` hint instead
+     * of suggesting `composer test` commands that don't exist.
      *
      * @param list<string> $suites
      * @return list<string>
      */
     private static function updateComposerScripts(array $suites, Path $basePath, SymfonyStyle $io): array
     {
-        $keys = [self::SCRIPT_ALL_KEY];
-
         $composerJsonPath = $basePath->join('composer.json');
         if (!$composerJsonPath->isFile()) {
-            return $keys;
+            return [];
         }
+
+        $keys = [self::SCRIPT_ALL_KEY];
 
         /** @var array{scripts?: array<string, string>}&array<string, mixed> $composer */
         $composer = \json_decode(
@@ -192,13 +210,15 @@ final class Init extends Command
     /**
      * Render testo.php from the stub. Assumes the caller has already handled the
      * non-interactive "file exists" case; in interactive mode we still prompt.
+     * Returns true when the file was written, false when the user declined to
+     * overwrite — so the caller can skip the "run tests" summary.
      *
      * @param list<string> $suites
      */
-    private static function writeConfig(Path $configPath, Path $srcPath, array $suites, SymfonyStyle $io): void
+    private static function writeConfig(Path $configPath, Path $srcPath, array $suites, SymfonyStyle $io): bool
     {
         if ($configPath->isFile() && !$io->confirm(\sprintf('%s already exists. Overwrite?', $configPath), false)) {
-            return;
+            return false;
         }
 
         $suitesCode = '';
@@ -216,13 +236,24 @@ final class Init extends Command
 
         \file_put_contents((string) $configPath, $stub);
         $io->success(\sprintf('Created %s', $configPath));
+
+        return true;
     }
 
     /**
-     * @param list<string> $composerKeys
+     * @param list<string> $composerKeys Empty when no composer.json was touched —
+     *        in that case the summary falls back to a raw `vendor/bin/testo` hint
+     *        rather than suggesting `composer run` shortcuts that don't exist.
      */
     private static function printSummary(Path $configPath, array $composerKeys, SymfonyStyle $io): void
     {
+        $runHints = $composerKeys === []
+            ? ['   <comment>$ vendor/bin/testo</comment>']
+            : \array_map(
+                static fn(string $key) => \sprintf('   <comment>$ composer %s</comment>', $key),
+                $composerKeys,
+            );
+
         $io->newLine();
         $io->text(\array_merge(
             [
@@ -230,10 +261,7 @@ final class Init extends Command
                 ' <info>Documentation:</info> <href=https://php-testo.github.io/docs/intro/getting-started>https://php-testo.github.io/docs/intro/getting-started</>',
                 ' <info>Run tests:</info>',
             ],
-            \array_map(
-                static fn(string $key) => \sprintf('   <comment>$ composer %s</comment>', $key),
-                $composerKeys,
-            ),
+            $runHints,
         ));
         $io->newLine();
     }
