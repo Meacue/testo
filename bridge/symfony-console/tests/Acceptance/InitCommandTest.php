@@ -432,7 +432,12 @@ final class InitCommandTest
 
         $app = new Application();
         $app->setAutoExit(false);
-        $app->add(new Init());
+        // `add()` was removed in Symfony 8 in favor of `addCommand()`; bridge composer
+        // constraint allows ^6.4 || ^7 || ^8.0, so pick whichever the installed
+        // Application exposes.
+        \method_exists($app, 'addCommand')
+            ? $app->addCommand(new Init())
+            : $app->add(new Init());
 
         $tester = new ApplicationTester($app);
         $exitCode = $tester->run(
