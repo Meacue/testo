@@ -3,7 +3,7 @@
 <dload
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="vendor/internal/dload/dload.xsd"
-    temp-dir="./runtime"
+    temp-dir="./runtime/dload"
 >
     <actions>
         <download type="binary" software="mago" version="^1.27" extract-path="runtime" />

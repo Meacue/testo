@@ -115,7 +115,7 @@ use Testo\Lifecycle\{BeforeClass, AfterClass, BeforeTest, AfterTest};
 #[AfterClass]  public static function dropSchema(): void { /* once after all tests */ }
 ```
 
-Class-level hooks must be `static`. They run regardless of `#[Test]` on the method.
+Hooks may be either instance methods or `static` — Testo invokes them accordingly. They run regardless of `#[Test]` on the method.
 
 ## Running
 

@@ -1,6 +1,6 @@
 ---
 name: testo-configure
-description: Set up or edit `testo.php` — the Testo application config. Use when the user is bootstrapping a project, adding/removing a suite, scoping a finder, wiring an application-wide plugin (coverage, JUnit), or asking "where do I configure Testo".
+description: Set up or edit `testo.php` — the Testo application config. Use when the user is bootstrapping a project (including running `vendor/bin/testo init`), adding/removing a suite, scoping a finder, wiring an application-wide plugin (coverage, JUnit), or asking "where do I configure Testo" / "how do I initialize Testo".
 ---
 
 # Configuring Testo (`testo.php`)
@@ -10,6 +10,41 @@ This means: full IDE completion, refactoring, and conditional logic (e.g. CI-onl
 
 Fetch `https://php-testo.github.io/llms.txt` before introducing new classes — the namespaces here are
 the most commonly drifted-on detail.
+
+## Bootstrap with `init`
+
+If the project has no `testo.php` yet, prefer the built-in command over hand-writing the file:
+
+```
+vendor/bin/testo init
+vendor/bin/testo init --path=app
+vendor/bin/testo init --no-interaction
+```
+
+What it does, in order:
+
+1. Ensures the base directory (`--path`, default `.`) exists. **`--path` is treated as the project root** — every subsequent lookup (`src/`, `tests/`, `composer.json`) and every path baked into the generated `testo.php` is resolved relative to it.
+2. Resolves the **source directory** *under `--path`*:
+   - if `<path>/src` exists, uses it;
+   - otherwise in interactive mode prompts for a directory (default `src`, must exist *under `--path`*);
+   - otherwise (non-interactive) **fails** — create `<path>/src` first or run interactively.
+   The path is written into the config relative to `testo.php`, so a `src` entry resolves back to `<path>/src` at runtime, regardless of where `vendor/bin/testo` is invoked from.
+3. Creates `<path>/tests/` and scans it for known suite folders:
+   `Unit`, `Integration`, `Functional`, `Acceptance`, `Feature`, `E2E`, `Contract`.
+   Whatever exists is picked up; `Unit` is always added (and `<path>/tests/Unit/` created if missing).
+4. Writes scripts to the `composer.json` **colocated with `--path`** (so a monorepo sub-app updates its own composer.json, not the parent one). If no `composer.json` is present at that path the step is skipped silently.
+   - `composer test` → `vendor/bin/testo`
+   - `composer test:unit`, `composer test:integration`, … one per detected suite (`vendor/bin/testo --suite=<Name>`).
+   Existing keys are preserved.
+5. Generates `<path>/testo.php` from the stub, with `src` and one `SuiteConfig` per detected suite. If the file already exists: prompts to overwrite (interactive) or skips with a warning (non-interactive).
+
+When to use `init` vs. hand-editing:
+
+- **New project / empty repo** → run `init` first, then tune `testo.php`.
+- **Adding a suite to an existing project** → create the directory (e.g. `tests/Integration`) and re-run `init` to get the matching composer script, **or** edit `testo.php` directly. `init` will not overwrite an existing config unless confirmed.
+- **Monorepo / sub-app layout** (a self-contained app under `app/`, with its own `src/`, tests, and optionally `composer.json`) → `vendor/bin/testo init --path=app`. `--path` is the sub-app's project root: `app/src/` must exist, and the generated `app/testo.php` references `src` and `tests/<Suite>` as paths **relative to itself** — so they resolve correctly regardless of where `vendor/bin/testo` is invoked from.
+
+After `init` completes, re-read `testo.php` and adjust `src`, suite locations, and plugins to match the project (see sections below).
 
 ## Minimal `testo.php`
 
@@ -121,6 +156,8 @@ Keep it readable — if the logic gets long, extract a helper, don't pile up ter
 ## CLI cheat-sheet
 
 ```
+vendor/bin/testo init                  # bootstrap testo.php + composer scripts
+vendor/bin/testo init --path=app       # bootstrap inside a subdirectory
 vendor/bin/testo                       # all suites
 vendor/bin/testo --suite=Unit          # one suite
 vendor/bin/testo --suite=Unit --suite=Integration  # multiple
@@ -140,4 +177,4 @@ vendor/bin/testo --config=path/to/testo.php
 - **Don't name two suites the same.** The first one wins silently in some builds — keep names unique.
 - **Don't shell out to `composer dump-autoload` from `testo.php`.** Composer's autoloader is already booted by the CLI entry. Avoid side-effects in config.
 - **Don't read environment variables without a fallback.** `\getenv('FOO') ?: 'default'` — CI dropouts otherwise silently change which suites run.
-- **`testo.php` is required**, not auto-generated. If a project doesn't have one, create the minimal version above as step 1.
+- **`testo.php` is required.** If a project doesn't have one, run `vendor/bin/testo init` (see *Bootstrap with `init`*) or, for full control, write the minimal version above by hand.

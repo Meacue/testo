@@ -53,6 +53,7 @@ use Testo\Bench\BenchmarkPlugin;
 use Testo\Inline\InlineTestPlugin;
 
 return new ApplicationConfig(
+    src: ['src'],
     suites: [
         new SuiteConfig(
             name: 'Sources',
@@ -96,9 +97,9 @@ use Testo\Assert\ExpectException;
 use Testo\Retry;
 use Testo\Test;
 
+#[Test]
 final class CalculatorTest
 {
-    #[Test]
     public function dividesNumbers(): void
     {
         $result = 10 / 2;
@@ -107,7 +108,6 @@ final class CalculatorTest
         Assert::notSame($result, 5); // Types matter!
     }
 
-    #[Test]
     #[Retry(maxAttempts: 3)]
     public function flakyApiCall(): void
     {
@@ -117,7 +117,6 @@ final class CalculatorTest
         Assert::same($response->status, 200);
     }
 
-    #[Test]
     #[ExpectException(\RuntimeException::class)]
     public function throwsException(): void
     {
@@ -127,7 +126,7 @@ final class CalculatorTest
 ```
 
 What to note:
-- Use the `#[Test]` attribute to mark test methods
+- Use the `#[Test]` attribute to mark test methods or classes
 - Test classes don't need to extend any base class
 - Use `Assert` class for assertions (`same`, `true`, `false`, `null`, `contains`, `instanceOf`, etc.)
 - Testo provides multiple attributes to extend testing capabilities (retry policies, exception handling, and more)
