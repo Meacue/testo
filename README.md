@@ -35,9 +35,24 @@ composer require --dev testo/testo *
 
 ### Configuration
 
-By default, if no configuration file is provided, Testo will run tests from the `tests` folder.
+The fastest way to set up Testo in your project is the built-in `init` command:
 
-To customize the configuration, create a `testo.php` file in the root of your project:
+```bash
+vendor/bin/testo init
+```
+
+It will:
+
+- detect your `src/` directory (or prompt for it),
+- create `tests/Unit/` if missing,
+- generate a minimal `testo.php` next to your `composer.json`,
+- register `composer test` and `composer test:<suite>` scripts.
+
+For a sub-app layout, point it at the project root: `vendor/bin/testo init --path=app`.
+
+#### Tuning `testo.php` manually
+
+`testo.php` is plain PHP returning an `ApplicationConfig` — edit it freely to add suites, plugins, or coverage. A typical setup looks like:
 
 ```php
 <?php
@@ -45,10 +60,8 @@ To customize the configuration, create a `testo.php` file in the root of your pr
 declare(strict_types=1);
 
 use Testo\Application\Config\ApplicationConfig;
-use Testo\Application\Config\FinderConfig;
 use Testo\Application\Config\Plugin\SuitePlugins;
 use Testo\Application\Config\SuiteConfig;
-use Testo\Assert\AssertPlugin;
 use Testo\Bench\BenchmarkPlugin;
 use Testo\Inline\InlineTestPlugin;
 
@@ -62,16 +75,17 @@ return new ApplicationConfig(
             plugins: SuitePlugins::only(
                 new InlineTestPlugin(),
                 new BenchmarkPlugin(),
-                new AssertPlugin(),
             ),
         ),
         new SuiteConfig(
             name: 'Unit',
-            location: ['tests'],
+            location: ['tests/Unit'],
         ),
     ],
 );
 ```
+
+If no `testo.php` is present at all, Testo falls back to running every test under the `tests/` folder.
 
 ### Running Tests
 
