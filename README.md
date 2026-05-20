@@ -92,7 +92,20 @@ If no `testo.php` is present at all, Testo falls back to running every test unde
 To run your tests, execute:
 
 ```bash
+composer test
+```
+
+…or call the binary directly if you skipped `init` / didn't register the script:
+
+```bash
 vendor/bin/testo
+```
+
+You can also run a single suite by name (one script per detected suite is registered by `init`):
+
+```bash
+composer test:unit
+composer test:integration
 ```
 
 ### Writing Your First Test
