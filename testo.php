@@ -44,7 +44,7 @@ return new ApplicationConfig(
         //     new SuiteConfig(
         //         name: 'sandbox',
         //         location: new FinderConfig(
-        //             include: ['tests/Testo'],
+        //             include: ['tests/Sandbox'],
         //         ),
         //     ),
         // ],

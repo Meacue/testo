@@ -2,34 +2,32 @@
 
 declare(strict_types=1);
 
-namespace Tests\Testo\Self\TestCase;
+namespace Tests\Application\Self\TestCase;
 
 use Testo\Assert;
 use Testo\Test;
 
 /**
- * By default, the same test case instance is used for the each non-static test method.
+ * The same test case instance must be reused across non-static test methods of the same class.
  */
+#[Test]
 final class CaseInstantiatorCache
 {
     private static bool $initialized = false;
 
     public function __construct()
     {
-        // If this constructor is called more than once, the test case instance is reused.
         self::$initialized and throw new \RuntimeException('Test case instance reused.');
 
         self::$initialized = true;
     }
 
-    #[Test]
-    public function simpleStaticMethod(): void
+    public function firstInstanceMethod(): void
     {
         Assert::true(true);
     }
 
-    #[Test]
-    public function anotherStaticMethod(): void
+    public function secondInstanceMethod(): void
     {
         Assert::false(false);
     }

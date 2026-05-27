@@ -18,4 +18,10 @@ return [
             include: [__DIR__ . '/Feature'],
         ),
     ),
+    new SuiteConfig(
+        name: 'Application/Self',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Self'],
+        ),
+    ),
 ];

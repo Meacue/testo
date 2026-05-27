@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Tests\Testo\Self\TestCase;
+namespace Tests\Application\Self\TestCase;
 
 use Testo\Assert;
 use Testo\Test;
 
 /**
- * If there are static methods only in the test case, Testo must not try to instantiate the class.
+ * When a test case exposes only static test methods, Testo must not instantiate the class.
  */
+#[Test]
 final class CaseInstantiatorStatic
 {
     public function __construct()
@@ -17,14 +18,12 @@ final class CaseInstantiatorStatic
         throw new \LogicException('Constructor must not be called.');
     }
 
-    #[Test]
-    public static function simpleStaticMethod(): void
+    public static function firstStaticMethod(): void
     {
         Assert::true(true);
     }
 
-    #[Test]
-    public static function anotherStaticMethod(): void
+    public static function secondStaticMethod(): void
     {
         Assert::false(false);
     }

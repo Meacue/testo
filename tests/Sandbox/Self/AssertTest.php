@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Testo\Self;
+namespace Tests\Sandbox\Self;
 
 use Testo\Assert;
 use Testo\Assert\ExpectException;
