@@ -26,17 +26,8 @@ final class TerminalLogger
     /** @var int<0, max> */
     private int $totalTests = 0;
 
-    /** @var int<0, max> */
-    private int $passedTests = 0;
-
-    /** @var int<0, max> */
-    private int $failedTests = 0;
-
-    /** @var int<0, max> */
-    private int $skippedTests = 0;
-
-    /** @var int<0, max> */
-    private int $riskyTests = 0;
+    /** @var array<string, int<0, max>> Per-Status counters, keyed by Status::name */
+    private array $statusCounts = [];
 
     /** @var list<array{result: TestResult, duration: int<0, max>|null, suiteName: string|null, datasetName: string|null}> */
     private array $failures = [];
@@ -141,6 +132,7 @@ final class TerminalLogger
     public function handleTestResult(TestResult $result, ?int $duration): void
     {
         $this->totalTests++;
+        $this->statusCounts[$result->status->name] = ($this->statusCounts[$result->status->name] ?? 0) + 1;
 
         match ($result->status) {
             Status::Passed, Status::Flaky => $this->handlePassedTest($result, $duration),
@@ -195,8 +187,6 @@ final class TerminalLogger
      */
     private function handlePassedTest(TestResult $result, ?int $duration): void
     {
-        $this->passedTests++;
-
         $item = new FormattedItem(
             name: $this->currentTestName ?? $result->info->name,
             status: $result->status,
@@ -217,7 +207,6 @@ final class TerminalLogger
      */
     private function handleFailedTest(TestResult $result, ?int $duration): void
     {
-        $this->failedTests++;
         $this->failures[] = [
             'result' => $result,
             'duration' => $duration,
@@ -294,8 +283,6 @@ final class TerminalLogger
      */
     private function handleSkippedTest(TestResult $result, ?int $duration): void
     {
-        $this->skippedTests++;
-
         $item = new FormattedItem(
             name: $this->currentTestName ?? $result->info->name,
             status: $result->status,
@@ -314,8 +301,6 @@ final class TerminalLogger
      */
     private function handleRiskyTest(TestResult $result, ?int $duration): void
     {
-        $this->riskyTests++;
-
         $item = new FormattedItem(
             name: $this->currentTestName ?? $result->info->name,
             status: $result->status,
@@ -413,14 +398,14 @@ final class TerminalLogger
      */
     private function printStatistics(float $duration): void
     {
-        $success = $this->failedTests === 0;
+        $failures = ($this->statusCounts[Status::Failed->name] ?? 0)
+            + ($this->statusCounts[Status::Error->name] ?? 0)
+            + ($this->statusCounts[Status::Aborted->name] ?? 0);
+        $success = $failures === 0;
 
         echo Formatter::summary(
             $this->totalTests,
-            $this->passedTests,
-            $this->failedTests,
-            $this->skippedTests,
-            $this->riskyTests,
+            $this->statusCounts,
             $duration,
         );
 

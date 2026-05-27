@@ -109,8 +109,9 @@ final class Formatter
         }
 
         $parts = [];
-        $passed = $result->countPassedTests();
-        $failed = $result->countFailedTests();
+        $passed = $result->countTests(Status::Passed);
+        $failed = $result->countTests(Status::Failed);
+        $error = $result->countTests(Status::Error);
         $skipped = $result->countTests(Status::Skipped);
         $risky = $result->countTests(Status::Risky);
         $cancelled = $result->countTests(Status::Cancelled);
@@ -118,6 +119,7 @@ final class Formatter
 
         $passed > 0 and $parts[] = Style::success("{$passed} passed");
         $failed > 0 and $parts[] = Style::error("{$failed} failed");
+        $error > 0 and $parts[] = Style::error("{$error} error");
         $skipped > 0 and $parts[] = Style::warning("{$skipped} skipped");
         $risky > 0 and $parts[] = Style::warning("{$risky} risky");
         $cancelled > 0 and $parts[] = Style::dim("{$cancelled} cancelled");
@@ -135,8 +137,8 @@ final class Formatter
     public static function suiteSummary(SuiteResult $result, OutputFormat $format): string
     {
         $parts = [];
-        $passed = $result->countPassedTests();
-        $failed = $result->countFailedTests();
+        $passed = $result->countTests(Status::Passed);
+        $failed = $result->countTests(Status::Failed);
         $skipped = $result->countTests(Status::Skipped);
         $risky = $result->countTests(Status::Risky);
         $cancelled = $result->countTests(Status::Cancelled);
@@ -157,10 +159,13 @@ final class Formatter
             return '';
         }
 
+        $total = $passed + $failed + $error + $skipped + $risky + $cancelled + $flaky + $aborted;
         $summary = \implode(', ', $parts);
         $prefix = $format === OutputFormat::Verbose ? ' ' : '';
 
-        return "{$prefix}" . Style::dim("Suite: {$summary}") . "\n";
+        return "{$prefix}" . Style::dim("Suite: {$total} tests")
+            . "\n{$prefix}   " . Style::dim($summary)
+            . "\n";
     }
 
     /**
@@ -222,29 +227,41 @@ final class Formatter
      * @param int<0, max> $passed
      * @param int<0, max> $failed
      * @param int<0, max> $skipped
-     * @param int<0, max> $risky
+     * @param int<0, max> $total
+     * @param array<string, int<0, max>> $statusCounts Counts keyed by Status::name
      * @param float $duration Duration in seconds
      * @return non-empty-string
      */
     public static function summary(
         int $total,
-        int $passed,
-        int $failed,
-        int $skipped,
-        int $risky,
+        array $statusCounts,
         float $duration,
     ): string {
         $parts = [];
+        $passed = $statusCounts[Status::Passed->name] ?? 0;
+        $failed = $statusCounts[Status::Failed->name] ?? 0;
+        $error = $statusCounts[Status::Error->name] ?? 0;
+        $skipped = $statusCounts[Status::Skipped->name] ?? 0;
+        $risky = $statusCounts[Status::Risky->name] ?? 0;
+        $cancelled = $statusCounts[Status::Cancelled->name] ?? 0;
+        $flaky = $statusCounts[Status::Flaky->name] ?? 0;
+        $aborted = $statusCounts[Status::Aborted->name] ?? 0;
+
         $passed > 0 and $parts[] = Style::success("{$passed} passed");
         $failed > 0 and $parts[] = Style::error("{$failed} failed");
+        $error > 0 and $parts[] = Style::error("{$error} error");
         $skipped > 0 and $parts[] = Style::warning("{$skipped} skipped");
         $risky > 0 and $parts[] = Style::warning("{$risky} risky");
+        $cancelled > 0 and $parts[] = Style::dim("{$cancelled} cancelled");
+        $flaky > 0 and $parts[] = Style::info("{$flaky} flaky");
+        $aborted > 0 and $parts[] = Style::error("{$aborted} aborted");
 
-        $testsLine = \implode(', ', $parts);
+        $breakdown = $parts === [] ? 'no tests' : \implode(', ', $parts);
         $durationFormatted = \number_format($duration, 2);
 
         $summary = "\n\n " . Style::bold('Summary') . "\n\n";
-        $summary .= " Tests:    {$testsLine} ({$total} total)\n";
+        $summary .= " Tests:    {$total} total\n";
+        $summary .= "           {$breakdown}\n";
         $summary .= " Duration: {$durationFormatted}s\n";
 
         return $summary;
