@@ -10,6 +10,13 @@ use Testo\Application\Config\SuiteConfig;
  */
 return [
     new SuiteConfig(
+        name: 'Data/Unit',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Unit'],
+            exclude: [__DIR__ . '/Unit/Fixture'],
+        ),
+    ),
+    new SuiteConfig(
         name: 'Data/Self',
         location: new FinderConfig(
             include: [__DIR__ . '/Self'],

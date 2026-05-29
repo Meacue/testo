@@ -73,7 +73,6 @@ final readonly class DataProviderInterceptor implements TestRunInterceptor
                 $datasets = self::extractDataSets($info, $attr);
 
                 # Handle each data set
-                $results = [];
                 $num = -1;
                 foreach ($datasets as $k => $dataset) {
                     ++$num;
