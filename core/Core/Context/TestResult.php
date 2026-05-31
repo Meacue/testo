@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Core\Context;
 
 use Testo\Core\Internal\Attributed;
+use Testo\Core\Log\MessageLog;
 use Testo\Core\Value\Status;
 
 /**
@@ -16,6 +17,7 @@ final class TestResult
 
     /**
      * @param array<non-empty-string, mixed> $attributes
+     * @param MessageLog $messages Messages (output and other channels) recorded during the test.
      */
     public function __construct(
         public readonly TestInfo $info,
@@ -23,10 +25,12 @@ final class TestResult
         public readonly mixed $result = null,
         public readonly ?\Throwable $failure = null,
         public readonly array $attributes = [],
+        public readonly MessageLog $messages = new MessageLog(),
     ) {}
 
     public function with(
         ?Status $status = null,
+        ?MessageLog $messages = null,
     ): self {
         return new self(
             info: $this->info,
@@ -34,6 +38,7 @@ final class TestResult
             result: $this->result,
             failure: $this->failure,
             attributes: $this->attributes,
+            messages: $messages ?? $this->messages,
         );
     }
 
@@ -45,5 +50,10 @@ final class TestResult
     public function withFailure(?\Throwable $failure): self
     {
         return $this->cloneWith('failure', $failure);
+    }
+
+    public function withMessages(MessageLog $messages): self
+    {
+        return $this->cloneWith('messages', $messages);
     }
 }

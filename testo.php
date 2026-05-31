@@ -60,6 +60,7 @@ return new ApplicationConfig(
         require 'plugin/retry/tests/suites.php',
         require 'plugin/test/tests/suites.php',
         require 'tests/Application/suites.php',
+        require 'tests/Core/suites.php',
         require 'tests/Common/suites.php',
         require 'tests/Output/suites.php',
         require 'tests/Tokenizer/suites.php',

@@ -183,6 +183,7 @@ Event\Framework\     → Session*, Worker*  (infrastructure lifecycle)
 Event\TestSuite\     → TestSuite*
 Event\TestCase\      → TestCase*
 Event\Test\          → TestPipeline*, TestBatch*, TestDataSet*, Test*
+Event\Message\       → Message*  (messages recorded during a run; cross-cutting, not a hierarchy level)
 ```
 
 ## Examples from Testo
