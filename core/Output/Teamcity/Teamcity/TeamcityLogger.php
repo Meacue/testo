@@ -16,8 +16,11 @@ use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
+use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
 use Testo\Output\Rendering\StackTrace;
+use Testo\Output\Terminal\Renderer\Color;
+use Testo\Output\Terminal\Renderer\Style;
 
 /**
  * TeamCity logger for test reporting using DTO objects.
@@ -30,6 +33,36 @@ use Testo\Output\Rendering\StackTrace;
  */
 final class TeamcityLogger
 {
+    /**
+     * Channel routed to TeamCity's stderr stream; every other channel goes to stdout.
+     */
+    private const CHANNEL_STDERR = 'stderr';
+
+    /** @var resource */
+    private $output;
+
+    /**
+     * Channel of the last streamed message — used to print a channel header only when the channel
+     * changes. `null` between tests / before the first message.
+     *
+     * @var non-empty-string|null
+     */
+    private ?string $lastChannel = null;
+
+    /**
+     * Whether the last streamed content ended on a newline, so a channel header can be kept on its
+     * own line without inserting blank lines.
+     */
+    private bool $lastEndedWithNewline = true;
+
+    /**
+     * @param resource|null $output Stream the logger writes to; defaults to {@see \STDOUT}.
+     */
+    public function __construct($output = null)
+    {
+        $this->output = $output ?? \STDOUT;
+    }
+
     /**
      * Formats a throwable into a detailed string with class, message, file, line, and stack trace.
      */
@@ -57,17 +90,17 @@ final class TeamcityLogger
      */
     public function logEnvironment(): void
     {
-        echo "\033[1m" . Info::NAME . "\033[0m" . self::dim(' v' . Info::version()) . "\n";
+        $this->publish("\033[1m" . Info::NAME . "\033[0m" . self::dim(' v' . Info::version()));
 
         $this->publish(Formatter::blockOpened('Environment'));
 
-        echo self::key('PHP') . \sprintf(
+        $this->publish(self::key('PHP') . \sprintf(
             '%s %s (%s, memory: %s)',
             Environment::getPhpVersion(),
             Environment::getThread(),
             \PHP_SAPI,
             \ini_get('memory_limit') ?: 'unlimited',
-        ) . "\n";
+        ));
 
         $modes = Environment::getXDebugMode();
         $xdebug = match (true) {
@@ -75,14 +108,14 @@ final class TeamcityLogger
             $modes !== [] => Environment::getXDebugVersion() . self::dim(' (' . \implode(', ', $modes) . ')'),
             default => Environment::getXDebugVersion() . self::dim(' (off)'),
         };
-        echo '  ' . self::key('XDebug') . $xdebug . "\n";
+        $this->publish('  ' . self::key('XDebug') . $xdebug);
 
         $opcache = match (true) {
             !Environment::isOpCacheEnabled() => self::dim('off'),
             Environment::isJitEnabled() => 'enabled with JIT',
             default => 'enabled',
         };
-        echo '  ' . self::key('OPcache') . $opcache . "\n";
+        $this->publish('  ' . self::key('OPcache') . $opcache);
 
         $this->publish(Formatter::blockClosed('Environment'));
     }
@@ -190,6 +223,10 @@ final class TeamcityLogger
      */
     public function testStartedFromInfo(TestInfo $info, bool $captureStandardOutput = false, ?string $overrideName = null, ?string $locationSuffix = null): void
     {
+        // New test: reset channel grouping so its first message prints a fresh channel header.
+        $this->lastChannel = null;
+        $this->lastEndedWithNewline = true;
+
         $this->publish(Formatter::testStarted($overrideName ?? $info->name, $captureStandardOutput, $info->testDefinition->reflection, $locationSuffix));
     }
 
@@ -242,6 +279,103 @@ final class TeamcityLogger
     public function testIgnoredFromInfo(TestInfo $info, string $message = ''): void
     {
         $this->publish(Formatter::testIgnored($info->name, $message));
+    }
+
+    /**
+     * Publishes a captured {@see Message} as a stdout/stderr service message for the given test.
+     *
+     * The channel decides the stream: the dedicated `stderr` channel maps to TeamCity's stderr,
+     * everything else to stdout. Severity travels separately as the `level` attribute. Consecutive
+     * messages from the same channel are appended verbatim; when the channel changes, a colored
+     * channel header is printed on its own line first. Must be emitted between this test's
+     * `testStarted` and `testFinished` to nest correctly.
+     *
+     * @param non-empty-string $name Test name the message belongs to.
+     */
+    public function logMessage(string $name, Message $message): void
+    {
+        if ($message->content === '') {
+            return;
+        }
+
+        $out = $this->renderChannel($message);
+
+        # Machine-readable metadata for consumers that understand it; standard parsers ignore it.
+        $attributes = [
+            'channel' => $message->channel,
+            'level' => $message->level->value,
+        ];
+
+        $this->publish($message->channel === self::CHANNEL_STDERR
+            ? Formatter::testStdErr($name, $out, $attributes)
+            : Formatter::testStdOut($name, $out, $attributes));
+    }
+
+    /**
+     * Builds the streamed text for a message, prepending a colored channel header only when the
+     * channel changed since the previous message.
+     *
+     * - New/changed channel: the channel name (highlighted) followed by the time of this first
+     *   message, on its own line, then the content.
+     * - Same channel as before: the content verbatim, no header and no extra line breaks.
+     *
+     * @return non-empty-string
+     */
+    private function renderChannel(Message $message): string
+    {
+        $channel = $message->channel;
+        $content = $message->content;
+
+        if ($channel === $this->lastChannel) {
+            $this->lastEndedWithNewline = \str_ends_with($content, "\n");
+            return $content;
+        }
+
+        // Keep the header on its own line: break only if the previous content didn't already.
+        $separator = $this->lastChannel !== null && !$this->lastEndedWithNewline ? "\n" : '';
+        $this->lastChannel = $channel;
+        $this->lastEndedWithNewline = \str_ends_with($content, "\n");
+
+        return $separator . self::channelHeader($channel, $message->time) . "\n" . $content;
+    }
+
+    /**
+     * A channel header — the channel name highlighted in a stable, name-derived color, followed by
+     * the (dimmed) wall-clock time of the channel's first message. {@see Style} strips the ANSI
+     * when colors are disabled, leaving a plain `[channel] HH:MM:SS.mmm` header.
+     *
+     * @param non-empty-string $channel
+     * @return non-empty-string
+     */
+    private static function channelHeader(string $channel, float $time): string
+    {
+        // Black is omitted on purpose — it is invisible on a dark terminal.
+        $palette = [
+            Color::Cyan,
+            Color::Magenta,
+            Color::Yellow,
+            Color::Green,
+            Color::Blue,
+            Color::Red,
+            Color::White,
+            Color::Gray,
+        ];
+        $color = $palette[\abs(\crc32($channel)) % \count($palette)];
+
+        return Style::colorize("[{$channel}]", $color) . ' ' . Style::dim(self::formatTime($time));
+    }
+
+    /**
+     * Formats a {@see \microtime()} timestamp as `HH:MM:SS.mmm` wall-clock time.
+     *
+     * @return non-empty-string
+     */
+    private static function formatTime(float $time): string
+    {
+        $seconds = (int) $time;
+        $millis = \min(999, (int) \round(($time - $seconds) * 1000));
+
+        return \date('H:i:s', $seconds) . \sprintf('.%03d', $millis);
     }
 
     /**
@@ -477,12 +611,17 @@ final class TeamcityLogger
     }
 
     /**
-     * Publishes a TeamCity service message to stdout.
+     * Writes a TeamCity message (or plain line) to the output stream, newline-terminated.
+     *
+     * Writes straight to the stream (default {@see \STDOUT}), bypassing PHP output buffering: the
+     * messenger's output interceptor captures `echo`/`print` (the `php://output` layer), but
+     * TeamCity messages must reach the real stdout untouched, and `ob_*` does not intercept stream
+     * writes.
      *
      * @param non-empty-string $message Formatted TeamCity message
      */
     private function publish(string $message): void
     {
-        echo $message . "\n";
+        \fwrite($this->output, $message . "\n");
     }
 }

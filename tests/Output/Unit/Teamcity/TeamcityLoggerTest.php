@@ -22,10 +22,9 @@ final class TeamcityLoggerTest
 {
     public function handleSingleTestResultEmitsComparisonFailureAttributesForComparisonFailure(): void
     {
-        $logger = new TeamcityLogger();
         $result = self::makeFailedResult(self::makeComparisonFailure());
 
-        $output = self::capture(static fn() => $logger->handleSingleTestResult($result));
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
 
         Assert::string($output)->contains("type='comparisonFailure'");
         Assert::string($output)->contains("expected='Array");
@@ -34,10 +33,9 @@ final class TeamcityLoggerTest
 
     public function testFailedFromResultEmitsComparisonFailureAttributesForComparisonFailure(): void
     {
-        $logger = new TeamcityLogger();
         $result = self::makeFailedResult(self::makeComparisonFailure());
 
-        $output = self::capture(static fn() => $logger->testFailedFromResult($result));
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->testFailedFromResult($result));
 
         Assert::string($output)->contains("type='comparisonFailure'");
         Assert::string($output)->contains("expected='Array");
@@ -46,7 +44,6 @@ final class TeamcityLoggerTest
 
     public function handleSingleTestResultOmitsComparisonAttributesForGenericFailure(): void
     {
-        $logger = new TeamcityLogger();
         $failure = new AssertionException(
             value: '"foo"',
             assertion: 'is blank',
@@ -56,20 +53,32 @@ final class TeamcityLoggerTest
         );
         $result = self::makeFailedResult($failure);
 
-        $output = self::capture(static fn() => $logger->handleSingleTestResult($result));
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
 
         Assert::string($output)->notContains("type='comparisonFailure'");
         Assert::string($output)->notContains("expected='");
         Assert::string($output)->notContains("actual='");
     }
 
+    /**
+     * Runs the callback against a logger writing to an in-memory stream and returns what it wrote.
+     *
+     * The logger writes straight to its stream (bypassing output buffering), so capture is done by
+     * injecting a `php://memory` stream rather than `ob_start()`.
+     *
+     * @param \Closure(TeamcityLogger): void $callback
+     */
     private static function capture(\Closure $callback): string
     {
-        \ob_start();
+        $stream = \fopen('php://memory', 'rb+');
+        \assert($stream !== false);
+
         try {
-            $callback();
+            $callback(new TeamcityLogger($stream));
+            \rewind($stream);
+            $output = \stream_get_contents($stream);
         } finally {
-            $output = \ob_get_clean();
+            \fclose($stream);
         }
 
         return $output === false ? '' : $output;

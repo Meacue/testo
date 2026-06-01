@@ -9,13 +9,15 @@ namespace Testo\Output\Terminal\Renderer;
  */
 enum Color: string
 {
-    case Green = "\033[32m";
+    case Black = "\033[30m";
     case Red = "\033[31m";
+    case Green = "\033[32m";
     case Yellow = "\033[33m";
     case Blue = "\033[34m";
+    case Magenta = "\033[35m";
     case Cyan = "\033[36m";
-    case Gray = "\033[90m";
     case White = "\033[97m";
+    case Gray = "\033[90m";
 
     // Styles
     case Reset = "\033[0m";

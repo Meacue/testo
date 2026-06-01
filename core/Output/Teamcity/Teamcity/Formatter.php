@@ -143,14 +143,16 @@ final class Formatter
      *
      * @param non-empty-string $name Test name
      * @param non-empty-string $output Standard output content
+     * @param array<non-empty-string, string> $attributes Extra attributes (e.g. `channel`, `level`)
+     *        for consumers that understand them; standard TeamCity parsers ignore unknown ones.
      * @return non-empty-string
      */
-    public static function testStdOut(string $name, string $output): string
+    public static function testStdOut(string $name, string $output, array $attributes = []): string
     {
         return self::formatMessage('testStdOut', [
             'name' => $name,
             'out' => $output,
-        ]);
+        ] + $attributes);
     }
 
     /**
@@ -158,14 +160,16 @@ final class Formatter
      *
      * @param non-empty-string $name Test name
      * @param non-empty-string $output Standard error content
+     * @param array<non-empty-string, string> $attributes Extra attributes (e.g. `channel`, `level`)
+     *        for consumers that understand them; standard TeamCity parsers ignore unknown ones.
      * @return non-empty-string
      */
-    public static function testStdErr(string $name, string $output): string
+    public static function testStdErr(string $name, string $output, array $attributes = []): string
     {
         return self::formatMessage('testStdErr', [
             'name' => $name,
             'out' => $output,
-        ]);
+        ] + $attributes);
     }
 
     /**
