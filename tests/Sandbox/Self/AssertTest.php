@@ -188,4 +188,13 @@ final class AssertTest
 
         // Test completes successfully despite Assert::fail() being called
     }
+
+    #[Test]
+    public function stream(): void
+    {
+        for ($i = 0; $i < 10; ++$i) {
+            \usleep(400_000);
+            echo "Foo $i\n";
+        }
+    }
 }

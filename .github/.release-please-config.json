@@ -14,6 +14,12 @@
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
         },
+        "plugin/messenger": {
+            "package-name": "testo/messenger",
+            "component": "messenger",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
+        },
         "plugin/convention": {
             "package-name": "testo/convention",
             "component": "convention",

@@ -46,6 +46,7 @@
         "testo/filter": "0.1 - 1",
         "testo/inline": "0.1 - 1",
         "testo/lifecycle": "0.1 - 1",
+        "testo/messenger": "0.1 - 1",
         "testo/repeat": "0.1 - 1",
         "testo/retry": "0.1 - 1",
         "testo/test": "0.1 - 1",
@@ -86,6 +87,7 @@
             "Tests\\Convention\\": "plugin/convention/tests/",
             "Tests\\Data\\": "plugin/data/tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
+            "Tests\\Messenger\\": "plugin/messenger/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
             "Tests\\Retry\\": "plugin/retry/tests/",
             "Tests\\Test\\": "plugin/test/tests/"
@@ -109,6 +111,7 @@
                     "testo/filter": "0.1.x-dev",
                     "testo/inline": "0.1.x-dev",
                     "testo/lifecycle": "0.1.x-dev",
+                    "testo/messenger": "0.1.x-dev",
                     "testo/repeat": "0.1.x-dev",
                     "testo/retry": "0.1.x-dev",
                     "testo/test": "0.1.x-dev"
