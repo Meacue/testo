@@ -11,7 +11,11 @@ use Testo\Core\Context\TestResult;
 use Testo\Core\Definition\CaseDefinition;
 use Testo\Core\Definition\TestDefinition;
 use Testo\Core\Value\Status;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Testo\Core\Log\Message;
 use Testo\Data\DataSet;
+use Testo\Messenger;
+use Testo\Messenger\Internal\MessengerHub;
 use Testo\Repeat;
 use Testo\Repeat\Internal\RepeatInterceptor;
 use Testo\Test;
@@ -21,7 +25,7 @@ final class RepeatInterceptorTest
 {
     public function runsTestSpecifiedNumberOfTimes(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 3));
+        $interceptor = self::createInterceptor(new Repeat(times: 3));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -37,7 +41,7 @@ final class RepeatInterceptorTest
 
     public function defaultRepeatRunsTestTwice(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat());
+        $interceptor = self::createInterceptor(new Repeat());
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -52,7 +56,7 @@ final class RepeatInterceptorTest
 
     public function singleRepeatRunsOnce(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 1));
+        $interceptor = self::createInterceptor(new Repeat(times: 1));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -67,7 +71,7 @@ final class RepeatInterceptorTest
 
     public function returnsLastSuccessfulResult(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 3));
+        $interceptor = self::createInterceptor(new Repeat(times: 3));
         $info = self::createTestInfo();
         $iteration = 0;
         $next = static function (TestInfo $info) use (&$iteration): TestResult {
@@ -82,7 +86,7 @@ final class RepeatInterceptorTest
 
     public function stopsOnFailureMidway(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 5));
+        $interceptor = self::createInterceptor(new Repeat(times: 5));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -101,7 +105,7 @@ final class RepeatInterceptorTest
 
     public function toleratesFailuresWithinMaxFailures(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 5, maxFailures: 2));
+        $interceptor = self::createInterceptor(new Repeat(times: 5, maxFailures: 2));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -120,7 +124,7 @@ final class RepeatInterceptorTest
 
     public function failsWhenFailuresExceedMaxFailures(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 10, maxFailures: 2));
+        $interceptor = self::createInterceptor(new Repeat(times: 10, maxFailures: 2));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -139,7 +143,7 @@ final class RepeatInterceptorTest
 
     public function stopsImmediatelyWhenMaxFailuresExceededByErrorStatus(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 5, maxFailures: 1));
+        $interceptor = self::createInterceptor(new Repeat(times: 5, maxFailures: 1));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -155,7 +159,7 @@ final class RepeatInterceptorTest
 
     public function staysPassedWhenAllRepetitionsPassEvenWithMaxFailures(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 3, maxFailures: 2));
+        $interceptor = self::createInterceptor(new Repeat(times: 3, maxFailures: 2));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -171,7 +175,7 @@ final class RepeatInterceptorTest
 
     public function failureWithinThresholdDoesNotMarkFlakyWhenDisabled(): void
     {
-        $interceptor = new RepeatInterceptor(
+        $interceptor = self::createInterceptor(
             new Repeat(times: 4, maxFailures: 2, markFlaky: false),
         );
         $info = self::createTestInfo();
@@ -193,7 +197,7 @@ final class RepeatInterceptorTest
     public function preservesFailureThrowableWhenMarkingFlaky(): void
     {
         $throwable = new \RuntimeException('boom');
-        $interceptor = new RepeatInterceptor(new Repeat(times: 3, maxFailures: 1));
+        $interceptor = self::createInterceptor(new Repeat(times: 3, maxFailures: 1));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount, $throwable): TestResult {
@@ -212,7 +216,7 @@ final class RepeatInterceptorTest
 
     public function skippedAbortsLoopRegardlessOfMaxFailures(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 5, maxFailures: 3));
+        $interceptor = self::createInterceptor(new Repeat(times: 5, maxFailures: 3));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -239,7 +243,7 @@ final class RepeatInterceptorTest
     #[DataSet([Status::Error, true])]
     public function statusBehavior(Status $status, bool $stopsLoop): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 3));
+        $interceptor = self::createInterceptor(new Repeat(times: 3));
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount, $status): TestResult {
@@ -255,7 +259,7 @@ final class RepeatInterceptorTest
 
     public function passesTestInfoToNext(): void
     {
-        $interceptor = new RepeatInterceptor(new Repeat(times: 2));
+        $interceptor = self::createInterceptor(new Repeat(times: 2));
         $info = self::createTestInfo();
         $receivedInfos = [];
         $next = static function (TestInfo $receivedInfo) use (&$receivedInfos): TestResult {
@@ -268,6 +272,38 @@ final class RepeatInterceptorTest
         Assert::same(\count($receivedInfos), 2);
         Assert::same($receivedInfos[0], $info);
         Assert::same($receivedInfos[1], $info);
+    }
+
+    public function recordsAStatusSymbolPerRun(): void
+    {
+        $messenger = self::createMessenger();
+        $interceptor = new RepeatInterceptor(new Repeat(times: 3, maxFailures: 5), $messenger);
+        $info = self::createTestInfo();
+        $next = static fn(TestInfo $info): TestResult => new TestResult(info: $info, status: Status::Failed);
+
+        $interceptor->runTest($info, $next);
+
+        $symbols = \array_map(
+            static fn(Message $m): string => $m->content,
+            $messenger->getMessages()->channel(RepeatInterceptor::CHANNEL),
+        );
+        Assert::same(\implode('', $symbols), 'FFF');
+    }
+
+    private static function createInterceptor(Repeat $options): RepeatInterceptor
+    {
+        return new RepeatInterceptor($options, self::createMessenger());
+    }
+
+    private static function createMessenger(): Messenger
+    {
+        return new MessengerHub(new class() implements EventDispatcherInterface {
+            #[\Override]
+            public function dispatch(object $event): object
+            {
+                return $event;
+            }
+        });
     }
 
     private static function createTestInfo(): TestInfo

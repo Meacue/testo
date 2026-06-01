@@ -6,7 +6,9 @@ namespace Testo\Repeat\Internal;
 
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
+use Testo\Core\Log\Level;
 use Testo\Core\Value\Status;
+use Testo\Messenger;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 use Testo\Pipeline\Policy\ConflictPolicy;
@@ -22,8 +24,20 @@ use Testo\Repeat;
 #[InterceptorOptions(order: InterceptorOptions::ORDER_DEFAULT - 190, onConflict: ConflictPolicy::Last)]
 final readonly class RepeatInterceptor implements TestRunInterceptor
 {
+    /**
+     * Channel the per-run status symbols are written to (one character per run).
+     */
+    public const CHANNEL = 'repeat';
+
+    /**
+     * Status symbols are accumulated in a string and flushed to the channel at most this often
+     * (seconds), so a fast test repeated many times produces a handful of messages, not thousands.
+     */
+    private const FLUSH_INTERVAL = 0.2;
+
     public function __construct(
         private Repeat $options,
+        private Messenger $messenger,
     ) {}
 
     #[\Override]
@@ -34,22 +48,74 @@ final readonly class RepeatInterceptor implements TestRunInterceptor
 
         $failures = 0;
 
+        # Per-run status symbols accumulate here and are emitted into the parent scope in batches, so
+        # the run line survives the (mostly dropped) per-run forks without a message+dispatch per run.
+        $symbols = '';
+        $lastFlush = \microtime(true);
+        $flush = function () use (&$symbols): void {
+            if ($symbols === '') {
+                return;
+            }
+            $this->messenger->log(self::CHANNEL, $symbols, Level::Info);
+            $symbols = '';
+        };
+
         do {
-            /** @var TestResult $result */
-            $result = $next($info);
+            /**
+             * @var TestResult $result
+             * @var callable $commit Persist messages from the test
+             */
+            [$result, $commit] = $this->messenger->fork(
+                static fn(callable $commit): array => [$next($info), $commit],
+                holdEvents: true,
+            );
+
+            $symbols .= self::symbol($result->status);
+            $now = \microtime(true);
+            if ($now - $lastFlush >= self::FLUSH_INTERVAL) {
+                $flush();
+                $lastFlush = $now;
+            }
 
             // Skipped / Cancelled / Aborted — abort immediately regardless of threshold.
             if (!$result->status->isCompleted()) {
+                $flush();
+                $commit();
                 return $result;
             }
 
             if ($result->status->isFailure() && ++$failures > $maxFailures) {
+                $flush();
+                $commit();
                 return $result;
             }
         } while (--$times > 0);
 
+        $flush();
+
+        # Keep the messages of the last run — the one whose result we return; earlier runs are dropped.
+        $commit();
+
         return $failures > 0 && $this->options->markFlaky
             ? $result->with(status: Status::Flaky)
             : $result;
+    }
+
+    /**
+     * Compact single-character status of one run.
+     *
+     * @return non-empty-string
+     */
+    private static function symbol(Status $status): string
+    {
+        return match ($status) {
+            Status::Passed, Status::Flaky => '.',
+            Status::Failed => 'F',
+            Status::Error => 'E',
+            Status::Skipped => 'S',
+            Status::Risky => 'R',
+            Status::Cancelled => 'C',
+            Status::Aborted => 'A',
+        };
     }
 }
