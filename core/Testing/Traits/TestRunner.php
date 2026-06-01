@@ -8,7 +8,9 @@ use InvalidArgumentException as InvalidArgument;
 use Testo\Application\Application;
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\FinderConfig;
+use Testo\Application\Config\Plugin\ApplicationPlugins;
 use Testo\Application\Config\SuiteConfig;
+use Testo\Common\PluginConfigurator;
 use Testo\Common\Reflection;
 use Testo\Core\Context\TestResult;
 use Testo\Testing\Attribute\TestingSuite;
@@ -74,6 +76,24 @@ final class TestRunner
         $suiteConfigs === [] and throw new \RuntimeException('Testing Suite is not configured.');
         $config = \reset($suiteConfigs)->newInstance();
 
+        # Extra plugins requested by the test, on top of the suite defaults.
+        $plugins = \array_map(
+            static fn(string|PluginConfigurator $p): PluginConfigurator => \is_string($p) ? new $p() : $p,
+            $config->plugins,
+        );
+
+        # The application-level plugins stay at their defaults below, so a default plugin re-listed
+        # by the test would be configured twice (once at application scope, once at suite scope).
+        # Drop those duplicates and keep only the genuinely extra ones.
+        $defaultClasses = \array_map(
+            static fn(PluginConfigurator $p): string => $p::class,
+            ApplicationPlugins::defaults()->toArray(),
+        );
+        $plugins = \array_values(\array_filter(
+            $plugins,
+            static fn(PluginConfigurator $p): bool => !\in_array($p::class, $defaultClasses, true),
+        ));
+
         return Application::createFromConfig(
             new ApplicationConfig(
                 src: [],
@@ -83,6 +103,7 @@ final class TestRunner
                         location: new FinderConfig(
                             include: [$config->path],
                         ),
+                        plugins: $plugins,
                     ),
                 ],
             ),
