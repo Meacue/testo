@@ -107,12 +107,12 @@ final class AssertTest
     }
 
     #[Test]
-    #[Retry(maxAttempts: 2)]
+    #[Retry(maxAttempts: 5)]
     public function flaky(): void
     {
         static $attempt = 0;
         ++$attempt;
-        Assert::same(2, $attempt);
+        Assert::same($attempt, 5);
     }
 
     #[Test]
@@ -196,5 +196,7 @@ final class AssertTest
             \usleep(400_000);
             echo "Foo $i\n";
         }
+
+        Assert::false(true);
     }
 }

@@ -14,6 +14,8 @@ use Testo\Core\Definition\TestDefinition;
 use Testo\Core\Value\Status;
 use Testo\Data\DataSet;
 use Testo\Event\Test\TestRetrying;
+use Testo\Messenger;
+use Testo\Messenger\Internal\MessengerHub;
 use Testo\Retry;
 use Testo\Retry\Interceptor\RetryPolicyRunInterceptor;
 use Testo\Test;
@@ -24,7 +26,7 @@ final class RetryPolicyRunInterceptorTest
     public function noRetryWhenFirstAttemptPasses(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 3), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 3), $dispatcher);
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -42,7 +44,7 @@ final class RetryPolicyRunInterceptorTest
     public function failingTestExhaustsAllAttempts(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 3), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 3), $dispatcher);
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -60,7 +62,7 @@ final class RetryPolicyRunInterceptorTest
     public function passOnRetryMarksAsFlaky(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 3), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 3), $dispatcher);
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -81,7 +83,7 @@ final class RetryPolicyRunInterceptorTest
     public function passOnRetryStaysPassedWhenMarkFlakyIsFalse(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(
+        $interceptor = self::createInterceptor(
             new Retry(maxAttempts: 3, markFlaky: false),
             $dispatcher,
         );
@@ -104,7 +106,7 @@ final class RetryPolicyRunInterceptorTest
     public function singleAttemptDoesNotRetry(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 1), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 1), $dispatcher);
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount): TestResult {
@@ -133,7 +135,7 @@ final class RetryPolicyRunInterceptorTest
     public function statusTriggersRetry(Status $status, bool $shouldRetry): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 3), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 3), $dispatcher);
         $info = self::createTestInfo();
         $callCount = 0;
         $next = static function (TestInfo $info) use (&$callCount, $status): TestResult {
@@ -149,7 +151,7 @@ final class RetryPolicyRunInterceptorTest
     public function dispatchesTestRetryingEventPerRetry(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 4), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 4), $dispatcher);
         $info = self::createTestInfo();
         $next = static fn(TestInfo $info): TestResult => new TestResult(
             info: $info,
@@ -159,17 +161,21 @@ final class RetryPolicyRunInterceptorTest
         $interceptor->runTest($info, $next);
 
         Assert::same(\count($dispatcher->dispatched), 3);
+        $attempts = [];
         foreach ($dispatcher->dispatched as $event) {
             Assert::true($event instanceof TestRetrying);
             Assert::same($event->testInfo, $info);
-            Assert::same($event->attempt, 2);
+            $attempts[] = $event->attempt;
         }
+
+        // Each event carries the number of the attempt about to run (2nd, 3rd, 4th).
+        Assert::same($attempts, [2, 3, 4]);
     }
 
     public function eventCarriesPreviousFailedResult(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 2), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 2), $dispatcher);
         $info = self::createTestInfo();
         $iteration = 0;
         $next = static function (TestInfo $info) use (&$iteration): TestResult {
@@ -189,7 +195,7 @@ final class RetryPolicyRunInterceptorTest
     public function passesTestInfoToNext(): void
     {
         $dispatcher = self::createDispatcher();
-        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 2), $dispatcher);
+        $interceptor = self::createInterceptor(new Retry(maxAttempts: 2), $dispatcher);
         $info = self::createTestInfo();
         $receivedInfos = [];
         $next = static function (TestInfo $receivedInfo) use (&$receivedInfos): TestResult {
@@ -202,6 +208,25 @@ final class RetryPolicyRunInterceptorTest
         Assert::same(\count($receivedInfos), 2);
         Assert::same($receivedInfos[0], $info);
         Assert::same($receivedInfos[1], $info);
+    }
+
+    public function logsBreadcrumbForEachDiscardedAttempt(): void
+    {
+        $messenger = self::createMessenger();
+        $interceptor = new RetryPolicyRunInterceptor(new Retry(maxAttempts: 3), self::createDispatcher(), $messenger);
+        $info = self::createTestInfo();
+        $next = static fn(TestInfo $info): TestResult => new TestResult(info: $info, status: Status::Failed);
+
+        $interceptor->runTest($info, $next);
+
+        // Attempts 1 and 2 are discarded (and leave a breadcrumb); attempt 3 is final and keeps its own output.
+        $breadcrumbs = $messenger->getMessages()->channel(RetryPolicyRunInterceptor::CHANNEL);
+        Assert::same(\count($breadcrumbs), 2);
+    }
+
+    private static function createInterceptor(Retry $options, EventDispatcherInterface $dispatcher): RetryPolicyRunInterceptor
+    {
+        return new RetryPolicyRunInterceptor($options, $dispatcher, self::createMessenger());
     }
 
     private static function createDispatcher(): EventDispatcherInterface
@@ -217,6 +242,17 @@ final class RetryPolicyRunInterceptorTest
                 return $event;
             }
         };
+    }
+
+    private static function createMessenger(): Messenger
+    {
+        return new MessengerHub(new class() implements EventDispatcherInterface {
+            #[\Override]
+            public function dispatch(object $event): object
+            {
+                return $event;
+            }
+        });
     }
 
     private static function createTestInfo(): TestInfo
