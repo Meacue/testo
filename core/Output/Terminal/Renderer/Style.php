@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Output\Terminal\Renderer;
 
+use Testo\Output\Rendering\Color;
+
 /**
  * Terminal styling utilities with configurable color support.
  *

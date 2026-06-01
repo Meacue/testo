@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Output\Terminal\Renderer;
+namespace Testo\Output\Rendering;
 
 /**
  * ANSI color codes for terminal styling.

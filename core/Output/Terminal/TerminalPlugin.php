@@ -10,11 +10,13 @@ use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\TestInfo;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
+use Testo\Event\Message\MessageReceived;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
 use Testo\Event\Test\TestDataSetFinished;
 use Testo\Event\Test\TestDataSetStarting;
 use Testo\Event\Test\TestPipelineFinished;
+use Testo\Event\Test\TestPipelineStarting;
 use Testo\Event\TestCase\TestCaseFinished;
 use Testo\Event\TestCase\TestCaseStarting;
 use Testo\Event\TestSuite\TestSuiteFinished;
@@ -55,7 +57,11 @@ final class TerminalPlugin implements PluginConfigurator
         $listeners->addListener(SessionStarting::class, $this->onSessionStarting(...));
         $listeners->addListener(SessionFinished::class, $this->onSessionFinished(...));
 
+        // Messenger output — streamed to the terminal in real time for the running test.
+        $listeners->addListener(MessageReceived::class, $this->onMessageReceived(...));
+
         // Test Pipeline events (lifecycle of entire test through all interceptors)
+        $listeners->addListener(TestPipelineStarting::class, $this->onTestPipelineStarting(...));
         $listeners->addListener(TestPipelineFinished::class, $this->onTestPipelineFinished(...));
 
         // Test Batch events (for DataProvider)
@@ -89,6 +95,17 @@ final class TerminalPlugin implements PluginConfigurator
     private function onSessionFinished(SessionFinished $event): void
     {
         $this->logger->printSummary($event->result->duration);
+    }
+
+    private function onMessageReceived(MessageReceived $event): void
+    {
+        $this->logger->logMessage($event->message);
+    }
+
+    private function onTestPipelineStarting(TestPipelineStarting $event): void
+    {
+        // Fresh channel grouping for the test about to run.
+        $this->logger->resetChannels();
     }
 
     private function onTestPipelineFinished(TestPipelineFinished $event): void
@@ -125,6 +142,9 @@ final class TerminalPlugin implements PluginConfigurator
 
     private function onTestDataSetStarting(TestDataSetStarting $event): void
     {
+        // Fresh channel grouping for the data set about to run.
+        $this->logger->resetChannels();
+
         // Log individual dataset start with custom name
         $prefix = $event->providerIndex === null ? '' : "$event->providerIndex:";
         $datasetName = "Dataset #{$prefix}{$event->datasetIndex} [$event->dataSetKey]";

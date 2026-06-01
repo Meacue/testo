@@ -13,8 +13,12 @@ use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
+use Testo\Core\Log\Message;
+use Testo\Core\Log\MessageLog;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Verbosity;
 use Testo\Data\MultipleResult;
+use Testo\Output\Rendering\ChannelRenderer;
 
 /**
  * Terminal logger for test reporting with configurable output format.
@@ -49,9 +53,29 @@ final class TerminalLogger
      */
     private ?string $currentSuiteName = null;
 
+    /** @var resource */
+    private $output;
+
+    private readonly ChannelRenderer $channels;
+
+    /**
+     * @param resource|null $output Stream to write to; defaults to {@see \STDOUT}. Output goes
+     *        straight to the stream, bypassing PHP output buffering, so it is not captured by the
+     *        messenger's output interceptor.
+     */
     public function __construct(
         private readonly OutputFormat $format = OutputFormat::Compact,
-    ) {}
+        private readonly Verbosity $verbosity = Verbosity::Normal,
+        $output = null,
+    ) {
+        $this->output = $output ?? \STDOUT;
+        $this->channels = new ChannelRenderer();
+    }
+
+    private function write(string $text): void
+    {
+        \fwrite($this->output, $text);
+    }
 
     /**
      * Publishes test suite started message.
@@ -59,7 +83,7 @@ final class TerminalLogger
     public function suiteStartedFromInfo(SuiteInfo $info): void
     {
         $this->currentSuiteName = $info->name;
-        echo Formatter::suiteHeader($info->name, $this->format);
+        $this->write(Formatter::suiteHeader($info->name, $this->format));
     }
 
     /**
@@ -67,7 +91,7 @@ final class TerminalLogger
      */
     public function handleSuiteResult(SuiteInfo $info, SuiteResult $result): void
     {
-        echo Formatter::suiteSummary($result, $this->format);
+        $this->write(Formatter::suiteSummary($result, $this->format));
     }
 
     /**
@@ -75,7 +99,7 @@ final class TerminalLogger
      */
     public function caseStartedFromInfo(CaseInfo $info): void
     {
-        echo Formatter::caseHeader($info->name, $this->format);
+        $this->write(Formatter::caseHeader($info->name, $this->format));
     }
 
     /**
@@ -83,8 +107,8 @@ final class TerminalLogger
      */
     public function handleCaseResult(CaseInfo $info, CaseResult $result): void
     {
-        echo Formatter::caseFooter($this->format);
-        echo Formatter::caseSummary($result, $this->format);
+        $this->write(Formatter::caseFooter($this->format));
+        $this->write(Formatter::caseSummary($result, $this->format));
     }
 
     /**
@@ -101,7 +125,7 @@ final class TerminalLogger
         // Print the batch test name (the main test with DataProvider)
         $indent = $this->format === OutputFormat::Verbose ? '     ' : '   ';
         $symbol = Style::dim(Symbol::DataProvider->value);
-        echo "{$indent}{$symbol} {$info->name}\n";
+        $this->write("{$indent}{$symbol} {$info->name}\n");
     }
 
     /**
@@ -122,6 +146,36 @@ final class TerminalLogger
     {
         $this->currentTestName = $overrideName;
         // No output on test start for compact/dots mode
+    }
+
+    /**
+     * Resets channel grouping so the next test's first message prints a fresh channel header.
+     */
+    public function resetChannels(): void
+    {
+        $this->channels->reset();
+    }
+
+    /**
+     * Streams a captured channel {@see Message} to the terminal in real time.
+     *
+     * A colored channel header (name + time of the channel's first message) is printed when the
+     * channel changes; same-channel content is appended verbatim. Live streaming happens only at
+     * {@see Verbosity::Verbose} and above; at lower verbosity the output of a *failed* test is shown
+     * after the fact (see {@see printFailures()}). Suppressed in Dots mode, whose single-character
+     * per-test layout multi-line output would break.
+     */
+    public function logMessage(Message $message): void
+    {
+        if (
+            $message->content === ''
+            || $this->format === OutputFormat::Dots
+            || !$this->verbosity->atLeast(Verbosity::Verbose)
+        ) {
+            return;
+        }
+
+        $this->write($this->channels->render($message));
     }
 
     /**
@@ -156,13 +210,13 @@ final class TerminalLogger
      */
     public function ensureHeader(): void
     {
-        echo Formatter::runHeader();
+        $this->write(Formatter::runHeader());
     }
 
     public function printEnvironment(): void
     {
-        echo \sprintf(' %s %s (%s)', Style::info('OS:'), Environment::getOs(), Environment::getCpu()) . "\n";
-        echo \sprintf(' %s %s (%s, memory: %s)', Style::info('PHP:'), Environment::getPhpVersion(), \PHP_SAPI, \ini_get('memory_limit') ?: 'unlimited') . "\n";
+        $this->write(\sprintf(' %s %s (%s)', Style::info('OS:'), Environment::getOs(), Environment::getCpu()) . "\n");
+        $this->write(\sprintf(' %s %s (%s, memory: %s)', Style::info('PHP:'), Environment::getPhpVersion(), \PHP_SAPI, \ini_get('memory_limit') ?: 'unlimited') . "\n");
 
         $modes = Environment::getXDebugMode();
         $xdebug = match (true) {
@@ -170,14 +224,14 @@ final class TerminalLogger
             $modes !== [] => Environment::getXDebugVersion() . Style::dim(' (' . \implode(', ', $modes) . ')'),
             default => Environment::getXDebugVersion() . Style::dim(' (off)'),
         };
-        echo \sprintf('   %s %s', Style::info('XDebug:'), $xdebug) . "\n";
+        $this->write(\sprintf('   %s %s', Style::info('XDebug:'), $xdebug) . "\n");
 
         $opcache = match (true) {
             !Environment::isOpCacheEnabled() => 'off',
             Environment::isJitEnabled() => 'enabled with JIT',
             default => 'enabled',
         };
-        echo \sprintf('   %s %s', Style::info('OPcache:'), $opcache) . "\n\n";
+        $this->write(\sprintf('   %s %s', Style::info('OPcache:'), $opcache) . "\n\n");
     }
 
     /**
@@ -195,7 +249,7 @@ final class TerminalLogger
             description: (string) $result->getAttribute('description'),
         );
 
-        echo Formatter::formatRun($item, $this->format);
+        $this->write(Formatter::formatRun($item, $this->format));
         $this->printMultipleRuns($result);
         $this->currentTestName = null;
     }
@@ -222,7 +276,7 @@ final class TerminalLogger
             description: (string) $result->getAttribute('description'),
         );
 
-        echo Formatter::formatRun($item, $this->format);
+        $this->write(Formatter::formatRun($item, $this->format));
         $this->printMultipleRuns($result);
         $this->printAssertionHistory($result);
         $this->currentTestName = null;
@@ -253,7 +307,7 @@ final class TerminalLogger
                 description: (string) $runKey,
             );
 
-            echo Formatter::formatRun($item, $this->format);
+            $this->write(Formatter::formatRun($item, $this->format));
             $runNumber++;
         }
     }
@@ -269,10 +323,10 @@ final class TerminalLogger
             return;
         }
 
-        echo Formatter::assertionHistoryHeader($this->format);
+        $this->write(Formatter::assertionHistoryHeader($this->format));
 
         foreach ($testState->history as $assertion) {
-            echo Formatter::assertionLine($assertion, $this->format);
+            $this->write(Formatter::assertionLine($assertion, $this->format));
         }
     }
 
@@ -290,7 +344,7 @@ final class TerminalLogger
             indentLevel: $this->currentIndentLevel,
         );
 
-        echo Formatter::formatRun($item, $this->format);
+        $this->write(Formatter::formatRun($item, $this->format));
         $this->currentTestName = null;
     }
 
@@ -308,7 +362,7 @@ final class TerminalLogger
             indentLevel: $this->currentIndentLevel,
         );
 
-        echo Formatter::formatRun($item, $this->format);
+        $this->write(Formatter::formatRun($item, $this->format));
         $this->currentTestName = null;
     }
 
@@ -321,7 +375,7 @@ final class TerminalLogger
             return;
         }
 
-        echo Formatter::failuresHeader();
+        $this->write(Formatter::failuresHeader());
 
         $index = 1;
         foreach ($this->failures as $failure) {
@@ -343,6 +397,12 @@ final class TerminalLogger
                 $details = $details === '' ? $diffBlock : $diffBlock . "\n\n" . $details;
             }
 
+            // At lower verbosity nothing was streamed live — surface the test's captured output here.
+            if (!$this->verbosity->atLeast(Verbosity::Verbose)) {
+                $output = self::renderMessages($result->messages);
+                $output === '' or $details = $details === '' ? $output : $details . "\n\n" . $output;
+            }
+
             $testName = self::buildFullTestName(
                 $result->info,
                 $failure['suiteName'],
@@ -356,17 +416,37 @@ final class TerminalLogger
                 ? "{$file}:{$line}"
                 : null;
 
-            echo Formatter::failureDetail(
+            $this->write(Formatter::failureDetail(
                 $index,
                 $testName,
                 $message,
                 $details,
                 $duration,
                 $location,
-            );
+            ));
 
             $index++;
         }
+    }
+
+    /**
+     * Renders a test's captured messages as grouped channel output (with `[channel]` headers), or
+     * an empty string when there are none. Used to show a failed test's output after the fact when
+     * it was not streamed live.
+     */
+    private static function renderMessages(MessageLog $messages): string
+    {
+        if ($messages->isEmpty()) {
+            return '';
+        }
+
+        $renderer = new ChannelRenderer();
+        $output = '';
+        foreach ($messages as $message) {
+            $message->content === '' or $output .= $renderer->render($message);
+        }
+
+        return $output === '' ? '' : Style::dim('Output:') . "\n" . $output;
     }
 
     /**
@@ -403,12 +483,12 @@ final class TerminalLogger
             + ($this->statusCounts[Status::Aborted->name] ?? 0);
         $success = $failures === 0;
 
-        echo Formatter::summary(
+        $this->write(Formatter::summary(
             $this->totalTests,
             $this->statusCounts,
             $duration,
-        );
+        ));
 
-        echo Formatter::finalBanner($success);
+        $this->write(Formatter::finalBanner($success));
     }
 }

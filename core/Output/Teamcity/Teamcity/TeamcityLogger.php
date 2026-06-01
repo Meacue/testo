@@ -18,9 +18,8 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
+use Testo\Output\Rendering\ChannelRenderer;
 use Testo\Output\Rendering\StackTrace;
-use Testo\Output\Terminal\Renderer\Color;
-use Testo\Output\Terminal\Renderer\Style;
 
 /**
  * TeamCity logger for test reporting using DTO objects.
@@ -41,19 +40,7 @@ final class TeamcityLogger
     /** @var resource */
     private $output;
 
-    /**
-     * Channel of the last streamed message — used to print a channel header only when the channel
-     * changes. `null` between tests / before the first message.
-     *
-     * @var non-empty-string|null
-     */
-    private ?string $lastChannel = null;
-
-    /**
-     * Whether the last streamed content ended on a newline, so a channel header can be kept on its
-     * own line without inserting blank lines.
-     */
-    private bool $lastEndedWithNewline = true;
+    private readonly ChannelRenderer $channels;
 
     /**
      * @param resource|null $output Stream the logger writes to; defaults to {@see \STDOUT}.
@@ -61,6 +48,7 @@ final class TeamcityLogger
     public function __construct($output = null)
     {
         $this->output = $output ?? \STDOUT;
+        $this->channels = new ChannelRenderer();
     }
 
     /**
@@ -224,8 +212,7 @@ final class TeamcityLogger
     public function testStartedFromInfo(TestInfo $info, bool $captureStandardOutput = false, ?string $overrideName = null, ?string $locationSuffix = null): void
     {
         // New test: reset channel grouping so its first message prints a fresh channel header.
-        $this->lastChannel = null;
-        $this->lastEndedWithNewline = true;
+        $this->channels->reset();
 
         $this->publish(Formatter::testStarted($overrideName ?? $info->name, $captureStandardOutput, $info->testDefinition->reflection, $locationSuffix));
     }
@@ -298,7 +285,7 @@ final class TeamcityLogger
             return;
         }
 
-        $out = $this->renderChannel($message);
+        $out = $this->channels->render($message);
 
         # Machine-readable metadata for consumers that understand it; standard parsers ignore it.
         $attributes = [
@@ -309,73 +296,6 @@ final class TeamcityLogger
         $this->publish($message->channel === self::CHANNEL_STDERR
             ? Formatter::testStdErr($name, $out, $attributes)
             : Formatter::testStdOut($name, $out, $attributes));
-    }
-
-    /**
-     * Builds the streamed text for a message, prepending a colored channel header only when the
-     * channel changed since the previous message.
-     *
-     * - New/changed channel: the channel name (highlighted) followed by the time of this first
-     *   message, on its own line, then the content.
-     * - Same channel as before: the content verbatim, no header and no extra line breaks.
-     *
-     * @return non-empty-string
-     */
-    private function renderChannel(Message $message): string
-    {
-        $channel = $message->channel;
-        $content = $message->content;
-
-        if ($channel === $this->lastChannel) {
-            $this->lastEndedWithNewline = \str_ends_with($content, "\n");
-            return $content;
-        }
-
-        // Keep the header on its own line: break only if the previous content didn't already.
-        $separator = $this->lastChannel !== null && !$this->lastEndedWithNewline ? "\n" : '';
-        $this->lastChannel = $channel;
-        $this->lastEndedWithNewline = \str_ends_with($content, "\n");
-
-        return $separator . self::channelHeader($channel, $message->time) . "\n" . $content;
-    }
-
-    /**
-     * A channel header — the channel name highlighted in a stable, name-derived color, followed by
-     * the (dimmed) wall-clock time of the channel's first message. {@see Style} strips the ANSI
-     * when colors are disabled, leaving a plain `[channel] HH:MM:SS.mmm` header.
-     *
-     * @param non-empty-string $channel
-     * @return non-empty-string
-     */
-    private static function channelHeader(string $channel, float $time): string
-    {
-        // Black is omitted on purpose — it is invisible on a dark terminal.
-        $palette = [
-            Color::Cyan,
-            Color::Magenta,
-            Color::Yellow,
-            Color::Green,
-            Color::Blue,
-            Color::Red,
-            Color::White,
-            Color::Gray,
-        ];
-        $color = $palette[\abs(\crc32($channel)) % \count($palette)];
-
-        return Style::colorize("[{$channel}]", $color) . ' ' . Style::dim(self::formatTime($time));
-    }
-
-    /**
-     * Formats a {@see \microtime()} timestamp as `HH:MM:SS.mmm` wall-clock time.
-     *
-     * @return non-empty-string
-     */
-    private static function formatTime(float $time): string
-    {
-        $seconds = (int) $time;
-        $millis = \min(999, (int) \round(($time - $seconds) * 1000));
-
-        return \date('H:i:s', $seconds) . \sprintf('.%03d', $millis);
     }
 
     /**

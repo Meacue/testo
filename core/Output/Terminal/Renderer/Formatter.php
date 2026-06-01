@@ -11,6 +11,7 @@ use Testo\Common\Info;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Value\Status;
+use Testo\Output\Rendering\Color;
 
 /**
  * Formats terminal output messages with support for different output formats.
