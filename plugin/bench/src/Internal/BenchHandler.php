@@ -12,12 +12,18 @@ use Testo\Bench\Dto\IterationSet;
 use Testo\Bench\Dto\Snap;
 use Testo\Bench\Exception\BenchAttributeMissingException;
 use Testo\Core\Context\TestInfo;
+use Testo\Core\Log\Level;
+use Testo\Messenger;
 
 /**
  * @internal
  */
-final class BenchHandler
+final readonly class BenchHandler
 {
+    public function __construct(
+        private Messenger $messenger,
+    ) {}
+
     public function __invoke(TestInfo $info): mixed
     {
         $attr = $info->getAttribute(Bench::class);
@@ -71,15 +77,25 @@ final class BenchHandler
         );
 
         $summaryTable = \Testo\Bench\Internal\Renderer::table($result);
+        $summaryRecommendations = \Testo\Bench\Internal\Renderer::recommendations($result);
         $itersTable = \Testo\Bench\Internal\Renderer::rounds($result);
-        echo <<<EOT
+
+        $this->messenger->log('bench-result', <<<EOT
             Results for {$info->name}:
             $summaryTable
+            EOT);
 
+        $summaryRecommendations === '' or $this->messenger->log(
+            'bench-result',
+            $summaryRecommendations,
+            level: Level::Warning,
+        );
+
+        $this->messenger->log('bench-iterations', <<<EOT
             Iterations:
             {$itersTable}
 
-            EOT;
+            EOT);
 
         return $result;
     }

@@ -109,7 +109,7 @@ final class Renderer
 
         $lines[] = self::separator($widths);
 
-        return \implode("\n", $lines) . self::recommendations($result);
+        return \implode("\n", $lines);
     }
 
     public static function rounds(BenchResult $result): string
@@ -152,7 +152,7 @@ final class Renderer
         return \implode("\n", $lines);
     }
 
-    private static function recommendations(BenchResult $result): string
+    public static function recommendations(BenchResult $result): string
     {
         $dangers = [];
         $warnings = [];

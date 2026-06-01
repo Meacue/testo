@@ -23,6 +23,7 @@
         "php": ">=8.2",
         "testo/data": "0.1 - 1",
         "testo/inline": "0.1 - 1",
+        "testo/messenger": "0.1 - 1",
         "testo/testo": "*"
     },
     "autoload": {
