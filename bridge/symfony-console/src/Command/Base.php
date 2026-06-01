@@ -13,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\StyleInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Testo\Application\Application;
+use Testo\Core\Value\Verbosity;
 use Yiisoft\Injector\Injector;
 
 /**
@@ -83,6 +84,7 @@ abstract class Base extends Command
         $this->container->set($input, InputInterface::class);
         $this->container->set($output, OutputInterface::class);
         $this->container->set(new SymfonyStyle($input, $output), StyleInterface::class);
+        $this->container->set(self::resolveVerbosity($output), Verbosity::class);
 
         return $this->container->get(Injector::class)->invoke($this) ?? Command::SUCCESS;
     }
@@ -111,5 +113,19 @@ abstract class Base extends Command
         );
 
         return null;
+    }
+
+    /**
+     * Maps Symfony's console verbosity onto the framework's {@see Verbosity} level.
+     */
+    private static function resolveVerbosity(OutputInterface $output): Verbosity
+    {
+        return match ($output->getVerbosity()) {
+            OutputInterface::VERBOSITY_QUIET => Verbosity::Quiet,
+            OutputInterface::VERBOSITY_VERBOSE => Verbosity::Verbose,
+            OutputInterface::VERBOSITY_VERY_VERBOSE => Verbosity::VeryVerbose,
+            OutputInterface::VERBOSITY_DEBUG => Verbosity::Debug,
+            default => Verbosity::Normal,
+        };
     }
 }
