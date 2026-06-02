@@ -7,7 +7,6 @@ namespace Testo\Retry\Interceptor;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
-use Testo\Core\Log\Level;
 use Testo\Core\Value\Status;
 use Testo\Event\Test\TestRetrying;
 use Testo\Messenger;
@@ -31,11 +30,15 @@ final readonly class RetryPolicyRunInterceptor implements TestRunInterceptor
      */
     public const CHANNEL = 'retry';
 
+    private Messenger\Channel $channel;
+
     public function __construct(
         private Retry $options,
         private EventDispatcherInterface $eventDispatcher,
-        private Messenger $messenger,
-    ) {}
+        Messenger $messenger,
+    ) {
+        $this->channel = $messenger->channel(self::CHANNEL);
+    }
 
     #[\Override]
     public function runTest(TestInfo $info, callable $next): TestResult
@@ -46,26 +49,18 @@ final readonly class RetryPolicyRunInterceptor implements TestRunInterceptor
         $attempt = 1;
         run:
         --$attempts;
-        /**
-         * @var TestResult $result
-         * @var callable $commit Persist messages from the test
-         */
-        [$result, $commit] = $this->messenger->fork(
-            static fn(callable $commit): array => [$next($info), $commit],
-            holdEvents: true,
-        );
+        /** @var TestResult $result */
+        $result = $next($info);
 
         if ($result->status->isFailure()) {
             # Test failed, check if we can retry
             if ($attempts > 0) {
                 # The attempt's own output went into the dropped fork; leave a breadcrumb in the
                 # parent scope so the discarded attempt still leaves a trace in the test's output.
-                $this->messenger->log(
-                    self::CHANNEL,
+                $this->channel->warning(
                     $result->failure === null
                         ? "Attempt $attempt failed.\n"
                         : "Attempt $attempt failed: {$result->failure->getMessage()}\n",
-                    Level::Warning,
                 );
 
                 $isFlaky = true;
@@ -75,11 +70,9 @@ final readonly class RetryPolicyRunInterceptor implements TestRunInterceptor
                 goto run;
             }
 
-            $commit();
             return $result;
         }
 
-        $commit();
         return $isFlaky && $this->options->markFlaky && $result->status->isSuccessful()
             ? $result->with(status: Status::Flaky)
             : $result;
