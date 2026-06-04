@@ -8,7 +8,7 @@ use Testo\Assert;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
-use Testo\Testing\Traits\TestRunner;
+use Testo\Testing\Helper\TestRunner;
 use Tests\Test\Stub\NonPublicTestMethods;
 
 #[TestingSuite(path: __DIR__ . '/../Stub/NonPublicTestMethods.php')]

@@ -97,7 +97,7 @@ final class JUnitPlugin implements PluginConfigurator
      * Single-shot guard so the plugin attaches its listeners only to the
      * outer dispatcher when the same instance is shared across containers.
      * `ApplicationPlugins::defaults()` reuses one `JUnitPlugin` for every
-     * top-level run AND for every nested {@see \Testo\Testing\Traits\TestRunner::runTest()}
+     * top-level run AND for every nested {@see \Testo\Testing\Helper\TestRunner::runTest()}
      * sub-run; without this guard inner `SessionStarting` would clear the
      * outer writer state, and inner `SessionFinished` would overwrite the
      * file with inner-only suites.

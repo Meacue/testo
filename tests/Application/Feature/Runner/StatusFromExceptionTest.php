@@ -12,7 +12,7 @@ use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
-use Testo\Testing\Traits\TestRunner as TestingRunner;
+use Testo\Testing\Helper\TestRunner as TestingRunner;
 use Tests\Application\Stub\Runner\StatusFromException;
 
 /**

@@ -9,7 +9,7 @@ use Testo\Assert\State\Assertion;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
-use Testo\Testing\Traits\TestRunner;
+use Testo\Testing\Helper\TestRunner;
 use Tests\Assert\Stub\AssertNotNullNegative;
 use Tests\Assert\Stub\AssertNotNullPositive;
 

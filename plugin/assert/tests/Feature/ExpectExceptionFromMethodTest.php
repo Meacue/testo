@@ -9,7 +9,7 @@ use Testo\Assert\State\Expectation;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
-use Testo\Testing\Traits\TestRunner;
+use Testo\Testing\Helper\TestRunner;
 use Tests\Assert\Stub\ExceptionThrower;
 use Tests\Assert\Stub\ExpectExceptionFromMethod;
 

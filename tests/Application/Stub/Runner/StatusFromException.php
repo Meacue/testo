@@ -12,7 +12,7 @@ use Testo\Test;
  * Stub tests that throw status-bearing exceptions from the test body.
  *
  * Each method is exercised through the real runner via
- * {@see \Testo\Testing\Traits\TestRunner::runTest()} so we can observe how
+ * {@see \Testo\Testing\Helper\TestRunner::runTest()} so we can observe how
  * {@see \Testo\Application\Internal\Runner\TestRunner} maps the throw to a
  * {@see \Testo\Core\Value\Status}.
  */

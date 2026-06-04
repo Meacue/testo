@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Testing\Traits;
+namespace Testo\Testing\Helper;
 
 use InvalidArgumentException as InvalidArgument;
 use Testo\Application\Application;
