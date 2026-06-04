@@ -8,6 +8,7 @@ use Testo\Application\Config\Plugin\SuitePlugins;
 use Testo\Application\Config\SuiteConfig;
 use Testo\Bench\BenchmarkPlugin;
 use Testo\Inline\InlineTestPlugin;
+use Testo\Testing\InjectPlugin;
 
 return new ApplicationConfig(
     src: new FinderConfig(
@@ -67,4 +68,5 @@ return new ApplicationConfig(
         require 'tests/Output/suites.php',
         require 'tests/Tokenizer/suites.php',
     ),
+    plugins: [new InjectPlugin()],
 );

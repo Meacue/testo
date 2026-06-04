@@ -12,4 +12,16 @@ return [
             include: [__DIR__ . '/Log'],
         ),
     ),
+    new SuiteConfig(
+        name: 'Core/Testing/Unit',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Testing/Unit'],
+        ),
+    ),
+    new SuiteConfig(
+        name: 'Core/Testing/Feature',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Testing/Feature'],
+        ),
+    ),
 ];

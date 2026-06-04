@@ -10,9 +10,11 @@ use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
 use Testo\Expect;
+use Testo\Messenger;
 use Testo\Repeat;
 use Testo\Retry;
 use Testo\Test;
+use Testo\Testing\Attribute\Inject;
 use Tests\Fixture\ClassDataProvider;
 
 /**
@@ -20,6 +22,9 @@ use Tests\Fixture\ClassDataProvider;
  */
 final class AssertTest
 {
+    #[Inject]
+    private Messenger $messenger;
+
     public static function dataForProvider(): iterable
     {
         yield ['zero'];
@@ -205,6 +210,24 @@ final class AssertTest
     public function streamRepeat(): void
     {
         \usleep(5_000);
+        Assert::true(true);
+    }
+
+    #[Test]
+    public function logger(): void
+    {
+        $this->messenger->channel('query.sql')->debug(<<<SQL
+            SELECT *
+            FROM user
+            WHERE id = 42
+            SQL);
+
+        $this->messenger->channel('response.json')->write(<<<JSON
+            {
+                "id": 42,
+                "name": "John Doe"
+            }
+            JSON);
         Assert::true(true);
     }
 }
