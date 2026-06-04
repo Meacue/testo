@@ -216,10 +216,13 @@ final class AssertTest
     #[Test]
     public function logger(): void
     {
+        echo "This test demonstrates logging to \e[32mmultiple channels\e[0m with different levels.\n";
+
         $this->messenger->channel('query.sql')->debug(<<<SQL
             SELECT *
             FROM user
             WHERE id = 42
+
             SQL);
 
         $this->messenger->channel('response.json')->write(<<<JSON
@@ -227,7 +230,15 @@ final class AssertTest
                 "id": 42,
                 "name": "John Doe"
             }
+
             JSON);
+
+        $this->messenger->channel('docs.md')->write(<<<MARKDOWN
+            # Foo
+            ## Bar
+            **Baz** `fizz buzz`
+
+            MARKDOWN);
         Assert::true(true);
     }
 }

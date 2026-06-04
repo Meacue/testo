@@ -15,7 +15,6 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
-use Testo\Output\Rendering\ChannelRenderer;
 use Testo\Output\Rendering\StackTrace;
 
 /**
@@ -37,15 +36,12 @@ final class TeamcityLogger
     /** @var resource */
     private $output;
 
-    private readonly ChannelRenderer $channels;
-
     /**
      * @param resource|null $output Stream the logger writes to; defaults to {@see \STDOUT}.
      */
     public function __construct($output = null)
     {
         $this->output = $output ?? \STDOUT;
-        $this->channels = new ChannelRenderer();
     }
 
     /**
@@ -208,9 +204,6 @@ final class TeamcityLogger
      */
     public function testStartedFromInfo(TestInfo $info, bool $captureStandardOutput = false, ?string $overrideName = null, ?string $locationSuffix = null): void
     {
-        // New test: reset channel grouping so its first message prints a fresh channel header.
-        $this->channels->reset();
-
         $this->publish(Formatter::testStarted($overrideName ?? $info->name, $captureStandardOutput, $info->testDefinition->reflection, $locationSuffix));
     }
 
@@ -264,10 +257,10 @@ final class TeamcityLogger
      * Publishes a captured {@see Message} as a stdout/stderr service message for the given test.
      *
      * The channel decides the stream: the dedicated `stderr` channel maps to TeamCity's stderr,
-     * everything else to stdout. Severity travels separately as the `level` attribute. Consecutive
-     * messages from the same channel are appended verbatim; when the channel changes, a colored
-     * channel header is printed on its own line first. Must be emitted between this test's
-     * `testStarted` and `testFinished` to nest correctly.
+     * everything else to stdout. The content is emitted verbatim — no `[channel] <time>` header is
+     * printed; the channel, severity and timestamp travel as the machine-readable `channel`, `level`
+     * and `time` attributes instead. Must be emitted between this test's `testStarted` and
+     * `testFinished` to nest correctly.
      *
      * @param non-empty-string $name Test name the message belongs to.
      */
@@ -277,17 +270,16 @@ final class TeamcityLogger
             return;
         }
 
-        $out = $this->channels->render($message);
-
         # Machine-readable metadata for consumers that understand it; standard parsers ignore it.
         $attributes = [
             'channel' => $message->channel,
             'level' => $message->level->value,
+            'time' => (string) $message->time,
         ];
 
         $this->publish($message->channel === self::CHANNEL_STDERR
-            ? Formatter::testStdErr($name, $out, $attributes)
-            : Formatter::testStdOut($name, $out, $attributes));
+            ? Formatter::testStdErr($name, $message->content, $attributes)
+            : Formatter::testStdOut($name, $message->content, $attributes));
     }
 
     /**
