@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Core\Value\TestType;
 use Testo\Data\DataCross;
 use Testo\Data\DataProvider;
@@ -106,20 +107,28 @@ final readonly class DataProviderInterceptor implements TestRunInterceptor
                 # No data sets were run, mark as Risky
                 $status->isFailure() or $status = Status::Risky;
 
+                # A single (data set–less) test: leave counts empty so the final status is stamped
+                # late by the TestRunner, after any outer interceptors have had their say.
                 $finalResult = new TestResult(
                     info: $info,
                     status: $status,
                     result: $e ?? new \RuntimeException('No data sets were provided by the data provider.'),
                 );
             } else {
-                $summary = new MultipleResult($results);
+                $multiple = new MultipleResult($results);
                 $finalResult = new TestResult(
                     info: $info,
                     status: $status,
-                    result: $e ?? $summary,
+                    result: $e ?? $multiple,
                     attributes: [
-                        MultipleResult::class => $summary,
+                        MultipleResult::class => $multiple,
                     ],
+                    # Each data set counts as a test, so the aggregate is the sum of their summaries,
+                    # each stamped with the data set's final status.
+                    summary: Summary::combine(\array_map(
+                        static fn(TestResult $r): Summary => $r->summary->withStatus($r->status),
+                        $results,
+                    )),
                 );
             }
 
@@ -157,6 +166,7 @@ final readonly class DataProviderInterceptor implements TestRunInterceptor
         try {
             $result = $next($newInfo);
         } catch (\Throwable $throwable) {
+            # Counts stay empty here; the aggregate's fold stamps each data set's final status.
             $result = new TestResult(
                 info: $newInfo,
                 status: Status::Error,

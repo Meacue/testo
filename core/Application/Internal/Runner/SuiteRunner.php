@@ -7,10 +7,12 @@ namespace Testo\Application\Internal\Runner;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Application\Internal\SimpleCaseInstantiator;
 use Testo\Core\Context\CaseInfo;
+use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Internal\DefaultTestHandler;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Event\TestSuite\TestSuiteFinished;
 use Testo\Event\TestSuite\TestSuitePipelineFinished;
 use Testo\Event\TestSuite\TestSuitePipelineStarting;
@@ -92,7 +94,14 @@ final readonly class SuiteRunner
             }
         }
 
-        $result = new SuiteResult($results, status: $status);
+        $result = new SuiteResult(
+            $results,
+            status: $status,
+            summary: Summary::combine(\array_map(
+                static fn(CaseResult $r): Summary => $r->summary,
+                $results,
+            )),
+        );
 
         $this->eventDispatcher->dispatch(new TestSuiteFinished($suite, $result));
         return $result;

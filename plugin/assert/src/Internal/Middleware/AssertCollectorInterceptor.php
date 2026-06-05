@@ -72,7 +72,9 @@ final readonly class AssertCollectorInterceptor implements TestRunInterceptor
                 HistoryRenderer::render($state->history),
             );
 
-            return $result->withAttribute(TestState::class, $state);
+            return $result
+                ->withAttribute(TestState::class, $state)
+                ->withSummary($result->summary->withAddedMetric('assertions', \count($state->history)));
         } finally {
             StaticState::swap($previous);
         }

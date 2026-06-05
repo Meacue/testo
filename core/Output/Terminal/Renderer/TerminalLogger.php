@@ -8,6 +8,7 @@ use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Common\Environment;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
+use Testo\Core\Context\RunResult;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Context\TestInfo;
@@ -26,12 +27,6 @@ use Testo\Output\Rendering\ChannelRenderer;
  */
 final class TerminalLogger
 {
-    /** @var int<0, max> */
-    private int $totalTests = 0;
-
-    /** @var array<string, int<0, max>> Per-Status counters, keyed by Status::name */
-    private array $statusCounts = [];
-
     /** @var list<array{result: TestResult, duration: int<0, max>|null, suiteName: string|null, datasetName: string|null}> */
     private array $failures = [];
 
@@ -85,7 +80,7 @@ final class TerminalLogger
      */
     public function handleSuiteResult(SuiteInfo $info, SuiteResult $result): void
     {
-        $this->write(Formatter::suiteSummary($result, $this->format));
+        $this->write(Formatter::suiteSummary($result));
     }
 
     /**
@@ -179,9 +174,6 @@ final class TerminalLogger
      */
     public function handleTestResult(TestResult $result, ?int $duration): void
     {
-        $this->totalTests++;
-        $this->statusCounts[$result->status->name] = ($this->statusCounts[$result->status->name] ?? 0) + 1;
-
         match ($result->status) {
             Status::Passed, Status::Flaky => $this->handlePassedTest($result, $duration),
             Status::Failed, Status::Error, Status::Aborted => $this->handleFailedTest($result, $duration),
@@ -193,10 +185,10 @@ final class TerminalLogger
     /**
      * Prints final summary with all failures and statistics.
      */
-    public function printSummary(float $duration): void
+    public function printSummary(RunResult $result): void
     {
         $this->printFailures();
-        $this->printStatistics($duration);
+        $this->printStatistics($result);
     }
 
     /**
@@ -456,18 +448,13 @@ final class TerminalLogger
     /**
      * Prints final statistics.
      */
-    private function printStatistics(float $duration): void
+    private function printStatistics(RunResult $result): void
     {
-        $failures = ($this->statusCounts[Status::Failed->name] ?? 0)
-            + ($this->statusCounts[Status::Error->name] ?? 0)
-            + ($this->statusCounts[Status::Aborted->name] ?? 0);
+        $summary = $result->summary;
+        $failures = $summary->failed() + $summary->count(Status::Aborted);
         $success = $failures === 0;
 
-        $this->write(Formatter::summary(
-            $this->totalTests,
-            $this->statusCounts,
-            $duration,
-        ));
+        $this->write(Formatter::summary($summary, $result->duration));
 
         $this->write(Formatter::finalBanner($success));
     }

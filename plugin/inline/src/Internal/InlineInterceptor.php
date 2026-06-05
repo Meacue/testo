@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Core\Value\TestType;
 use Testo\Data\MultipleResult;
 use Testo\Event\Test\TestBatchFinished;
@@ -77,7 +78,12 @@ final readonly class InlineInterceptor implements TestRunInterceptor
             try {
                 $result = $next($newInfo);
             } catch (\Throwable $throwable) {
-                $result = new TestResult(info: $newInfo, status: Status::Error, failure: $throwable);
+                # Counts stay empty here; the aggregate's fold stamps each case's final status.
+                $result = new TestResult(
+                    info: $newInfo,
+                    status: Status::Error,
+                    failure: $throwable,
+                );
             }
 
             # Dispatch dataset finished event
@@ -90,11 +96,27 @@ final readonly class InlineInterceptor implements TestRunInterceptor
             $results[] = $result;
         }
 
-        $results = new MultipleResult($results);
-
-        $finalResult = new TestResult(info: $info, status: $status, result: $results, attributes: [
-            MultipleResult::class => $results,
-        ]);
+        if ($results === []) {
+            # No inline cases matched the filter — count as a single Risky test; leave counts empty
+            # so the final status is stamped late by the TestRunner.
+            $status->isFailure() or $status = Status::Risky;
+            $finalResult = new TestResult(
+                info: $info,
+                status: $status,
+                result: new \RuntimeException('No inline cases were provided.'),
+            );
+        } else {
+            # Each inline case counts as a test, so the aggregate is the sum of their summaries,
+            # each stamped with the case's final status.
+            $summary = Summary::combine(\array_map(
+                static fn(TestResult $r): Summary => $r->summary->withStatus($r->status),
+                $results,
+            ));
+            $multiple = new MultipleResult($results);
+            $finalResult = new TestResult(info: $info, status: $status, result: $multiple, attributes: [
+                MultipleResult::class => $multiple,
+            ], summary: $summary);
+        }
 
         # Dispatch batch finished event
         $this->eventDispatcher->dispatch(new TestBatchFinished($info, $finalResult));

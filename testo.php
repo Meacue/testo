@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 use Testo\Application\Config\ApplicationConfig;
 use Testo\Application\Config\FinderConfig;
-use Testo\Application\Config\Plugin\SuitePlugins;
 use Testo\Application\Config\SuiteConfig;
-use Testo\Bench\BenchmarkPlugin;
-use Testo\Inline\InlineTestPlugin;
 use Testo\Testing\InjectPlugin;
 
 return new ApplicationConfig(
@@ -34,10 +31,6 @@ return new ApplicationConfig(
                 name: 'Core/Inline',
                 location: new FinderConfig(
                     include: ['core'],
-                ),
-                plugins: SuitePlugins::only(
-                    new InlineTestPlugin(),
-                    new BenchmarkPlugin(),
                 ),
             ),
         ],

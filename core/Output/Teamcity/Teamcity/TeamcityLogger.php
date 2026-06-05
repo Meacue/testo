@@ -142,7 +142,7 @@ final class TeamcityLogger
     {
         // Report suite-level failure if status indicates failure
         if ($result->status->isFailure()) {
-            $failedCount = $result->countFailedTests();
+            $failedCount = $result->summary->failed();
             $this->publish(
                 Formatter::testStdErr(
                     $info->name,
@@ -185,7 +185,7 @@ final class TeamcityLogger
     {
         // Report case-level failure if status indicates failure
         if ($result->status->isFailure()) {
-            $failedCount = $result->countFailedTests();
+            $failedCount = $result->summary->failed();
             $this->publish(
                 Formatter::testStdErr(
                     $caseInfo->name,

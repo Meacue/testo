@@ -20,6 +20,7 @@ use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\RunResult;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Framework\WorkerFinished;
@@ -129,7 +130,15 @@ final readonly class Application
             }
 
             $duration = \microtime(true) - $duration;
-            $result = new RunResult($suiteResults, status: $status, duration: $duration);
+            $result = new RunResult(
+                $suiteResults,
+                status: $status,
+                duration: $duration,
+                summary: Summary::combine(\array_map(
+                    static fn(SuiteResult $r): Summary => $r->summary,
+                    $suiteResults,
+                )),
+            );
 
             $dispatcher->dispatch(new WorkerFinished());
             $dispatcher->dispatch(new SessionFinished($result));

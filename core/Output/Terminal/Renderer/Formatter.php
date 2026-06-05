@@ -9,6 +9,7 @@ use Testo\Common\Info;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\SuiteResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Output\Rendering\Color;
 
 /**
@@ -32,6 +33,11 @@ final class Formatter
      * @var non-empty-string Indentation step for nested levels
      */
     private const INDENT_STEP = '  ';
+
+    /**
+     * @var int<1, max> Width of the label column in summary blocks; the value column starts after it.
+     */
+    private const STAT_LABEL_WIDTH = 8;
 
     private function __construct() {}
 
@@ -108,13 +114,14 @@ final class Formatter
         }
 
         $parts = [];
-        $passed = $result->countTests(Status::Passed);
-        $failed = $result->countTests(Status::Failed);
-        $error = $result->countTests(Status::Error);
-        $skipped = $result->countTests(Status::Skipped);
-        $risky = $result->countTests(Status::Risky);
-        $cancelled = $result->countTests(Status::Cancelled);
-        $flaky = $result->countTests(Status::Flaky);
+        $summary = $result->summary;
+        $passed = $summary->count(Status::Passed);
+        $failed = $summary->count(Status::Failed);
+        $error = $summary->count(Status::Error);
+        $skipped = $summary->count(Status::Skipped);
+        $risky = $summary->count(Status::Risky);
+        $cancelled = $summary->count(Status::Cancelled);
+        $flaky = $summary->count(Status::Flaky);
 
         $passed > 0 and $parts[] = Style::success("{$passed} passed");
         $failed > 0 and $parts[] = Style::error("{$failed} failed");
@@ -133,17 +140,18 @@ final class Formatter
     /**
      * Formats suite summary.
      */
-    public static function suiteSummary(SuiteResult $result, OutputFormat $format): string
+    public static function suiteSummary(SuiteResult $result): string
     {
         $parts = [];
-        $passed = $result->countTests(Status::Passed);
-        $failed = $result->countTests(Status::Failed);
-        $skipped = $result->countTests(Status::Skipped);
-        $risky = $result->countTests(Status::Risky);
-        $cancelled = $result->countTests(Status::Cancelled);
-        $flaky = $result->countTests(Status::Flaky);
-        $error = $result->countTests(Status::Error);
-        $aborted = $result->countTests(Status::Aborted);
+        $summary = $result->summary;
+        $passed = $summary->count(Status::Passed);
+        $failed = $summary->count(Status::Failed);
+        $skipped = $summary->count(Status::Skipped);
+        $risky = $summary->count(Status::Risky);
+        $cancelled = $summary->count(Status::Cancelled);
+        $flaky = $summary->count(Status::Flaky);
+        $error = $summary->count(Status::Error);
+        $aborted = $summary->count(Status::Aborted);
 
         $passed > 0 and $parts[] = Style::success("{$passed} passed");
         $failed > 0 and $parts[] = Style::error("{$failed} failed");
@@ -158,13 +166,12 @@ final class Formatter
             return '';
         }
 
-        $total = $passed + $failed + $error + $skipped + $risky + $cancelled + $flaky + $aborted;
-        $summary = \implode(', ', $parts);
-        $prefix = $format === OutputFormat::Verbose ? ' ' : '';
+        $total = $summary->total();
+        $assertions = $summary->metric('assertions');
+        $breakdown = \implode(', ', $parts);
 
-        return "{$prefix}" . Style::dim("Suite: {$total} tests")
-            . "\n{$prefix}   " . Style::dim($summary)
-            . "\n";
+        return self::statRow('Suite', Style::dim("{$total} tests · {$assertions} assertions"))
+            . self::statRow('', $breakdown);
     }
 
     /**
@@ -222,26 +229,23 @@ final class Formatter
     /**
      * Formats final summary section.
      *
-     * @param int<0, max> $total
-     * @param int<0, max> $total
-     * @param array<string, int<0, max>> $statusCounts Counts keyed by Status::name
-     * @param float $duration Duration in seconds
+     * @param Summary $summary Aggregated session statistics.
+     * @param float $duration Wall-clock duration in seconds.
      * @return non-empty-string
      */
     public static function summary(
-        int $total,
-        array $statusCounts,
+        Summary $summary,
         float $duration,
     ): string {
         $parts = [];
-        $passed = $statusCounts[Status::Passed->name] ?? 0;
-        $failed = $statusCounts[Status::Failed->name] ?? 0;
-        $error = $statusCounts[Status::Error->name] ?? 0;
-        $skipped = $statusCounts[Status::Skipped->name] ?? 0;
-        $risky = $statusCounts[Status::Risky->name] ?? 0;
-        $cancelled = $statusCounts[Status::Cancelled->name] ?? 0;
-        $flaky = $statusCounts[Status::Flaky->name] ?? 0;
-        $aborted = $statusCounts[Status::Aborted->name] ?? 0;
+        $passed = $summary->count(Status::Passed);
+        $failed = $summary->count(Status::Failed);
+        $error = $summary->count(Status::Error);
+        $skipped = $summary->count(Status::Skipped);
+        $risky = $summary->count(Status::Risky);
+        $cancelled = $summary->count(Status::Cancelled);
+        $flaky = $summary->count(Status::Flaky);
+        $aborted = $summary->count(Status::Aborted);
 
         $passed > 0 and $parts[] = Style::success("{$passed} passed");
         $failed > 0 and $parts[] = Style::error("{$failed} failed");
@@ -252,15 +256,18 @@ final class Formatter
         $flaky > 0 and $parts[] = Style::info("{$flaky} flaky");
         $aborted > 0 and $parts[] = Style::error("{$aborted} aborted");
 
-        $breakdown = $parts === [] ? 'no tests' : \implode(', ', $parts);
-        $durationFormatted = \number_format($duration, 2);
+        $total = $summary->total();
+        $assertions = $summary->metric('assertions');
+        $breakdown = $parts === [] ? Style::dim('no tests') : \implode(', ', $parts);
+        $testsTime = self::formatDuration($summary->duration);
+        $overheadTime = self::formatDuration(\max(0, $duration - $summary->duration));
 
-        $summary = "\n\n " . Style::bold('Summary') . "\n\n";
-        $summary .= " Tests:    {$total} total\n";
-        $summary .= "           {$breakdown}\n";
-        $summary .= " Duration: {$durationFormatted}s\n";
+        $result = "\n\n " . Style::bold('Summary') . "\n\n";
+        $result .= self::statRow('Time', Style::dim("{$testsTime} tests · {$overheadTime} overhead"));
+        $result .= self::statRow('Total', "{$total} tests · {$assertions} assertions");
+        $result .= self::statRow('', $breakdown);
 
-        return $summary;
+        return $result;
     }
 
     /**
@@ -302,6 +309,37 @@ final class Formatter
         }
 
         return \implode("\n", $lines);
+    }
+
+    /**
+     * Renders one row of a summary block: a dim, fixed-width label followed by its (already styled)
+     * value. An empty label produces a continuation row aligned under the value column, so the parts
+     * stay aligned regardless of {@see self::STAT_LABEL_WIDTH}.
+     *
+     * @return non-empty-string
+     */
+    private static function statRow(string $label, string $value): string
+    {
+        $label = $label === '' ? \str_repeat(' ', self::STAT_LABEL_WIDTH) : Style::dim(\str_pad($label, self::STAT_LABEL_WIDTH));
+
+        return ' ' . $label . $value . "\n";
+    }
+
+    /**
+     * Formats a duration, switching to milliseconds for sub-second values so small numbers do not
+     * collapse to a useless "0.00s".
+     *
+     * @return non-empty-string
+     */
+    private static function formatDuration(float $seconds): string
+    {
+        if ($seconds >= 1.0) {
+            return \number_format($seconds, 2) . 's';
+        }
+
+        $ms = $seconds * 1000;
+
+        return \number_format($ms, $ms >= 1.0 ? 0 : 2) . 'ms';
     }
 
     /**

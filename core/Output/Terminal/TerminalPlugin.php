@@ -94,7 +94,7 @@ final class TerminalPlugin implements PluginConfigurator
 
     private function onSessionFinished(SessionFinished $event): void
     {
-        $this->logger->printSummary($event->result->duration);
+        $this->logger->printSummary($event->result);
     }
 
     private function onMessageReceived(MessageReceived $event): void

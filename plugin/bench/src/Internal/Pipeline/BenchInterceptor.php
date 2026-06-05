@@ -9,6 +9,7 @@ use Testo\Bench;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Core\Value\TestType;
 use Testo\Data\MultipleResult;
 use Testo\Event\Test\TestBatchFinished;
@@ -67,7 +68,12 @@ final readonly class BenchInterceptor implements TestRunInterceptor
             try {
                 $result = $next($newInfo);
             } catch (\Throwable $throwable) {
-                $result = new TestResult(info: $newInfo, status: Status::Error, failure: $throwable);
+                # Counts stay empty here; the aggregate's fold stamps each case's final status.
+                $result = new TestResult(
+                    info: $newInfo,
+                    status: Status::Error,
+                    failure: $throwable,
+                );
             }
 
             # Dispatch dataset finished event
@@ -80,11 +86,17 @@ final readonly class BenchInterceptor implements TestRunInterceptor
             $results[] = $result;
         }
 
+        # Each benchmark case counts as a test, so the aggregate is the sum of their summaries,
+        # each stamped with the case's final status.
+        $summary = Summary::combine(\array_map(
+            static fn(TestResult $r): Summary => $r->summary->withStatus($r->status),
+            $results,
+        ));
         $results = new MultipleResult($results);
 
         $finalResult = new TestResult(info: $info, status: $status, result: $results, attributes: [
             MultipleResult::class => $results,
-        ]);
+        ], summary: $summary);
 
         # Dispatch batch finished event
         $this->eventDispatcher->dispatch(new TestBatchFinished($info, $finalResult));

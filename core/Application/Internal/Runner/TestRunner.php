@@ -11,6 +11,7 @@ use Testo\Core\Context\TestResult;
 use Testo\Core\Exception\CancelTest;
 use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Event\Test\TestFinished;
 use Testo\Event\Test\TestPipelineFinished;
 use Testo\Event\Test\TestPipelineStarting;
@@ -39,6 +40,7 @@ final readonly class TestRunner
             # Build interceptors pipeline
             $interceptors = $this->interceptorProvider->fromConfig(TestRunInterceptor::class);
 
+            /** @var TestResult $result */
             $result = Pipeline::prepare($info->caseInfo->definition->type, ...$interceptors)->with(
                 function (TestInfo $info) use ($description): TestResult {
                     $this->eventDispatcher->dispatch(new TestStarting($info));
@@ -56,6 +58,7 @@ final readonly class TestRunner
                                 'duration' => (int) \round($duration * 1000),
                                 'description' => $description,
                             ],
+                            summary: new Summary(duration: $duration),
                         );
                     } catch (\Throwable $throwable) {
                         $duration = \microtime(true) - $startTime;
@@ -74,6 +77,7 @@ final readonly class TestRunner
                                 'duration' => (int) \round($duration * 1000),
                                 'description' => $description,
                             ],
+                            summary: new Summary(duration: $duration),
                         );
                     }
 
@@ -92,9 +96,13 @@ final readonly class TestRunner
                     'description' => $description,
                 ],
             );
-        } finally {
-            $this->eventDispatcher->dispatch(new TestPipelineFinished($info, $result));
         }
+
+        $result->summary->counts === [] and $result = $result->withSummary(
+            $result->summary->withStatus($result->status),
+        );
+
+        $this->eventDispatcher->dispatch(new TestPipelineFinished($info, $result));
 
         return $result;
     }

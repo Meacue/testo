@@ -7,6 +7,7 @@ namespace Testo\Core\Context;
 use Testo\Core\Internal\Attributed;
 use Testo\Core\Log\MessageLog;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 
 /**
  * @api
@@ -18,6 +19,7 @@ final class TestResult
     /**
      * @param array<non-empty-string, mixed> $attributes
      * @param MessageLog $messages Messages (output and other channels) recorded during the test.
+     * @param Summary $summary Statistics of this test (counts, plugin metrics, duration).
      */
     public function __construct(
         public readonly TestInfo $info,
@@ -26,6 +28,7 @@ final class TestResult
         public readonly ?\Throwable $failure = null,
         public readonly array $attributes = [],
         public readonly MessageLog $messages = new MessageLog(),
+        public readonly Summary $summary = new Summary(),
     ) {}
 
     public function with(
@@ -39,7 +42,13 @@ final class TestResult
             failure: $this->failure,
             attributes: $this->attributes,
             messages: $messages ?? $this->messages,
+            summary: $this->summary,
         );
+    }
+
+    public function withSummary(Summary $summary): self
+    {
+        return $this->cloneWith('summary', $summary);
     }
 
     public function withResult(mixed $result): self

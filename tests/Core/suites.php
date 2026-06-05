@@ -13,6 +13,12 @@ return [
         ),
     ),
     new SuiteConfig(
+        name: 'Core/Value',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Value'],
+        ),
+    ),
+    new SuiteConfig(
         name: 'Core/Testing/Unit',
         location: new FinderConfig(
             include: [__DIR__ . '/Testing/Unit'],

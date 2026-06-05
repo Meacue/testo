@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Core\Context;
 
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 
 /**
  * Result of running tests.
@@ -21,8 +22,10 @@ final readonly class RunResult implements \IteratorAggregate
          */
         public iterable $results,
         public Status $status,
-        /** Duration of the session in seconds. */
+        /** Duration of the session in seconds (wall-clock). */
         public float $duration,
+        /** Aggregated statistics of the session (sum of its suite summaries). */
+        public Summary $summary = new Summary(),
     ) {}
 
     /**

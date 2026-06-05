@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Core\Context;
 
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 
 /**
  * Result of running tests.
@@ -22,6 +23,8 @@ final class SuiteResult implements \IteratorAggregate
          */
         public readonly iterable $results,
         public readonly Status $status,
+        /** Aggregated statistics of the suite (sum of its case summaries). */
+        public readonly Summary $summary = new Summary(),
     ) {}
 
     /**
@@ -36,48 +39,33 @@ final class SuiteResult implements \IteratorAggregate
     /**
      * Counts tests by specific status across all cases in the suite.
      *
+     * @deprecated Use {@see $summary}->count() instead.
      * @return int<0, max>
      */
     public function countTests(Status $status): int
     {
-        $count = 0;
-
-        foreach ($this->results as $caseResult) {
-            $count += $caseResult->countTests($status);
-        }
-
-        return $count;
+        return $this->summary->count($status);
     }
 
     /**
      * Counts the number of failed tests across all cases in the suite.
      *
+     * @deprecated Use {@see $summary}->failed() instead.
      * @return int<0, max>
      */
     public function countFailedTests(): int
     {
-        $count = 0;
-
-        foreach ($this->results as $caseResult) {
-            $count += $caseResult->countFailedTests();
-        }
-
-        return $count;
+        return $this->summary->failed();
     }
 
     /**
      * Counts the number of passed tests across all cases in the suite.
      *
+     * @deprecated Use {@see $summary}->passed() instead.
      * @return int<0, max>
      */
     public function countPassedTests(): int
     {
-        $count = 0;
-
-        foreach ($this->results as $caseResult) {
-            $count += $caseResult->countPassedTests();
-        }
-
-        return $count;
+        return $this->summary->passed();
     }
 }

@@ -10,6 +10,7 @@ use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Event\TestCase\TestCaseFinished;
 use Testo\Event\TestCase\TestCasePipelineFinished;
 use Testo\Event\TestCase\TestCasePipelineStarting;
@@ -81,6 +82,7 @@ final readonly class CaseRunner
                     info: $testInfo,
                     status: Status::Error,
                     failure: $throwable,
+                    summary: Summary::forTest(Status::Error),
                 );
             }
         }
@@ -88,6 +90,10 @@ final readonly class CaseRunner
         $result = new CaseResult(
             results: $results,
             status: $status,
+            summary: Summary::combine(\array_map(
+                static fn(TestResult $r): Summary => $r->summary,
+                $results,
+            )),
         );
 
         $this->eventDispatcher->dispatch(new TestCaseFinished($info, $result));

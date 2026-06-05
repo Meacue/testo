@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Event\Test\TestRetrying;
 use Testo\Messenger;
 use Testo\Pipeline\Attribute\InterceptorOptions;
@@ -46,6 +47,11 @@ final readonly class RetryPolicyRunInterceptor implements TestRunInterceptor
         $attempts = $this->options->maxAttempts;
         $isFlaky = false;
 
+        # The test still counts as a single test, but the assertions and duration of the discarded
+        # attempts are real work — accumulate their summaries (counts stay empty at this point, so
+        # only metrics and duration carry over) and fold them into the result that is returned.
+        $discarded = new Summary();
+
         $attempt = 1;
         run:
         --$attempts;
@@ -64,17 +70,20 @@ final readonly class RetryPolicyRunInterceptor implements TestRunInterceptor
                 );
 
                 $isFlaky = true;
+                $discarded = $discarded->merge($result->summary);
                 $this->eventDispatcher->dispatch(
                     new TestRetrying($info, ++$attempt, $result),
                 );
                 goto run;
             }
 
-            return $result;
+            return $result->withSummary($result->summary->merge($discarded));
         }
 
-        return $isFlaky && $this->options->markFlaky && $result->status->isSuccessful()
+        $result = $isFlaky && $this->options->markFlaky && $result->status->isSuccessful()
             ? $result->with(status: Status::Flaky)
             : $result;
+
+        return $result->withSummary($result->summary->merge($discarded));
     }
 }
