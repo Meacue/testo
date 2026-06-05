@@ -287,7 +287,7 @@ final class RepeatInterceptorTest
             static fn(Message $m): string => $m->content,
             $messenger->getMessages()->channel(RepeatInterceptor::CHANNEL),
         );
-        Assert::same(\implode('', $symbols), 'FFF');
+        Assert::same(\implode('', $symbols), "FFF\n");
     }
 
     private static function createInterceptor(Repeat $options): RepeatInterceptor

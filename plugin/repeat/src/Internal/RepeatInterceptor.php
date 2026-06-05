@@ -52,11 +52,12 @@ final readonly class RepeatInterceptor implements TestRunInterceptor
         # the run line survives the (mostly dropped) per-run forks without a message+dispatch per run.
         $symbols = '';
         $lastFlush = \microtime(true);
-        $flush = function () use (&$symbols): void {
+        $flush = function (bool $eol) use (&$symbols): void {
             if ($symbols === '') {
                 return;
             }
-            $this->messenger->log(self::CHANNEL, $symbols, Level::Info);
+
+            $this->messenger->log(self::CHANNEL, $eol ? "$symbols\n" : $symbols, Level::Info);
             $symbols = '';
         };
 
@@ -73,25 +74,25 @@ final readonly class RepeatInterceptor implements TestRunInterceptor
             $symbols .= self::symbol($result->status);
             $now = \microtime(true);
             if ($now - $lastFlush >= self::FLUSH_INTERVAL) {
-                $flush();
+                $flush(false);
                 $lastFlush = $now;
             }
 
             // Skipped / Cancelled / Aborted — abort immediately regardless of threshold.
             if (!$result->status->isCompleted()) {
-                $flush();
+                $flush(true);
                 $commit();
                 return $result;
             }
 
             if ($result->status->isFailure() && ++$failures > $maxFailures) {
-                $flush();
+                $flush(true);
                 $commit();
                 return $result;
             }
         } while (--$times > 0);
 
-        $flush();
+        $flush(true);
 
         # Keep the messages of the last run — the one whose result we return; earlier runs are dropped.
         $commit();
