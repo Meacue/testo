@@ -13,18 +13,16 @@ use Testo\Core\Value\Summary;
  * @implements \IteratorAggregate<CaseResult>
  * @api
  */
-final class SuiteResult implements \IteratorAggregate
+final readonly class SuiteResult implements \IteratorAggregate
 {
+    /**
+     * @param iterable<CaseResult> $results Test result collection.
+     * @param Summary $summary Aggregated statistics of the suite (sum of its case summaries).
+     */
     public function __construct(
-        /**
-         * Test result collection.
-         *
-         * @var iterable<CaseResult>
-         */
-        public readonly iterable $results,
-        public readonly Status $status,
-        /** Aggregated statistics of the suite (sum of its case summaries). */
-        public readonly Summary $summary = new Summary(),
+        public iterable $results,
+        public Status $status,
+        public Summary $summary = new Summary(),
     ) {}
 
     /**

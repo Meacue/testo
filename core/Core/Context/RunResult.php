@@ -14,17 +14,15 @@ use Testo\Core\Value\Summary;
  */
 final readonly class RunResult implements \IteratorAggregate
 {
+    /**
+     * @param iterable<SuiteResult> $results Test result collection.
+     * @param float $duration Duration of the session in seconds (wall-clock).
+     * @param Summary $summary Aggregated statistics of the session (sum of its suite summaries).
+     */
     public function __construct(
-        /**
-         * Test result collection.
-         *
-         * @var iterable<SuiteResult>
-         */
         public iterable $results,
         public Status $status,
-        /** Duration of the session in seconds (wall-clock). */
         public float $duration,
-        /** Aggregated statistics of the session (sum of its suite summaries). */
         public Summary $summary = new Summary(),
     ) {}
 

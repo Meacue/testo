@@ -12,7 +12,7 @@ use Testo\Core\Value\Summary;
 /**
  * @api
  */
-final class TestResult
+final readonly class TestResult
 {
     use Attributed;
 
@@ -22,13 +22,13 @@ final class TestResult
      * @param Summary $summary Statistics of this test (counts, plugin metrics, duration).
      */
     public function __construct(
-        public readonly TestInfo $info,
-        public readonly Status $status,
-        public readonly mixed $result = null,
-        public readonly ?\Throwable $failure = null,
-        public readonly array $attributes = [],
-        public readonly MessageLog $messages = new MessageLog(),
-        public readonly Summary $summary = new Summary(),
+        public TestInfo $info,
+        public Status $status,
+        public mixed $result = null,
+        public ?\Throwable $failure = null,
+        public array $attributes = [],
+        public MessageLog $messages = new MessageLog(),
+        public Summary $summary = new Summary(),
     ) {}
 
     public function with(

@@ -4,25 +4,23 @@ declare(strict_types=1);
 
 namespace Testo\Core\Context;
 
-use Testo\Core\Internal\Attributed;
 use Testo\Core\Definition\CaseDefinitions;
+use Testo\Core\Internal\Attributed;
 
 /**
  * @api
  */
-final class SuiteInfo
+final readonly class SuiteInfo
 {
     use Attributed;
 
     /**
+     * @param non-empty-string $name
      * @param array<non-empty-string, mixed> $attributes
      */
     public function __construct(
-        /** @var non-empty-string */
-        public readonly string $name,
-        public readonly CaseDefinitions $testCases,
-        array $attributes = [],
-    ) {
-        $this->attributes = $attributes;
-    }
+        public string $name,
+        public CaseDefinitions $testCases,
+        public array $attributes = [],
+    ) {}
 }
