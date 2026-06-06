@@ -24,4 +24,38 @@ jobs:
           manifest-file: resources/version.json
           target-branch: 1.x
 
+      # Mirror the just-released versions into every testo/* constraint of the
+      # release PR. Re-applied on every run, so it survives release-please
+      # regenerating (force-pushing) the PR branch.
+      - name: ⬇️ Checkout release PR branch
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ fromJSON(steps.release.outputs.pr).headBranchName }}
+          token: ${{ secrets.RELEASE_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🐘 Setup PHP
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.5
+          coverage: none
+
+      - name: 🔗 Sync intra-package version constraints
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        run: php .github/release-please/sync-deps.php
+
+      - name: 📌 Commit synced constraints
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        run: |
+          if git diff --quiet; then
+            echo "No constraint changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): sync testo/* version constraints"
+          git push
+
 ...
