@@ -51,7 +51,40 @@ final class SyncDepsTest
 
             $a = $this->requireOf($dir, 'plugin/a/composer.json');
             Assert::same($a['testo/b'], '^0.5.0');
-            Assert::same($a['testo/testo'], '^1.0.0', 'root package is pinned by its real name');
+            Assert::same($a['testo/testo'], '1.0.0 - 1', 'core meta-package uses an open upper bound');
+        } finally {
+            $this->cleanup($dir);
+        }
+    }
+
+    /**
+     * The framework meta-package testo/testo is pinned with `<version> - 1`
+     * (open up to 2.0), while sibling packages keep a caret. The open bound is
+     * required because the dev monorepo resolves the root as the 1.x branch,
+     * which a caret like ^0.10.x would exclude.
+     */
+    public function pinsCoreMetaPackageWithOpenUpperBoundButSiblingsWithCaret(): void
+    {
+        $dir = $this->fixture(
+            ['.' => '0.10.18', 'plugin/a' => '0.3.1', 'plugin/b' => '0.4.0'],
+            [
+                'composer.json' => $this->composer('testo/testo', ['testo/a' => '0.1 - 1']),
+                'plugin/a/composer.json' => $this->composer('testo/a', [
+                    'testo/testo' => '*',
+                    'testo/b' => '0.1 - 1',
+                ]),
+                'plugin/b/composer.json' => $this->composer('testo/b'),
+            ],
+        );
+
+        try {
+            $this->run($dir);
+
+            Assert::same($this->requireOf($dir, 'composer.json')['testo/a'], '^0.3.1', 'sibling: caret');
+
+            $a = $this->requireOf($dir, 'plugin/a/composer.json');
+            Assert::same($a['testo/testo'], '0.10.18 - 1', 'meta: open upper bound');
+            Assert::same($a['testo/b'], '^0.4.0', 'sibling: caret');
         } finally {
             $this->cleanup($dir);
         }

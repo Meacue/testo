@@ -32,6 +32,15 @@ declare(strict_types=1);
 const MANIFEST = 'resources/version.json';
 const SECTIONS = ['require', 'require-dev'];
 
+/**
+ * The framework meta-package. It is pinned with an open upper bound
+ * (`<version> - 1`) instead of a caret, because in the dev monorepo the root is
+ * resolved as the `1.x` branch (`1.9999…-dev`): a caret `^0.10.x` would exclude
+ * it, while `0.10.x - 1` (i.e. `>=0.10.x <2.0.0`) spans the whole pre-2.0 range.
+ * Every other testo/* package is a sibling pinned with a caret.
+ */
+const ROOT_PACKAGE = 'testo/testo';
+
 $root = \getcwd();
 
 $manifest = readJson($root . '/' . MANIFEST);
@@ -100,7 +109,10 @@ function syncFile(string $content, array $versions): string
                     if (!isset($versions[$name])) {
                         return $dep[0]; // not a managed split package — leave as-is
                     }
-                    return $dep[1] . '^' . $versions[$name] . $dep[4];
+                    $constraint = $name === ROOT_PACKAGE
+                        ? $versions[$name] . ' - 1'
+                        : '^' . $versions[$name];
+                    return $dep[1] . $constraint . $dep[4];
                 },
                 $m[2],
             );

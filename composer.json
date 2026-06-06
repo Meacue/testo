@@ -148,6 +148,9 @@
     "extra": {
         "skills": {
             "source": "skills"
+        },
+        "branch-alias": {
+            "dev-release-please--branches--1.x": "1.x-dev"
         }
     },
     "scripts": {
