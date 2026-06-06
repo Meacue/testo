@@ -43,7 +43,6 @@ final class ChannelRenderer
     }
 
     /**
-     * @param non-empty-string $content
      * @return non-empty-string
      */
     public function render(Message $message): string

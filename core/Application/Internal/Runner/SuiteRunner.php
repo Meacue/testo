@@ -6,6 +6,7 @@ namespace Testo\Application\Internal\Runner;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Application\Internal\SimpleCaseInstantiator;
+use Testo\Common\ErrorReporter;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\SuiteInfo;
@@ -34,6 +35,7 @@ final readonly class SuiteRunner
         private CaseRunner $caseRunner,
         private InterceptorProvider $interceptorProvider,
         private EventDispatcherInterface $eventDispatcher,
+        private ErrorReporter $errorReporter,
     ) {}
 
     public function runSuite(SuiteInfo $info, Filter $filter): SuiteResult
@@ -88,8 +90,10 @@ final readonly class SuiteRunner
                 $result = $runner->runCase($caseInfo, $filter);
                 $result->status->isFailure() and $status = Status::Failed;
                 $results[] = $result;
-            } catch (\Throwable) {
-                // Skip for now
+            } catch (\Throwable $e) {
+                # The case could not be instantiated or run — surface the otherwise-swallowed throwable
+                # on the stderr channel and mark the suite errored.
+                $this->errorReporter->report($e);
                 $status = Status::Error;
             }
         }

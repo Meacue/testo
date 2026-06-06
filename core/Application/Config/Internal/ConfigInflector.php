@@ -15,6 +15,7 @@ use Testo\Application\Config\Internal\Attribute\PhpIni;
 use Testo\Application\Config\Internal\Attribute\XPath;
 use Testo\Application\Config\Internal\Attribute\XPathEmbed;
 use Testo\Application\Config\Internal\Attribute\XPathEmbedList;
+use Testo\Common\ErrorReporter;
 
 /**
  * Configuration loader service.
@@ -168,7 +169,14 @@ final class ConfigInflector implements Inflector
                 $property->setValue($config, $result);
                 return;
             } catch (\Throwable $e) {
-                // $this->logger->exception($e, important: true);
+                # Config injection failed for this attribute. Resolve the reporter lazily from the
+                # container (it is not available at inflector construction time) and surface the error
+                # on the stderr channel; fall back to the real stderr stream if even that is too early.
+                try {
+                    $container->get(ErrorReporter::class)->report($e);
+                } catch (\Throwable) {
+                    \fwrite(\STDERR, ErrorReporter::format($e) . "\n");
+                }
             }
         }
     }

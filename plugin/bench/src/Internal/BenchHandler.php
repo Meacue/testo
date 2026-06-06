@@ -11,9 +11,9 @@ use Testo\Bench\Dto\CaseSet;
 use Testo\Bench\Dto\IterationSet;
 use Testo\Bench\Dto\Snap;
 use Testo\Bench\Exception\BenchAttributeMissingException;
+use Testo\Common\Messenger;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Log\Level;
-use Testo\Messenger;
 
 /**
  * @internal

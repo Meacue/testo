@@ -7,6 +7,7 @@ namespace Testo\Output\Teamcity\Teamcity;
 use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Common\Environment;
 use Testo\Common\Info;
+use Testo\Common\Messenger;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\SuiteInfo;
@@ -31,7 +32,7 @@ final class TeamcityLogger
     /**
      * Channel routed to TeamCity's stderr stream; every other channel goes to stdout.
      */
-    private const CHANNEL_STDERR = 'stderr';
+    private const CHANNEL_STDERR = Messenger::CHANNEL_STDERR;
 
     /** @var resource */
     private $output;
@@ -280,6 +281,26 @@ final class TeamcityLogger
         $this->publish($message->channel === self::CHANNEL_STDERR
             ? Formatter::testStdErr($name, $message->content, $attributes)
             : Formatter::testStdOut($name, $message->content, $attributes));
+    }
+
+    /**
+     * Publishes a {@see Message} that belongs to no test — e.g. an internal error raised outside any
+     * running test (suite setup, bootstrap, a faulty listener between tests).
+     *
+     * Emitted as a standalone TeamCity `message` service message: the dedicated `stderr` channel maps
+     * to `ERROR` status, everything else to `NORMAL`. This keeps framework-level faults visible even
+     * when there is no test to attribute them to.
+     */
+    public function logStandaloneMessage(Message $message): void
+    {
+        if ($message->content === '') {
+            return;
+        }
+
+        $this->publish(Formatter::message(
+            $message->content,
+            $message->channel === self::CHANNEL_STDERR ? 'ERROR' : 'NORMAL',
+        ));
     }
 
     /**

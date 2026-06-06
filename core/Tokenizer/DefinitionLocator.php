@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Testo\Tokenizer;
 
 use Reflector;
+use Testo\Common\ErrorReporter;
+use Testo\Core\Log\Level;
 use Testo\Tokenizer\Exception\LocatorException;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
@@ -20,7 +22,7 @@ final class DefinitionLocator
      *
      * @return array<string, \ReflectionFunction>
      */
-    public static function getFunctions(TokenizedFile $file): array
+    public static function getFunctions(TokenizedFile $file, ?ErrorReporter $reporter = null): array
     {
         $result = [];
 
@@ -34,7 +36,8 @@ final class DefinitionLocator
                     $file,
                 );
             } catch (LocatorException $e) {
-                // Ignore
+                # A function could not be reflected — skip it, but breadcrumb the cause on stderr (debug).
+                $reporter?->report($e, Level::Debug);
                 continue;
             }
         }
@@ -47,7 +50,7 @@ final class DefinitionLocator
      *
      * @return array<class-string, \ReflectionClass>
      */
-    public static function getInterfaces(TokenizedFile $file): array
+    public static function getInterfaces(TokenizedFile $file, ?ErrorReporter $reporter = null): array
     {
         $result = [];
         foreach ($file->getInterfaces() as $name) {
@@ -58,7 +61,8 @@ final class DefinitionLocator
                 );
                 $ref->isInterface() and $result[$name] = $ref;
             } catch (LocatorException $e) {
-                // Ignore
+                # An interface could not be reflected — skip it, but breadcrumb the cause on stderr (debug).
+                $reporter?->report($e, Level::Debug);
                 continue;
             }
         }
@@ -71,7 +75,7 @@ final class DefinitionLocator
      *
      * @return array<class-string, \ReflectionClass>
      */
-    public static function getClasses(TokenizedFile $file): array
+    public static function getClasses(TokenizedFile $file, ?ErrorReporter $reporter = null): array
     {
         $result = [];
         foreach ($file->getClasses() as $name) {
@@ -82,7 +86,8 @@ final class DefinitionLocator
                 );
                 $ref->isInterface() or $ref->isEnum() or $ref->isTrait() or $result[$name] = $ref;
             } catch (LocatorException $e) {
-                // Ignore
+                # A class could not be reflected — skip it, but breadcrumb the cause on stderr (debug).
+                $reporter?->report($e, Level::Debug);
                 continue;
             }
         }
@@ -95,7 +100,7 @@ final class DefinitionLocator
      *
      * @return array<class-string, \ReflectionEnum>
      */
-    public static function getEnums(TokenizedFile $file): array
+    public static function getEnums(TokenizedFile $file, ?ErrorReporter $reporter = null): array
     {
         $result = [];
         foreach ($file->getEnums() as $name) {
@@ -105,7 +110,8 @@ final class DefinitionLocator
                     $file,
                 );
             } catch (LocatorException $e) {
-                // Ignore
+                # An enum could not be reflected — skip it, but breadcrumb the cause on stderr (debug).
+                $reporter?->report($e, Level::Debug);
                 continue;
             }
         }

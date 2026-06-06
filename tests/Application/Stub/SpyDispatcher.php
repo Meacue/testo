@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Messenger\Stub;
+namespace Tests\Application\Stub;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Event\Message\MessageReceived;

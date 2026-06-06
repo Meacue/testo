@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Testo\Core\Log;
 
-use Testo\Core\Log\Message;
-
 /**
  * Immutable collection of {@see Message}s recorded during a single test.
  *

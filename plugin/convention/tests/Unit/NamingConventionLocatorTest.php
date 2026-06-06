@@ -7,6 +7,7 @@ namespace Tests\Convention\Unit;
 use Testo\Assert;
 use Testo\Convention\Internal\NamingConventionLocator;
 use Testo\Test;
+use Testo\Tokenizer\DefinitionLocator;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
@@ -183,6 +184,12 @@ final class NamingConventionLocatorTest
 
     private static function definitions(string $path): FileDefinitions
     {
-        return new FileDefinitions(self::tokenize($path));
+        $file = self::tokenize($path);
+
+        return new FileDefinitions(
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
+        );
     }
 }

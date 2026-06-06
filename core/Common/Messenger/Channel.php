@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace Testo\Messenger;
+namespace Testo\Common\Messenger;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
+use Testo\Common\Messenger;
 use Testo\Core\Log\Level;
-use Testo\Messenger;
 
 /**
  * A channel-bound message handler — and a PSR-3 logger for that channel.

@@ -8,9 +8,9 @@ use Testo\Assert\AssertPlugin;
 use Testo\Assert\Internal\HistoryRenderer;
 use Testo\Assert\Internal\StaticState;
 use Testo\Assert\TestState;
+use Testo\Common\Messenger;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
-use Testo\Messenger;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 

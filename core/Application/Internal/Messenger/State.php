@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Testo\Messenger\Internal;
+namespace Testo\Application\Internal\Messenger;
 
 use Internal\Destroy\Destroyable;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -10,7 +10,7 @@ use Testo\Core\Log\Message;
 use Testo\Event\Message\MessageReceived;
 
 /**
- * Message buffer of a single {@see \Testo\Messenger} scope or fork.
+ * Message buffer of a single {@see \Testo\Common\Messenger} scope or fork.
  *
  * Besides storing the messages recorded within it, the state owns event dispatch: each recorded
  * message is announced via a {@see MessageReceived} event — immediately, or, when the state is a
@@ -19,8 +19,8 @@ use Testo\Event\Message\MessageReceived;
  * dispatched — a listener that logs would otherwise recurse forever. Keeping it here makes it
  * fiber-local for free: scope()/fork() swap the active state across fiber suspensions.
  *
- * A {@see \Testo\Messenger::scope()} buffer is isolated — dropped on exit, never visible to its
- * parent. A {@see \Testo\Messenger::fork()} is a child branch on top of the active state:
+ * A {@see \Testo\Common\Messenger::scope()} buffer is isolated — dropped on exit, never visible to its
+ * parent. A {@see \Testo\Common\Messenger::fork()} is a child branch on top of the active state:
  * {@see getMessages()} on a fork reads the parent plus its own (time-ordered) without mutating the
  * parent, and {@see commit()} folds the fork's own messages (and any held events) into the parent.
  *

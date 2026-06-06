@@ -6,6 +6,7 @@ namespace Testo\Output\Teamcity;
 
 use Internal\Container\Container;
 use Testo\Common\EventListenerCollector;
+use Testo\Common\Messenger;
 use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\TestInfo;
 use Testo\Event\Framework\SessionStarting;
@@ -107,8 +108,11 @@ final class TeamcityPlugin implements PluginConfigurator
 
     private function onMessageReceived(MessageReceived $event): void
     {
-        // No test in flight — output between tests is not attributable, so drop it.
+        // No test in flight — output between tests is not attributable, so drop it. Internal errors on
+        // the dedicated stderr channel are the exception: surface them as a standalone message instead.
         if ($this->currentName === null) {
+            $event->message->channel === Messenger::CHANNEL_STDERR
+                and $this->logger->logStandaloneMessage($event->message);
             return;
         }
 

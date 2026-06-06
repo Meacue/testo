@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Tests\Messenger\Unit;
+namespace Tests\Application\Unit\Messenger;
 
 use Psr\Log\LoggerInterface;
+use Testo\Application\Internal\MessengerHub;
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Common\Messenger\Channel;
 use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
-use Testo\Messenger\Channel;
-use Testo\Messenger\Internal\MessengerHub;
 use Testo\Test;
-use Tests\Messenger\Stub\SpyDispatcher;
+use Tests\Application\Stub\SpyDispatcher;
 
 #[Test]
 #[Covers(Channel::class)]

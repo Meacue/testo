@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Testo\Application\Internal;
 
 use Testo\Application\Config\SuiteConfig;
+use Testo\Common\ErrorReporter;
 use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Definition\CaseDefinition;
 use Testo\Core\Definition\CaseDefinitions;
@@ -13,6 +14,7 @@ use Testo\Pipeline\InterceptorProvider;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
 use Testo\Pipeline\Pipeline;
+use Testo\Tokenizer\DefinitionLocator;
 use Testo\Tokenizer\FileLocator;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
@@ -25,6 +27,7 @@ final readonly class SuiteFactory
 {
     public function __construct(
         private InterceptorProvider $interceptorProvider,
+        private ErrorReporter $errorReporter,
     ) {}
 
     public function create(SuiteConfig $config, Filter $filter): SuiteInfo
@@ -99,7 +102,11 @@ final readonly class SuiteFactory
             );
 
         foreach ($files as $file) {
-            $fileDef = new FileDefinitions($file);
+            $fileDef = new FileDefinitions(
+                $file,
+                classes: DefinitionLocator::getClasses($file, $this->errorReporter),
+                functions: DefinitionLocator::getFunctions($file, $this->errorReporter),
+            );
             $result = $pipeline($fileDef);
 
             $cases = \array_merge($cases, $result->getCases());

@@ -2,6 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
     "release-type": "php",
     "separate-pull-requests": false,
+    "pull-request-title-pattern": "chore: release ${branch}",
     "packages": {
         ".": {
             "package-name": "testo",
@@ -11,12 +12,6 @@
         "plugin/repeat": {
             "package-name": "testo/repeat",
             "component": "repeat",
-            "include-component-in-tag": true,
-            "changelog-path": "CHANGELOG.md"
-        },
-        "plugin/messenger": {
-            "package-name": "testo/messenger",
-            "component": "messenger",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
         },

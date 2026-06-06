@@ -6,6 +6,7 @@ namespace Tests\Retry\Unit;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Assert;
+use Testo\Common\Messenger;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
@@ -14,8 +15,7 @@ use Testo\Core\Definition\TestDefinition;
 use Testo\Core\Value\Status;
 use Testo\Data\DataSet;
 use Testo\Event\Test\TestRetrying;
-use Testo\Messenger;
-use Testo\Messenger\Internal\MessengerHub;
+use Testo\Application\Internal\MessengerHub;
 use Testo\Retry;
 use Testo\Retry\Interceptor\RetryPolicyRunInterceptor;
 use Testo\Test;

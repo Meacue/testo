@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Testo;
+namespace Testo\Common;
 
 use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
 use Testo\Core\Log\MessageLog;
 use Testo\Event\Message\MessageReceived;
-use Testo\Messenger\Channel;
+use Testo\Common\Messenger\Channel;
 
 /**
  * Central message hub.
@@ -24,13 +24,35 @@ use Testo\Messenger\Channel;
  *
  * This interface is meant to be **consumed, not implemented** by userland code: inject or
  * type-hint it to talk to the messenger. The implementation is provided by the framework
- * ({@see \Testo\Messenger\Internal\MessengerHub}) — new methods may be added in minor releases,
+ * ({@see \Testo\Application\Internal\MessengerHub}) — new methods may be added in minor releases,
  * which is safe for consumers but would break external implementations.
  *
  * @api
  */
 interface Messenger
 {
+    /**
+     * Channel for Testo's own human-facing output — run results, summaries and rendered stack traces.
+     *
+     * @var non-empty-string
+     */
+    public const CHANNEL_OUTPUT = 'output';
+
+    /**
+     * Channel for native output captured from test code and the pipeline (echo, print, var_dump, ...).
+     *
+     * @var non-empty-string
+     */
+    public const CHANNEL_STDOUT = 'stdout';
+
+    /**
+     * Channel for internal errors and exceptions that Testo suppresses instead of surfacing as test
+     * failures — faulty event listeners, pipeline glitches and other otherwise-swallowed throwables.
+     *
+     * @var non-empty-string
+     */
+    public const CHANNEL_STDERR = 'stderr';
+
     /**
      * Record a message in the given channel.
      *

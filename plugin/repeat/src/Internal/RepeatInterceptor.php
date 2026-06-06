@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Testo\Repeat\Internal;
 
+use Testo\Common\Messenger;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Log\Level;
 use Testo\Core\Value\Status;
 use Testo\Core\Value\Summary;
-use Testo\Messenger;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 use Testo\Pipeline\Policy\ConflictPolicy;

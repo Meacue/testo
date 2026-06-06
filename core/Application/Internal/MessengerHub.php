@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Testo\Messenger\Internal;
+namespace Testo\Application\Internal;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Testo\Application\Internal\Messenger\State;
+use Testo\Application\Internal\Messenger\MutableContainer;
+use Testo\Common\Messenger;
+use Testo\Common\Messenger\Channel;
 use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
 use Testo\Core\Log\MessageLog;
-use Testo\Messenger;
-use Testo\Messenger\Channel;
 
 /**
  * Default {@see Messenger} implementation.
@@ -20,14 +22,14 @@ use Testo\Messenger\Channel;
  *
  * @internal
  */
-final class MessengerHub implements Messenger
+final readonly class MessengerHub implements Messenger
 {
-    private State $state;
+    private MutableContainer $state;
 
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
-        $this->state = new State($this->eventDispatcher);
+        $this->state = new MutableContainer(new State($this->eventDispatcher));
     }
 
     #[\Override]
@@ -35,7 +37,7 @@ final class MessengerHub implements Messenger
     {
         // The active state records the message and announces it (or holds the event, in a holdEvents
         // fork, until commit); it also guards against avalanche recursion during dispatch.
-        $this->state->record(new Message(\microtime(true), $channel, $level, $content, $context));
+        $this->state->state->record(new Message(\microtime(true), $channel, $level, $content, $context));
     }
 
     #[\Override]
@@ -47,10 +49,10 @@ final class MessengerHub implements Messenger
     #[\Override]
     public function scope(\Closure $scope): mixed
     {
-        $old = $this->state;
+        $old = $this->state->state;
         $new = new State($this->eventDispatcher);
         try {
-            $this->state = $new;
+            $this->state->state = $new;
             if (\Fiber::getCurrent() === null) {
                 return $scope($this);
             }
@@ -60,22 +62,22 @@ final class MessengerHub implements Messenger
             $fiber = new \Fiber(static fn() => $scope($self));
             $value = $fiber->start();
             while (!$fiber->isTerminated()) {
-                $this->state = $old;
+                $this->state->state = $old;
                 try {
                     $resume = \Fiber::suspend($value);
                 } catch (\Throwable $e) {
-                    $this->state = $new;
+                    $this->state->state = $new;
                     $value = $fiber->throw($e);
                     continue;
                 }
 
-                $this->state = $new;
+                $this->state->state = $new;
                 $value = $fiber->resume($resume);
             }
 
             return $fiber->getReturn();
         } finally {
-            $this->state = $old;
+            $this->state->state = $old;
             $new->destroy();
         }
     }
@@ -83,10 +85,10 @@ final class MessengerHub implements Messenger
     #[\Override]
     public function fork(\Closure $fork, bool $holdEvents = false): mixed
     {
-        $old = $this->state;
+        $old = $this->state->state;
         $new = $old->fork($holdEvents);
         try {
-            $this->state = $new;
+            $this->state->state = $new;
             if (\Fiber::getCurrent() === null) {
                 return $fork($new->commit(...));
             }
@@ -95,16 +97,16 @@ final class MessengerHub implements Messenger
             $fiber = new \Fiber(static fn() => $fork($new->commit(...)));
             $value = $fiber->start();
             while (!$fiber->isTerminated()) {
-                $this->state = $old;
+                $this->state->state = $old;
                 try {
                     $resume = \Fiber::suspend($value);
                 } catch (\Throwable $e) {
-                    $this->state = $new;
+                    $this->state->state = $new;
                     $value = $fiber->throw($e);
                     continue;
                 }
 
-                $this->state = $new;
+                $this->state->state = $new;
                 $value = $fiber->resume($resume);
             }
 
@@ -113,13 +115,13 @@ final class MessengerHub implements Messenger
             // Restore the parent, but do NOT destroy the fork: the `$commit` callable may be invoked
             // after this returns (the caller decides to keep/drop the branch only once it sees the
             // result). commit() clears the fork's own buffer; an abandoned fork is freed by GC.
-            $this->state = $old;
+            $this->state->state = $old;
         }
     }
 
     #[\Override]
     public function getMessages(): MessageLog
     {
-        return new MessageLog($this->state->getMessages());
+        return new MessageLog($this->state->state->getMessages());
     }
 }

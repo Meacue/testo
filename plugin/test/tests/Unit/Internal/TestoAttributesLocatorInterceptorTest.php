@@ -7,6 +7,7 @@ namespace Tests\Test\Unit\Internal;
 use Testo\Assert;
 use Testo\Test;
 use Testo\Test\Internal\TestoAttributesLocatorInterceptor;
+use Testo\Tokenizer\DefinitionLocator;
 use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 use Tests\Test\Unit\Fixture\AbstractTestClassWithVoidMethods;
@@ -37,11 +38,11 @@ final class TestoAttributesLocatorInterceptorTest
     public function itLocatesTestCasesFromClassWithTestAttributesOnMethods(): void
     {
         $path = $this->fixturesDir . 'TestClassWithMethodLevelAttributes.php';
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
         $definition = new FileDefinitions(
-            $file = new TokenizedFile(
-                file: new \SplFileInfo($path),
-                path: $path,
-            ),
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
         );
 
         Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
@@ -69,11 +70,11 @@ final class TestoAttributesLocatorInterceptorTest
     public function itLocatesAllPublicMethodsAsTestsWhenClassHasTestAttribute(): void
     {
         $path = $this->fixturesDir . 'TestClassWithClassLevelAttribute.php';
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
         $definition = new FileDefinitions(
-            $file = new TokenizedFile(
-                file: new \SplFileInfo($path),
-                path: $path,
-            ),
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
         );
 
         Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
@@ -102,11 +103,11 @@ final class TestoAttributesLocatorInterceptorTest
     public function itLocatesNeverReturnTypeMethodsAsTestsWhenClassHasTestAttribute(): void
     {
         $path = $this->fixturesDir . 'TestClassWithNeverReturnType.php';
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
         $definition = new FileDefinitions(
-            $file = new TokenizedFile(
-                file: new \SplFileInfo($path),
-                path: $path,
-            ),
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
         );
 
         Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
@@ -135,11 +136,11 @@ final class TestoAttributesLocatorInterceptorTest
     public function itLocatesMethodWithTestAttributeRegardlessOfReturnType(): void
     {
         $path = $this->fixturesDir . 'TestClassWithMixedTestAttributes.php';
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
         $definition = new FileDefinitions(
-            $file = new TokenizedFile(
-                file: new \SplFileInfo($path),
-                path: $path,
-            ),
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
         );
 
         Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
@@ -163,11 +164,11 @@ final class TestoAttributesLocatorInterceptorTest
     public function itReturnsNoTestCasesWhenClassHasNoTestAttributes(): void
     {
         $path = $this->fixturesDir . 'PlainClassWithoutTestAttributes.php';
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
         $definition = new FileDefinitions(
-            $file = new TokenizedFile(
-                file: new \SplFileInfo($path),
-                path: $path,
-            ),
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
         );
 
         Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
@@ -186,11 +187,11 @@ final class TestoAttributesLocatorInterceptorTest
     public function itDoesNotLocateAbstractMethodsWhenClassHasTestAttribute(): void
     {
         $path = $this->fixturesDir . 'AbstractTestClassWithVoidMethods.php';
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
         $definition = new FileDefinitions(
-            $file = new TokenizedFile(
-                file: new \SplFileInfo($path),
-                path: $path,
-            ),
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
         );
 
         # Sanity check — make sure the fixture really does contain abstract void/never methods.

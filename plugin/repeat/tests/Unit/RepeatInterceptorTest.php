@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Tests\Repeat\Unit;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Assert;
+use Testo\Common\Messenger;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Definition\CaseDefinition;
 use Testo\Core\Definition\TestDefinition;
-use Testo\Core\Value\Status;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Core\Log\Message;
+use Testo\Core\Value\Status;
 use Testo\Data\DataSet;
-use Testo\Messenger;
-use Testo\Messenger\Internal\MessengerHub;
+use Testo\Application\Internal\MessengerHub;
 use Testo\Repeat;
 use Testo\Repeat\Internal\RepeatInterceptor;
 use Testo\Test;

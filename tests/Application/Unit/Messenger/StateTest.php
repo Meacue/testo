@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Messenger\Unit;
+namespace Tests\Application\Unit\Messenger;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Testo\Application\Internal\Messenger\State;
 use Testo\Assert;
 use Testo\Codecov\Covers;
 use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
-use Testo\Messenger\Internal\State;
 use Testo\Test;
 
 #[Test]

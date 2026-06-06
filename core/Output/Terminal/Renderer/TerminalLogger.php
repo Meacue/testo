@@ -6,6 +6,7 @@ namespace Testo\Output\Terminal\Renderer;
 
 use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Common\Environment;
+use Testo\Common\Messenger;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\RunResult;
@@ -156,10 +157,16 @@ final class TerminalLogger
      */
     public function logMessage(Message $message): void
     {
+        if ($message->content === '') {
+            return;
+        }
+
+        # Internal errors on the dedicated stderr channel are always shown, regardless of verbosity or
+        # format; every other channel streams only at Verbose+ and is suppressed in the Dots layout
+        # (whose single-character-per-test format multi-line output would break).
         if (
-            $message->content === ''
-            || $this->format === OutputFormat::Dots
-            || !$this->verbosity->atLeast(Verbosity::Verbose)
+            $message->channel !== Messenger::CHANNEL_STDERR
+            && ($this->format === OutputFormat::Dots || !$this->verbosity->atLeast(Verbosity::Verbose))
         ) {
             return;
         }

@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Testo\Messenger\Internal\Pipeline;
+namespace Testo\Pipeline\Internal;
 
+use Testo\Common\Messenger;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
-use Testo\Messenger;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestRunInterceptor;
 
@@ -14,7 +14,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
  * Forks the {@see Messenger} per test and attaches the messages recorded during the test to its
  * {@see TestResult}.
  *
- * The native output buffer itself is opened once per suite by {@see \Testo\Messenger\MessengerPlugin}
+ * The native output buffer itself is opened once per suite by {@see \Testo\Application\Config\DefaultServicesConfig}
  * and funnels everything into the `stdout` channel. This interceptor only opens a {@see Messenger::scope()}
  * around the test so that captured output (and anything other producers write) lands in an isolated,
  * per-test buffer — `scope()` also keeps that buffer correctly bound across fiber suspensions.

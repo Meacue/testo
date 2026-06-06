@@ -23,7 +23,7 @@ use Testo\Pipeline\InterceptorCollector;
 final readonly class AssertPlugin implements PluginConfigurator
 {
     /**
-     * Channel the assertion history is written to (see {@see \Testo\Messenger}).
+     * Channel the assertion history is written to (see {@see \Testo\Common\Messenger}).
      */
     public const CHANNEL_HISTORY = 'assert-history';
 

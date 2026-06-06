@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Tests\Messenger\Stub;
+namespace Tests\Application\Stub\Messenger;
 
 use Testo\Assert;
 use Testo\Test;
 
 /**
  * Stub case run through the real pipeline (via {@see \Testo\Testing\Helper\TestRunner}) to verify
- * that {@see \Testo\Messenger\Internal\Pipeline\OutputInterceptor} captures native output into the
+ * that {@see \Testo\Pipeline\Internal\OutputInterceptor} captures native output into the
  * test's {@see \Testo\Core\Context\TestResult}.
  */
 final class OutputStub
