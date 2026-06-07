@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.10.19](https://github.com/php-testo/testo/compare/0.10.18...0.10.19) (2026-06-07)
+
+
+### Code Refactoring
+
+* **messenger:** Move messenger into Core ([0ac2728](https://github.com/php-testo/testo/commit/0ac272898b9e24e240f1e301573c8102abbc2ce0))
+
 ## [0.10.18](https://github.com/php-testo/testo/compare/0.10.17...0.10.18) (2026-06-06)
 
 
