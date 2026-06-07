@@ -3,6 +3,7 @@
     "release-type": "php",
     "separate-pull-requests": false,
     "pull-request-title-pattern": "chore: release ${branch}",
+    "last-release-sha": "ccb639b3495bb8a6213204c0dba4baf5a7e2e6ac",
     "packages": {
         ".": {
             "package-name": "testo",
