@@ -116,7 +116,6 @@ final class EventDispatcher implements
         # Already reporting (a MessageReceived listener itself threw) — last resort, avoid an infinite
         # loop: a concise one-liner straight to the real stderr stream, skipping the channel system.
         if ($this->reportingError) {
-            \fwrite(\STDERR, \sprintf("%s: %s\n", $e::class, $e->getMessage()));
             return;
         }
 

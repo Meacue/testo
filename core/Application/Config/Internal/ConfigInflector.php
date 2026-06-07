@@ -175,7 +175,7 @@ final class ConfigInflector implements Inflector
                 try {
                     $container->get(ErrorReporter::class)->report($e);
                 } catch (\Throwable) {
-                    \fwrite(\STDERR, ErrorReporter::format($e) . "\n");
+                    # Ignore
                 }
             }
         }
