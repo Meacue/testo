@@ -47,6 +47,11 @@ vendor/bin/testo --coverage
 vendor/bin/testo --no-coverage   # explicit off, overrides config
 ```
 
+`--coverage` makes coverage **mandatory** (`CoverageMode::Always`): the run aborts with
+`CoverageDriverNotAvailable` (non-zero exit) when no Xdebug/PCOV driver is present — even with no
+report flags. That makes a bare `vendor/bin/testo --coverage` a handy CI gate to assert the driver
+is actually available. `--no-coverage` always wins over everything.
+
 ## CLI report flags (no `testo.php` needed)
 
 A `CodecovPlugin` ships in the application defaults in **shadow** (inert) mode, so three flags let
