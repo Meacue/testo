@@ -9,7 +9,7 @@ Coverage is opt-in via the **`CodecovPlugin`** in `testo.php`. The plugin needs:
 
 1. A coverage **level** — `Line`, `Branch`, or `Path` (each adds cost and information).
 2. One or more **report writers** — Clover, Cobertura, PHPUnit XML.
-3. Xdebug (in coverage mode) **or** PCOV available on the runner. Without one of them, the plugin will skip.
+3. Xdebug ≥ 3.1 (in coverage mode) **or** PCOV available on the runner. Without one of them, the plugin will skip. The coverage mode can be set via `xdebug.mode=coverage`, the `-d xdebug.mode=coverage` CLI flag, **or** the `XDEBUG_MODE=coverage` env var — Testo resolves the active mode with `xdebug_info('mode')`, so the env override (used by `composer infect` and IDE coverage runners) counts.
 
 Fetch `https://php-testo.github.io/llms.txt` (and `llms-full.txt` if you need plugin wiring detail)
 before editing — exact class names and constructor parameters are authoritative there.
@@ -121,7 +121,7 @@ For Infection, point `infection.json`'s `coverage.path` at the directory you gav
 
 ## Pitfalls
 
-- No coverage written? Check Xdebug `xdebug.mode=coverage` (or PCOV is loaded). Testo skips the driver if neither is available.
+- No coverage written? Check the active Xdebug mode includes `coverage` — set it via `xdebug.mode`, `-d xdebug.mode=coverage`, or `XDEBUG_MODE=coverage` (or load PCOV). Testo skips the driver if neither is available.
 - `clover.xml` empty? Suite-level finder probably excludes the `src` directory you expected — verify the `FinderConfig` covers it.
 - Don't enable coverage in benchmark suites — it falsifies timings.
 - Don't write `#[Covers(SomeInterface::class)]` — point at concrete classes that own the executable code.
