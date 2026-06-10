@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Sandbox\Self;
 
+use Testo;
 use Testo\Assert;
 use Testo\Assert\ExpectException;
 use Testo\Assert\State\Assertion\AssertionException;
@@ -239,6 +240,29 @@ final class AssertTest
             **Baz** `fizz buzz`
 
             MARKDOWN);
+        Assert::true(true);
+    }
+
+    #[Test]
+    public static function loggerFacade(): void
+    {
+        $r = new \ReflectionMethod(self::class, __FUNCTION__);
+        $code = \array_slice(\file(__FILE__), $r->getStartLine() - 1, $r->getEndLine() - $r->getStartLine() + 1);
+        Testo::logger('test.log')->emergency(<<<LOG
+            2026-06-10T06:33:17+0000        INFO    server          [php warning] Installed RoadRunner version `2025.1.2` not supported. Requires version `2025.1.3` or higher. []
+            2026-06-10T06:33:17+0000        DEBUG   server          worker is allocated     {"pid": 28580, "max_execs": 0, "internal_event_name": "EventWorkerConstruct"}
+            2026-06-10T06:33:17+0000        INFO    server          [php warning] Installed RoadRunner version `2025.1.2` not supported. Requires version `2025.1.3` or higher. []
+            2026-06-10T06:33:17+0000        DEBUG   server          worker is allocated     {"pid": 21924, "max_execs": 0, "internal_event_name": "EventWorkerConstruct"}
+            2026-06-10T06:33:17+0000        INFO    server          [php warning] Installed RoadRunner version `2025.1.2` not supported. Requires version `2025.1.3` or higher. []
+            2026-06-10T06:33:17+0000        DEBUG   server          worker is allocated     {"pid": 11432, "max_execs": 0, "internal_event_name": "EventWorkerConstruct"}
+            2026-06-10T06:33:17+0000        INFO    server          [php warning] Installed RoadRunner version `2025.1.2` not supported. Requires version `2025.1.3` or higher. []
+            2026-06-10T06:33:17+0000        DEBUG   server          worker is allocated     {"pid": 24480, "max_execs": 0, "internal_event_name": "EventWorkerConstruct"}
+            2026-06-10T06:33:20+0000        INFO    server          [php warning] Installed RoadRunner version `2025.1.2` not supported. Requires version `2025.1.3` or higher. []
+            2026-06-10T06:33:20+0000        DEBUG   server          worker is allocated     {"pid": 7180, "max_execs": 0, "internal_event_name": "EventWorkerConstruct"}
+            2026-06-10T06:33:20+0000        DEBUG   temporal        outgoing message        {"id": 0, "data": "", "context": ""}
+            2026-06-10T06:33:20+0000        DEBUG   server          req-resp mode   {"pid": 7180}
+            2026-06-10T06:33:20+0000        WARN    server          Deadline exceeded
+            LOG);
         Assert::true(true);
     }
 }

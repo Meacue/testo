@@ -11,6 +11,7 @@
     "plugin/inline": "0.1.5",
     "plugin/bench": "0.1.5",
     "plugin/codecov": "0.1.10",
+    "plugin/facade": "0.1.0",
     "bridge/symfony-console": "0.1.6",
     "bridge/infection": "0.1.6"
 }

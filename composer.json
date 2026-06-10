@@ -58,6 +58,7 @@
         "roxblnfk/unpoly": "1.8.2",
         "spiral/code-style": "^2.2.2",
         "testo/bridge-infection": "^0.1.6",
+        "testo/facade": "^0.1",
         "vimeo/psalm": "^7.0@dev"
     },
     "suggest": {
@@ -84,6 +85,7 @@
             "Tests\\Codecov\\": "plugin/codecov/tests/",
             "Tests\\Convention\\": "plugin/convention/tests/",
             "Tests\\Data\\": "plugin/data/tests/",
+            "Tests\\Facade\\": "plugin/facade/tests/",
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
             "Tests\\Retry\\": "plugin/retry/tests/",
@@ -105,6 +107,7 @@
                     "testo/codecov": "0.1.x-dev",
                     "testo/convention": "0.1.x-dev",
                     "testo/data": "0.1.x-dev",
+                    "testo/facade": "0.1.x-dev",
                     "testo/filter": "0.1.x-dev",
                     "testo/inline": "0.1.x-dev",
                     "testo/lifecycle": "0.1.x-dev",

@@ -23,6 +23,7 @@ on:  # yamllint disable-line rule:truthy
       - 'codecov-[0-9]*'
       - 'convention-[0-9]*'
       - 'data-[0-9]*'
+      - 'facade-[0-9]*'
       - 'filter-[0-9]*'
       - 'inline-[0-9]*'
       - 'lifecycle-[0-9]*'
