@@ -34,6 +34,7 @@
         "internal/path": "^1.2",
         "psr/container": "1 - 2",
         "psr/event-dispatcher": "^1.0",
+        "psr/log": "^2.0 || ^3.0",
         "symfony/console": "^6.4 || ^7 || ^8.0",
         "symfony/finder": "^6.4 || ^7 || ^8.0",
         "testo/assert": "^0.1.7",
