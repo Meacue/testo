@@ -52,6 +52,26 @@ trait IterableTrait
         );
     }
 
+    #[AssertMethod]
+    #[\Override]
+    public function notContains(mixed $needle, string $message = ''): static
+    {
+        $str = 'does not contain `' . Support::stringify($needle) . '`';
+        foreach ($this->value as $item) {
+            if ($item === $needle) {
+                throw $this->parent->fail(
+                    assertion: $str,
+                    reason: 'element found',
+                    context: $message,
+                );
+            }
+        }
+
+        $this->parent->success($str);
+
+        return $this;
+    }
+
     #[\Override]
     public function every(callable $callback, string $message = ''): static
     {

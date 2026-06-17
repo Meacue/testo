@@ -30,6 +30,16 @@ final class AssertIterable
     }
 
     #[Test]
+    public function checkNotContains(): void
+    {
+        Assert::iterable(new \ArrayIterator([1, 2, 3]))->notContains(4);
+        Assert::iterable([1, 2, 3])->notContains('3'); // strict comparison: string '3' is absent
+
+        Expect::exception(AssertionException::class);
+        Assert::iterable([1, 2, 3])->notContains(2);
+    }
+
+    #[Test]
     public function checkSameSizeAs(): void
     {
         Assert::iterable(new \ArrayIterator([1, 2, 3]))->sameSizeAs(new \ArrayIterator(['a', 'b', 'c']));

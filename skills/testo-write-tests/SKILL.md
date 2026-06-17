@@ -78,7 +78,7 @@ Typed chains (use when you want a fluent series of checks on one value):
 ```php
 Assert::string($s)->contains('foo')->notContains('bar');
 Assert::int($n)->greaterThan(0)->lessThanOrEqual(100);
-Assert::array($a)->hasKeys(['id', 'name'])->isList()->hasCount(3);
+Assert::array($a)->hasKeys(['id', 'name'])->isList()->hasCount(3)->contains('x')->notContains('y');
 Assert::object($o)->instanceOf(Foo::class)->hasProperty('id');
 Assert::json($s)->isObject()->hasKeys(['data', 'meta'])->assertPath('$.data.id', 42);
 ```

@@ -25,7 +25,14 @@ final class AssertArray
     #[Test]
     public function checkIterableTraitMethods(): void
     {
-        Assert::array([1, 2, 3])->contains(3)->allOf('int')->sameSizeAs([4,5,6])->hasCount(3);
+        Assert::array([1, 2, 3])->contains(3)->notContains(4)->allOf('int')->sameSizeAs([4,5,6])->hasCount(3);
+    }
+
+    #[Test]
+    public function checkNotContainsFails(): void
+    {
+        Expect::exception(AssertionException::class);
+        Assert::array([1, 2, 3])->notContains(2);
     }
 
     #[Test]

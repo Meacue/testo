@@ -35,6 +35,15 @@ interface IterableType
     public function contains(mixed $needle, string $message = ''): static;
 
     /**
+     * Asserts that the iterable does not contain the given needle.
+     *
+     * @param mixed $needle The value that must be absent from the iterable.
+     * @param string $message Optional message for the assertion.
+     * @throws AssertionException when the assertion fails.
+     */
+    public function notContains(mixed $needle, string $message = ''): static;
+
+    /**
      * Asserts that the iterable has the same number of elements as the expected iterable.
      *
      * @param iterable $expected The iterable to compare size against.
