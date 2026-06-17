@@ -146,6 +146,27 @@ use Testo\Lifecycle\{BeforeClass, AfterClass, BeforeTest, AfterTest};
 
 Hooks may be either instance methods or `static` — Testo invokes them accordingly. They run regardless of `#[Test]` on the method.
 
+## Grouping tests
+
+Label tests with `#[Group]` (from the `testo/filter` plugin) to select or skip them by category.
+It targets classes, methods, and functions and is variadic (pass several names at once).
+
+```php
+use Testo\Filter\Group;
+
+#[Test]
+#[Group('integration')]      // inherited by every test of the class
+final class OrderTest
+{
+    #[Group('slow')]         // effective groups: integration, slow
+    public function importsLargeDataset(): void { /* ... */ }
+}
+```
+
+A test's group set is the union of all groups reachable from it: its own method (and any overridden
+parent method), the test class, its parent classes, and traits. Select with `--group` (OR across
+values); prefix with `!` to exclude. Group filters AND with name/path/suite filters.
+
 ## Running
 
 ```
@@ -153,6 +174,8 @@ vendor/bin/testo                                # all suites
 vendor/bin/testo --suite=Unit                   # one suite
 vendor/bin/testo --filter='UserServiceTest'     # by name
 vendor/bin/testo --path=tests/Unit/UserService  # by path
+vendor/bin/testo --group=integration            # only the "integration" group
+vendor/bin/testo --group=!slow                  # everything except the "slow" group
 ```
 
 Use the Testo CLI, **never** `phpunit`.
