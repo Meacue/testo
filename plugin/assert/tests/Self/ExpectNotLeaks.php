@@ -5,16 +5,21 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert\ExpectException;
+use Testo\Assert\Internal\Expectation\NotLeaks;
 use Testo\Assert\State\Expectation\ExpectNotLeaksFailure;
+use Testo\Codecov\Covers;
 use Testo\Expect;
 use Testo\Test;
 
 /**
- * @see Expect::leaks()
+ * @see Expect::notLeaks()
  */
+#[Test]
+#[Covers(Expect::class, 'notLeaks')]
+#[Covers(NotLeaks::class)]
+#[Covers(ExpectNotLeaksFailure::class)]
 final class ExpectNotLeaks
 {
-    #[Test]
     #[ExpectException(ExpectNotLeaksFailure::class)]
     public function cachedStatically(): void
     {
@@ -26,7 +31,6 @@ final class ExpectNotLeaks
         Expect::notLeaks(...$leak)->message('foo bar');
     }
 
-    #[Test]
     public function notLeaks(): void
     {
         $leak = new \stdClass();

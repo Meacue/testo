@@ -6,12 +6,17 @@ namespace Tests\Assert\Self;
 
 use Testo\Assert;
 use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Codecov\Covers;
 use Testo\Expect;
 use Testo\Test;
 
+/**
+ * @see Assert::notNull()
+ */
+#[Test]
+#[Covers(Assert::class, 'notNull')]
 final class AssertNotNull
 {
-    #[Test]
     public function checkNonNullValues(): void
     {
         Assert::notNull(0);
@@ -19,37 +24,13 @@ final class AssertNotNull
         Assert::notNull(false);
         Assert::notNull([]);
         Assert::notNull(0.0);
-    }
-
-    #[Test]
-    public function checkNullFails(): void
-    {
-        Expect::exception(AssertionException::class);
-        Assert::notNull(null);
-    }
-
-    #[Test]
-    public function checkNullFailsWithMessage(): void
-    {
-        Expect::exception(AssertionException::class);
-        Assert::notNull(null, 'Value must not be null.');
-    }
-
-    #[Test]
-    public function checkExceptionContext(): void
-    {
-        try {
-            Assert::notNull(null, 'my context');
-        } catch (AssertionException $e) {
-            Assert::same($e->getContext(), 'my context');
-            return;
-        }
-        Assert::fail('Expected AssertionException to be thrown');
-    }
-
-    #[Test]
-    public function checkObjectIsNotNull(): void
-    {
         Assert::notNull(new \stdClass());
+    }
+
+    public function checkNullFails(): never
+    {
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::notNull(null, 'my wonderful message');
     }
 }

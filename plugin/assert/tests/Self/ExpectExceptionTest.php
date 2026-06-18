@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert\Api\ExpectedException;
+use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
+use Testo\Codecov\Covers;
 use Testo\Expect;
 use Testo\Test;
 use Tests\Assert\Stub\ExceptionThrower;
@@ -12,6 +14,8 @@ use Tests\Assert\Stub\ExceptionThrower;
 /**
  * @see Expect::exception()
  */
+#[Covers(Expect::class, 'exception')]
+#[Covers(ExpectExceptionHandler::class)]
 final class ExpectExceptionTest
 {
     #[Test]

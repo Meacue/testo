@@ -5,16 +5,23 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
+use Testo\Assert\Internal\Assertion\AssertArray as AssertArrayImpl;
+use Testo\Assert\Internal\Assertion\Traits\IterableTrait;
 use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Codecov\Covers;
+use Testo\Data\DataSet;
 use Testo\Expect;
 use Testo\Test;
 
 /**
  * @see Assert::array()
  */
+#[Test]
+#[Covers(Assert::class, 'array')]
+#[Covers(AssertArrayImpl::class)]
+#[Covers(IterableTrait::class)]
 final class AssertArray
 {
-    #[Test]
     public function checkArrayType(): void
     {
         // This assertion checks incoming data type
@@ -22,43 +29,117 @@ final class AssertArray
         Assert::array([]);
     }
 
-    #[Test]
-    public function checkIterableTraitMethods(): void
+    public function notEmpty(): never
     {
-        Assert::array([1, 2, 3])->contains(3)->notContains(4)->allOf('int')->sameSizeAs([4,5,6])->hasCount(3);
+        Assert::array([1, 2, 3])->notEmpty();
+
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::array([])->notEmpty('my wonderful message');
     }
 
-    #[Test]
-    public function checkNotContainsFails(): void
+    public function contains(): never
     {
-        Expect::exception(AssertionException::class);
-        Assert::array([1, 2, 3])->notContains(2);
+        Assert::array([1, 2, 3])->contains(2);
+
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::array([1, 2, 3])->contains(4, 'my wonderful message');
     }
 
-    #[Test]
-    public function checkHasKey(): void
+    public function notContains(): never
     {
-        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key');
+        Assert::array([1, 2, 3])->notContains(4);
 
-        Expect::exception(AssertionException::class);
-        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key2');
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::array([1, 2, 3])->notContains(2, 'my wonderful message');
     }
 
-    #[Test]
-    public function assertIsList(): void
+    public function sameSizeAs(): never
     {
-        Assert::array([1, 2, 3])->isList();
+        Assert::array([1, 2, 3])->sameSizeAs([4, 5, 6]);
 
-        Expect::exception(AssertionException::class);
-        Assert::array(['key' => 'value', 'abc' => 'value2'])->isList();
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::array([1, 2, 3])->sameSizeAs([1, 2], 'my wonderful message');
     }
 
-    #[Test]
-    public function assertEvery(): void
+    public function allOf(): never
+    {
+        Assert::array([1, 2, 3])->allOf('int');
+
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::array([1, 2, 'testo'])->allOf('int', 'my wonderful message');
+    }
+
+    public function every(): never
     {
         Assert::array([1, 2, 3])->every(static fn($value) => \is_int($value));
 
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::array([1, 2, 3, 'testo'])->every(static fn($value) => \is_int($value), 'my wonderful message');
+    }
+
+    public function hasCount(): never
+    {
+        Assert::array([1, 2, 3])->hasCount(3);
+
         Expect::exception(AssertionException::class);
-        Assert::array([1, 2, 3, 'testo'])->every(static fn($value) => \is_int($value));
+        Assert::array([1, 2, 3])->hasCount(2);
+    }
+
+    public function hasKeys(): void
+    {
+        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key');
+        Assert::array(['key' => 'value', 'abc' => 'value2'])->hasKeys('key', 'abc');
+    }
+
+    /**
+     * @param non-empty-list<int|string> $keys
+     */
+    #[DataSet([['missing']], 'single missing key')]
+    #[DataSet([['key', 'missing']], 'one of several keys missing')]
+    public function hasKeysFails(array $keys): never
+    {
+        Expect::exception(AssertionException::class);
+        Assert::array(['key' => 'value'])->hasKeys(...$keys);
+    }
+
+    public function doesNotHaveKeys(): void
+    {
+        Assert::array(['key' => 'value'])->doesNotHaveKeys('missing');
+        Assert::array(['key' => 'value'])->doesNotHaveKeys('missing', 'absent');
+    }
+
+    /**
+     * @param non-empty-list<int|string> $keys
+     */
+    #[DataSet([['key']], 'single present key')]
+    #[DataSet([['key', 'missing']], 'one of several keys present')]
+    public function doesNotHaveKeysFails(array $keys): never
+    {
+        Expect::exception(AssertionException::class);
+        Assert::array(['key' => 'value'])->doesNotHaveKeys(...$keys);
+    }
+
+    public function isList(): void
+    {
+        Assert::array([1, 2, 3])->isList();
+        Assert::array([])->isList();
+    }
+
+    /**
+     * @param array<mixed> $value
+     */
+    #[DataSet([['key' => 'value']], 'associative array')]
+    #[DataSet([[1 => 'a', 2 => 'b']], 'non-zero-based keys')]
+    public function isListFails(array $value): never
+    {
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::array($value)->isList('my wonderful message');
     }
 }

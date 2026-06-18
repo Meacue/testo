@@ -5,23 +5,30 @@ declare(strict_types=1);
 namespace Tests\Assert\Self;
 
 use Testo\Assert;
+use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Codecov\Covers;
+use Testo\Expect;
 use Testo\Test;
 
 /**
- * Assertion examples.
+ * @see Assert::equals()
  */
+#[Test]
+#[Covers(Assert::class, 'equals')]
 final class AssertEquals
 {
-    #[Test]
-    public function numbers(): void
+    public function numbers(): never
     {
         Assert::equals(1, 1);
         Assert::equals(1.0, 1);
         Assert::equals(1, 1.0);
         Assert::equals(2, "2");
+
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::equals(1, 2, 'my wonderful message');
     }
 
-    #[Test]
     public function arrays(): void
     {
         # Same
@@ -37,12 +44,11 @@ final class AssertEquals
         );
     }
 
-    #[Test]
     public function objects(): void
     {
         Assert::equals(
-            (object)['b' => 2, 'a' => 1],
-            (object)['a' => 1, 'b' => 2],
+            (object) ['b' => 2, 'a' => 1],
+            (object) ['a' => 1, 'b' => 2],
         );
     }
 }

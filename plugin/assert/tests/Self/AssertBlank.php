@@ -6,15 +6,18 @@ namespace Tests\Assert\Self;
 
 use Testo\Assert;
 use Testo\Assert\State\Assertion\AssertionException;
+use Testo\Codecov\Covers;
+use Testo\Data\DataSet;
 use Testo\Expect;
 use Testo\Test;
 
 /**
- * Assertion examples.
+ * @see Assert::blank()
  */
+#[Test]
+#[Covers(Assert::class, 'blank')]
 final class AssertBlank
 {
-    #[Test]
     public function checkBlankData(): void
     {
         Assert::blank([]);
@@ -23,24 +26,13 @@ final class AssertBlank
         Assert::blank(new \ArrayIterator());
     }
 
-    #[Test]
-    public function checkZeroIsNotBlank(): void
+    #[DataSet([0], 'integer zero')]
+    #[DataSet(['0'], 'string zero')]
+    #[DataSet([false], 'boolean false')]
+    public function checkNotBlankFails(mixed $value): never
     {
-        Expect::exception(AssertionException::class);
-        Assert::blank(0);
-    }
-
-    #[Test]
-    public function checkZeroStringIsNotBlank(): void
-    {
-        Expect::exception(AssertionException::class);
-        Assert::blank("0");
-    }
-
-    #[Test]
-    public function checkFalseIsNotBlank(): void
-    {
-        Expect::exception(AssertionException::class);
-        Assert::blank(false);
+        Expect::exception(AssertionException::class)
+            ->withMessageContaining('my wonderful message');
+        Assert::blank($value, 'my wonderful message');
     }
 }
