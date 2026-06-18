@@ -118,6 +118,27 @@ final class JsonReportTest
         ]);
     }
 
+    public function consecutiveSameChannelMessagesAreCoalesced(): void
+    {
+        $messages = new MessageLog([
+            new Message(0.0, 'stdout', Level::Info, "Foo 0\n"),
+            new Message(0.0, 'stdout', Level::Info, "Foo 1\n"),
+            new Message(0.0, 'sql-log', Level::Debug, 'SELECT 1'),
+            new Message(0.0, 'stdout', Level::Info, "Bar\n"),
+        ]);
+
+        $report = self::decode(self::run(
+            Status::Failed,
+            results: [self::test('failingTest', Status::Failed, new \RuntimeException('x'), $messages)],
+        ));
+
+        Assert::same($report['failures'][0]['output'], [
+            ['channel' => 'stdout', 'content' => "Foo 0\nFoo 1\n"],
+            ['channel' => 'sql-log', 'content' => 'SELECT 1'],
+            ['channel' => 'stdout', 'content' => "Bar\n"],
+        ]);
+    }
+
     public function malformedUtf8InMessagesIsSubstitutedNotThrown(): void
     {
         $messages = new MessageLog([new Message(0.0, 'stdout', Level::Info, "bad \x80\xFF byte")]);

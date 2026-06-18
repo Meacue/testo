@@ -179,16 +179,29 @@ final class JsonReport
     /**
      * Test-captured messages (stdout, logs, custom channels) in recorded order.
      *
+     * Consecutive messages on the same channel are coalesced into a single block — their contents
+     * are concatenated — so a test that prints many lines to stdout yields one `stdout` entry
+     * instead of one per line. A switch to a different channel starts a new block.
+     *
      * @return list<array{channel: non-empty-string, content: non-empty-string}>
      */
     private static function output(MessageLog $messages): array
     {
+        /** @var list<array{channel: non-empty-string, content: non-empty-string}> $output */
         $output = [];
         foreach ($messages as $message) {
+            $last = \count($output) - 1;
+            if ($last >= 0 && $output[$last]['channel'] === $message->channel) {
+                $output[$last]['content'] .= $message->content;
+                continue;
+            }
+
             $output[] = ['channel' => $message->channel, 'content' => $message->content];
         }
 
-        return $output;
+        // array_values: in-place content mutation above makes Psalm widen the list back to a
+        // keyed array; the keys are already 0..n, this just restores the list<> shape.
+        return \array_values($output);
     }
 
     /**
