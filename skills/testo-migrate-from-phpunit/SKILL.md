@@ -35,7 +35,7 @@ Fetch `https://php-testo.github.io/llms.txt` first — when in doubt about an at
 | `$this->markTestSkipped('reason')` | `throw new \Testo\Core\Exception\SkipTest('reason')` from inside the test body. See the "Marking a test as skipped or cancelled" section in `testo-write-tests`. |
 | `$this->markTestIncomplete('reason')` | Testo has no distinct "incomplete" status. Port to `throw new SkipTest('TODO: reason')`, or leave the test empty so it's reported as `Status::Risky`. |
 | Mocks: `$this->createMock(Foo::class)` | Testo doesn't ship a mocking library. Bring your own (Mockery, Prophecy), or — preferred — write a hand-rolled fake. **Never** mock `final` classes or enums. |
-| `@group slow` / `#[Group('slow')]` (PHPUnit 10+) | `#[Group('slow')]` on class, method, or function. Not repeatable — merge stacked groups into one variadic call: `#[Group('slow', 'db')]`. Select with `--group=slow`, exclude with `--group=!slow`. |
+| `@group slow` / `#[Group('slow')]` (PHPUnit 10+) | `#[Group('slow')]` from **`Testo\Filter\Group`** (not `PHPUnit\Framework\Attributes\Group`), on class, method, or function. Not repeatable — merge stacked groups into one variadic call: `#[Group('slow', 'db')]`. Select with `--group=slow`, exclude with `--group=!slow`. |
 | `@requires ext` | Suite separation in `testo.php` via `SuiteConfig` and finder excludes. |
 | `phpunit.xml` | `testo.php` (a real PHP file returning `ApplicationConfig`). See `testo-configure` skill. |
 
@@ -45,7 +45,10 @@ Fetch `https://php-testo.github.io/llms.txt` first — when in doubt about an at
 ```php
 use PHPUnit\Framework\TestCase;
 
-/** @covers \App\UserService */
+/**
+ * @covers \App\UserService
+ * @group user
+ */
 final class UserServiceTest extends TestCase
 {
     private UserService $svc;
@@ -61,7 +64,10 @@ final class UserServiceTest extends TestCase
         $this->assertSame('Alice', $u->name);
     }
 
-    /** @dataProvider invalidNames */
+    /**
+     * @dataProvider invalidNames
+     * @group validation
+     */
     public function testRejectsInvalidName(string $name): void
     {
         $this->expectException(InvalidArgumentException::class);
@@ -82,11 +88,13 @@ use Testo\Assert;
 use Testo\Codecov\Covers;
 use Testo\Data\DataProvider;
 use Testo\Expect;
+use Testo\Filter\Group;
 use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
 
 #[Test]
 #[Covers(UserService::class)]
+#[Group('user')]
 final class UserServiceTest
 {
     private UserService $svc;
@@ -105,6 +113,7 @@ final class UserServiceTest
     }
 
     #[DataProvider('invalidNames')]
+    #[Group('validation')]
     public function rejectsInvalidName(string $name): never
     {
         Expect::exception(InvalidArgumentException::class)
@@ -174,6 +183,16 @@ Mapping rules:
 - Note that during the port, the assertion order **flips** (`$expected, $actual` → `$actual, $expected`). Easy to miss when you're only changing the attributes.
 
 For more on choosing between `#[DataSet]`, `#[DataProvider]`, `#[DataZip]`, `#[DataUnion]` and `#[DataCross]`, escalate to the `testo-data-driven` skill.
+
+## `@group` / `#[Group]` → `#[Group]`
+
+The worked example above already ports `@group` (class- and method-level). Extra rules:
+
+- Import from **`Testo\Filter\Group`** — not PHPUnit's `PHPUnit\Framework\Attributes\Group`.
+- Testo's `#[Group]` is **not repeatable**: fold stacked attributes into one variadic call —
+  `#[Group('slow')] #[Group('db')]` → `#[Group('slow', 'db')]`.
+- A class-level `#[Group]` is inherited by every test method (union with the method's own groups).
+- Run/skip from the CLI: `vendor/bin/testo run --group=slow`, exclude with `--group=!slow`.
 
 ## Recommended porting order
 
