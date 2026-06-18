@@ -205,7 +205,16 @@ final class TeamcityLogger
      */
     public function testStartedFromInfo(TestInfo $info, bool $captureStandardOutput = false, ?string $overrideName = null, ?string $locationSuffix = null): void
     {
-        $this->publish(Formatter::testStarted($overrideName ?? $info->name, $captureStandardOutput, $info->testDefinition->reflection, $locationSuffix));
+        $description = $info->testDefinition->getDescription();
+        $description === '' and $description = null;
+
+        $this->publish(Formatter::testStarted(
+            $overrideName ?? $info->name,
+            $captureStandardOutput,
+            $info->testDefinition->reflection,
+            $locationSuffix,
+            $description,
+        ));
     }
 
     /**

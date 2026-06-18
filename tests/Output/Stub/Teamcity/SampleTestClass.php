@@ -12,4 +12,9 @@ final class SampleTestClass
     public function passingTest(): void {}
 
     public function failingTest(): void {}
+
+    /**
+     * Verifies the widget renders correctly.
+     */
+    public function describedTest(): void {}
 }

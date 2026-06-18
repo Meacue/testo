@@ -58,9 +58,11 @@ final class Formatter
      * @param bool $captureStandardOutput Whether to capture standard output
      * @param \ReflectionFunctionAbstract|null $reflection Function/method reflection for location hint
      * @param non-empty-string|null $locationSuffix Optional suffix to append to location hint (e.g., " with data set #0")
+     * @param non-empty-string|null $description Test description (from the PHPDoc summary), emitted as
+     *        the TeamCity `metainfo` attribute. Omitted when `null`.
      * @return non-empty-string
      */
-    public static function testStarted(string $name, bool $captureStandardOutput = false, ?\ReflectionFunctionAbstract $reflection = null, ?string $locationSuffix = null): string
+    public static function testStarted(string $name, bool $captureStandardOutput = false, ?\ReflectionFunctionAbstract $reflection = null, ?string $locationSuffix = null, ?string $description = null): string
     {
         $attributes = ['name' => $name];
 
@@ -70,6 +72,8 @@ final class Formatter
             $locationHint = self::testLocationHint($reflection, $locationSuffix);
             $locationHint !== null and $attributes['locationHint'] = $locationHint;
         }
+
+        $description !== null and $attributes['metainfo'] = $description;
 
         return self::formatMessage('testStarted', $attributes);
     }

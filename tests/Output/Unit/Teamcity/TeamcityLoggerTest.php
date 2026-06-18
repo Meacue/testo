@@ -60,6 +60,24 @@ final class TeamcityLoggerTest
         Assert::string($output)->notContains("actual='");
     }
 
+    public function testStartedFromInfoEmitsDescriptionFromPhpDoc(): void
+    {
+        $info = self::makeInfo('describedTest');
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->testStartedFromInfo($info));
+
+        Assert::string($output)->contains("metainfo='Verifies the widget renders correctly.'");
+    }
+
+    public function testStartedFromInfoOmitsMetainfoWhenNoPhpDoc(): void
+    {
+        $info = self::makeInfo('passingTest');
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->testStartedFromInfo($info));
+
+        Assert::string($output)->notContains('metainfo=');
+    }
+
     /**
      * Runs the callback against a logger writing to an in-memory stream and returns what it wrote.
      *
@@ -98,10 +116,21 @@ final class TeamcityLoggerTest
 
     private static function makeFailedResult(\Throwable $failure): TestResult
     {
-        $reflection = new \ReflectionMethod(SampleTestClass::class, 'failingTest');
+        return new TestResult(
+            info: self::makeInfo('failingTest'),
+            status: Status::Failed,
+            failure: $failure,
+            attributes: ['duration' => 0],
+        );
+    }
 
-        $info = new TestInfo(
-            name: 'failingTest',
+    /**
+     * @param non-empty-string $method Method of {@see SampleTestClass} backing the test definition.
+     */
+    private static function makeInfo(string $method): TestInfo
+    {
+        return new TestInfo(
+            name: $method,
             caseInfo: new CaseInfo(
                 definition: new CaseDefinition(
                     name: SampleTestClass::class,
@@ -109,14 +138,7 @@ final class TeamcityLoggerTest
                     reflection: new \ReflectionClass(SampleTestClass::class),
                 ),
             ),
-            testDefinition: new TestDefinition($reflection),
-        );
-
-        return new TestResult(
-            info: $info,
-            status: Status::Failed,
-            failure: $failure,
-            attributes: ['duration' => 0],
+            testDefinition: new TestDefinition(new \ReflectionMethod(SampleTestClass::class, $method)),
         );
     }
 }

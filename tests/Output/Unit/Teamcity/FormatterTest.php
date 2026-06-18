@@ -40,6 +40,21 @@ final class FormatterTest
         Assert::string($msg)->contains("actual='two'");
     }
 
+    public function testStartedEmitsDescriptionAsMetainfo(): void
+    {
+        $msg = Formatter::testStarted(name: 'myTest', description: 'Verifies the widget');
+
+        Assert::string($msg)->contains("name='myTest'");
+        Assert::string($msg)->contains("metainfo='Verifies the widget'");
+    }
+
+    public function testStartedOmitsMetainfoWhenNoDescription(): void
+    {
+        $msg = Formatter::testStarted(name: 'myTest');
+
+        Assert::string($msg)->notContains('metainfo=');
+    }
+
     public function testFailedEscapesSpecialCharactersInExpectedAndActual(): void
     {
         $msg = Formatter::testFailed(
