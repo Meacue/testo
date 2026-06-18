@@ -6,6 +6,7 @@ namespace Tests\Retry\Unit;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Common\Messenger;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\TestInfo;
@@ -20,7 +21,11 @@ use Testo\Retry;
 use Testo\Retry\Interceptor\RetryPolicyRunInterceptor;
 use Testo\Test;
 
+/**
+ * @see RetryPolicyRunInterceptor::runTest()
+ */
 #[Test]
+#[Covers(RetryPolicyRunInterceptor::class)]
 final class RetryPolicyRunInterceptorTest
 {
     public function noRetryWhenFirstAttemptPasses(): void

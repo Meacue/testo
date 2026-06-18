@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Tests\Repeat\Unit;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
+use Testo\Data\DataSet;
+use Testo\Expect;
 use Testo\Repeat;
 use Testo\Test;
 
 #[Test]
+#[Covers(Repeat::class)]
 final class RepeatTest
 {
     public function defaultTimesIsTwo(): void
@@ -32,19 +36,18 @@ final class RepeatTest
         Assert::same($repeat->times, 1);
     }
 
-    public function zeroTimesThrowsException(): void
+    /**
+     * @param int<min, 0> $times Non-positive run counts are rejected by the constructor.
+     */
+    #[DataSet([0], 'zero')]
+    #[DataSet([-1], 'negative')]
+    #[DataSet([\PHP_INT_MIN], 'int min')]
+    public function nonPositiveTimesFails(int $times): never
     {
-        self::assertThrowsInvalidArgument(0);
-    }
+        Expect::exception(\InvalidArgumentException::class)
+            ->withMessage('Times must be greater than 0.');
 
-    public function negativeTimesThrowsException(): void
-    {
-        self::assertThrowsInvalidArgument(-1);
-    }
-
-    public function intMinTimesThrowsException(): void
-    {
-        self::assertThrowsInvalidArgument(\PHP_INT_MIN);
+        new Repeat(times: $times);
     }
 
     public function defaultMaxFailuresIsZero(): void
@@ -75,39 +78,16 @@ final class RepeatTest
         Assert::false($repeat->markFlaky);
     }
 
-    public function negativeMaxFailuresThrowsException(): void
+    /**
+     * @param int<min, -1> $maxFailures Negative tolerances are rejected by the constructor.
+     */
+    #[DataSet([-1], 'negative')]
+    #[DataSet([\PHP_INT_MIN], 'int min')]
+    public function negativeMaxFailuresFails(int $maxFailures): never
     {
-        self::assertThrowsForMaxFailures(-1);
-    }
+        Expect::exception(\InvalidArgumentException::class)
+            ->withMessage('Max failures must be greater than or equal to 0.');
 
-    public function intMinMaxFailuresThrowsException(): void
-    {
-        self::assertThrowsForMaxFailures(\PHP_INT_MIN);
-    }
-
-    private static function assertThrowsInvalidArgument(int $times): void
-    {
-        $thrown = null;
-        try {
-            new Repeat(times: $times);
-        } catch (\InvalidArgumentException $e) {
-            $thrown = $e;
-        }
-
-        Assert::instanceOf($thrown, \InvalidArgumentException::class);
-        Assert::same($thrown->getMessage(), 'Times must be greater than 0.');
-    }
-
-    private static function assertThrowsForMaxFailures(int $maxFailures): void
-    {
-        $thrown = null;
-        try {
-            new Repeat(maxFailures: $maxFailures);
-        } catch (\InvalidArgumentException $e) {
-            $thrown = $e;
-        }
-
-        Assert::instanceOf($thrown, \InvalidArgumentException::class);
-        Assert::same($thrown->getMessage(), 'Max failures must be greater than or equal to 0.');
+        new Repeat(maxFailures: $maxFailures);
     }
 }

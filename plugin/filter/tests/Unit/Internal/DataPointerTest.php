@@ -29,6 +29,7 @@ use Tests\Filter\Unit\Fixture\GroupedTestClass;
  */
 #[Test]
 #[Covers(FilterInterceptor::class)]
+#[Covers(DataPointer::class)]
 final class DataPointerTest
 {
     public function providerAndDatasetIndicesAreInjected(): void

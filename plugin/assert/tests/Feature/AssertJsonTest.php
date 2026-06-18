@@ -5,17 +5,26 @@ declare(strict_types=1);
 namespace Tests\Assert\Feature;
 
 use Testo\Assert;
+use Testo\Assert\Internal\Assertion\AssertJson as AssertJsonImpl;
 use Testo\Assert\State\Assertion;
+use Testo\Codecov\Covers;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
 use Testo\Testing\Helper\TestRunner;
 use Tests\Assert\Stub\AssertJsonNegative;
 
+/**
+ * Failure rendering of {@see Assert::json()} assertions, observed through the runner.
+ *
+ * @see Assert::json()
+ */
+#[Test]
+#[Covers(Assert::class, 'json')]
+#[Covers(AssertJsonImpl::class)]
 #[TestingSuite(path: __DIR__ . '/../Stub')]
 final class AssertJsonTest
 {
-    #[Test]
     public function invalidJson(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'invalidJson']);
@@ -26,7 +35,6 @@ final class AssertJsonTest
             ->contains('got');
     }
 
-    #[Test]
     public function isObjectOnArray(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'isObjectOnArray']);
@@ -37,7 +45,6 @@ final class AssertJsonTest
             ->contains('got array');
     }
 
-    #[Test]
     public function isArrayOnObject(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'isArrayOnObject']);
@@ -48,7 +55,6 @@ final class AssertJsonTest
             ->contains('got object');
     }
 
-    #[Test]
     public function isPrimitiveOnObject(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'isPrimitiveOnObject']);
@@ -59,7 +65,6 @@ final class AssertJsonTest
             ->contains('got object');
     }
 
-    #[Test]
     public function emptyOnNonEmpty(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'emptyOnNonEmpty']);
@@ -70,7 +75,6 @@ final class AssertJsonTest
             ->contains('3 element');
     }
 
-    #[Test]
     public function wrongCount(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'wrongCount']);
@@ -81,7 +85,6 @@ final class AssertJsonTest
             ->contains('got 3');
     }
 
-    #[Test]
     public function missingKeys(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'missingKeys']);
@@ -94,7 +97,6 @@ final class AssertJsonTest
             ->contains('`email`');
     }
 
-    #[Test]
     public function exceedsMaxDepth(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'exceedsMaxDepth']);
@@ -105,7 +107,6 @@ final class AssertJsonTest
             ->contains('actual depth is 3');
     }
 
-    #[Test]
     public function wrongMatchesType(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'wrongMatchesType']);
@@ -116,7 +117,6 @@ final class AssertJsonTest
             ->contains('got 42');
     }
 
-    #[Test]
     public function isStructureOnPrimitive(): void
     {
         $result = TestRunner::runTest([AssertJsonNegative::class, 'isStructureOnPrimitive']);

@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Repeat\Feature;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Core\Value\Status;
+use Testo\Repeat;
+use Testo\Repeat\Internal\RepeatInterceptor;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
 use Testo\Testing\Helper\TestRunner;
@@ -15,6 +18,8 @@ use Tests\Repeat\Stub\RepeatFlakyStub;
 use Tests\Repeat\Stub\RepeatPassingStub;
 
 #[Test]
+#[Covers(Repeat::class)]
+#[Covers(RepeatInterceptor::class)]
 #[TestingSuite(path: __DIR__ . '/../Stub')]
 final class RepeatFeatureTest
 {

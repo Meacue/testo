@@ -16,11 +16,13 @@ use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
 use Testo\Data\DataSet;
 use Testo\Application\Internal\MessengerHub;
+use Testo\Codecov\Covers;
 use Testo\Repeat;
 use Testo\Repeat\Internal\RepeatInterceptor;
 use Testo\Test;
 
 #[Test]
+#[Covers(RepeatInterceptor::class)]
 final class RepeatInterceptorTest
 {
     public function runsTestSpecifiedNumberOfTimes(): void

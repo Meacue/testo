@@ -5,90 +5,58 @@ declare(strict_types=1);
 namespace Tests\Convention\Unit;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Convention\NamingConventionPlugin;
+use Testo\Data\DataSet;
+use Testo\Expect;
 use Testo\Test;
 
 #[Test]
+#[Covers(NamingConventionPlugin::class)]
 final class NamingConventionPluginTest
 {
-    public function defaultsAreAccepted(): void
+    /**
+     * Valid configurations construct without throwing. An empty case suffix matches every file
+     * and is intentionally permitted.
+     *
+     * @param string $caseSuffix
+     * @param non-empty-string $testPrefix
+     */
+    #[DataSet(['Test', 'test'], 'defaults')]
+    #[DataSet(['Spec', 'test'], 'custom suffix')]
+    #[DataSet(['Test', 'it'], 'custom prefix')]
+    #[DataSet(['', 'test'], 'empty suffix')]
+    public function validConfigurationIsAccepted(string $caseSuffix, string $testPrefix): void
     {
-        new NamingConventionPlugin();
+        $plugin = new NamingConventionPlugin(caseSuffix: $caseSuffix, testPrefix: $testPrefix);
 
-        Assert::true(true);
+        Assert::instanceOf($plugin, NamingConventionPlugin::class);
     }
 
-    public function customSuffixAccepted(): void
+    /**
+     * @param non-empty-string $caseSuffix
+     */
+    #[DataSet(['Foo-Bar'], 'dash')]
+    #[DataSet(['Foo$'], 'special char')]
+    public function invalidCaseSuffixThrows(string $caseSuffix): never
     {
-        new NamingConventionPlugin(caseSuffix: 'Spec');
+        Expect::exception(\InvalidArgumentException::class)
+            ->withMessage('Case suffix must be a valid PHP class name suffix.');
 
-        Assert::true(true);
+        new NamingConventionPlugin(caseSuffix: $caseSuffix);
     }
 
-    public function customPrefixAccepted(): void
+    /**
+     * @param string $testPrefix
+     */
+    #[DataSet([''], 'empty')]
+    #[DataSet(['1foo'], 'starts with digit')]
+    #[DataSet(['it-does'], 'dash')]
+    public function invalidTestPrefixThrows(string $testPrefix): never
     {
-        new NamingConventionPlugin(testPrefix: 'it');
+        Expect::exception(\InvalidArgumentException::class)
+            ->withMessage('Test prefix must be a valid PHP method name prefix.');
 
-        Assert::true(true);
-    }
-
-    public function emptyCaseSuffixIsAllowed(): void
-    {
-        new NamingConventionPlugin(caseSuffix: '');
-
-        Assert::true(true);
-    }
-
-    public function caseSuffixWithDashThrows(): void
-    {
-        self::assertThrowsInvalidArgument(
-            static fn() => new NamingConventionPlugin(caseSuffix: 'Foo-Bar'),
-            'Case suffix must be a valid PHP class name suffix.',
-        );
-    }
-
-    public function caseSuffixWithSpecialCharThrows(): void
-    {
-        self::assertThrowsInvalidArgument(
-            static fn() => new NamingConventionPlugin(caseSuffix: 'Foo$'),
-            'Case suffix must be a valid PHP class name suffix.',
-        );
-    }
-
-    public function emptyTestPrefixThrows(): void
-    {
-        self::assertThrowsInvalidArgument(
-            static fn() => new NamingConventionPlugin(testPrefix: ''),
-            'Test prefix must be a valid PHP method name prefix.',
-        );
-    }
-
-    public function testPrefixStartingWithDigitThrows(): void
-    {
-        self::assertThrowsInvalidArgument(
-            static fn() => new NamingConventionPlugin(testPrefix: '1foo'),
-            'Test prefix must be a valid PHP method name prefix.',
-        );
-    }
-
-    public function testPrefixWithDashThrows(): void
-    {
-        self::assertThrowsInvalidArgument(
-            static fn() => new NamingConventionPlugin(testPrefix: 'it-does'),
-            'Test prefix must be a valid PHP method name prefix.',
-        );
-    }
-
-    private static function assertThrowsInvalidArgument(\Closure $action, string $expectedMessage): void
-    {
-        $thrown = null;
-        try {
-            $action();
-        } catch (\InvalidArgumentException $e) {
-            $thrown = $e;
-        }
-
-        Assert::instanceOf($thrown, \InvalidArgumentException::class);
-        Assert::same($thrown->getMessage(), $expectedMessage);
+        new NamingConventionPlugin(testPrefix: $testPrefix);
     }
 }

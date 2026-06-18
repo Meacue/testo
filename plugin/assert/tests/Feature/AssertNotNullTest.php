@@ -6,6 +6,7 @@ namespace Tests\Assert\Feature;
 
 use Testo\Assert;
 use Testo\Assert\State\Assertion;
+use Testo\Codecov\Covers;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
@@ -13,10 +14,19 @@ use Testo\Testing\Helper\TestRunner;
 use Tests\Assert\Stub\AssertNotNullNegative;
 use Tests\Assert\Stub\AssertNotNullPositive;
 
+/**
+ * Pass/fail behaviour and failure rendering of {@see Assert::notNull()}, observed through the runner.
+ *
+ * @see Assert::notNull()
+ */
+#[Test]
+#[Covers(Assert::class, 'notNull')]
 #[TestingSuite(path: __DIR__ . '/../Stub')]
 final class AssertNotNullTest
 {
-    #[Test]
+    /**
+     * Falsy-but-not-null values (0, '', false, [], 0.0) must pass notNull().
+     */
     public function nonNullValuePasses(): void
     {
         $result = TestRunner::runTest([AssertNotNullPositive::class, 'falsyNonNullValues']);
@@ -24,7 +34,6 @@ final class AssertNotNullTest
         Assert::same($result->status, Status::Passed);
     }
 
-    #[Test]
     public function nullFails(): void
     {
         $result = TestRunner::runTest([AssertNotNullNegative::class, 'nullFails']);
@@ -35,7 +44,6 @@ final class AssertNotNullTest
             ->contains('expected a non-null value, got `null`');
     }
 
-    #[Test]
     public function nullFailsWithMessage(): void
     {
         $result = TestRunner::runTest([AssertNotNullNegative::class, 'nullFailsWithMessage']);

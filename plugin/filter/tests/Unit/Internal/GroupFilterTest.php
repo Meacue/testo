@@ -8,6 +8,7 @@ use Testo\Assert;
 use Testo\Codecov\Covers;
 use Testo\Core\Definition\CaseDefinitions;
 use Testo\Filter;
+use Testo\Filter\Group;
 use Testo\Filter\Internal\FilterInterceptor;
 use Testo\Test;
 use Testo\Test\Internal\TestoAttributesLocatorInterceptor;
@@ -39,6 +40,7 @@ use Tests\Filter\Unit\Fixture\GroupedTestClass;
  */
 #[Test]
 #[Covers(FilterInterceptor::class)]
+#[Covers(Group::class)]
 final class GroupFilterTest
 {
     public function includeSingleGroupKeepsOnlyMatchingTests(): void

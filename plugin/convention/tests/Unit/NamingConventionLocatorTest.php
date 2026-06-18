@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Convention\Unit;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Convention\Internal\NamingConventionLocator;
 use Testo\Test;
 use Testo\Tokenizer\DefinitionLocator;
@@ -12,6 +13,7 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
 use Testo\Tokenizer\Reflection\TokenizedFile;
 
 #[Test]
+#[Covers(NamingConventionLocator::class)]
 final class NamingConventionLocatorTest
 {
     private string $fixturesDir = __DIR__ . '/Fixture/';
@@ -24,6 +26,9 @@ final class NamingConventionLocatorTest
         Assert::true($locator->locateFile($file, static fn() => false));
     }
 
+    /**
+     * A non-matching stem must delegate to the next locator and return its result.
+     */
     public function locateFileFallsThroughWhenStemDoesNotEndWithSuffix(): void
     {
         $locator = new NamingConventionLocator();
@@ -161,6 +166,9 @@ final class NamingConventionLocatorTest
         Assert::array($cases)->hasCount(2);
     }
 
+    /**
+     * The next interceptor is always invoked, even for a class-only file with no functions.
+     */
     public function locateTestCasesCallsNextEvenWhenNoFunctions(): void
     {
         $locator = new NamingConventionLocator();

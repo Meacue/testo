@@ -5,10 +5,15 @@ declare(strict_types=1);
 namespace Tests\Retry\Unit;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Retry;
 use Testo\Test;
 
+/**
+ * @see Retry
+ */
 #[Test]
+#[Covers(Retry::class)]
 final class RetryTest
 {
     public function defaultMaxAttemptsIsThree(): void

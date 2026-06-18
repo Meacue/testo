@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Tests\Retry\Feature;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Core\Value\Status;
+use Testo\Retry;
+use Testo\Retry\Interceptor\RetryPolicyRunInterceptor;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
 use Testo\Testing\Helper\TestRunner;
@@ -17,6 +20,8 @@ use Tests\Retry\Stub\RetryPassingStub;
 
 #[Test]
 #[TestingSuite(path: __DIR__ . '/../Stub')]
+#[Covers(Retry::class)]
+#[Covers(RetryPolicyRunInterceptor::class)]
 final class RetryFeatureTest
 {
     public function passesFirstTimeReturnsPassed(): void

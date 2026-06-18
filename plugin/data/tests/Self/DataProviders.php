@@ -5,10 +5,19 @@ declare(strict_types=1);
 namespace Tests\Data\Self;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
+use Testo\Data\Internal\DataProviderInterceptor;
 use Testo\Test;
 
+/**
+ * @see DataProvider
+ * @see DataSet
+ */
+#[Covers(DataProvider::class)]
+#[Covers(DataSet::class)]
+#[Covers(DataProviderInterceptor::class)]
 final class DataProviders
 {
     public static function numbersProvider(): array
@@ -20,6 +29,10 @@ final class DataProviders
         ];
     }
 
+    /**
+     * Several DataProvider and DataSet attributes on one method are all collected:
+     * a public provider, a private provider, a labeled DataSet and a named-arguments DataSet.
+     */
     #[Test]
     #[DataProvider('numbersProvider')]
     #[DataProvider('bigNumbersProvider')]

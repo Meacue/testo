@@ -30,16 +30,13 @@ final class CoverageTestInterceptorTest
 {
     public function collectsCoverageForRegularTest(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(CoveredCase::class, 'testSomething');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert
         Assert::same($driver->startCount, 1);
         Assert::same($driver->collectCount, 1);
         Assert::instanceOf($result->getAttribute(CoverageResult::class), CoverageResult::class);
@@ -47,16 +44,13 @@ final class CoverageTestInterceptorTest
 
     public function skipsCollectionForCoversNothingOnMethod(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(UncoveredMethod::class, 'testIgnored');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert
         Assert::same($driver->startCount, 0);
         Assert::same($driver->collectCount, 0);
         Assert::null($result->getAttribute(CoverageResult::class));
@@ -64,32 +58,26 @@ final class CoverageTestInterceptorTest
 
     public function collectsForMethodWithoutAttribute(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(UncoveredMethod::class, 'testCovered');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert
         Assert::same($driver->startCount, 1);
         Assert::same($driver->collectCount, 1);
     }
 
     public function skipsCollectionForCoversNothingOnClass(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(UncoveredClass::class, 'testA');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert
         Assert::same($driver->startCount, 0);
         Assert::same($driver->collectCount, 0);
         Assert::null($result->getAttribute(CoverageResult::class));
@@ -97,16 +85,14 @@ final class CoverageTestInterceptorTest
 
     public function skipsInheritedMethodWhenBaseHasCoversNothing(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(ChildWithoutAttribute::class, 'testInherited');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert — method is declared in the base class which has CoversNothing
+        // Method is declared in the base class which has CoversNothing.
         Assert::same($driver->startCount, 0);
         Assert::same($driver->collectCount, 0);
         Assert::null($result->getAttribute(CoverageResult::class));
@@ -114,16 +100,14 @@ final class CoverageTestInterceptorTest
 
     public function skipsOwnMethodOnChildWhenParentHasCoversNothing(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(ChildWithoutAttribute::class, 'testOwn');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert — child has no attribute, but parent class does → skip
+        // Child has no attribute, but parent class does → skip.
         Assert::same($driver->startCount, 0);
         Assert::same($driver->collectCount, 0);
         Assert::null($result->getAttribute(CoverageResult::class));
@@ -131,16 +115,14 @@ final class CoverageTestInterceptorTest
 
     public function skipsOverriddenMethodWhenBaseMethodHasCoversNothing(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(ChildOverridesMethod::class, 'testMarkedInBase');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert — child overrides the method, but prototype in parent has the attribute → skip
+        // Child overrides the method, but prototype in parent has the attribute → skip.
         Assert::same($driver->startCount, 0);
         Assert::same($driver->collectCount, 0);
         Assert::null($result->getAttribute(CoverageResult::class));
@@ -148,7 +130,7 @@ final class CoverageTestInterceptorTest
 
     public function childCoversOverridesParentCoversNothing(): void
     {
-        // Arrange — parent has #[CoversNothing], child has #[Covers(TargetClassA::class)]
+        // Parent has #[CoversNothing], child has #[Covers(TargetClassA::class)].
         $refA = new \ReflectionClass(TargetClassA::class);
         $fileA = $refA->getFileName();
 
@@ -167,10 +149,9 @@ final class CoverageTestInterceptorTest
         $info = self::makeTestInfo(ChildOverridesWithCovers::class, 'testWithCovers');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert — coverage IS collected (child's #[Covers] overrides parent's #[CoversNothing])
+        // Coverage IS collected (child's #[Covers] overrides parent's #[CoversNothing]).
         Assert::same($driver->startCount, 1);
         Assert::same($driver->collectCount, 1);
 
@@ -181,65 +162,56 @@ final class CoverageTestInterceptorTest
         Assert::true(isset($coverage->files[$fileA]));
     }
 
-    public function throwsOnConflictingCoversAndCoversNothing(): void
+    public function throwsOnConflictingCoversAndCoversNothing(): never
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver);
         $info = self::makeTestInfo(ConflictingAttributes::class, 'testConflictOnMethod');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Assert
         Expect::exception(\LogicException::class);
 
-        // Act
         $interceptor->runTest($info, $next);
     }
 
     public function skipsTestTypeNotInAllowList(): void
     {
-        // Arrange — interceptor only allows 'test' type
+        // Interceptor only allows the 'test' type.
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver, ['test']);
         $info = self::makeTestInfo(CoveredCase::class, 'testSomething', type: 'bench');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert — driver not started
+        // Driver not started.
         Assert::same($driver->startCount, 0);
         Assert::null($result->getAttribute(CoverageResult::class));
     }
 
     public function collectsWhenTestTypeInAllowList(): void
     {
-        // Arrange
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver, ['test', 'inline']);
         $info = self::makeTestInfo(CoveredCase::class, 'testSomething', type: 'inline');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert
         Assert::same($driver->startCount, 1);
         Assert::instanceOf($result->getAttribute(CoverageResult::class), CoverageResult::class);
     }
 
     public function emptyTestTypesCollectsAll(): void
     {
-        // Arrange — empty list = all types
+        // Empty list = all types.
         $driver = new SpyDriver();
         $interceptor = new CoverageTestInterceptor($driver, []);
         $info = self::makeTestInfo(CoveredCase::class, 'testSomething', type: 'bench');
         $next = static fn(TestInfo $i): TestResult => new TestResult($i, Status::Passed);
 
-        // Act
         $result = $interceptor->runTest($info, $next);
 
-        // Assert
         Assert::same($driver->startCount, 1);
         Assert::instanceOf($result->getAttribute(CoverageResult::class), CoverageResult::class);
     }

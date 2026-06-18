@@ -44,7 +44,7 @@ final class InlineInterceptorTest
         Assert::same($result->summary->count(Status::Passed), 2);
 
         $multiple = $result->getAttribute(MultipleResult::class);
-        Assert::true($multiple instanceof MultipleResult);
+        Assert::instanceOf($multiple, MultipleResult::class);
         Assert::same(\count($multiple->results), 2);
     }
 
@@ -67,7 +67,7 @@ final class InlineInterceptorTest
 
         Assert::false($called);
         Assert::same($result->status, Status::Risky);
-        Assert::true($result->result instanceof \RuntimeException);
+        Assert::instanceOf($result->result, \RuntimeException::class);
         Assert::null($result->getAttribute(MultipleResult::class));
 
         # Counts are left empty on purpose — the TestRunner stamps the final status late.

@@ -17,7 +17,6 @@ final class CloverReportTest
 {
     public function generatesValidXml(): void
     {
-        // Arrange
         $result = new CoverageResult([
             '/src/Foo.php' => new FileCoverage('/src/Foo.php', [
                 5 => new LineCoverage(5, LineStatus::Executed),
@@ -27,10 +26,8 @@ final class CloverReportTest
         ]);
         $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
 
-        // Act
         (new CloverReport($path, 'TestProject'))->generate($result);
 
-        // Assert
         $xml = \simplexml_load_file($path);
         Assert::notSame($xml, false);
         Assert::same((string) $xml['generated'] !== '', true);
@@ -41,7 +38,6 @@ final class CloverReportTest
 
     public function countsStatementsCorrectly(): void
     {
-        // Arrange
         $result = new CoverageResult([
             '/src/Foo.php' => new FileCoverage('/src/Foo.php', [
                 5 => new LineCoverage(5, LineStatus::Executed),
@@ -52,10 +48,8 @@ final class CloverReportTest
         ]);
         $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
 
-        // Act
         (new CloverReport($path))->generate($result);
 
-        // Assert
         $xml = \simplexml_load_file($path);
         $metrics = $xml->project->metrics;
         Assert::same((string) $metrics['files'], '1');
@@ -67,13 +61,10 @@ final class CloverReportTest
 
     public function emptyResultProducesEmptyReport(): void
     {
-        // Arrange
         $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
 
-        // Act
         (new CloverReport($path))->generate(new CoverageResult());
 
-        // Assert
         $xml = \simplexml_load_file($path);
         Assert::same((string) $xml->project->metrics['files'], '0');
         Assert::same((string) $xml->project->metrics['statements'], '0');
@@ -83,7 +74,6 @@ final class CloverReportTest
 
     public function writesLineElements(): void
     {
-        // Arrange
         $result = new CoverageResult([
             '/src/Foo.php' => new FileCoverage('/src/Foo.php', [
                 10 => new LineCoverage(10, LineStatus::Executed),
@@ -92,10 +82,8 @@ final class CloverReportTest
         ]);
         $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
 
-        // Act
         (new CloverReport($path))->generate($result);
 
-        // Assert
         $xml = \simplexml_load_file($path);
         $lines = $xml->project->file->line;
         Assert::count($lines, 2);

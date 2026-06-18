@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace Tests\Test\Unit\Internal;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
+use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
+use Testo\Pipeline\Middleware\FileLocatorInterceptor;
 use Testo\Test;
 use Testo\Test\Internal\TestoAttributesLocatorInterceptor;
 use Testo\Tokenizer\DefinitionLocator;
@@ -16,6 +19,10 @@ use Tests\Test\Unit\Fixture\TestClassWithMethodLevelAttributes;
 use Tests\Test\Unit\Fixture\TestClassWithMixedTestAttributes;
 use Tests\Test\Unit\Fixture\TestClassWithNeverReturnType;
 
+#[Test]
+#[Covers(TestoAttributesLocatorInterceptor::class)]
+#[Covers(FileLocatorInterceptor::class)]
+#[Covers(CaseLocatorInterceptor::class)]
 final class TestoAttributesLocatorInterceptorTest
 {
     private string $fixturesDir = __DIR__ . '/../Fixture/';
@@ -34,7 +41,6 @@ final class TestoAttributesLocatorInterceptorTest
      * - Finds non-public methods with #[Test] attribute (protectedTest, privateTest)
      * - Excludes methods without #[Test] attribute (publicWithoutAttribute)
      */
-    #[Test]
     public function itLocatesTestCasesFromClassWithTestAttributesOnMethods(): void
     {
         $path = $this->fixturesDir . 'TestClassWithMethodLevelAttributes.php';
@@ -66,7 +72,6 @@ final class TestoAttributesLocatorInterceptorTest
      * - Treats all public methods as tests when #[Test] is on the class
      * - Excludes protected and private methods
      */
-    #[Test]
     public function itLocatesAllPublicMethodsAsTestsWhenClassHasTestAttribute(): void
     {
         $path = $this->fixturesDir . 'TestClassWithClassLevelAttribute.php';
@@ -99,7 +104,6 @@ final class TestoAttributesLocatorInterceptorTest
      * - Includes public methods with never return type
      * - Excludes public methods with other return types (e.g. string)
      */
-    #[Test]
     public function itLocatesNeverReturnTypeMethodsAsTestsWhenClassHasTestAttribute(): void
     {
         $path = $this->fixturesDir . 'TestClassWithNeverReturnType.php';
@@ -132,7 +136,6 @@ final class TestoAttributesLocatorInterceptorTest
      * - Includes public methods with non-void return type if they have method-level #[Test]
      * - Excludes public methods without void/never return type and without #[Test]
      */
-    #[Test]
     public function itLocatesMethodWithTestAttributeRegardlessOfReturnType(): void
     {
         $path = $this->fixturesDir . 'TestClassWithMixedTestAttributes.php';
@@ -160,7 +163,6 @@ final class TestoAttributesLocatorInterceptorTest
     /**
      * Verifies that classes without #[Test] attributes (neither on class nor methods) are ignored by the interceptor.
      */
-    #[Test]
     public function itReturnsNoTestCasesWhenClassHasNoTestAttributes(): void
     {
         $path = $this->fixturesDir . 'PlainClassWithoutTestAttributes.php';
@@ -183,7 +185,6 @@ final class TestoAttributesLocatorInterceptorTest
      * "skip data providers" return-type filter, must never be discovered either.
      * The interceptor enforces this by skipping abstract classes wholesale.
      */
-    #[Test]
     public function itDoesNotLocateAbstractMethodsWhenClassHasTestAttribute(): void
     {
         $path = $this->fixturesDir . 'AbstractTestClassWithVoidMethods.php';

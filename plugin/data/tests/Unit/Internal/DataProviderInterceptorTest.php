@@ -6,6 +6,7 @@ namespace Tests\Data\Unit\Internal;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
@@ -17,7 +18,12 @@ use Testo\Data\MultipleResult;
 use Testo\Test;
 use Tests\Data\Unit\Fixture\MultiProviderTarget;
 
+/**
+ * @see DataProviderInterceptor
+ */
 #[Test]
+#[Covers(DataProviderInterceptor::class)]
+#[Covers(MultipleResult::class)]
 final class DataProviderInterceptorTest
 {
     /**

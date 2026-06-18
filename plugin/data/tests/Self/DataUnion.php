@@ -5,10 +5,18 @@ declare(strict_types=1);
 namespace Tests\Data\Self;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
+use Testo\Data\DataUnion as DataUnionImpl;
+use Testo\Data\Internal\DataProviderInterceptor;
 use Testo\Test;
 
+/**
+ * @see DataUnionImpl
+ */
+#[Covers(DataUnionImpl::class)]
+#[Covers(DataProviderInterceptor::class)]
 final class DataUnion
 {
     public static function adminsProvider(): array
@@ -25,44 +33,6 @@ final class DataUnion
         yield 'bob' => ['bob', false];
     }
 
-    #[Test]
-    #[\Testo\Data\DataCross(
-        new \Testo\Data\DataUnion(
-            new DataProvider('adminsProvider'),
-            new DataProvider('usersProvider'),
-        ),
-        new DataSet(['read'], 'read'),
-    )]
-    public function crossWithUnion(string $user, bool $isAdmin, string $permission): void
-    {
-        // (2 admins + 2 users) × 1 permission = 4 combinations
-        Assert::same($permission, 'read');
-        Assert::true(\in_array([$user, $isAdmin], [
-            ['root', true],
-            ['admin', true],
-            ['alice', false],
-            ['bob', false],
-        ], true));
-    }
-
-    #[Test]
-    #[\Testo\Data\DataZip(
-        new \Testo\Data\DataUnion(
-            new DataProvider('adminsProvider'),
-            new DataProvider('usersProvider'),
-        ),
-        new DataProvider('permissionsProvider'),
-    )]
-    public function zipWithUnion(string $user, bool $isAdmin, string $permission): void
-    {
-        // zip stops at shortest: 4 users | 3 permissions = 3 iterations
-        Assert::true(\in_array([$user, $isAdmin, $permission], [
-            ['root', true, 'read'],
-            ['admin', true, 'write'],
-            ['alice', false, 'delete'],
-        ], true));
-    }
-
     public static function permissionsProvider(): array
     {
         return [
@@ -72,6 +42,54 @@ final class DataUnion
         ];
     }
 
+    /**
+     * A DataUnion used as one axis of a DataCross concatenates its providers before crossing:
+     * (2 admins + 2 users) x 1 permission = 4 combinations.
+     */
+    #[Test]
+    #[\Testo\Data\DataCross(
+        new DataUnionImpl(
+            new DataProvider('adminsProvider'),
+            new DataProvider('usersProvider'),
+        ),
+        new DataSet(['read'], 'read'),
+    )]
+    public function crossWithUnion(string $user, bool $isAdmin, string $permission): void
+    {
+        Assert::same($permission, 'read');
+        Assert::true(\in_array([$user, $isAdmin], [
+            ['root', true],
+            ['admin', true],
+            ['alice', false],
+            ['bob', false],
+        ], true));
+    }
+
+    /**
+     * A DataUnion axis zipped against another provider stops at the shortest axis:
+     * 4 unioned users | 3 permissions = 3 iterations.
+     */
+    #[Test]
+    #[\Testo\Data\DataZip(
+        new DataUnionImpl(
+            new DataProvider('adminsProvider'),
+            new DataProvider('usersProvider'),
+        ),
+        new DataProvider('permissionsProvider'),
+    )]
+    public function zipWithUnion(string $user, bool $isAdmin, string $permission): void
+    {
+        Assert::true(\in_array([$user, $isAdmin, $permission], [
+            ['root', true, 'read'],
+            ['admin', true, 'write'],
+            ['alice', false, 'delete'],
+        ], true));
+    }
+
+    /**
+     * DataUnion as a standalone attribute concatenates its providers into one sequence:
+     * 2 admins + 2 users = 4 iterations.
+     */
     #[Test]
     #[\Testo\Data\DataUnion(
         new DataProvider('adminsProvider'),
@@ -79,7 +97,6 @@ final class DataUnion
     )]
     public function simpleUnion(string $user, bool $isAdmin): void
     {
-        // 2 admins + 2 users = 4 iterations
         Assert::true(\in_array([$user, $isAdmin], [
             ['root', true],
             ['admin', true],

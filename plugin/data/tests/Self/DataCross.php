@@ -5,10 +5,18 @@ declare(strict_types=1);
 namespace Tests\Data\Self;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
+use Testo\Data\DataCross as DataCrossImpl;
 use Testo\Data\DataProvider;
 use Testo\Data\DataSet;
+use Testo\Data\Internal\DataProviderInterceptor;
 use Testo\Test;
 
+/**
+ * @see DataCrossImpl
+ */
+#[Covers(DataCrossImpl::class)]
+#[Covers(DataProviderInterceptor::class)]
 final class DataCross
 {
     public static function numbersProvider(): array
@@ -26,6 +34,10 @@ final class DataCross
         yield 'ef' => ['e', 'f'];
     }
 
+    /**
+     * Cartesian product of two providers yields every combination of their rows
+     * (2 number sets x 3 letter sets = 6 combinations).
+     */
     #[Test]
     #[\Testo\Data\DataCross(
         new DataProvider('numbersProvider'),
@@ -33,7 +45,6 @@ final class DataCross
     )]
     public function crossProduct(int $a, int $b, string $c, string $d): void
     {
-        // 2 number sets × 3 letter sets = 6 combinations
         Assert::true(\in_array([$a, $b, $c, $d], [
             [1, 2, 'a', 'b'],
             [1, 2, 'c', 'd'],
@@ -44,6 +55,10 @@ final class DataCross
         ], true));
     }
 
+    /**
+     * Inline DataSet axes and a DataProvider axis cross together
+     * (1 DataSet x 3 letters x 1 DataSet = 3 combinations).
+     */
     #[Test]
     #[\Testo\Data\DataCross(
         new DataSet([true], 'yes'),
@@ -52,7 +67,6 @@ final class DataCross
     )]
     public function mixedProviders(bool $flag, string $c, string $d, int $number): void
     {
-        // 1 DataSet × 3 letters × 1 DataSet = 3 combinations
         Assert::true($flag);
         Assert::same($number, 42);
         Assert::true(\in_array([$c, $d], [

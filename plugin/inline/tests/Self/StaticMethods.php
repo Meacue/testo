@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace Tests\Inline\Self;
 
 use Testo\Assert;
+use Testo\Codecov\Covers;
+use Testo\Inline\Internal\InlineHandler;
 use Testo\Inline\TestInline;
 
+#[Covers(InlineHandler::class)]
+#[Covers(TestInline::class)]
 final class StaticMethods
 {
     #[TestInline(arguments: [1, 1], result: 2)]

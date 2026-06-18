@@ -5,17 +5,28 @@ declare(strict_types=1);
 namespace Tests\Assert\Feature;
 
 use Testo\Assert;
+use Testo\Assert\Internal\Expectation\ExpectExceptionHandler;
 use Testo\Assert\State\Expectation;
+use Testo\Codecov\Covers;
 use Testo\Core\Value\Status;
+use Testo\Expect;
 use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
 use Testo\Testing\Helper\TestRunner;
 use Tests\Assert\Stub\ExpectExceptionNegative;
 
+/**
+ * Negative scenarios for {@see Expect::exception()} matching, observed through the runner: each
+ * stub fails its expectation, and the rendered fail reason is checked.
+ *
+ * @see Expect::exception()
+ */
+#[Test]
+#[Covers(Expect::class, 'exception')]
+#[Covers(ExpectExceptionHandler::class)]
 #[TestingSuite(path: __DIR__ . '/../Stub')]
 final class ExpectExceptionNegativeTest
 {
-    #[Test]
     public function noneThrown(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'noneThrown']);
@@ -26,7 +37,6 @@ final class ExpectExceptionNegativeTest
             ->contains('none thrown');
     }
 
-    #[Test]
     public function wrongType(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'wrongType']);
@@ -37,7 +47,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got LogicException');
     }
 
-    #[Test]
     public function wrongMessage(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'wrongMessage']);
@@ -49,7 +58,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got "actual message"');
     }
 
-    #[Test]
     public function wrongMessagePattern(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'wrongMessagePattern']);
@@ -61,7 +69,6 @@ final class ExpectExceptionNegativeTest
             ->contains('not an exact match');
     }
 
-    #[Test]
     public function wrongMessageContaining(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'wrongMessageContaining']);
@@ -72,7 +79,6 @@ final class ExpectExceptionNegativeTest
             ->contains('message contains "needle"');
     }
 
-    #[Test]
     public function wrongCode(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'wrongCode']);
@@ -84,7 +90,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got 99');
     }
 
-    #[Test]
     public function wrongCodeArray(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'wrongCodeArray']);
@@ -96,7 +101,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got 99');
     }
 
-    #[Test]
     public function withoutPreviousButHasOne(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'withoutPreviousButHasOne']);
@@ -108,7 +112,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got LogicException');
     }
 
-    #[Test]
     public function wrongPreviousType(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'wrongPreviousType']);
@@ -120,7 +123,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got LogicException');
     }
 
-    #[Test]
     public function previousCallbackFails(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'previousCallbackFails']);
@@ -132,7 +134,6 @@ final class ExpectExceptionNegativeTest
             ->contains('code is 100');
     }
 
-    #[Test]
     public function equivalenceWrongMessage(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'equivalenceWrongMessage']);
@@ -144,7 +145,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got "actual"');
     }
 
-    #[Test]
     public function equivalenceWrongCode(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'equivalenceWrongCode']);
@@ -156,7 +156,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got 99');
     }
 
-    #[Test]
     public function sameDifferentInstance(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'sameDifferentInstance']);
@@ -168,7 +167,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got a different RuntimeException instance');
     }
 
-    #[Test]
     public function sameWrongClass(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'sameWrongClass']);
@@ -180,7 +178,6 @@ final class ExpectExceptionNegativeTest
             ->contains('got LogicException');
     }
 
-    #[Test]
     public function strictClassRejectsSubclass(): void
     {
         $result = TestRunner::runTest([ExpectExceptionNegative::class, 'strictClassRejectsSubclass']);
