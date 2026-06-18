@@ -352,7 +352,7 @@ final class JUnitWriterTest
     public function writeCreatesParentDirectory(): void
     {
         // Arrange
-        $tmpDir = \sys_get_temp_dir() . '/testo_junit_' . \uniqid();
+        $tmpDir = \dirname(__DIR__, 3) . '/runtime/testo_junit_' . \uniqid();
         $path = $tmpDir . '/nested/junit.xml';
         try {
             $writer = new JUnitWriter();

@@ -24,7 +24,7 @@ final class CloverReportTest
                 7 => new LineCoverage(7, LineStatus::Dead),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CloverReport($path, 'TestProject'))->generate($result);
 
@@ -46,7 +46,7 @@ final class CloverReportTest
                 8 => new LineCoverage(8, LineStatus::Dead),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CloverReport($path))->generate($result);
 
@@ -61,7 +61,7 @@ final class CloverReportTest
 
     public function emptyResultProducesEmptyReport(): void
     {
-        $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CloverReport($path))->generate(new CoverageResult());
 
@@ -80,7 +80,7 @@ final class CloverReportTest
                 20 => new LineCoverage(20, LineStatus::NotExecuted),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_clover_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CloverReport($path))->generate($result);
 
@@ -93,5 +93,15 @@ final class CloverReportTest
         Assert::same((string) $lines[1]['count'], '0');
 
         \unlink($path);
+    }
+
+    /**
+     * Git-ignored scratch path inside this module's tests. Avoids
+     * `sys_get_temp_dir()`, whose value can be a non-Windows path under some
+     * agent runners and breaks `mkdir()`.
+     */
+    private static function tmpPath(): string
+    {
+        return \dirname(__DIR__, 2) . '/runtime/testo_clover_' . \uniqid() . '.xml';
     }
 }

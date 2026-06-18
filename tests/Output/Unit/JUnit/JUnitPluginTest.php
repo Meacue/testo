@@ -572,11 +572,21 @@ final class JUnitPluginTest
     }
 
     /**
+     * Git-ignored scratch root inside this module's tests. Avoids
+     * `sys_get_temp_dir()`, whose value can be a non-Windows path under some
+     * agent runners and breaks `mkdir()`.
+     */
+    private static function tmpDir(): string
+    {
+        return \dirname(__DIR__, 3) . '/runtime';
+    }
+
+    /**
      * @return non-empty-string
      */
     private static function tmpPath(): string
     {
-        return \sys_get_temp_dir() . '/testo_junit_plugin_' . \uniqid() . '.xml';
+        return self::tmpDir() . '/testo_junit_plugin_' . \uniqid() . '.xml';
     }
 
     private static function cleanup(string $path): void
@@ -584,7 +594,7 @@ final class JUnitPluginTest
         \is_file($path) and \unlink($path);
         $dir = \dirname($path);
         // Don't blow up on nested temp dirs that other tests may share.
-        if (\is_dir($dir) && $dir !== \sys_get_temp_dir()) {
+        if (\is_dir($dir) && $dir !== self::tmpDir()) {
             // Best-effort: only remove if empty.
             @\rmdir($dir);
         }

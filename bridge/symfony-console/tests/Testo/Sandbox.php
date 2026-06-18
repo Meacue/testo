@@ -25,7 +25,7 @@ final class Sandbox
         $originalCwd = \getcwd();
         $originalCwd === false and throw new \RuntimeException('Cannot determine current working directory.');
 
-        $base = \sys_get_temp_dir() . \DIRECTORY_SEPARATOR . 'testo-init-' . \bin2hex(\random_bytes(6));
+        $base = self::runtimeDir() . '/testo-init-' . \bin2hex(\random_bytes(6));
         \mkdir($base, 0o755, true) or throw new \RuntimeException("Cannot create sandbox at {$base}");
 
         $realBase = \realpath($base);
@@ -34,6 +34,16 @@ final class Sandbox
         \chdir($realBase) or throw new \RuntimeException("Cannot chdir into sandbox {$realBase}");
 
         return new self($realBase, $originalCwd);
+    }
+
+    /**
+     * Git-ignored scratch root inside this module's tests. Avoids
+     * `sys_get_temp_dir()`, whose value can be a non-Windows path under some
+     * agent runners and breaks `mkdir()`.
+     */
+    private static function runtimeDir(): string
+    {
+        return \dirname(__DIR__) . '/runtime';
     }
 
     /**

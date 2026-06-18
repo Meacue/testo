@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Testo\Acceptance;
 
-use Symfony\Component\Process\Process;
 use Testo\Assert;
 use Testo\Codecov\CoversNothing;
 use Testo\Test;
@@ -220,7 +219,7 @@ final class SyncDepsTest
      */
     private function fixture(array $manifest, array $composers): string
     {
-        $dir = \sys_get_temp_dir() . '/testo-syncdeps-' . \bin2hex(\random_bytes(6));
+        $dir = \dirname(__DIR__, 2) . '/runtime/testo-syncdeps-' . \bin2hex(\random_bytes(6));
         \mkdir($dir . '/resources', 0o777, true);
         \file_put_contents($dir . '/resources/version.json', $this->encode($manifest));
 
@@ -254,18 +253,31 @@ final class SyncDepsTest
     private function run(string $cwd, ?array $previousManifest = null): string
     {
         $script = \dirname(__DIR__, 3) . self::SCRIPT;
-        $args = [\PHP_BINARY, $script];
+        $command = [\PHP_BINARY, $script];
         if ($previousManifest !== null) {
             $prev = $cwd . '/prev-version.json';
             \file_put_contents($prev, $this->encode($previousManifest));
-            $args[] = $prev;
+            $command[] = $prev;
         }
-        $process = new Process($args, $cwd);
-        $process->run();
 
-        Assert::true($process->isSuccessful(), 'sync-deps.php exited with: ' . $process->getErrorOutput());
+        // Run via proc_open with plain pipes rather than Symfony Process: the latter
+        // buffers output through sys_get_temp_dir() on Windows, which some agent
+        // runners point at a directory that does not exist. The script's output is
+        // small, so reading the pipes directly is safe.
+        $descriptors = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+        $proc = \proc_open($command, $descriptors, $pipes, $cwd);
+        \is_resource($proc) or throw new \RuntimeException('Cannot start ' . self::SCRIPT);
 
-        return $process->getOutput();
+        \fclose($pipes[0]);
+        $stdout = (string) \stream_get_contents($pipes[1]);
+        $stderr = (string) \stream_get_contents($pipes[2]);
+        \fclose($pipes[1]);
+        \fclose($pipes[2]);
+        $exitCode = \proc_close($proc);
+
+        Assert::same($exitCode, 0, 'sync-deps.php exited with: ' . $stderr);
+
+        return $stdout;
     }
 
     /** @return array<string, mixed> */

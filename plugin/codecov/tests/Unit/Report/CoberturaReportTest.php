@@ -26,7 +26,7 @@ final class CoberturaReportTest
                 6 => new LineCoverage(6, LineStatus::NotExecuted),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CoberturaReport($path))->generate($result->withSourceRoot('/project'));
 
@@ -52,7 +52,7 @@ final class CoberturaReportTest
                 3 => new LineCoverage(3, LineStatus::NotExecuted),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CoberturaReport($path))->generate($result->withSourceRoot('/project'));
 
@@ -70,7 +70,7 @@ final class CoberturaReportTest
                 5 => new LineCoverage(5, LineStatus::Executed),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CoberturaReport($path))->generate($result->withSourceRoot('/project'));
 
@@ -97,7 +97,7 @@ final class CoberturaReportTest
                 ]),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CoberturaReport($path))->generate($result->withSourceRoot('/'));
 
@@ -131,7 +131,7 @@ final class CoberturaReportTest
                 5 => new LineCoverage(5, LineStatus::Executed),
             ]),
         ]);
-        $path = \sys_get_temp_dir() . '/testo_cobertura_' . \uniqid() . '.xml';
+        $path = self::tmpPath();
 
         (new CoberturaReport($path))->generate($result->withSourceRoot('/'));
 
@@ -141,5 +141,15 @@ final class CoberturaReportTest
         Assert::same((string) $xml['branches-valid'], '0');
 
         \unlink($path);
+    }
+
+    /**
+     * Git-ignored scratch path inside this module's tests. Avoids
+     * `sys_get_temp_dir()`, whose value can be a non-Windows path under some
+     * agent runners and breaks `mkdir()`.
+     */
+    private static function tmpPath(): string
+    {
+        return \dirname(__DIR__, 2) . '/runtime/testo_cobertura_' . \uniqid() . '.xml';
     }
 }
