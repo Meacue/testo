@@ -9,6 +9,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Testo\Output\Json\JsonPlugin;
 use Testo\Output\Teamcity\TeamcityPlugin;
 use Testo\Output\Terminal\TerminalPlugin;
 
@@ -78,6 +79,20 @@ final class Run extends Base
     {
         parent::configure();
         $this->addOption('teamcity', null, InputOption::VALUE_NONE);
+        $this->addOption(
+            'json',
+            null,
+            InputOption::VALUE_NONE,
+            'Render the run as a single minimalistic JSON object on stdout '
+            . '(run summary + failed tests). Intended for LLM agents and CI scripts.',
+        );
+        $this->addOption(
+            'log-json',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Write the minimalistic JSON report (run summary + failed tests) to the given path. '
+            . 'Unlike --json this keeps the human-readable terminal output; mirrors --log-junit.',
+        );
         $this->addOption(
             'filter',
             null,
@@ -155,9 +170,25 @@ final class Run extends Base
         InputInterface  $input,
         OutputInterface $output,
     ): int {
-        $input->getOption('teamcity')
-            ? $this->container->get(TeamcityPlugin::class)->configure($this->container)
-            : $this->container->get(TerminalPlugin::class)->configure($this->container);
+        // Exactly one renderer owns stdout — reject conflicting flags instead of silently picking one.
+        $teamcity = (bool) $input->getOption('teamcity');
+        $json = (bool) $input->getOption('json');
+        $teamcity && $json and throw new \InvalidArgumentException(
+            'Options --teamcity and --json are mutually exclusive: both render to stdout. Pick one, '
+            . 'or use --log-json=<path> to write JSON to a file alongside another renderer.',
+        );
+
+        $renderer = match (true) {
+            $teamcity => TeamcityPlugin::class,
+            $json => JsonPlugin::class,
+            default => TerminalPlugin::class,
+        };
+        $this->container->get($renderer)->configure($this->container);
+
+        // --log-json writes the JSON report to a file alongside the stdout renderer above.
+        $logJson = $input->getOption('log-json');
+        \is_string($logJson) && $logJson !== ''
+            and (new JsonPlugin($logJson))->configure($this->container);
 
         $result = $this->application->run();
 
