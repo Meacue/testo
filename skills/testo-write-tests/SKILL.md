@@ -138,10 +138,14 @@ Constraints:
 ```php
 use Testo\Lifecycle\{BeforeClass, AfterClass, BeforeTest, AfterTest};
 
-#[BeforeClass] public static function bootSchema(): void { /* once before any test */ }
-#[BeforeTest]  public function openTx(): void           { /* before each test */ }
-#[AfterTest]   public function rollback(): void         { /* after each test */ }
-#[AfterClass]  public static function dropSchema(): void { /* once after all tests */ }
+#[BeforeClass]
+public static function bootSchema(): void { /* once before any test */ }
+#[BeforeTest]
+public function openTx(): void           { /* before each test */ }
+#[AfterTest]
+public function rollback(): void         { /* after each test */ }
+#[AfterClass]
+public static function dropSchema(): void { /* once after all tests */ }
 ```
 
 Hooks may be either instance methods or `static` — Testo invokes them accordingly. They run regardless of `#[Test]` on the method.
@@ -155,10 +159,10 @@ It targets classes, methods, and functions and is variadic (pass several names a
 use Testo\Filter\Group;
 
 #[Test]
-#[Group('integration')]      // inherited by every test of the class
-final class OrderTest
+#[Group('driver-mysql')]     // inherited by every test of the class
+final class MysqlConnectionTest
 {
-    #[Group('slow')]         // effective groups: integration, slow
+    #[Group('slow')]         // effective groups: driver-mysql, slow
     public function importsLargeDataset(): void { /* ... */ }
 }
 ```
@@ -170,13 +174,17 @@ values); prefix with `!` to exclude. Group filters AND with name/path/suite filt
 ## Running
 
 ```
-vendor/bin/testo                                # all suites
-vendor/bin/testo --suite=Unit                   # one suite
-vendor/bin/testo --filter='UserServiceTest'     # by name
-vendor/bin/testo --path=tests/Unit/UserService  # by path
-vendor/bin/testo --group=integration            # only the "integration" group
-vendor/bin/testo --group=!slow                  # everything except the "slow" group
+vendor/bin/testo --json                                # all suites
+vendor/bin/testo --json --suite=Unit                   # one suite
+vendor/bin/testo --json --filter='UserServiceTest'     # by name
+vendor/bin/testo --json --path=tests/Unit/UserService  # by path
+vendor/bin/testo --json --group=integration            # only the "integration" group
+vendor/bin/testo --json --group=!slow                  # everything except the "slow" group
 ```
+
+Always pass `--json` (as above) for a compact, machine-readable report that's cheap to parse — a run
+summary plus the failed tests. Use `--log-json=build/report.json` to write it to a file while keeping
+the terminal output.
 
 Use the Testo CLI, **never** `phpunit`.
 

@@ -6,8 +6,9 @@ description: Migrate an existing PHPUnit test suite to Testo. Use when the user 
 # Migrating PHPUnit → Testo
 
 Testo's surface is intentionally similar in spirit but **not source-compatible** with PHPUnit.
-Don't run a regex pass — port file-by-file with the table below, then run `vendor/bin/testo --suite=<name>`
-after each batch.
+Don't run a regex pass — port file-by-file with the table below, then run `vendor/bin/testo --json --suite=<name>`
+after each batch (the `--json` flag gives you a compact, machine-readable report instead of the
+human-oriented terminal output).
 
 Fetch `https://php-testo.github.io/llms.txt` first — when in doubt about an attribute, that's the source of truth.
 
