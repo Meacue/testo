@@ -105,6 +105,15 @@ final class TokenizedFile
     private array $functions = [];
 
     /**
+     * Token ranges of anonymous class bodies. Used to detect (and skip) their methods, which have
+     * no usable FQN and must not be mistaken for free functions or outer-class methods.
+     *
+     * @var list<array{0: int<0, max>, 1: int<0, max>}>
+     * @internal
+     */
+    private array $anonymous = [];
+
+    /**
      * Declarations of new methods.
      *
      * @var array<class-string, array<non-empty-string, array{0: int<0, max>, 1: int<0, max>}>>
@@ -269,7 +278,13 @@ final class TokenizedFile
                     }
 
                     if ($this->isAnonymousClass($tokenID)) {
-                        // PHP7.0 Anonymous classes new class ('foo', 'bar')
+                        // PHP7.0+ Anonymous class: `new class {}`, `new class (...) extends ... {}`,
+                        // including an attributed one `new #[Attr] class {}`. Remember its body range
+                        // so its methods are not mistaken for free functions / outer-class methods.
+                        $this->anonymous[] = [
+                            self::O_TOKEN => $tokenID,
+                            self::C_TOKEN => $this->endingToken($tokenID),
+                        ];
                         continue 2;
                     }
 
@@ -393,23 +408,68 @@ final class TokenizedFile
      */
     private function registerFunction(int $tokenID): void
     {
+        // Resolve the innermost class-like scope (named declaration or anonymous class) wrapping this
+        // `function` token. Innermost wins, so a method of an anonymous class nested inside a named
+        // class is attributed to the anonymous one — and then dropped below.
         $class = null;
+        $scopeOpen = -1;
         foreach ($this->declarations as $declarations) {
             foreach ($declarations as $name => $location) {
+                // Named declarations never overlap, so the first containing one is the only one.
                 if ($tokenID >= $location[self::O_TOKEN] && $tokenID <= $location[self::C_TOKEN]) {
+                    $scopeOpen = $location[self::O_TOKEN];
                     $class = $name;
                     break 2;
                 }
             }
         }
 
-        $localID = $tokenID + 1;
-        while ($this->tokens[$localID][self::TOKEN_TYPE] !== T_STRING) {
-            //Fetching function name
-            ++$localID;
+        foreach ($this->anonymous as $range) {
+            if (
+                $tokenID >= $range[self::O_TOKEN]
+                && $tokenID <= $range[self::C_TOKEN]
+                && $range[self::O_TOKEN] > $scopeOpen
+            ) {
+                // Nearest enclosing scope is an anonymous class — its methods have no usable FQN.
+                return;
+            }
         }
 
-        $name = $this->tokens[$localID][self::TOKEN_CODE];
+        // `use function Foo\bar;` carries a T_FUNCTION token too — it imports, it does not declare.
+        $prevID = $tokenID - 1;
+        while ($prevID >= 0 && $this->tokens[$prevID][self::TOKEN_TYPE] === T_WHITESPACE) {
+            --$prevID;
+        }
+        if ($prevID >= 0 && $this->tokens[$prevID][self::TOKEN_TYPE] === T_USE) {
+            return;
+        }
+
+        // The name (if any) is the token right before the parameter list "(". Anonymous functions
+        // have none there: `function (`, by-ref `function &(`, or an attributed closure
+        // `#[Attr] function (` all reach "(" with `function`/`&` immediately before it. A parameter
+        // type hint lives *inside* the parens, so it can never be misread as the name. Keyword-like
+        // method names (`list`, `print`, ...) are not T_STRING, so read by position, not by type.
+        $parenID = $tokenID + 1;
+        while (isset($this->tokens[$parenID]) && $this->tokens[$parenID][self::TOKEN_CODE] !== '(') {
+            ++$parenID;
+        }
+
+        if (!isset($this->tokens[$parenID])) {
+            return;
+        }
+
+        $nameID = $parenID - 1;
+        while ($nameID > $tokenID && $this->tokens[$nameID][self::TOKEN_TYPE] === T_WHITESPACE) {
+            --$nameID;
+        }
+
+        $nameToken = $this->tokens[$nameID];
+        if ($nameToken[self::TOKEN_TYPE] === T_FUNCTION || $nameToken[self::TOKEN_CODE] === '&') {
+            // Anonymous function — nothing to declare.
+            return;
+        }
+
+        $name = $nameToken[self::TOKEN_CODE];
 
         // Function
         if ($class === null) {
@@ -461,13 +521,32 @@ final class TokenizedFile
     }
 
     /**
-     * Check if token ID represents anonymous class creation, e.g. `new class ('foo', 'bar')`.
+     * Check if token ID represents anonymous class creation: `new class {}`, `new class (...) {}`,
+     * `new class extends X {}`, `new class implements Y {}` — including an attributed form
+     * `new #[Attr] class {}`. Detected by what follows the `class` keyword rather than by the
+     * preceding `new`, so an attribute (or any token) between `new` and `class` cannot hide it.
      */
     private function isAnonymousClass(int|string $tokenID): bool
     {
-        return $this->tokens[$tokenID][self::TOKEN_TYPE] === T_CLASS
-            && isset($this->tokens[$tokenID - 2])
-            && $this->tokens[$tokenID - 2][self::TOKEN_TYPE] === T_NEW;
+        if ($this->tokens[$tokenID][self::TOKEN_TYPE] !== T_CLASS) {
+            return false;
+        }
+
+        $nextID = $tokenID + 1;
+        while (isset($this->tokens[$nextID]) && $this->tokens[$nextID][self::TOKEN_TYPE] === T_WHITESPACE) {
+            ++$nextID;
+        }
+
+        if (!isset($this->tokens[$nextID])) {
+            return false;
+        }
+
+        $next = $this->tokens[$nextID];
+
+        return $next[self::TOKEN_CODE] === '{'
+            || $next[self::TOKEN_CODE] === '('
+            || $next[self::TOKEN_TYPE] === T_EXTENDS
+            || $next[self::TOKEN_TYPE] === T_IMPLEMENTS;
     }
 
     /**
