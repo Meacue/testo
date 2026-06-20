@@ -5,6 +5,9 @@
             "core",
             "plugin",
             "bridge"
+        ],
+        "excludes": [
+            "filter"
         ]
     },
     "timeout": 10,

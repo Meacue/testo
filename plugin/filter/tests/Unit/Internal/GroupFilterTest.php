@@ -224,6 +224,20 @@ final class GroupFilterTest
         );
     }
 
+    /**
+     * A fully-qualified class::method name with a leading backslash must still match;
+     * the interceptor trims the leading `\` before splitting on `::`.
+     */
+    public function leadingBackslashInClassMethodFormatIsAccepted(): void
+    {
+        $classMethod = '\\' . GroupedTestClass::class . '::dbTest';
+
+        Assert::same(
+            $this->select(new Filter(names: [$classMethod])),
+            ['dbTest'],
+        );
+    }
+
     public function includeGroupMatchingNothingYieldsEmpty(): void
     {
         Assert::same($this->select(new Filter(groups: ['nonExistentGroup'])), []);

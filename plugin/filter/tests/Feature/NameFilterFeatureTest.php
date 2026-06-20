@@ -6,6 +6,7 @@ namespace Tests\Filter\Feature;
 
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Common\Attribute\AssertMethod;
 use Testo\Core\Context\TestResult;
 use Testo\Filter\Internal\FilterInterceptor;
 use Testo\Test;
@@ -45,7 +46,10 @@ final class NameFilterFeatureTest
     public function classMethodFormatMatchesExactlyOneMethod(): void
     {
         Assert::instanceOf(TestRunner::runTest([GroupedTestClass::class, 'slowTest']), TestResult::class);
+        # Both components of the filter must match: neither a sibling method of the same
+        # class nor a method of another class is selected.
         $this->assertDidNotRun([GroupedTestClass::class, 'dbTest']);
+        $this->assertDidNotRun([OtherGroupedTestClass::class, 'apiTest']);
     }
 
     #[TestingSuite(
@@ -118,6 +122,7 @@ final class NameFilterFeatureTest
      *
      * @param array{class-string, non-empty-string} $test
      */
+    #[AssertMethod]
     private function assertDidNotRun(array $test): void
     {
         try {
