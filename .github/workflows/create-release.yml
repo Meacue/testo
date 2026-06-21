@@ -8,8 +8,22 @@ on:  # yamllint disable-line rule:truthy
   push:
     branches:
       - 1.x
+  # Manual re-trigger. release-please's post-merge run creates the GitHub
+  # release/tag by querying the search index for the just-merged release PR;
+  # if that index hasn't caught up yet the tag is skipped while the manifest
+  # is already bumped, which deadlocks future release PRs. This lets the run
+  # be retried without hacks (e.g. re-running a stale workflow run).
+  workflow_dispatch:
 
 name: 📦 Create release
+
+# Serialize release runs so a release-creation run is never interrupted or
+# raced by another (e.g. a feature PR merged right before the release PR).
+# Never cancel a run mid-tagging — that is what produces an untagged, merged
+# release PR and stalls the pipeline.
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   release:
