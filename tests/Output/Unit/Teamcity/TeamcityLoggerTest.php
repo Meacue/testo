@@ -60,6 +60,20 @@ final class TeamcityLoggerTest
         Assert::string($output)->notContains("actual='");
     }
 
+    public function handleFailedTestRendersPreviousThrowableMessageInDetails(): void
+    {
+        $failure = new \RuntimeException(
+            'outer failed',
+            previous: new \LogicException('root cause exploded'),
+        );
+        $result = self::makeFailedResult($failure);
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+        Assert::string($output)->contains('Caused by:');
+        Assert::string($output)->contains('LogicException: root cause exploded');
+    }
+
     public function testStartedFromInfoEmitsDescriptionFromPhpDoc(): void
     {
         $info = self::makeInfo('describedTest');

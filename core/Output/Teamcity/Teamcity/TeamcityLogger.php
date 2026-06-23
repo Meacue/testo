@@ -57,11 +57,13 @@ final class TeamcityLogger
 
         do {
             $class = $current::class;
+            $message = $current->getMessage();
             $file = $current->getFile();
             $line = $current->getLine();
             $trace = self::formatTrace(StackTrace::cutStackTrace($current->getTrace(), $boundary, false));
 
-            $parts[] = "{$class}\nFile: {$file}:{$line}\n\nStack trace:\n{$trace}";
+            $header = $message !== '' ? "{$class}: {$message}" : $class;
+            $parts[] = "{$header}\nFile: {$file}:{$line}\n\nStack trace:\n{$trace}";
         } while ($current = $current->getPrevious());
 
         return \implode("\n\nCaused by:\n", $parts);
