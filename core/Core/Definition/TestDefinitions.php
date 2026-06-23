@@ -51,4 +51,15 @@ final class TestDefinitions
     {
         return $this->tests;
     }
+
+    /**
+     * Reorder the tests in place using a user comparator. Keys (test short names) are preserved, so
+     * the reordering changes only execution/iteration order, not identity.
+     *
+     * @param callable(TestDefinition, TestDefinition): int $comparator
+     */
+    public function sort(callable $comparator): void
+    {
+        \uasort($this->tests, $comparator);
+    }
 }

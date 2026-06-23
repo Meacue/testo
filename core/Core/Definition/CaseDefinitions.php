@@ -62,4 +62,18 @@ final class CaseDefinitions
     {
         return \array_merge(...\array_values($this->cases));
     }
+
+    /**
+     * Reorder the cases in place using a user comparator. Cases are grouped by type, so the
+     * comparator reorders the cases within each type group (the common single-type suite is sorted
+     * as a whole).
+     *
+     * @param callable(CaseDefinition, CaseDefinition): int $comparator
+     */
+    public function sort(callable $comparator): void
+    {
+        foreach ($this->cases as &$cases) {
+            \usort($cases, $comparator);
+        }
+    }
 }
