@@ -85,11 +85,20 @@ jobs:
             --title "${version}" \
             --notes "${notes:-Release ${version}}"
 
-          # Flip the label so the next release-please run no longer sees an outstanding untagged PR.
+          # Flip the label so the next release-please run no longer sees an
+          # outstanding untagged PR. We hit the REST labels API directly rather
+          # than `gh pr edit`, which over-fetches reviewRequests via GraphQL and
+          # 403s on a fine-grained PAT ("Resource not accessible by personal
+          # access token ... reviewRequests").
+          # Non-fatal: the tag is the critical outcome; a label hiccup (e.g. a
+          # token permission gap) must not fail the run after the release exists.
           if [ -n "${number}" ]; then
-            gh pr edit "${number}" --repo "${GITHUB_REPOSITORY}" \
-              --remove-label "autorelease: pending" \
-              --add-label "autorelease: tagged"
+            gh api --method POST "repos/${GITHUB_REPOSITORY}/issues/${number}/labels" \
+              -f "labels[]=autorelease: tagged" >/dev/null 2>&1 \
+              && gh api --method DELETE \
+                "repos/${GITHUB_REPOSITORY}/issues/${number}/labels/autorelease%3A%20pending" \
+                >/dev/null 2>&1 \
+              || echo "::notice::Tagged ${version} but could not update labels on PR #${number}; remove 'autorelease: pending' manually if it lingers."
           fi
 
       # Mirror the just-released versions into every testo/* constraint of the
