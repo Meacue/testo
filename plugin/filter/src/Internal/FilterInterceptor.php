@@ -422,13 +422,21 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
      * Performs quick matching against tokenized file data without loading full reflections.
      * Checks functions, classes, and methods in sequence, returning true on first match.
      *
+     * Token data is only complete for symbols physically declared in the file. A method inherited
+     * from a parent in another file leaves no token here — only the subclass declaration does. So
+     * matching is anchored on the class wherever possible:
+     * - `Class::method`: matched by the class part alone (the method may be inherited); precise,
+     *   since the class is always declared where it is tokenized.
+     * - bare fragment (`method`): nothing in the file anchors an inherited method name, so when the
+     *   file declares a subclass we keep it and let Stage 2 (reflection) decide. See {@see declaresSubclass()}.
+     *
      * @param TokenizedFile $file Tokenized file with extracted names
      *
      * @return bool True if any name matches, false otherwise
      */
     private function matchFile(TokenizedFile $file): bool
     {
-        # Match functions
+        # Match functions (by FQN or fragment). Functions are declared where tokenized, so reliable.
         foreach ($file->getFunctions() as $fqn) {
             foreach ([...$this->fqn, ...$this->fragment] as [$name, $_]) {
                 if (self::has($name, $fqn)) {
@@ -437,29 +445,81 @@ final class FilterInterceptor implements FileLocatorInterceptor, CaseLocatorInte
             }
         }
 
-        # Match classes
+        # Match classes by name (FQN or fragment), and by the class part of `Class::method` filters.
+        # The class part is enough: its test method may be inherited from a parent in another file,
+        # but the class itself is always declared (and tokenized) here.
         foreach ($file->getClasses() as $class) {
             foreach ([...$this->fqn, ...$this->fragment] as [$name, $_]) {
                 if (self::has($name, $class)) {
                     return true;
                 }
             }
+
+            foreach ($this->method as [$className]) {
+                if (self::has($className, $class)) {
+                    return true;
+                }
+            }
         }
 
-        # Match methods
+        # Match by fragment against methods declared in this file. (The `Class::method` form is
+        # already covered by the class anchor above.)
         foreach ($file->getMethodsFQN() as $fqn) {
-            # By fragment
             foreach ($this->fragment as [$name, $_]) {
                 if (self::has($name, $fqn)) {
                     return true;
                 }
             }
+        }
 
-            # By class and method name
-            foreach ($this->method as [$className, $methodName]) {
-                if (self::has($className . '::' . $methodName, $fqn)) {
-                    return true;
-                }
+        # A bare fragment may name a method inherited from a parent whose token lives in another file,
+        # leaving nothing here to match. When the file declares a subclass we cannot rule that out
+        # from tokens, so keep it for Stage 2 reflection rather than risk a false negative.
+        if ($this->fragment !== [] && self::declaresSubclass($file)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the file declares a named class that extends a parent — i.e. it may expose methods
+     * inherited from another file that the token pre-filter cannot see.
+     *
+     * Detected via the `extends` keyword token rather than reflection to keep Stage 1 cheap; an
+     * over-match (e.g. a parent with no matching test) is harmless — Stage 2 filters it out.
+     *
+     * Only `extends` of a named class counts: a named declaration is `class <Name> extends`, so the
+     * tokens right before `extends` are the name (T_STRING) and then the `class` keyword. An
+     * anonymous class (`new class extends ...`, `new class (...) extends ...`) has no name there and
+     * can never be a discoverable test case, so it is ignored. `interface ... extends` is likewise
+     * skipped — the keyword before the name is not `class`.
+     */
+    private static function declaresSubclass(TokenizedFile $file): bool
+    {
+        $tokens = $file->tokens;
+
+        foreach ($tokens as $i => $token) {
+            if (!$token->is(\T_EXTENDS)) {
+                continue;
+            }
+
+            # Token before `extends`, skipping whitespace: the class name for a named declaration.
+            $name = $i - 1;
+            while ($name >= 0 && $tokens[$name]->is(\T_WHITESPACE)) {
+                --$name;
+            }
+            if ($name < 0 || !$tokens[$name]->is(\T_STRING)) {
+                continue;
+            }
+
+            # Token before the name, skipping whitespace: the `class` keyword for a class declaration.
+            $keyword = $name - 1;
+            while ($keyword >= 0 && $tokens[$keyword]->is(\T_WHITESPACE)) {
+                --$keyword;
+            }
+            if ($keyword >= 0 && $tokens[$keyword]->is(\T_CLASS)) {
+                return true;
             }
         }
 
