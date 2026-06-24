@@ -38,6 +38,60 @@ jobs:
           manifest-file: resources/version.json
           target-branch: 1.x
 
+      # Guard against the root-only release deadlock. release-please cannot tag
+      # a *combined* release PR whose body has a single, root (empty-component)
+      # entry: it falls back to branch-name component matching, the combined
+      # branch carries no component, so the root tag is silently skipped while
+      # the PR stays merged+pending — deadlocking every future release.
+      # We detect it structurally: on 1.x the manifest root version is only
+      # bumped by a merged release PR, so "manifest version has no tag" == that
+      # exact stuck state. When release-please tags correctly the tag exists
+      # and this step is a no-op.
+      - name: 🔖 Guard — tag a root-only release release-please skipped
+        if: ${{ steps.release.outputs.prs_created != 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          version=$(gh api \
+            "repos/${GITHUB_REPOSITORY}/contents/resources/version.json?ref=${GITHUB_REF_NAME}" \
+            -H "Accept: application/vnd.github.raw" --jq '."."')
+
+          if [ -z "${version}" ] || [ "${version}" = "null" ]; then
+            echo "No root version in manifest — nothing to guard."
+            exit 0
+          fi
+
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${version}" >/dev/null 2>&1; then
+            echo "Tag ${version} already exists — release-please handled the root release."
+            exit 0
+          fi
+
+          echo "::warning::Root tag ${version} missing after release-please — recovering from the root-only release-PR deadlock."
+
+          # The merged-but-untagged release PR still carries 'autorelease: pending'.
+          pr=$(gh pr list --repo "${GITHUB_REPOSITORY}" \
+                --state merged --base "${GITHUB_REF_NAME}" \
+                --label "autorelease: pending" \
+                --json number,body --jq 'sort_by(.number) | last // empty')
+          number=$(echo "${pr}" | jq -r '.number // empty')
+          notes=$(echo "${pr}"  | jq -r '.body   // empty')
+
+          # Tag = the release-PR merge commit that triggered this run (release-please convention).
+          gh release create "${version}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${GITHUB_SHA}" \
+            --title "${version}" \
+            --notes "${notes:-Release ${version}}"
+
+          # Flip the label so the next release-please run no longer sees an outstanding untagged PR.
+          if [ -n "${number}" ]; then
+            gh pr edit "${number}" --repo "${GITHUB_REPOSITORY}" \
+              --remove-label "autorelease: pending" \
+              --add-label "autorelease: tagged"
+          fi
+
       # Mirror the just-released versions into every testo/* constraint of the
       # release PR. Re-applied on every run, so it survives release-please
       # regenerating (force-pushing) the PR branch.
