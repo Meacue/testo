@@ -23,17 +23,20 @@ final class Formatter
      * Formats a test suite started message.
      *
      * @param non-empty-string $name Suite name
-     * @param \ReflectionClass<object>|null $reflection Class reflection for location hint
+     * @param \ReflectionClass<object>|\ReflectionFunctionAbstract|null $reflection Class/function reflection for location hint
+     * @param \ReflectionClass<object>|null $caseReflection Concrete (runtime) case class, used to
+     *        attribute a method-backed suite (a DataProvider batch) to the subclass rather than the
+     *        method's declaring class. Ignored when `$reflection` is a class.
      * @return non-empty-string
      */
-    public static function suiteStarted(string $name, null|\ReflectionClass|\ReflectionFunctionAbstract $reflection = null): string
+    public static function suiteStarted(string $name, null|\ReflectionClass|\ReflectionFunctionAbstract $reflection = null, ?\ReflectionClass $caseReflection = null): string
     {
         $attributes = ['name' => $name];
 
         if ($reflection !== null) {
             $locationHint = $reflection instanceof \ReflectionClass
                 ? self::caseLocationHint($reflection)
-                : self::testLocationHint($reflection);
+                : self::testLocationHint($reflection, caseReflection: $caseReflection);
             $locationHint !== null and $attributes['locationHint'] = $locationHint;
         }
 
@@ -60,16 +63,18 @@ final class Formatter
      * @param non-empty-string|null $locationSuffix Optional suffix to append to location hint (e.g., " with data set #0")
      * @param non-empty-string|null $description Test description (from the PHPDoc summary), emitted as
      *        the TeamCity `metainfo` attribute. Omitted when `null`.
+     * @param \ReflectionClass<object>|null $caseReflection Concrete (runtime) case class, used to
+     *        attribute an inherited test to the subclass rather than the method's declaring class.
      * @return non-empty-string
      */
-    public static function testStarted(string $name, bool $captureStandardOutput = false, ?\ReflectionFunctionAbstract $reflection = null, ?string $locationSuffix = null, ?string $description = null): string
+    public static function testStarted(string $name, bool $captureStandardOutput = false, ?\ReflectionFunctionAbstract $reflection = null, ?string $locationSuffix = null, ?string $description = null, ?\ReflectionClass $caseReflection = null): string
     {
         $attributes = ['name' => $name];
 
         $captureStandardOutput and $attributes['captureStandardOutput'] = 'true';
 
         if ($reflection !== null) {
-            $locationHint = self::testLocationHint($reflection, $locationSuffix);
+            $locationHint = self::testLocationHint($reflection, $locationSuffix, $caseReflection);
             $locationHint !== null and $attributes['locationHint'] = $locationHint;
         }
 
@@ -390,23 +395,36 @@ final class Formatter
      * Format: php_qn://path/to/file.php::\ClassName::methodName with data set #0 (with suffix)
      *
      * @param non-empty-string|null $suffix Optional suffix to append (e.g., " with data set #0")
+     * @param \ReflectionClass<object>|null $caseReflection Concrete (runtime) case class. When given
+     *        for a method-backed test, the hint points at this class (name and file) instead of the
+     *        method's declaring class. For a `#[Test]` inherited from an abstract base,
+     *        getDeclaringClass() names the base — but the enclosing testSuite is named after the
+     *        concrete subclass (see {@see caseLocationHint}), so TeamCity would otherwise file the
+     *        inherited test under the abstract class. Mirrors JUnitWriter::classnameFor() and
+     *        CoverageTestInterceptor::buildMethodId().
      * @return non-empty-string|null
      */
-    private static function testLocationHint(\ReflectionFunctionAbstract $reflection, ?string $suffix = null): ?string
+    private static function testLocationHint(\ReflectionFunctionAbstract $reflection, ?string $suffix = null, ?\ReflectionClass $caseReflection = null): ?string
     {
-        $file = $reflection->getFileName();
-
-        if ($file === false) {
-            return null;
-        }
-
         $name = $reflection->getName();
 
         // For methods, include class name
         if ($reflection instanceof \ReflectionMethod) {
-            $className = $reflection->getDeclaringClass()->getName();
-            $locationHint = \sprintf('php_qn://%s::\\%s::%s', $file, $className, $name);
+            $class = $caseReflection ?? $reflection->getDeclaringClass();
+            $file = $class->getFileName();
+
+            if ($file === false) {
+                return null;
+            }
+
+            $locationHint = \sprintf('php_qn://%s::\\%s::%s', $file, $class->getName(), $name);
         } else {
+            $file = $reflection->getFileName();
+
+            if ($file === false) {
+                return null;
+            }
+
             // For functions, just the function name
             $locationHint = \sprintf('php_qn://%s::%s', $file, "\\$name");
         }

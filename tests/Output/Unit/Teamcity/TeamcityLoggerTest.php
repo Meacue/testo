@@ -15,6 +15,7 @@ use Testo\Core\Definition\TestDefinition;
 use Testo\Core\Value\Status;
 use Testo\Output\Teamcity\Teamcity\TeamcityLogger;
 use Testo\Test;
+use Tests\Output\Stub\Teamcity\ConcreteSampleTestCase;
 use Tests\Output\Stub\Teamcity\SampleTestClass;
 
 #[Test]
@@ -72,6 +73,29 @@ final class TeamcityLoggerTest
 
         Assert::string($output)->contains('Caused by:');
         Assert::string($output)->contains('LogicException: root cause exploded');
+    }
+
+    public function testStartedFromInfoAttributesInheritedTestToConcreteCaseClass(): void
+    {
+        $caseReflection = new \ReflectionClass(ConcreteSampleTestCase::class);
+        $info = new TestInfo(
+            name: 'inheritedTest',
+            caseInfo: new CaseInfo(
+                definition: new CaseDefinition(
+                    name: ConcreteSampleTestCase::class,
+                    type: 'test',
+                    reflection: $caseReflection,
+                ),
+            ),
+            // Method reflected through the subclass still reports the abstract base as its
+            // declaring class — exactly what discovery stores for an inherited #[Test].
+            testDefinition: new TestDefinition($caseReflection->getMethod('inheritedTest')),
+        );
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->testStartedFromInfo($info));
+
+        Assert::string($output)->contains('ConcreteSampleTestCase::inheritedTest');
+        Assert::string($output)->notContains('AbstractSampleTestCase::inheritedTest');
     }
 
     public function testStartedFromInfoEmitsDescriptionFromPhpDoc(): void

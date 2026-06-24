@@ -125,7 +125,7 @@ final class TeamcityLogger
      */
     public function batchStartedFromInfo(TestInfo $info): void
     {
-        $this->publish(Formatter::suiteStarted($info->name, $info->testDefinition->reflection));
+        $this->publish(Formatter::suiteStarted($info->name, $info->testDefinition->reflection, $info->caseInfo->definition->reflection));
     }
 
     /**
@@ -216,6 +216,7 @@ final class TeamcityLogger
             $info->testDefinition->reflection,
             $locationSuffix,
             $description,
+            $info->caseInfo->definition->reflection,
         ));
     }
 
