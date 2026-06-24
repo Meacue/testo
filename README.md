@@ -12,6 +12,11 @@
 [![Documentation](https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=gitbook&logoColor=white)](https://php-testo.github.io)
 [![Support on Boosty](https://img.shields.io/static/v1?style=for-the-badge&label=&message=Sponsorship&logo=Boosty&logoColor=white&color=%23F15F2C)](https://boosty.to/roxblnfk)
 
+[![Mutation testing badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fphp-testo%2Ftesto%2F1.x)](https://dashboard.stryker-mutator.io/reports/github.com/php-testo/testo/1.x)
+[![codecov](https://codecov.io/gh/php-testo/testo/branch/1.x/graph/badge.svg)](https://codecov.io/gh/php-testo/testo)
+[![Type Coverage](https://shepherd.dev/github/php-testo/testo/coverage.svg)](https://shepherd.dev/github/php-testo/testo)
+
+
 </div>
 
 <br />

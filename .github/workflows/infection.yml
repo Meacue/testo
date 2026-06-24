@@ -59,3 +59,5 @@ jobs:
 
       - name: Run Infection
         run: composer infect:ci
+        env:
+          STRYKER_DASHBOARD_API_KEY: ${{ github.event_name == 'push' && secrets.STRYKER_DASHBOARD_API_KEY || '' }}
