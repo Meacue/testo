@@ -133,6 +133,39 @@ Constraints:
 - Subclasses work: `class MissingExtensionSkip extends SkipTest {}` is still recognized.
 - Return type stays `void`, or `never` if the throw is unconditional.
 
+## Tests that intentionally perform no assertions
+
+A test that finishes successfully without recording a single assertion is reported as
+`Status::Risky` — the framework assumes you forgot to assert. When a test legitimately verifies
+behaviour without the `Assert` facade (e.g. it only checks that a call does **not** throw), declare
+that intent with `#[ExpectNoAssertions]` to keep it `Status::Passed`:
+
+```php
+use Testo\Assert\ExpectNoAssertions;
+
+#[Test]
+#[ExpectNoAssertions]
+public function bootsWithoutError(): void
+{
+    new Kernel()->boot();   // success is simply "no exception thrown"
+}
+```
+
+Place it on a single test (method/function) or on the whole class to cover every test in it.
+
+The attribute is a **two-way contract**, not just a switch: a marked test that *does* record an
+assertion is reported as `Status::Risky` (the declaration is stale or wrong). This includes
+`Expect::exception(...)` / `#[ExpectException]` — expecting an exception is itself an assertion, so
+pairing it with `#[ExpectNoAssertions]` is contradictory and comes out `Risky`. Use the attribute
+only on tests that truly assert nothing.
+
+| `#[ExpectNoAssertions]` | test records an assertion | status |
+|---|---|---|
+| no | no | `Risky` (forgotten assertion) |
+| no | yes | `Passed` |
+| yes | no | `Passed` |
+| yes | yes | `Risky` (stale/misapplied attribute) |
+
 ## Lifecycle hooks
 
 ```php
