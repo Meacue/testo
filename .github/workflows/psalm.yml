@@ -24,7 +24,7 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # The split sub-packages pin testo/testo; in CI the root is a detached
       # commit (dev-<sha>), so its version must be declared explicitly.
