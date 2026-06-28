@@ -124,7 +124,11 @@ jobs:
         run: |
           # Provide the base-branch manifest so the sync only refreshes
           # testo/testo in packages actually released this cycle.
-          git fetch --depth=1 origin 1.x
+          # NB: no --depth here. `git fetch --depth=1` re-shallows the full
+          # clone (writes .git/shallow, truncating history to one commit),
+          # which would later starve the Vibe Index step of git history and
+          # silently score it 0.0. The checkout above is fetch-depth: 0.
+          git fetch origin 1.x
           git show FETCH_HEAD:resources/version.json > "${RUNNER_TEMP}/prev-version.json" \
             || cp resources/version.json "${RUNNER_TEMP}/prev-version.json"
           php .github/release-please/sync-deps.php "${RUNNER_TEMP}/prev-version.json"
