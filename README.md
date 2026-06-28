@@ -16,6 +16,7 @@
 [![Type Coverage](https://shepherd.dev/github/php-testo/testo/coverage.svg)](https://shepherd.dev/github/php-testo/testo)
 [![codecov](https://codecov.io/gh/php-testo/testo/branch/1.x/graph/badge.svg)](https://codecov.io/gh/php-testo/testo)
 [![Mutation testing badge](https://img.shields.io/endpoint?url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fphp-testo%2Ftesto%2F1.x)](https://dashboard.stryker-mutator.io/reports/github.com/php-testo/testo/1.x)
+![Vibe Index]()
 
 
 </div>

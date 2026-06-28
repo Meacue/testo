@@ -129,16 +129,23 @@ jobs:
             || cp resources/version.json "${RUNNER_TEMP}/prev-version.json"
           php .github/release-please/sync-deps.php "${RUNNER_TEMP}/prev-version.json"
 
-      - name: 📌 Commit synced constraints
+      - name: 🎚️ Update Vibe Index badge
+        if: ${{ steps.release.outputs.prs_created == 'true' }}
+        uses: roxblnfk/action-vibe-index@master
+        with:
+          update-files: README.md
+          badge-style: flat
+
+      - name: 📌 Commit synced constraints & badge
         if: ${{ steps.release.outputs.prs_created == 'true' }}
         run: |
           if git diff --quiet; then
-            echo "No constraint changes to commit."
+            echo "Nothing to commit (constraints and badge unchanged)."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "chore(release): sync testo/* version constraints"
+          git commit -am "chore(release): sync version constraints and Vibe Index badge"
           git push
 
 ...
