@@ -110,8 +110,8 @@ final readonly class AttributesInterceptor implements TestRunInterceptor, TestCa
             ? $next->combine(...$interceptors)
             : Pipeline::prepare($info->definition->type, ...$interceptors)->with(
                 $next,
-                /** @see TestRunInterceptor::runTest() */
-                'runTest',
+                /** @see TestCaseRunInterceptor::runTestCase() */
+                'runTestCase',
             );
         return $pipeline($info);
     }

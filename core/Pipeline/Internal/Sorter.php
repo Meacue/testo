@@ -62,7 +62,7 @@ final class Sorter
                     $groups[$order][$class] = $interceptor;
                     break;
                 case ConflictPolicy::Error:
-                    \array_key_exists($class, $groups[$order])
+                    \array_key_exists($class, $groups[$order] ?? [])
                         ? throw new \RuntimeException("Conflict detected for interceptor '$class' with policy 'Error'.")
                         : $groups[$order][$class] = $interceptor;
                     break;
