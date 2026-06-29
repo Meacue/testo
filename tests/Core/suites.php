@@ -19,6 +19,12 @@ return [
         ),
     ),
     new SuiteConfig(
+        name: 'Core/Pipeline',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Pipeline'],
+        ),
+    ),
+    new SuiteConfig(
         name: 'Core/Testing/Unit',
         location: new FinderConfig(
             include: [__DIR__ . '/Testing/Unit'],
