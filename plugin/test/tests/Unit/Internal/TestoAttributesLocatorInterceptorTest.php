@@ -6,6 +6,8 @@ namespace Tests\Test\Unit\Internal;
 
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Core\Value\TestType;
+use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\CaseLocatorInterceptor;
 use Testo\Pipeline\Middleware\FileLocatorInterceptor;
 use Testo\Test;
@@ -207,5 +209,52 @@ final class TestoAttributesLocatorInterceptorTest
         $this->interceptor->locateTestCases($definition, static fn(FileDefinitions $f) => $f->cases);
 
         Assert::array($definition->cases->getCases())->hasCount(0);
+    }
+
+    /**
+     * Locates free functions with #[Test] as a single function-scoped test case.
+     *
+     * Verifies that the interceptor correctly:
+     * - Defines exactly one case (with no class reflection) for all #[Test] functions in the file
+     * - Adds every function carrying #[Test] as a test of that case
+     * - Excludes functions without the #[Test] attribute
+     */
+    public function itLocatesFreeFunctionsWithTestAttributeAsSingleCase(): void
+    {
+        $path = $this->fixturesDir . 'TestFunctionsWithTestAttribute.php';
+        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
+        $definition = new FileDefinitions(
+            $file,
+            classes: DefinitionLocator::getClasses($file),
+            functions: DefinitionLocator::getFunctions($file),
+        );
+
+        Assert::true($this->interceptor->locateFile($file, static fn($f) => true));
+        $this->interceptor->locateTestCases($definition, static fn(FileDefinitions $f) => $f->cases);
+
+        $cases = $definition->cases->getCases();
+        Assert::array($cases)->hasCount(1);
+
+        $case = $cases[0];
+        Assert::null($case->reflection);
+
+        Assert::array($case->tests->getTests())
+            ->hasCount(2)
+            ->hasKeys('functionWithTestAttribute', 'anotherFunctionWithTestAttribute')
+            ->doesNotHaveKeys('functionWithoutTestAttribute');
+    }
+
+    /**
+     * The locator must declare its test type so the `--type` filter can select (`--type=test`) and
+     * exclude (`--type=!test`) plain tests. Without it the locator would be universal and leak past
+     * the type filter, since type filtering selects finders by their declared {@see TestType}.
+     */
+    public function declaresTestTypeForTypeFiltering(): void
+    {
+        $attributes = (new \ReflectionClass(TestoAttributesLocatorInterceptor::class))
+            ->getAttributes(InterceptorOptions::class);
+
+        Assert::array($attributes)->hasCount(1);
+        Assert::same($attributes[0]->newInstance()->testType, TestType::Test);
     }
 }
