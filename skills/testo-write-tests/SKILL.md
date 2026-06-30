@@ -185,6 +185,23 @@ public static function dropSchema(): void { /* once after all tests */ }
 
 Hooks may be either instance methods or `static` — Testo invokes them accordingly. They run regardless of `#[Test]` on the method.
 
+In a **function-based test case** (a file of top-level `#[Test]` functions rather than a class), the same
+attributes work on plain functions. The hooks apply to that file's case — `#[BeforeClass]`/`#[AfterClass]`
+run once around the whole file, `#[BeforeTest]`/`#[AfterTest]` around each test function. A lifecycle
+function needs no `#[Test]` and is never itself a test; share state through a `static` holder, since
+functions have no `$this`.
+
+```php
+use Testo\Lifecycle\BeforeTest;
+use Testo\Test;
+
+#[BeforeTest]
+function openTx(): void { Db::$tx = Db::begin(); }   // before each test function in this file
+
+#[Test]
+function insertsRow(): void { /* ... */ }
+```
+
 ## Grouping tests
 
 Label tests with `#[Group]` (from the `testo/filter` plugin) to select or skip them by category.
