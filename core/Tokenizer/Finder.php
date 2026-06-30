@@ -21,7 +21,7 @@ final class Finder implements \Countable, \IteratorAggregate
      */
     public function __construct(FinderConfig $config)
     {
-        $this->finder = (new SymfonyFinder());
+        $this->finder = new SymfonyFinder();
 
         # Include
         $iDirs = $files = [];
