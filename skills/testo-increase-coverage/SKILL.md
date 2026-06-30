@@ -1,6 +1,6 @@
 ---
 name: testo-increase-coverage
-description: Report and raise line coverage on a Testo project — collect coverage once, aggregate the Clover report into a ranked, LLM-friendly work-list, then optionally write tests for the least-covered files with subagents. Use both for read-only coverage questions and for improving coverage. Triggers: "increase coverage", "improve test coverage", "cover untested code", "find uncovered lines", "raise the coverage percentage", "what isn't tested", "what's our test coverage", "coverage status/report", "how well tested is X", "is X covered".
+description: Report and raise line coverage on a Testo project — collect coverage once, aggregate the Clover report into a ranked, LLM-friendly work-list, then optionally write tests for the least-covered files with subagents. Use both for read-only coverage questions and for improving coverage. Triggers are "increase coverage", "improve test coverage", "cover untested code", "find uncovered lines", "raise the coverage percentage", "what isn't tested", "what's our test coverage", "coverage status/report", "how well tested is X", "is X covered".
 ---
 
 # Increasing coverage with Testo
