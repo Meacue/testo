@@ -21,11 +21,12 @@ use Testo\Pipeline\Attribute\Interceptable;
  *   exception (via {@see Expect::exception()} or {@see ExpectException}) is itself an assertion, so
  *   pairing it with this attribute is contradictory and comes out {@see Status::Risky}.
  *
- * Can be placed on a single test (method or function) or on a whole Test Case (class), in which case
- * it covers every test of that class.
+ * Placed on a single test — a method or a function. It is intentionally not allowed on a class:
+ * "no test in this whole case asserts anything" is almost never a real contract, and a stray
+ * class-level marker would silently turn every genuinely-asserting test into {@see Status::Risky}.
  *
  * @api
  */
-#[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 #[FallbackInterceptor(ExpectationsInterceptor::class)]
 final readonly class ExpectNoAssertions implements Interceptable {}

@@ -20,11 +20,9 @@ use Testo\Bridge\Rector\Testing\TestRectorFixtures;
  * so the rewrite is a plain attribute-name rename; unrelated attributes are left
  * untouched.
  *
- * @todo Testo's `#[ExpectNoAssertions]` may also sit at CLASS level (covering every
- *   test method), but PHPUnit's `#[DoesNotPerformAssertions]` is method-level only.
- *   A class-level marker rewritten in place becomes a class-level PHPUnit attribute
- *   that PHPUnit will not honor; a faithful conversion would fan the marker out onto
- *   each test method. Left as a follow-up.
+ * Both sides are method/function-level only (Testo's `#[ExpectNoAssertions]` is not allowed on a
+ * class, mirroring PHPUnit's `#[DoesNotPerformAssertions]`), so there is no class-level fan-out to
+ * reconcile — the in-place rename is faithful.
  */
 #[TestRectorFixtures('ExpectNoAssertionsToPhpUnitRector')]
 final class ExpectNoAssertionsToPhpUnitRector extends AbstractRector

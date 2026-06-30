@@ -13,7 +13,6 @@ use Testo\Test;
 use Testo\Testing\Attribute\TestingSuite;
 use Testo\Testing\Helper\TestRunner;
 use Tests\Assert\Stub\Common;
-use Tests\Assert\Stub\NoAssertionsCase;
 
 /**
  * How a test that finishes successfully without making any assertion is reported.
@@ -46,13 +45,5 @@ final class CommonTest
     {
         $result = TestRunner::runTest([Common::class, 'expectsExceptionDespiteAttribute']);
         Assert::same($result->status, Status::Risky);
-    }
-
-    public function doesNotPerformAssertionsAtClassLevel(): void
-    {
-        $first = TestRunner::runTest([NoAssertionsCase::class, 'first']);
-        $second = TestRunner::runTest([NoAssertionsCase::class, 'second']);
-        Assert::same($first->status, Status::Passed);
-        Assert::same($second->status, Status::Passed);
     }
 }

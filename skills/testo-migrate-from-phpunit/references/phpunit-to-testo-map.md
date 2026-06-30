@@ -39,7 +39,7 @@ the assertion **argument order flips** (see the pitfalls), and discovery is attr
 | `$this->expectExceptionMessageMatches('/.../')` | `withMessageContaining('substring')` if a literal substring suffices; otherwise catch and assert manually. No PCRE. |
 | `$this->markTestSkipped('reason')` | `throw new \Testo\Core\Exception\SkipTest('reason')` from the test body. |
 | `$this->markTestIncomplete('reason')` | No "incomplete" status. Port to `throw new SkipTest('TODO: reason')`, or leave the body empty → `Status::Risky`. |
-| `#[DoesNotPerformAssertions]` / `$this->expectNotToPerformAssertions()` | `#[ExpectNoAssertions]` from **`Testo\Assert`**, on class/method/function — no method-call form. Two-way contract: a marked test that *does* assert is `Status::Risky`. |
+| `#[DoesNotPerformAssertions]` / `$this->expectNotToPerformAssertions()` | `#[ExpectNoAssertions]` from **`Testo\Assert`**, on a method or function (not a class) — no method-call form. Two-way contract: a marked test that *does* assert is `Status::Risky`. |
 | `$this->createMock(Foo::class)` | Testo ships no mocking. Bring your own (Mockery, Prophecy) or — preferred — a hand-rolled fake. **Never** mock `final` classes or enums. |
 | `assertThat($v, $constraint)` | No constraint objects. Decompose into concrete `Assert::*` calls. |
 | `@group slow` / `#[Group('slow')]` | `#[Group('slow')]` from **`Testo\Filter\Group`**. Not repeatable — merge: `#[Group('slow','db')]`. Class-level groups are inherited (union with the method's). Select `--group=slow`, exclude `--group=!slow`. |

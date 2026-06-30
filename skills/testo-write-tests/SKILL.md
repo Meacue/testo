@@ -151,7 +151,9 @@ public function bootsWithoutError(): void
 }
 ```
 
-Place it on a single test (method/function) or on the whole class to cover every test in it.
+Place it on a single test — a method or a function. It is not allowed on a class: "no test here
+asserts anything" is rarely a real contract, and a stray class-level marker would flip every
+genuinely-asserting test to `Risky`.
 
 The attribute is a **two-way contract**, not just a switch: a marked test that *does* record an
 assertion is reported as `Status::Risky` (the declaration is stale or wrong). This includes

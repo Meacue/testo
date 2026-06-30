@@ -36,9 +36,9 @@ directory but are **not** registered in `config/sets/testo-to-phpunit.php`.
 - **`ExpectNoAssertionsToPhpUnitRector`** (registered) — direct attribute rename
   `#[\Testo\Assert\ExpectNoAssertions]` → `#[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]`
   (the two are equivalent markers — the earlier "attribute → method call" stub was over-pessimistic).
-  **Residual:** Testo's marker may sit at class level, but PHPUnit's `DoesNotPerformAssertions` is
-  method-level; a class-level marker rewritten in place is not honored by PHPUnit and ideally would
-  fan out onto each test method — left as a `@todo`.
+  Both markers are method/function-level only (Testo's is no longer allowed on a class, matching
+  PHPUnit's method-level `DoesNotPerformAssertions`), so the in-place rename is faithful with no
+  class-level fan-out to reconcile.
 - **`GroupToPhpUnitRector`** (registered) — expands a variadic `#[\Testo\Filter\Group('a', 'b')]`
   into the repeated, single-name PHPUnit form `#[Group('a'), Group('b')]`, per-node.
 - **`GroupInheritanceToPhpUnitRector`** (registered) — the complement of the above: flattens Testo's
