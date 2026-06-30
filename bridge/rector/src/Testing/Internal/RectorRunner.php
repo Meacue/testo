@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Bridge\Rector\Testing\Internal;
 
+use Psr\Log\LoggerInterface;
 use Rector\Application\ApplicationFileProcessor;
 use Rector\Configuration\ConfigurationFactory;
 use Rector\Configuration\Option;
@@ -14,6 +15,7 @@ use Rector\NodeTypeResolver\Reflection\BetterReflection\SourceLocatorProvider\Dy
 use Rector\PhpParser\NodeTraverser\RectorNodeTraverser;
 use Rector\Testing\Fixture\FixtureSplitter;
 use Testo\Assert;
+use Testo\Common\Messenger;
 
 /**
  * Runs Rector rules against a fixture file and asserts the result, on a dedicated,
@@ -31,17 +33,19 @@ use Testo\Assert;
  * @internal
  * @psalm-internal Testo\Bridge\Rector
  */
-final class RectorRunner
+final readonly class RectorRunner
 {
-    private readonly ApplicationFileProcessor $fileProcessor;
-    private readonly DynamicSourceLocatorProvider $sourceLocator;
-    private readonly ConfigurationFactory $configurationFactory;
+    private ApplicationFileProcessor $fileProcessor;
+    private DynamicSourceLocatorProvider $sourceLocator;
+    private ConfigurationFactory $configurationFactory;
+    private LoggerInterface $channel;
 
     /**
      * @param list<class-string<RectorInterface>> $rules
      */
-    public function __construct(array $rules)
+    public function __construct(Messenger $messenger, array $rules)
     {
+        $this->channel = $messenger->channel('rector-fixture.php');
         $rectorConfig = (new LazyContainerFactory())->create();
         $rectorConfig->boot();
 
@@ -73,6 +77,8 @@ final class RectorRunner
         [$input, $expected] = FixtureSplitter::containsSplit($contents)
             ? FixtureSplitter::splitFixtureFileContents($contents)
             : [$contents, $contents];
+        $this->channel->debug("# Input:\n$input");
+        $this->channel->debug("# Expected:\n$expected");
 
         $inputFile = $this->writeTempFile($input);
 

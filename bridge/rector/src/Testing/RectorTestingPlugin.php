@@ -8,6 +8,7 @@ use Internal\Container\Container;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Bridge\Rector\Testing\Internal\Middleware\RectorFixtureFinder;
 use Testo\Bridge\Rector\Testing\Internal\Middleware\RectorFixtureInterceptor;
+use Testo\Common\Messenger;
 use Testo\Common\PluginConfigurator;
 use Testo\Pipeline\InterceptorCollector;
 
@@ -28,6 +29,9 @@ final readonly class RectorTestingPlugin implements PluginConfigurator
         $collector = $container->get(InterceptorCollector::class);
 
         $collector->addInterceptor(new RectorFixtureFinder());
-        $collector->addInterceptor(new RectorFixtureInterceptor($container->get(EventDispatcherInterface::class)));
+        $collector->addInterceptor(new RectorFixtureInterceptor(
+            $container->get(EventDispatcherInterface::class),
+            $container->get(Messenger::class),
+        ));
     }
 }

@@ -8,6 +8,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Rector\Testing\Fixture\FixtureFileFinder;
 use Testo\Bridge\Rector\Testing\Internal\RectorRunner;
 use Testo\Bridge\Rector\Testing\TestRectorFixtures;
+use Testo\Common\Messenger;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
@@ -37,6 +38,7 @@ final readonly class RectorFixtureInterceptor implements TestRunInterceptor
 
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
+        private Messenger $messenger,
     ) {}
 
     #[\Override]
@@ -53,7 +55,7 @@ final readonly class RectorFixtureInterceptor implements TestRunInterceptor
 
         try {
             if ($reflection !== null && $fixtures !== []) {
-                $runner = new RectorRunner([$reflection->getName()]);
+                $runner = new RectorRunner($this->messenger, [$reflection->getName()]);
 
                 $num = -1;
                 foreach ($fixtures as $label => $path) {
