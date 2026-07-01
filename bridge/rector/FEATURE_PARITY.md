@@ -77,7 +77,12 @@ filter never sees the trait method's groups for that override — the conversion
 Also done: **typed/fluent chain decomposition** (Testo → PHPUnit) now ships as
 `TypedAssertChainRector` — `Assert::<type>($v)->m1()->m2()` → `assertIs<Type>($v)` plus one `assert*`
 line per matcher (some expand 1→N), with unmapped matchers leaving the chain untouched. The reverse
-(coalescing separate asserts into one chain) stays out of scope. Also done: **fluent exception
+recomposition is deliberately narrow: `MergeAssertChainRector` (PHPUnit → Testo, cleanup pass) merges
+only *adjacent Testo chains that already share an identical typed head* — `Assert::array($l)->hasKeys('a'); Assert::array($l)->isList();`
+→ `Assert::array($l)->hasKeys('a')->isList();` — a faithful, no-inference tidy. It does **not** lift the
+flat facade calls produced by `AssertCallToTestoRector` (`same`/`true`/`count`/…) into a pipe: those are
+`void` or would need a typed head that turns a `TypeError` into an `AssertionException`, so a converted
+PHPUnit `assert*` run stays as separate flat lines. Also done: **fluent exception
 message/code** in both directions — `ExpectExceptionToPhpUnitRector` expands the Testo chain into
 several `$this->expect*` statements (`Node[]` return), and `ExpectExceptionToTestoRector` folds an
 uninterrupted run of sibling `expectExceptionMessage/Code` calls back into the

@@ -14,6 +14,7 @@ use Testo\Bridge\Rector\PhpunitToTesto\GroupToTestoRector;
 use Testo\Bridge\Rector\PhpunitToTesto\LifecycleMethodToTestoRector;
 use Testo\Bridge\Rector\PhpunitToTesto\MarkTestIncompleteRector;
 use Testo\Bridge\Rector\PhpunitToTesto\MarkTestSkippedToTestoRector;
+use Testo\Bridge\Rector\PhpunitToTesto\MergeAssertChainRector;
 
 /**
  * PHPUnit -> Testo conversion set.
@@ -47,4 +48,7 @@ return static function (RectorConfig $rectorConfig): void {
 
     # Structural: detach from PHPUnit's TestCase base class and make discovery attribute-based.
     $rectorConfig->rule(ExtendsTestCaseToTestoRector::class);
+
+    # Cleanup pass: collapse adjacent `Assert::<type>($var)->…` chains on the same variable into one.
+    $rectorConfig->rule(MergeAssertChainRector::class);
 };

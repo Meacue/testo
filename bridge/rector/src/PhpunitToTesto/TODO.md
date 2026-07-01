@@ -58,10 +58,25 @@ exist for each so the intent and blockers are discoverable in code.
 - **DoesNotPerformAssertionsToTestoRector** (registered) — direct attribute rename
   `#[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]` → `#[\Testo\Assert\ExpectNoAssertions]`
   (equivalent "no assertions expected" markers).
+- **MergeAssertChainRector** (registered) — a cleanup pass that collapses adjacent
+  `\Testo\Assert::<type>($var)->…` fluent chains sharing an **identical** typed head (same
+  `Assert::<type>` method applied to the same single **variable**) into one chain, concatenating the
+  matcher tails: `Assert::array($l)->hasKeys('a'); Assert::array($l)->isList();` →
+  `Assert::array($l)->hasKeys('a')->isList();`. Faithful — the subject is an unchanged variable, so
+  the elided repeat type-checks were redundant (a wrong type would have thrown at the first head);
+  only the count of recorded type-assertion successes drops, not the pass/fail outcome. Conservative:
+  the subject must be a plain variable (never a call/property fetch, whose repeated evaluation could
+  have side effects), the head must take exactly that one argument (so comparison/needle assertions
+  like `Assert::count($v, 2)` / `Assert::instanceOf($v, X)` are never touched), and a different
+  variable, a different type head, or any intervening statement ends the run. **Residual (by
+  design):** does NOT fold the flat facade calls emitted by `AssertCallToTestoRector` — those
+  (`same`/`true`/`count`/…) are `void` static calls or would need a typed head that turns a `TypeError`
+  into an `AssertionException`, changing the failure status; so converted PHPUnit `assert*` runs stay
+  as separate flat lines. This rule only tidies pre-existing typed pipes.
 
 The imperative body rules — `AssertCallToTestoRector`, `ExpectExceptionToTestoRector`,
-`MarkTestSkippedToTestoRector`, `MarkTestIncompleteRector` — fire **only inside a class** (PHPStan
-`Scope::isInClass()`), mirroring the Testo → PHPUnit direction. Assertions, skips and exception
+`MarkTestSkippedToTestoRector`, `MarkTestIncompleteRector`, `MergeAssertChainRector` — fire **only
+inside a class** (PHPStan `Scope::isInClass()`), mirroring the Testo → PHPUnit direction. Assertions, skips and exception
 expectations belong to a test method (or a static data provider); a matching call in a free function
 or at namespace level is left untouched. Each rule carries an `outside_method_left_unchanged` fixture
 proving the no-op. (Unlike the reverse direction the outputs — static `\Testo\Assert::*`/`\Testo\Expect::*`
