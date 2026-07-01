@@ -1,3 +1,9 @@
 <?php
 
-\Testo\Assert::json($s)->isObject();
+class SomeTest
+{
+    public function test()
+    {
+        \Testo\Assert::json($s)->isObject();
+    }
+}

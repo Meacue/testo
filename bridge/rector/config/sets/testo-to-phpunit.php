@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
 use Testo\Bridge\Rector\TestoToPhpunit\AssertCallToPhpUnitRector;
+use Testo\Bridge\Rector\TestoToPhpunit\ConstructorDestructorToLifecycleRector;
 use Testo\Bridge\Rector\TestoToPhpunit\CoversToCoversClassRector;
 use Testo\Bridge\Rector\TestoToPhpunit\DataProviderToPhpUnitRector;
+use Testo\Bridge\Rector\TestoToPhpunit\ExpectExceptionAttributeToPhpUnitRector;
 use Testo\Bridge\Rector\TestoToPhpunit\ExpectExceptionToPhpUnitRector;
 use Testo\Bridge\Rector\TestoToPhpunit\ExpectNoAssertionsToPhpUnitRector;
 use Testo\Bridge\Rector\TestoToPhpunit\GroupInheritanceToPhpUnitRector;
@@ -28,6 +30,7 @@ return static function (RectorConfig $rectorConfig): void {
     $rectorConfig->rule(CoversToCoversClassRector::class);
     $rectorConfig->rule(LifecycleAttributesToPhpUnitRector::class);
     $rectorConfig->rule(ExpectExceptionToPhpUnitRector::class);
+    $rectorConfig->rule(ExpectExceptionAttributeToPhpUnitRector::class);
     $rectorConfig->rule(TypedAssertChainRector::class);
     $rectorConfig->rule(GroupToPhpUnitRector::class);
     $rectorConfig->rule(GroupInheritanceToPhpUnitRector::class);
@@ -36,4 +39,8 @@ return static function (RectorConfig $rectorConfig): void {
 
     # Structural: attach PHPUnit's TestCase base class and convert #[\Testo\Test] discovery.
     $rectorConfig->rule(TestClassToTestCaseRector::class);
+
+    # Runs after the class is a TestCase: turn a parameterless __construct()/__destruct() into
+    # #[Before]/#[After] lifecycle methods.
+    $rectorConfig->rule(ConstructorDestructorToLifecycleRector::class);
 };

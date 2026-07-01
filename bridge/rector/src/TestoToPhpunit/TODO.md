@@ -19,7 +19,10 @@ directory but are **not** registered in `config/sets/testo-to-phpunit.php`.
   `#[\PHPUnit\Framework\Attributes\Test]` is added to every public, non-static method with a `void`/`never`
   return type — exactly the set Testo's locator treats as tests from a class-level marker, so static and
   `iterable`-returning providers/helpers are skipped. A method-level `#[\Testo\Test]` is renamed in place to
-  the PHPUnit attribute. Idempotent at method level. **Residuals:** (1) only a class that extends *nothing*
+  the PHPUnit attribute; if that method is `static` it is also made an instance method (Testo invokes tests
+  with or without an instance, but PHPUnit only ever calls them on one and flags a `static` `#[Test]` — a
+  static body has no `$this`, so dropping `static` is behaviour-preserving; data providers keep `static` as
+  they carry no `#[Test]`). Idempotent at method level. **Residuals:** (1) only a class that extends *nothing*
   is converted — adding `extends TestCase` to a class with an existing base would be a single-inheritance
   clash, so it is left untouched; (2) methods are NOT renamed (no `test` prefix is added — PHPUnit discovers
   the `#[Test]`-attributed method regardless of name).
@@ -33,6 +36,12 @@ directory but are **not** registered in `config/sets/testo-to-phpunit.php`.
   (`expectExceptionMessageMatches`) takes a PCRE pattern, so forwarding a literal substring would
   change meaning; a chain using it (or any other unmapped modifier such as `fromMethod`/`withPrevious`)
   aborts the whole conversion and is left untouched for manual review.
+- **`ExpectExceptionAttributeToPhpUnitRector`** (registered) — converts the attribute form
+  `#[\Testo\Assert\ExpectException($class)]` into a `$this->expectException($class);` statement
+  prepended to the method body (PHPUnit dropped its `ExpectException` attribute, leaving only the
+  imperative call). Complements `ExpectExceptionToPhpUnitRector`, which handles the fluent
+  `\Testo\Expect::exception(...)` call form. An attribute on a bodyless (abstract) method is just
+  dropped.
 - **`ExpectNoAssertionsToPhpUnitRector`** (registered) — direct attribute rename
   `#[\Testo\Assert\ExpectNoAssertions]` → `#[\PHPUnit\Framework\Attributes\DoesNotPerformAssertions]`
   (the two are equivalent markers — the earlier "attribute → method call" stub was over-pessimistic).
@@ -63,7 +72,16 @@ directory but are **not** registered in `config/sets/testo-to-phpunit.php`.
   are `(array $data, ?string $name = null)`), so arguments are preserved verbatim — only the attribute class
   changes.
 - **`TypedAssertChainRector`** (registered) — decomposes fluent typed assertions
-  (`Assert::string()->contains()`, `Assert::int()->between()`, `Assert::array()->hasKeys()`, …)
-  into separate `assert*` statements, expanding 1→N where needed. Matchers with no faithful
-  PHPUnit line (JSON path/structure, `isList`, `every`, `sameSizeAs`, custom) leave the whole
-  chain untouched rather than half-converting.
+  (`Assert::string()->contains()`, `Assert::int()->between()`, `Assert::array()->hasKeys()`,
+  `Assert::array()->isList()`→`assertIsList`, …) into separate `assert*` statements, expanding 1→N
+  where needed. A non-variable subject (e.g. `Assert::array($log->all())->isList()`) is hoisted into
+  a scope-safe `$value` local so it is evaluated once. Matchers with no faithful PHPUnit line (JSON
+  path/structure, `every`, `sameSizeAs`, custom) leave the whole chain untouched rather than
+  half-converting.
+
+All four imperative body rules — `AssertCallToPhpUnitRector`, `TypedAssertChainRector`,
+`ExpectExceptionToPhpUnitRector`, `ThrowSkipTestToPhpUnitRector` — now fire **only inside a class**
+(PHPStan `Scope::isInClass()`). Their output (`$this->…` / `self::…`) needs a method scope; a call or
+throw in a free function or at namespace level has no valid target, so it is left untouched instead
+of being converted into code that would fatal. Each rule carries an `outside_method_left_unchanged`
+fixture proving the no-op.
