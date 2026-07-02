@@ -286,6 +286,17 @@ final class Formatter
     }
 
     /**
+     * Formats the banner shown when a run executed no tests. An empty run verified nothing, so it is
+     * neither a pass nor a hard failure — a distinct warning banner makes that explicit.
+     *
+     * @return non-empty-string
+     */
+    public static function emptyBanner(): string
+    {
+        return "\n " . Style::banner('NO TESTS', Color::BgYellow, Color::Black) . "\n";
+    }
+
+    /**
      * Formats an expected/actual comparison block as a colored unified line diff.
      *
      * @return non-empty-string

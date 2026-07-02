@@ -181,6 +181,17 @@ final class JsonReportTest
         Assert::same($report['totals'], ['total' => 3, 'passed' => 2, 'failed' => 1]);
     }
 
+    public function emptyRunReportsRiskyStatusAndZeroTotal(): void
+    {
+        $run = new RunResult([], Status::Risky, 0.0, new Summary());
+
+        $report = self::decode((new JsonReport())->generate($run));
+
+        Assert::same($report['status'], 'risky');
+        Assert::same($report['totals'], ['total' => 0]);
+        Assert::same($report['failures'], []);
+    }
+
     /**
      * @return array<non-empty-string, mixed>
      */

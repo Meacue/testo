@@ -316,6 +316,15 @@ final class TeamcityLogger
     }
 
     /**
+     * Reports a run that executed no tests as a TeamCity build problem, so CI fails the build
+     * instead of treating a test-free run as a green success.
+     */
+    public function logEmptyRun(): void
+    {
+        $this->publish(Formatter::buildProblem('No tests were executed', 'testo.noTests'));
+    }
+
+    /**
      * Handles single test result based on status.
      *
      * @param int<0, max>|null $duration Duration in milliseconds

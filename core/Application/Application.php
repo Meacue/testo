@@ -131,14 +131,21 @@ final readonly class Application
             }
 
             $duration = \microtime(true) - $duration;
+            $summary = Summary::combine(\array_map(
+                static fn(SuiteResult $r): Summary => $r->summary,
+                $suiteResults,
+            ));
+
+            # An empty run — no tests found, or every test filtered out — verified nothing, so it is
+            # not a success. Flag it as Risky (unless something already failed) so every reporter and
+            # the process exit code signal that the run was not normal.
+            $status === Status::Passed && $summary->total() === 0 and $status = Status::Risky;
+
             $result = new RunResult(
                 $suiteResults,
                 status: $status,
                 duration: $duration,
-                summary: Summary::combine(\array_map(
-                    static fn(SuiteResult $r): Summary => $r->summary,
-                    $suiteResults,
-                )),
+                summary: $summary,
             );
 
             $dispatcher->dispatch(new WorkerFinished());

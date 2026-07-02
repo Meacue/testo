@@ -27,4 +27,5 @@ enum Color: string
     // Backgrounds
     case BgRed = "\033[41m";
     case BgGreen = "\033[42m";
+    case BgYellow = "\033[43m";
 }

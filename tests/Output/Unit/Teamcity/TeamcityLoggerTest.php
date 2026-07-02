@@ -116,6 +116,14 @@ final class TeamcityLoggerTest
         Assert::string($output)->notContains('metainfo=');
     }
 
+    public function logEmptyRunEmitsBuildProblem(): void
+    {
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->logEmptyRun());
+
+        Assert::string($output)->contains('##teamcity[buildProblem');
+        Assert::string($output)->contains("description='No tests were executed'");
+    }
+
     /**
      * Runs the callback against a logger writing to an in-memory stream and returns what it wrote.
      *

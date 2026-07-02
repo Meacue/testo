@@ -458,11 +458,15 @@ final class TerminalLogger
     private function printStatistics(RunResult $result): void
     {
         $summary = $result->summary;
-        $failures = $summary->failed() + $summary->count(Status::Aborted);
-        $success = $failures === 0;
 
         $this->write(Formatter::summary($summary, $result->duration));
 
-        $this->write(Formatter::finalBanner($success));
+        if ($summary->total() === 0) {
+            $this->write(Formatter::emptyBanner());
+            return;
+        }
+
+        $failures = $summary->failed() + $summary->count(Status::Aborted);
+        $this->write(Formatter::finalBanner($failures === 0));
     }
 }

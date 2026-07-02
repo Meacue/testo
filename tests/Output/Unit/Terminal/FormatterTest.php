@@ -98,6 +98,11 @@ final class FormatterTest
         Assert::string($block)->notContains('Enum');
     }
 
+    public function emptyBannerReadsNoTests(): void
+    {
+        Assert::string(Formatter::emptyBanner())->contains('NO TESTS');
+    }
+
     protected function setUp(): void
     {
         // Strip ANSI styling so assertions match raw text regardless of TTY config.

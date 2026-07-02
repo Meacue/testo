@@ -9,6 +9,7 @@ use Testo\Common\EventListenerCollector;
 use Testo\Common\Messenger;
 use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\TestInfo;
+use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Message\MessageReceived;
 use Testo\Event\Test\TestBatchFinished;
@@ -62,6 +63,7 @@ final class TeamcityPlugin implements PluginConfigurator
 
         // Framework events
         $listeners->addListener(SessionStarting::class, $this->onSessionStarting(...));
+        $listeners->addListener(SessionFinished::class, $this->onSessionFinished(...));
 
         // Messenger output — streamed in real time as stdout/stderr for the current test.
         $listeners->addListener(MessageReceived::class, $this->onMessageReceived(...));
@@ -104,6 +106,13 @@ final class TeamcityPlugin implements PluginConfigurator
     private function onSessionStarting(SessionStarting $event): void
     {
         $this->logger->logEnvironment();
+    }
+
+    private function onSessionFinished(SessionFinished $event): void
+    {
+        // An empty run verified nothing; surface it as a build problem so CI fails the build instead
+        // of reporting a green, test-free success.
+        $event->result->summary->total() === 0 and $this->logger->logEmptyRun();
     }
 
     private function onMessageReceived(MessageReceived $event): void
