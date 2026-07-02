@@ -48,6 +48,13 @@ final class TerminalLogger
      */
     private ?string $currentSuiteName = null;
 
+    /**
+     * The most recently handled test result. When the whole run turns out to be a single test, this
+     * is that test — already the leaf result (a data set, not the aggregate batch) with its own
+     * captured messages, so no result-tree walking is needed to surface its output.
+     */
+    private ?TestResult $lastResult = null;
+
     /** @var resource */
     private $output;
 
@@ -181,6 +188,8 @@ final class TerminalLogger
      */
     public function handleTestResult(TestResult $result, ?int $duration): void
     {
+        $this->lastResult = $result;
+
         match ($result->status) {
             Status::Passed, Status::Flaky => $this->handlePassedTest($result, $duration),
             Status::Failed, Status::Error, Status::Aborted => $this->handleFailedTest($result, $duration),
@@ -195,6 +204,7 @@ final class TerminalLogger
     public function printSummary(RunResult $result): void
     {
         $this->printFailures();
+        $this->printSingleTestOutput($result);
         $this->printStatistics($result);
     }
 
@@ -269,6 +279,34 @@ final class TerminalLogger
         $datasetName !== null and $name .= ' > ' . $datasetName;
 
         return $name;
+    }
+
+    /**
+     * When the whole run consisted of a single test, surface its captured channel output after the
+     * fact. Running exactly one test is almost always an interactive "run this and show me everything"
+     * invocation, so its channels are worth printing even for a passing test — which normally stays
+     * quiet at {@see Verbosity::Normal}.
+     *
+     * Skipped when the output was already streamed live ({@see Verbosity::Verbose} and above),
+     * when the user asked for less noise ({@see Verbosity::Quiet}), in the single-character Dots
+     * layout, and for a failed/aborted test whose output {@see printFailures()} already prints.
+     */
+    private function printSingleTestOutput(RunResult $result): void
+    {
+        $test = $this->lastResult;
+        if (
+            $test === null
+            || $result->summary->total() !== 1
+            || $this->format === OutputFormat::Dots
+            || $this->verbosity !== Verbosity::Normal
+            || $test->status->isFailure()
+            || $test->status === Status::Aborted
+        ) {
+            return;
+        }
+
+        $output = self::renderMessages($test->messages);
+        $output === '' or $this->write("\n" . $output);
     }
 
     private function write(string $text): void
