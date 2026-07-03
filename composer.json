@@ -132,7 +132,7 @@
                 "versions": {
                     "testo/bridge-infection": "0.1.x-dev",
                     "testo/bridge-mockery": "0.1.x-dev",
-                    "testo/bridge-rector": "0.1.x-dev",
+                    "testo/bridge-rector": "0.2.x-dev",
                     "testo/bridge-symfony-console": "0.1.x-dev"
                 }
             }

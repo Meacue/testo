@@ -16,6 +16,17 @@
  * `<root> - 1` (see ROOT_PACKAGE). Dormant packages are left completely untouched
  * — a release never churns the constraints of packages it isn't publishing.
  *
+ * The ROOT composer.json is the one exception: it is ALWAYS synced, even when
+ * the root package itself isn't released this cycle. It aggregates every split
+ * package for local development (path repositories under `plugin/*`, `bridge/*`),
+ * so both its `testo/*` constraints AND the path-repo dev-aliases in
+ * `repositories[].options.versions` must always mirror the manifest. Otherwise a
+ * sibling-only release (e.g. bridge-rector 0.1 → 0.2, with root staying put)
+ * would move the constraint but leave the path alias pinned to the old series,
+ * and composer would refuse to install (the canonical path repo advertises a
+ * version the constraint no longer accepts). Editing stays idempotent, so a root
+ * with nothing to update produces no diff.
+ *
  * Usage:
  *   php sync-deps.php [PREVIOUS_MANIFEST]
  * PREVIOUS_MANIFEST is the base branch's resources/version.json. When given,
@@ -23,8 +34,9 @@
  * cannot tell what changed, so we fall back to refreshing every package.
  *
  * Notes:
- *  - Only `require` and `require-dev` are touched. `replace`, `suggest` and the
- *    `repositories[].options.versions` dev-aliases are deliberately left alone.
+ *  - In every composer.json only `require` and `require-dev` are touched;
+ *    `replace` and `suggest` are left alone. In the ROOT composer.json the
+ *    `repositories[].options.versions` dev-aliases are also refreshed (see above).
  *  - Editing is surgical (regex on the matched section block), so untouched
  *    lines keep their exact formatting — re-runs produce no spurious diff.
  *  - Refreshing a constraint here does NOT bump that package's own version:
@@ -102,12 +114,18 @@ foreach ($files as $rel => $path) {
     if (!\is_file($file)) {
         continue;
     }
-    // Only touch packages being released this cycle; leave dormant ones alone.
-    if (!isset($released[$path])) {
+    $isRoot = $path === '.';
+    // Subpackages are touched only when released this cycle; the root is always
+    // synced because it wires every split package for local dev (see the header).
+    if (!$isRoot && !isset($released[$path])) {
         continue;
     }
     $original = (string) \file_get_contents($file);
     $updated = syncFile($original, $versions, $rootVersion);
+    if ($isRoot) {
+        // Keep the path-repo dev-aliases in lockstep with the constraints above.
+        $updated = syncPathAliases($updated, $versions);
+    }
     if ($updated !== $original) {
         \file_put_contents($file, $updated);
         $changed[] = $rel;
@@ -169,6 +187,44 @@ function syncFile(string $content, array $versions, ?string $rootVersion): strin
     }
 
     return $content;
+}
+
+/**
+ * Refresh the path-repo dev-aliases in the ROOT composer.json's
+ * `repositories[].options.versions` map so each local split package advertises
+ * the series matching the constraint synced by {@see syncFile}.
+ *
+ * The values in that map are bare dev-aliases (`0.1.x-dev`, `1.x-dev`) — a shape
+ * that never appears as a `require` constraint (those carry a `^` or a ` - `
+ * range), so matching on it targets the alias map without disturbing anything
+ * else. Only managed split packages present in $versions are rewritten.
+ *
+ * @param array<string, string> $versions sibling package name => version (no root)
+ */
+function syncPathAliases(string $content, array $versions): string
+{
+    return (string) \preg_replace_callback(
+        '/("(testo\/[^"]+)"\s*:\s*")(\d+\.\d+\.x-dev|\d+\.x-dev)(")/',
+        static function (array $m) use ($versions): string {
+            $name = $m[2];
+            if (!isset($versions[$name])) {
+                return $m[0];
+            }
+            return $m[1] . devAlias($versions[$name]) . $m[4];
+        },
+        $content,
+    );
+}
+
+/**
+ * Dev-branch alias that satisfies a `^<version>` constraint. For a `0.y.z`
+ * version the caret pins the minor, so the alias is `0.y.x-dev`; from `1.0.0`
+ * up the caret pins the major, so it is `<major>.x-dev`.
+ */
+function devAlias(string $version): string
+{
+    [$major, $minor] = \array_pad(\explode('.', $version), 2, '0');
+    return $major === '0' ? "0.{$minor}.x-dev" : "{$major}.x-dev";
 }
 
 /** @return array<string, mixed> */
