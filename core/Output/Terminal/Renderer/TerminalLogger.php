@@ -58,19 +58,27 @@ final class TerminalLogger
     /** @var resource */
     private $output;
 
+    /** @var resource */
+    private $errorOutput;
+
     private readonly ChannelRenderer $channels;
 
     /**
-     * @param resource|null $output Stream to write to; defaults to {@see \STDOUT}. Output goes
-     *        straight to the stream, bypassing PHP output buffering, so it is not captured by the
-     *        messenger's output interceptor.
+     * @param resource|null $output Stream for the human-facing report; defaults to {@see \STDOUT}.
+     *        Output goes straight to the stream, bypassing PHP output buffering, so it is not captured
+     *        by the messenger's output interceptor.
+     * @param resource|null $errorOutput Stream for the internal {@see Messenger::CHANNEL_STDERR}
+     *        channel (framework faults); defaults to {@see \STDERR} so those messages never corrupt
+     *        the structured report on {@see \STDOUT} (which `--json` / `--teamcity` and CI parse).
      */
     public function __construct(
         private readonly OutputFormat $format = OutputFormat::Compact,
         private readonly Verbosity $verbosity = Verbosity::Normal,
         $output = null,
+        $errorOutput = null,
     ) {
         $this->output = $output ?? \STDOUT;
+        $this->errorOutput = $errorOutput ?? \STDERR;
         $this->channels = new ChannelRenderer();
     }
 
@@ -176,13 +184,17 @@ final class TerminalLogger
             return;
         }
 
-        # Internal errors on the dedicated stderr channel are always shown, regardless of verbosity or
-        # format; every other channel streams only at Verbose+ and is suppressed in the Dots layout
-        # (whose single-character-per-test format multi-line output would break).
-        if (
-            $message->channel !== Messenger::CHANNEL_STDERR
-            && ($this->format === OutputFormat::Dots || !$this->verbosity->atLeast(Verbosity::Verbose))
-        ) {
+        # Internal errors on the dedicated stderr channel always go to the real STDERR stream as-is,
+        # regardless of verbosity or format, so a framework fault stays visible without corrupting the
+        # structured report on STDOUT (parsed by `--json` / `--teamcity` and CI).
+        if ($message->channel === Messenger::CHANNEL_STDERR) {
+            \fwrite($this->errorOutput, \rtrim($message->content, "\n") . "\n");
+            return;
+        }
+
+        # Every other channel streams only at Verbose+ and is suppressed in the Dots layout (whose
+        # single-character-per-test format multi-line output would break).
+        if ($this->format === OutputFormat::Dots || !$this->verbosity->atLeast(Verbosity::Verbose)) {
             return;
         }
 

@@ -14,6 +14,7 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Definition\CaseDefinition;
 use Testo\Core\Definition\TestDefinition;
+use Testo\Common\Messenger;
 use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
 use Testo\Core\Log\MessageLog;
@@ -57,6 +58,31 @@ final class TerminalLoggerTest
 
         Assert::string($output)->notContains('first test output');
         Assert::string($output)->notContains('second test output');
+    }
+
+    public function stderrChannelIsWrittenToTheErrorStreamNotStdout(): void
+    {
+        $stdout = \fopen('php://memory', 'rb+');
+        $stderr = \fopen('php://memory', 'rb+');
+        \assert($stdout !== false && $stderr !== false);
+
+        try {
+            $logger = new TerminalLogger(OutputFormat::Compact, Verbosity::Normal, $stdout, $stderr);
+            $logger->logMessage(new Message(0.0, Messenger::CHANNEL_STDERR, Level::Error, 'framework boom'));
+
+            \rewind($stdout);
+            \rewind($stderr);
+            $out = (string) \stream_get_contents($stdout);
+            $err = (string) \stream_get_contents($stderr);
+        } finally {
+            \fclose($stdout);
+            \fclose($stderr);
+        }
+
+        // The framework fault must land on the real error stream verbatim (no channel header/coloring),
+        // never on the structured stdout report.
+        Assert::same($err, "framework boom\n");
+        Assert::same($out, '');
     }
 
     public function verboseSingleTestRunDoesNotAppendOutput(): void
