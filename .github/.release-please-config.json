@@ -9,7 +9,7 @@
             "package-name": "testo",
             "component": "",
             "changelog-path": "/CHANGELOG.md",
-            "include-paths": ["core/**", "composer.json"]
+            "exclude-paths": ["plugin", "bridge"]
         },
         "plugin/repeat": {
             "package-name": "testo/repeat",
