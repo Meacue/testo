@@ -5,13 +5,17 @@
 
 ## Directions & config sets
 
-Each direction ships a Rector set under `config/sets/`:
+Each direction ships a Rector set. Reference it with the typed handle from
+`Testo\Bridge\Rector\Set\TestoRectorSetList` rather than the raw file path:
 
-| Direction       | Set                              | Status |
-|-----------------|----------------------------------|--------|
-| Testo → PHPUnit | `config/sets/testo-to-phpunit.php` | Assert calls, `Expect::exception` (bare), `throw SkipTest`, `#[Covers]`→`#[CoversClass]`, lifecycle attributes. |
-| PHPUnit → Testo | `config/sets/phpunit-to-testo.php` | Assert calls (arg-order restored), `expectException` (bare), `markTestSkipped`, `#[CoversClass]`→`#[Covers]`, lifecycle methods → attributes. |
-| Pest → Testo    | `config/sets/pest-to-testo.php`    | `expect()->toX()` → `Assert::*` only. The functional→class restructuring (`test()`/`it()` → methods) is **not** automatable — see `src/PestToTesto/TODO.md`. |
+| Direction       | Set constant                             | Status |
+|-----------------|------------------------------------------|--------|
+| Testo → PHPUnit | `TestoRectorSetList::TESTO_TO_PHPUNIT` | Assert calls, `Expect::exception` (bare), `throw SkipTest`, `#[Covers]`→`#[CoversClass]`, lifecycle attributes. |
+| PHPUnit → Testo | `TestoRectorSetList::PHPUNIT_TO_TESTO` | Assert calls (arg-order restored), `expectException` (bare), `markTestSkipped`, `#[CoversClass]`→`#[Covers]`, lifecycle methods → attributes. |
+| Pest → Testo    | `TestoRectorSetList::PEST_TO_TESTO`    | `expect()->toX()` → `Assert::*` only. The functional→class restructuring (`test()`/`it()` → methods) is **not** automatable — see `src/PestToTesto/TODO.md`. |
+
+The set files live under `config/sets/` (the Rector-standard location); the constants are
+absolute paths to those files, so they also work with `$rectorConfig->import(...)`.
 
 Conversions that have no faithful counterpart in the target framework (PHPUnit mocks,
 constraints, memory-leak / retry / repeat, Pest higher-order & `arch()` tests, etc.) are
@@ -38,10 +42,11 @@ by breaking the harness.
 ```php
 // rector.php
 use Rector\Config\RectorConfig;
+use Testo\Bridge\Rector\Set\TestoRectorSetList;
 
 return RectorConfig::configure()
     ->withPaths([__DIR__ . '/tests'])
-    ->withSets([__DIR__ . '/vendor/testo/bridge-rector/config/sets/testo-to-phpunit.php']);
+    ->withSets([TestoRectorSetList::TESTO_TO_PHPUNIT]);
 ```
 
 ## Testing the rules — "inline tests for rules"

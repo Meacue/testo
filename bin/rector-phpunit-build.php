@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Rector\Config\RectorConfig;
+use Testo\Bridge\Rector\Set\TestoRectorSetList;
 use Testo\PhpUnitBuild\Rector\IsolateConstructorTestsRector;
 use Testo\PhpUnitBuild\Rector\RenameFinalMethodCollisionRector;
 use Testo\PhpUnitBuild\Rector\SkipUnconvertibleTestMethodRector;
@@ -27,7 +28,7 @@ return static function (RectorConfig $rectorConfig): void {
     // multi-class / multi-namespace fixture file.
     $rectorConfig->paths(collectTestFiles(__DIR__ . '/../tests/PhpUnit'));
 
-    $rectorConfig->import(__DIR__ . '/../bridge/rector/config/sets/testo-to-phpunit.php');
+    $rectorConfig->import(TestoRectorSetList::TESTO_TO_PHPUNIT);
 
     $rectorConfig->ruleWithConfiguration(RenameFinalMethodCollisionRector::class, finalTestCaseMethods());
     $rectorConfig->rule(IsolateConstructorTestsRector::class);

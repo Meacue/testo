@@ -76,6 +76,11 @@ $pathLines = \implode("\n", \array_map(
     $paths,
 ));
 
+// Reference the set through its typed handle (TestoRectorSetList) instead of a raw path — the
+// constant is an absolute path resolved by the installed bridge, so it does not depend on the
+// config living at the project root. Set basename -> constant: phpunit-to-testo -> PHPUNIT_TO_TESTO.
+$setConst = \strtoupper(\str_replace('-', '_', $set));
+
 // Built with concatenation rather than a heredoc so the generated file's indentation is exact
 // and independent of this script's own indentation.
 $config = "<?php\n\n"
@@ -95,13 +100,14 @@ $config = "<?php\n\n"
     . " * Dry-run:  vendor/bin/rector process --config={$out} --dry-run\n"
     . " * Apply:    vendor/bin/rector process --config={$out}\n"
     . " */\n\n"
-    . "use Rector\\Config\\RectorConfig;\n\n"
+    . "use Rector\\Config\\RectorConfig;\n"
+    . "use Testo\\Bridge\\Rector\\Set\\TestoRectorSetList;\n\n"
     . "return RectorConfig::configure()\n"
     . "    ->withPaths([\n"
     . "{$pathLines}\n"
     . "    ])\n"
     . "    ->withSets([\n"
-    . "        __DIR__ . '/{$setRel}',\n"
+    . "        TestoRectorSetList::{$setConst},\n"
     . "    ]);\n";
 
 \file_put_contents($outAbs, $config);
