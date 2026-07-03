@@ -102,7 +102,9 @@ than leaving a half-migrated suite.
   port and re-dispatch.
 - **A test depends on a PHPUnit mock with complex expectations.** This is the slow row: have the
   subagent extract an interface and write a hand-rolled fake that records calls. If that balloons,
-  flag the file to the user — keeping Mockery/Prophecy as a dependency is a legitimate choice.
+  flag the file to the user — keeping Mockery/Prophecy as a dependency is a legitimate choice. If
+  Mockery stays, add `testo/bridge-mockery`: it verifies and resets mocks after each test, so the
+  ported test needs no `tearDown()` / `MockeryPHPUnitIntegration`.
 - **`assertThat` with a custom constraint.** No Testo equivalent — the subagent decomposes it into
   explicit `Assert::*` calls reproducing the constraint's checks.
 - **Data provider rows lost their labels.** Numeric-keyed PHPUnit arrays become `'label' => [...]`

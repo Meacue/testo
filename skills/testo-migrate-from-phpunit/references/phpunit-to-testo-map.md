@@ -40,7 +40,7 @@ the assertion **argument order flips** (see the pitfalls), and discovery is attr
 | `$this->markTestSkipped('reason')` | `throw new \Testo\Core\Exception\SkipTest('reason')` from the test body. |
 | `$this->markTestIncomplete('reason')` | No "incomplete" status. Port to `throw new SkipTest('TODO: reason')`, or leave the body empty → `Status::Risky`. |
 | `#[DoesNotPerformAssertions]` / `$this->expectNotToPerformAssertions()` | `#[ExpectNoAssertions]` from **`Testo\Assert`**, on a method or function (not a class) — no method-call form. Two-way contract: a marked test that *does* assert is `Status::Risky`. |
-| `$this->createMock(Foo::class)` | Testo ships no mocking. Bring your own (Mockery, Prophecy) or — preferred — a hand-rolled fake. **Never** mock `final` classes or enums. |
+| `$this->createMock(Foo::class)` | Testo core ships no mocking. Bring your own (Mockery, Prophecy) or — preferred — a hand-rolled fake. Keeping Mockery? Add `testo/bridge-mockery`: it verifies expectations and isolates mocks after every test (drops the `tearDown()` / `MockeryPHPUnitIntegration` boilerplate) and counts a fulfilled expectation as an assertion, so a mock-only test stays out of `Status::Risky`. **Never** mock `final` classes or enums. |
 | `assertThat($v, $constraint)` | No constraint objects. Decompose into concrete `Assert::*` calls. |
 | `@group slow` / `#[Group('slow')]` | `#[Group('slow')]` from **`Testo\Filter\Group`**. Not repeatable — merge: `#[Group('slow','db')]`. Class-level groups are inherited (union with the method's). Select `--group=slow`, exclude `--group=!slow`. |
 | `@requires ext` | Suite separation in `testo.php` via `SuiteConfig` + finder excludes. |
