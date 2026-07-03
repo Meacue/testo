@@ -14,8 +14,8 @@ Each direction ships a Rector set. Reference it with the typed handle from
 | PHPUnit → Testo | `TestoRectorSetList::PHPUNIT_TO_TESTO` | Assert calls (arg-order restored), `expectException` (bare), `markTestSkipped`, `#[CoversClass]`→`#[Covers]`, lifecycle methods → attributes. |
 | Pest → Testo    | `TestoRectorSetList::PEST_TO_TESTO`    | `expect()->toX()` → `Assert::*` only. The functional→class restructuring (`test()`/`it()` → methods) is **not** automatable — see `src/PestToTesto/TODO.md`. |
 
-The set files live under `config/sets/` (the Rector-standard location); the constants are
-absolute paths to those files, so they also work with `$rectorConfig->import(...)`.
+The set files live under `config/`; the constants are absolute paths to those files, so they
+also work with `$rectorConfig->import(...)`.
 
 Conversions that have no faithful counterpart in the target framework (PHPUnit mocks,
 constraints, memory-leak / retry / repeat, Pest higher-order & `arch()` tests, etc.) are
@@ -54,7 +54,9 @@ return RectorConfig::configure()
 The rules are tested by Testo itself, with no PHPUnit dependency. A rule carries
 `#[\Testo\Bridge\Rector\Testing\TestRectorFixtures('<dir>')]` pointing at co-located `*.php.inc`
 fixtures (input + expected, separated by a `-----` line; no separator = "must stay unchanged").
-The reusable harness lives in `src/Testing/` — attach `RectorTestingPlugin` to a suite whose
+Each declared path is relative to the rule's own directory (or absolute) and must resolve within
+the working directory — an escaping path is rejected; declaring the attribute with no paths tests
+nothing. The reusable harness lives in `src/Testing/` — attach `RectorTestingPlugin` to a suite whose
 finder scans the rule sources, and each fixture is run through a freshly-booted Rector container
 and reported as its own data set. Fixtures are `export-ignore`d; the harness ships so downstream
 rule authors can reuse it (`testo/*` are `require-dev` + `suggest`).

@@ -1,7 +1,7 @@
 # Testo → PHPUnit: stubbed & partial conversions
 
 Rules that are not (fully) implemented, with the reason. Stub rules live in this
-directory but are **not** registered in `config/sets/testo-to-phpunit.php`.
+directory but are **not** registered in `config/testo-to-phpunit.php`.
 
 ## Stubs (not registered)
 

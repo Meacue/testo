@@ -11,7 +11,7 @@ need to fabricate a host class, namespace, PSR-4 location or `$this` binding. Th
 synthesize the enclosing class, so the whole direction is intractable" blocker is gone — we don't
 synthesize a class, we synthesize functions.
 
-## What the set does (registered in `config/sets/pest-to-testo.php`)
+## What the set does (registered in `config/pest-to-testo.php`)
 
 - **`TestCallToFunctionRector`** — the core restructuring rule. Converts each file-level
   `test()` / `it()` call into a `#[\Testo\Test]` free function, and `beforeEach()` / `afterEach()` /

@@ -13,6 +13,7 @@ use Rector\Contract\Rector\RectorInterface;
 use Rector\DependencyInjection\LazyContainerFactory;
 use Rector\NodeTypeResolver\Reflection\BetterReflection\SourceLocatorProvider\DynamicSourceLocatorProvider;
 use Rector\PhpParser\NodeTraverser\RectorNodeTraverser;
+use Internal\Path;
 use Rector\Testing\Fixture\FixtureSplitter;
 use Testo\Assert;
 use Testo\Common\Messenger;
@@ -68,12 +69,10 @@ final readonly class RectorRunner
     /**
      * Asserts that running the configured rules on a `*.php.inc` fixture produces its expected
      * output. A fixture with no `-----` separator is asserted to stay unchanged.
-     *
-     * @param non-empty-string $fixturePath
      */
-    public function assertConverts(string $fixturePath): void
+    public function assertConverts(Path $fixturePath): void
     {
-        $contents = (string) \file_get_contents($fixturePath);
+        $contents = (string) \file_get_contents((string) $fixturePath);
         [$input, $expected] = FixtureSplitter::containsSplit($contents)
             ? FixtureSplitter::splitFixtureFileContents($contents)
             : [$contents, $contents];
@@ -100,7 +99,7 @@ final readonly class RectorRunner
             @\unlink($inputFile);
         }
 
-        Assert::same($changed, $expected, \sprintf('Fixture "%s" was not converted as expected', \basename($fixturePath)));
+        Assert::same($changed, $expected, \sprintf('Fixture "%s" was not converted as expected', $fixturePath->name()));
     }
 
     /**

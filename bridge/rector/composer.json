@@ -24,6 +24,7 @@
     ],
     "require": {
         "php": ">=8.2",
+        "internal/path": "^1.2",
         "rector/rector": "^2.0"
     },
     "require-dev": {

@@ -7,10 +7,12 @@ use Testo\Application\Config\SuiteConfig;
 use Testo\Bridge\Rector\Testing\RectorTestingPlugin;
 
 /**
- * Test suite for the Rector bridge.
+ * Test suites for the Rector bridge.
  *
- * The suite scans the rule sources: {@see RectorTestingPlugin} discovers rules carrying
- * `#[RectorFixtures]` and runs their co-located `*.php.inc` fixtures as data sets.
+ * - `Bridge/Rector` scans the rule sources: {@see RectorTestingPlugin} discovers rules carrying
+ *   `#[TestRectorFixtures]` and runs their co-located `*.php.inc` fixtures as data sets.
+ * - `Bridge/Rector/Unit` holds the plain unit tests for the harness itself (path resolution,
+ *   the containment guard, the attribute).
  */
 return [
     new SuiteConfig(
@@ -19,5 +21,11 @@ return [
             include: [\dirname(__DIR__) . '/src'],
         ),
         plugins: [new RectorTestingPlugin()],
+    ),
+    new SuiteConfig(
+        name: 'Bridge/Rector/Unit',
+        location: new FinderConfig(
+            include: [__DIR__ . '/Unit'],
+        ),
     ),
 ];

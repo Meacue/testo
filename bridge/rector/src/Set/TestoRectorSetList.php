@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Testo\Bridge\Rector\Set;
 
 /**
- * Typed handles for the conversion sets shipped under `config/sets/`.
+ * Typed handles for the conversion sets shipped under `config/`.
  *
  * Reference these instead of hand-writing the set path in your `rector.php`:
  *
@@ -25,23 +25,23 @@ namespace Testo\Bridge\Rector\Set;
 final class TestoRectorSetList
 {
     /**
-     * Testo -> PHPUnit. See {@see config/sets/testo-to-phpunit.php}.
+     * Testo -> PHPUnit. See {@see config/testo-to-phpunit.php}.
      *
      * @var string
      */
-    public const TESTO_TO_PHPUNIT = __DIR__ . '/../../config/sets/testo-to-phpunit.php';
+    public const TESTO_TO_PHPUNIT = __DIR__ . '/../../config/testo-to-phpunit.php';
 
     /**
-     * PHPUnit -> Testo. See {@see config/sets/phpunit-to-testo.php}.
+     * PHPUnit -> Testo. See {@see config/phpunit-to-testo.php}.
      *
      * @var string
      */
-    public const PHPUNIT_TO_TESTO = __DIR__ . '/../../config/sets/phpunit-to-testo.php';
+    public const PHPUNIT_TO_TESTO = __DIR__ . '/../../config/phpunit-to-testo.php';
 
     /**
-     * Pest -> Testo. See {@see config/sets/pest-to-testo.php}.
+     * Pest -> Testo. See {@see config/pest-to-testo.php}.
      *
      * @var string
      */
-    public const PEST_TO_TESTO = __DIR__ . '/../../config/sets/pest-to-testo.php';
+    public const PEST_TO_TESTO = __DIR__ . '/../../config/pest-to-testo.php';
 }

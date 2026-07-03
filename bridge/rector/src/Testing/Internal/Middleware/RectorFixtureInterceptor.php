@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace Testo\Bridge\Rector\Testing\Internal\Middleware;
 
+use Internal\Path;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Rector\Testing\Fixture\FixtureFileFinder;
+use Testo\Bridge\Rector\Testing\Internal\FixtureResolver;
 use Testo\Bridge\Rector\Testing\Internal\RectorRunner;
 use Testo\Bridge\Rector\Testing\TestRectorFixtures;
 use Testo\Common\Messenger;
@@ -47,13 +48,16 @@ final readonly class RectorFixtureInterceptor implements TestRunInterceptor
         $this->eventDispatcher->dispatch(new TestBatchStarting($info));
 
         $reflection = $info->caseInfo->definition->reflection;
-        $fixtures = $reflection === null ? [] : $this->resolveFixtures($reflection);
 
         $results = [];
         $status = Status::Passed;
         $error = null;
 
         try {
+            // Resolved inside the try so a path-containment violation surfaces as a test error
+            // rather than an uncaught throw out of the interceptor.
+            $fixtures = $reflection === null ? [] : $this->resolveFixtures($reflection);
+
             if ($reflection !== null && $fixtures !== []) {
                 $runner = new RectorRunner($this->messenger, [$reflection->getName()]);
 
@@ -105,10 +109,10 @@ final readonly class RectorFixtureInterceptor implements TestRunInterceptor
     }
 
     /**
-     * Resolves the rule's {@see TestRectorFixtures} paths (relative to the rule file) to a map of
-     * `fixture name => absolute path`.
+     * Resolves the rule's {@see TestRectorFixtures} paths to a map of `fixture name => path`,
+     * guarding against any path escaping the working directory ({@see FixtureResolver}).
      *
-     * @return array<non-empty-string, non-empty-string>
+     * @return array<non-empty-string, Path>
      */
     private function resolveFixtures(\ReflectionClass $rule): array
     {
@@ -118,20 +122,12 @@ final readonly class RectorFixtureInterceptor implements TestRunInterceptor
         }
 
         $attribute = $attributes[0]->newInstance();
-        $dir = \dirname((string) $rule->getFileName());
 
-        $map = [];
-        foreach ($attribute->paths as $path) {
-            $full = $dir . '/' . $path;
-            if (\is_dir($full)) {
-                foreach (FixtureFileFinder::yieldDirectory($full) as [$file]) {
-                    $map[\basename($file)] = $file;
-                }
-            } elseif (\is_file($full)) {
-                $map[\basename($full)] = $full;
-            }
-        }
+        $cwd = \getcwd();
+        $cwd === false and throw new \RuntimeException('Cannot determine the working directory.');
 
-        return $map;
+        $ruleDir = Path::create((string) $rule->getFileName())->parent();
+
+        return (new FixtureResolver($cwd))->resolve($ruleDir, $attribute->paths);
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Testo\Bridge\Rector\Testing\Internal;
 
+use Internal\Path;
+
 /**
  * Holds the synthetic test method for rule fixtures.
  *
@@ -21,10 +23,7 @@ namespace Testo\Bridge\Rector\Testing\Internal;
  */
 final class RectorFixtureProbe
 {
-    /**
-     * @param non-empty-string $path
-     */
-    public static function fixture(RectorRunner $runner, string $path): void
+    public static function fixture(RectorRunner $runner, Path $path): void
     {
         $runner->assertConverts($path);
     }

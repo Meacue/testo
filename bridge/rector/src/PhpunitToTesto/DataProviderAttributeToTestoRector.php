@@ -21,7 +21,7 @@ use Testo\Bridge\Rector\Testing\TestRectorFixtures;
  *
  * Legacy `@dataProvider` *docblock* providers are not handled here directly — chain Rector's own
  * `DataProviderAnnotationToAttributeRector` first (it upgrades the annotation to the PHPUnit
- * attribute), then this rule maps that attribute to Testo. `config/sets/phpunit-to-testo.php`
+ * attribute), then this rule maps that attribute to Testo. `config/phpunit-to-testo.php`
  * wires both, so both the annotation and attribute forms are covered.
  *
  * `#[DataProviderExternal(Class::class, 'method')]` (cross-class providers) is left untouched —
