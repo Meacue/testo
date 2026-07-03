@@ -64,19 +64,20 @@ final class SyncDepsTest
     }
 
     /**
-     * With a previous manifest, ONLY packages whose version changed this cycle
+     * With a previous manifest, only SUBPACKAGES whose version changed this cycle
      * are touched. For those, every testo/* constraint is refreshed (siblings
-     * with a caret, testo/testo with an open upper bound). Dormant packages —
-     * including the root — keep all their constraints exactly as authored, even
-     * when a sibling they depend on was released, so a release never churns
-     * packages it isn't publishing.
+     * with a caret, testo/testo with an open upper bound). Dormant subpackages
+     * keep all their constraints exactly as authored, so a release never churns a
+     * subpackage it isn't publishing. The root composer.json is the exception: it
+     * aggregates the whole monorepo for local dev, so it is always synced even
+     * when the root package itself is dormant this cycle.
      */
-    public function touchesOnlyPackagesReleasedThisCycle(): void
+    public function touchesReleasedSubpackagesAndAlwaysTheRoot(): void
     {
         $dir = $this->fixture(
             ['.' => '0.10.20', 'plugin/a' => '0.3.2', 'plugin/b' => '0.4.0'],
             [
-                // root is dormant (version unchanged) — its testo/a must stay put
+                // root is dormant (version unchanged) but is always synced anyway
                 'composer.json' => $this->composer('testo/testo', ['testo/a' => '0.1 - 1']),
                 // plugin/a is released — everything in it gets refreshed
                 'plugin/a/composer.json' => $this->composer('testo/a', [
@@ -97,8 +98,8 @@ final class SyncDepsTest
 
             Assert::same(
                 $this->requireOf($dir, 'composer.json')['testo/a'],
-                '0.1 - 1',
-                'dormant root: sibling constraint left as authored',
+                '^0.3.2',
+                'root is always synced, even when the root package is dormant',
             );
 
             $a = $this->requireOf($dir, 'plugin/a/composer.json');
@@ -137,25 +138,37 @@ final class SyncDepsTest
         }
     }
 
-    public function leavesReplaceSuggestAndPathRepositoriesUntouched(): void
+    /**
+     * The root's path-repo dev-aliases are refreshed in lockstep with its
+     * constraints so a local path package always advertises a version its own
+     * constraint accepts (0.x tracks the minor, >=1.0.0 tracks the major). A
+     * package absent from the manifest, and the `replace` / `suggest` sections,
+     * are left exactly as authored.
+     */
+    public function syncsRootPathRepoVersionsButLeavesReplaceAndSuggestAlone(): void
     {
         $root = [
             'name' => 'testo/testo',
-            'require' => ['testo/a' => '0.1 - 1'],
+            'require' => ['testo/a' => '0.1 - 1', 'testo/b' => '0.1 - 1'],
             'suggest' => ['testo/a' => 'Some description — not a version constraint.'],
             'replace' => ['internal/foo' => '*'],
             'repositories' => [[
                 'type' => 'path',
                 'url' => 'plugin/*',
-                'options' => ['versions' => ['testo/a' => '0.1.x-dev']],
+                'options' => ['versions' => [
+                    'testo/a' => '0.1.x-dev',
+                    'testo/b' => '0.1.x-dev',
+                    'testo/unmanaged' => '0.1.x-dev',
+                ]],
             ]],
         ];
 
         $dir = $this->fixture(
-            ['.' => '1.0.0', 'plugin/a' => '1.2.3'],
+            ['.' => '1.0.0', 'plugin/a' => '1.2.3', 'plugin/b' => '0.5.7'],
             [
                 'composer.json' => $this->encode($root),
                 'plugin/a/composer.json' => $this->composer('testo/a'),
+                'plugin/b/composer.json' => $this->composer('testo/b'),
             ],
         );
 
@@ -164,9 +177,13 @@ final class SyncDepsTest
 
             $decoded = $this->read($dir, 'composer.json');
             Assert::same($decoded['require']['testo/a'], '^1.2.3', 'require is synced');
-            Assert::same($decoded['suggest']['testo/a'], 'Some description — not a version constraint.');
-            Assert::same($decoded['replace']['internal/foo'], '*');
-            Assert::same($decoded['repositories'][0]['options']['versions']['testo/a'], '0.1.x-dev');
+            Assert::same($decoded['suggest']['testo/a'], 'Some description — not a version constraint.', 'suggest left alone');
+            Assert::same($decoded['replace']['internal/foo'], '*', 'replace left alone');
+
+            $aliases = $decoded['repositories'][0]['options']['versions'];
+            Assert::same($aliases['testo/a'], '1.x-dev', '>=1.0.0: alias tracks the major');
+            Assert::same($aliases['testo/b'], '0.5.x-dev', '0.x: alias tracks the minor');
+            Assert::same($aliases['testo/unmanaged'], '0.1.x-dev', 'package absent from the manifest is left alone');
         } finally {
             $this->cleanup($dir);
         }
