@@ -19,7 +19,8 @@ declare(strict_types=1);
  * --root=PATH   Project root (default: cwd) — used to locate vendor/ and to write the file.
  * --force       Overwrite <outFile> if it already exists.
  *
- * Writes the config file. Exit codes: 0 ok, 1 usage / refuse-overwrite, 2 bridge/set not found.
+ * Writes the config file. Exit codes: 0 ok, 1 usage / refuse-overwrite, 2 autoload / bridge / set
+ * not found.
  */
 
 $out = null;
@@ -56,17 +57,39 @@ if (\file_exists($outAbs) && !$force) {
     exit(1);
 }
 
-// The bridge ships its sets under config/sets/. Verify the chosen set exists before writing a
-// config that would fatal at runtime.
-$setRel = "vendor/testo/bridge-rector/config/sets/{$set}.php";
-if (!\file_exists($root . '/' . $setRel)) {
-    \fwrite(\STDERR, "Set not found: {$setRel}\n");
-    \fwrite(\STDERR, "Is testo/bridge-rector installed? Try: composer require --dev testo/bridge-rector\n");
-    $dir = $root . '/vendor/testo/bridge-rector/config/sets';
-    if (\is_dir($dir)) {
-        $available = \array_map(static fn(string $f): string => \basename($f, '.php'), \glob($dir . '/*.php') ?: []);
-        \fwrite(\STDERR, "Available sets: " . \implode(', ', $available) . "\n");
-    }
+// Resolve the chosen set through the bridge's typed handle (TestoRectorSetList) rather than a
+// hard-coded path, so this script carries no knowledge of where the set files live. Needs the
+// project autoloader — the bridge is a dev dependency installed in Stage A1.
+$autoload = $root . '/vendor/autoload.php';
+if (!\is_file($autoload)) {
+    \fwrite(\STDERR, "No {$root}/vendor/autoload.php — run `composer install` first.\n");
+    exit(2);
+}
+require $autoload;
+
+$setListClass = \Testo\Bridge\Rector\Set\TestoRectorSetList::class;
+if (!\class_exists($setListClass)) {
+    \fwrite(\STDERR, "testo/bridge-rector is not installed. Try: composer require --dev testo/bridge-rector\n");
+    exit(2);
+}
+
+// Set basename -> constant name: phpunit-to-testo -> PHPUNIT_TO_TESTO.
+$setConst = \strtoupper(\str_replace('-', '_', $set));
+$setListConst = "{$setListClass}::{$setConst}";
+if (!\defined($setListConst)) {
+    $available = \array_map(
+        static fn(string $name): string => \strtolower(\str_replace('_', '-', $name)),
+        \array_keys((new \ReflectionClass($setListClass))->getConstants()),
+    );
+    \fwrite(\STDERR, "Set not found: {$set}\nAvailable sets: " . \implode(', ', $available) . "\n");
+    exit(2);
+}
+
+// The constant is an absolute path resolved by the installed bridge; make sure it exists before
+// writing a config that would fatal at runtime.
+$setPath = (string) \constant($setListConst);
+if (!\is_file($setPath)) {
+    \fwrite(\STDERR, "Set constant {$setConst} resolves to a missing file: {$setPath}\n");
     exit(2);
 }
 
@@ -75,11 +98,6 @@ $pathLines = \implode("\n", \array_map(
     static fn(string $p): string => "        __DIR__ . '/{$p}',",
     $paths,
 ));
-
-// Reference the set through its typed handle (TestoRectorSetList) instead of a raw path — the
-// constant is an absolute path resolved by the installed bridge, so it does not depend on the
-// config living at the project root. Set basename -> constant: phpunit-to-testo -> PHPUNIT_TO_TESTO.
-$setConst = \strtoupper(\str_replace('-', '_', $set));
 
 // Built with concatenation rather than a heredoc so the generated file's indentation is exact
 // and independent of this script's own indentation.

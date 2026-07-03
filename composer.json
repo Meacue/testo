@@ -86,6 +86,7 @@
             "Tests\\Assert\\": "plugin/assert/tests/",
             "Tests\\Bench\\": "plugin/bench/tests/",
             "Tests\\Bridge\\Mockery\\": "bridge/mockery/tests/",
+            "Tests\\Bridge\\Rector\\": "bridge/rector/tests/",
             "Tests\\Bridge\\SymfonyConsole\\": "bridge/symfony-console/tests/",
             "Tests\\Codecov\\": "plugin/codecov/tests/",
             "Tests\\Convention\\": "plugin/convention/tests/",
