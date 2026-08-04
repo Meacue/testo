@@ -11,8 +11,10 @@ return new ApplicationConfig(
     src: new FinderConfig(
         ['core', 'plugin', 'bridge'],
         [
+            'internal/container/tests',
             'bridge/mockery/tests',
             'bridge/rector/tests',
+            'bridge/revolt/tests',
             'bridge/symfony-console/tests',
             'plugin/assert/tests',
             'plugin/fiber/tests',
@@ -47,8 +49,11 @@ return new ApplicationConfig(
                 ),
             ),
         ],
+        require 'internal/container/tests/suites.php',
+        require 'internal/fiber/tests/suites.php',
         require 'bridge/mockery/tests/suites.php',
         require 'bridge/rector/tests/suites.php',
+        require 'bridge/revolt/tests/suites.php',
         require 'bridge/symfony-console/tests/suites.php',
         require 'plugin/assert/tests/suites.php',
         require 'plugin/fiber/tests/suites.php',
