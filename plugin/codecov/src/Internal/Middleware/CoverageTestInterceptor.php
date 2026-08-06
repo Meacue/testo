@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Codecov\Internal\Middleware;
 
+use Testo\Codecov\Config\CoverageLevel;
 use Testo\Codecov\Covers;
 use Testo\Codecov\CoversNothing;
 use Testo\Codecov\Internal\CoverageAttribute;
@@ -25,9 +26,26 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
  * Tests marked with {@see CoversNothing} are executed without coverage collection.
  * Tests marked with {@see Covers} have their coverage filtered to the specified targets.
  *
+ * A test's window stays bound to it across fiber suspensions. The driver collects process-wide and its
+ * window cannot nest — a `collect()` from any fiber ends collection for all of them — so a test running
+ * in a fiber is driven through a trampoline: on every suspension the window is closed and what it holds
+ * is banked, on resumption a fresh one is opened. Lines a sibling test executes while this one is parked
+ * therefore never land here, and the banked slices add up to exactly this test's coverage.
+ *
+ * Keeping no window open across a switch is also what keeps the process alive: with
+ * `XDEBUG_CC_BRANCH_CHECK` (any {@see CoverageLevel} above {@see CoverageLevel::Line}) a window that
+ * spans a fiber switch corrupts memory inside XDebug and kills the run outright.
+ *
+ * The trampoline is why this sits at {@see InterceptorOptions::ORDER_COVERAGE}, outer to
+ * {@see InterceptorOptions::ORDER_ASYNC_COROUTINE} rather than innermost: an interceptor there hands the
+ * test to a fiber it owns and resumes directly — `testo/bridge-revolt` dispatches the body onto the
+ * Revolt event loop — and a suspension relayed out of such a fiber is never resumed. From here the
+ * trampoline only ever relays through fibers Testo drives, and a coroutine-dispatched test is measured
+ * in one window, which is enough because the loop runs one test at a time.
+ *
  * @internal
  */
-#[InterceptorOptions(order: \PHP_INT_MAX)]
+#[InterceptorOptions(order: InterceptorOptions::ORDER_COVERAGE)]
 final readonly class CoverageTestInterceptor implements TestRunInterceptor
 {
     /**
@@ -63,12 +81,40 @@ final readonly class CoverageTestInterceptor implements TestRunInterceptor
             return $next($info);
         }
 
+        $banked = new CoverageResult();
+
         $this->driver->start();
 
         try {
-            $result = $next($info);
+            if (\Fiber::getCurrent() === null) {
+                $result = $next($info);
+            } else {
+                # Trampoline the test so its window can be closed around every suspension it relays —
+                # inlined rather than delegated to keep the test's own stack as shallow as it would be
+                # without coverage.
+                $fiber = new \Fiber(static fn(): TestResult => $next($info));
+                $value = $fiber->start();
+                while (!$fiber->isTerminated()) {
+                    # Leaving our slice: bank it and close the window before anyone else gets to run.
+                    $banked = $banked->merge($this->driver->collect());
+                    try {
+                        $resume = \Fiber::suspend($value);
+                    } catch (\Throwable $e) {
+                        $this->driver->start();
+                        $value = $fiber->throw($e);
+                        continue;
+                    }
+
+                    $this->driver->start();
+                    $value = $fiber->resume($resume);
+                }
+
+                /** @var TestResult $result */
+                $result = $fiber->getReturn();
+            }
         } finally {
-            $coverage = $this->driver->collect();
+            # Every exit path leaves the window open, so it holds this test's last slice.
+            $coverage = $banked->merge($this->driver->collect());
         }
 
         /**
