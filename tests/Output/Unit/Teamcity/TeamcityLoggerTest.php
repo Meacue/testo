@@ -10,13 +10,19 @@ use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\Identity\SuiteIdentity;
+use Testo\Core\Context\SuiteInfo;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Definition\CaseDefinition;
+use Testo\Core\Definition\CaseDefinitions;
+use Testo\Core\Definition\TestDefinitions;
 use Testo\Core\Definition\TestDefinition;
+use Testo\Core\Exception\CancelTest;
+use Testo\Core\Exception\SkipTest;
 use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\Summary;
 use Testo\Output\Teamcity\Teamcity\TeamcityLogger;
 use Testo\Test;
 use Tests\Output\Stub\Teamcity\ConcreteSampleTestCase;
@@ -148,6 +154,35 @@ final class TeamcityLoggerTest
         Assert::string($output)->notContains('metainfo=');
     }
 
+    public function aStartingSuiteAnnouncesHowManyTestsItHolds(): void
+    {
+        $info = new SuiteInfo(
+            name: 'Output/Unit',
+            testCases: CaseDefinitions::fromArray(
+                self::makeCase('passingTest', 'failingTest'),
+                self::makeCase('describedTest'),
+            ),
+        );
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->suiteStartedFromInfo($info));
+
+        // Counts across every case of the suite, and lands before the suite opens so an IDE can size
+        // its progress bar before the first test reports.
+        Assert::string($output)->contains("##teamcity[testCount count='3']");
+        Assert::true(
+            \strpos($output, 'testCount') < \strpos($output, 'testSuiteStarted'),
+        );
+    }
+
+    public function anEmptySuiteAnnouncesNoCount(): void
+    {
+        $info = new SuiteInfo(name: 'Output/Unit', testCases: CaseDefinitions::fromArray());
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->suiteStartedFromInfo($info));
+
+        Assert::string($output)->notContains('testCount');
+    }
+
     public function logEmptyRunEmitsBuildProblem(): void
     {
         $output = self::capture(static fn(TeamcityLogger $logger) => $logger->logEmptyRun());
@@ -186,6 +221,93 @@ final class TeamcityLoggerTest
 
         // Both the failure and the finish message carry the test's flow, so a consumer keeps them together.
         Assert::same(\substr_count($output, "flowId='{$result->info->identity->pipelineId}'"), 2);
+    }
+
+    public function everyStatusReachesTheConsumerOnTheFinishMessage(): void
+    {
+        foreach (Status::cases() as $status) {
+            $result = new TestResult(
+                info: self::makeInfo('passingTest'),
+                status: $status,
+                failure: $status->isFailure() ? new \RuntimeException('boom') : null,
+                attributes: ['duration' => 0],
+            );
+
+            $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+            // The standard messages collapse eight outcomes into three shapes — a consumer that needs the
+            // exact one reads it off `testFinished`, which every branch emits.
+            $expected = \strtolower($status->name);
+            Assert::string($output)->contains("##teamcity[testFinished");
+            Assert::string($output)->contains("status='{$expected}'");
+        }
+    }
+
+    public function aCancelledTestCarriesTheReasonFromTheException(): void
+    {
+        $result = self::makeResult(Status::Cancelled, new CancelTest('deadline exceeded while waiting for the queue'));
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+        // The reason lives in the thrown exception; a generic stand-in would hide why the run was aborted.
+        Assert::string($output)->contains("message='deadline exceeded while waiting for the queue'");
+    }
+
+    public function aCancelledTestWithoutAReasonFallsBackToAGenericMessage(): void
+    {
+        $result = self::makeResult(Status::Cancelled, new CancelTest());
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+        Assert::string($output)->contains("message='Test cancelled'");
+    }
+
+    public function aSkippedTestCarriesTheReasonFromTheException(): void
+    {
+        $result = self::makeResult(Status::Skipped, new SkipTest('sqlite extension is missing'));
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+        Assert::string($output)->contains("message='sqlite extension is missing'");
+    }
+
+    public function aSkippedTestWithoutAReasonOmitsTheMessage(): void
+    {
+        $result = self::makeResult(Status::Skipped, new SkipTest());
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+        Assert::string($output)->contains('##teamcity[testIgnored');
+        Assert::string($output)->notContains('message=');
+    }
+
+    public function aPassedTestReportsHowManyAssertionsItPerformed(): void
+    {
+        $result = new TestResult(
+            info: self::makeInfo('passingTest'),
+            status: Status::Passed,
+            attributes: ['duration' => 0],
+            summary: new Summary(metrics: ['assertions' => 7]),
+        );
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+        Assert::string($output)->contains("assertions='7'");
+    }
+
+    public function aPassedTestNobodyCountedAssertionsForOmitsTheAttribute(): void
+    {
+        $result = new TestResult(
+            info: self::makeInfo('passingTest'),
+            status: Status::Passed,
+            attributes: ['duration' => 0],
+        );
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->handleSingleTestResult($result));
+
+        // The count comes from the Assert plugin; without it there is no number to report, and a
+        // fabricated zero would read as an unasserted test.
+        Assert::string($output)->notContains('assertions=');
     }
 
     public function logMessagePlacesTheOutputOnItsTestsNode(): void
@@ -263,6 +385,37 @@ final class TeamcityLoggerTest
             status: Status::Failed,
             failure: $failure,
             attributes: ['duration' => 0],
+        );
+    }
+
+    private static function makeResult(Status $status, ?\Throwable $failure = null): TestResult
+    {
+        return new TestResult(
+            info: self::makeInfo('passingTest'),
+            status: $status,
+            failure: $failure,
+            attributes: ['duration' => 0],
+        );
+    }
+
+    /**
+     * A case of {@see SampleTestClass} holding exactly the named methods as its tests.
+     *
+     * @param non-empty-string ...$methods
+     */
+    private static function makeCase(string ...$methods): CaseDefinition
+    {
+        $tests = new TestDefinitions();
+        foreach ($methods as $method) {
+            $tests->define(new \ReflectionMethod(SampleTestClass::class, $method));
+        }
+
+        return new CaseDefinition(
+            name: SampleTestClass::class,
+            type: 'test',
+            file: Path::create(__FILE__),
+            reflection: new \ReflectionClass(SampleTestClass::class),
+            tests: $tests,
         );
     }
 

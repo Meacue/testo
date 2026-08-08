@@ -107,18 +107,29 @@ final class TeamcityLogger
 
     /**
      * Publishes test suite started message using SuiteInfo.
+     *
+     * Announces the suite's size first, so an IDE can size its progress bar before the first test
+     * reports. The count is the number of located tests: a DataProvider test counts once here but
+     * reports one node per data set, so it is a lower bound rather than an exact total.
      */
     public function suiteStartedFromInfo(SuiteInfo $info): void
     {
+        $count = 0;
+        foreach ($info->testCases->getCases() as $case) {
+            $count += \count($case->tests->getTests());
+        }
+
+        $count > 0 and $this->publish(Formatter::testCount($count));
+
         $this->publish(Formatter::suiteStarted($info->name, $info->identity));
     }
 
     /**
      * Publishes test suite finished message using SuiteInfo.
      */
-    public function suiteFinishedFromInfo(SuiteInfo $info): void
+    public function suiteFinishedFromInfo(SuiteInfo $info, ?Status $status = null): void
     {
-        $this->publish(Formatter::suiteFinished($info->name, $info->identity));
+        $this->publish(Formatter::suiteFinished($info->name, $info->identity, $status));
     }
 
     /**
@@ -132,9 +143,9 @@ final class TeamcityLogger
     /**
      * Publishes test batch finished message (for DataProvider tests).
      */
-    public function batchFinishedFromInfo(TestInfo $info): void
+    public function batchFinishedFromInfo(TestInfo $info, ?Status $status = null): void
     {
-        $this->publish(Formatter::suiteFinished($info->name, $info->identity));
+        $this->publish(Formatter::suiteFinished($info->name, $info->identity, $status));
     }
 
     /**
@@ -156,7 +167,7 @@ final class TeamcityLogger
             );
         }
 
-        $this->suiteFinishedFromInfo($info);
+        $this->suiteFinishedFromInfo($info, $result->status);
     }
 
     /**
@@ -174,9 +185,9 @@ final class TeamcityLogger
      *
      * Test case is treated as a suite in TeamCity (a class containing tests).
      */
-    public function caseFinishedFromInfo(CaseInfo $info): void
+    public function caseFinishedFromInfo(CaseInfo $info, ?Status $status = null): void
     {
-        $this->publish(Formatter::suiteFinished($info->name, $info->identity));
+        $this->publish(Formatter::suiteFinished($info->name, $info->identity, $status));
     }
 
     /**
@@ -200,7 +211,7 @@ final class TeamcityLogger
             );
         }
 
-        $this->caseFinishedFromInfo($caseInfo);
+        $this->caseFinishedFromInfo($caseInfo, $result->status);
     }
 
     /**
@@ -368,6 +379,17 @@ final class TeamcityLogger
         return \implode("\n", $lines);
     }
 
+    /**
+     * How many assertions the test performed, or `null` when nothing counted them — the metric is
+     * contributed by the Assert plugin, and a suite running without it says nothing rather than zero.
+     *
+     * @return int<0, max>|null
+     */
+    private static function assertionsOf(TestResult $result): ?int
+    {
+        return $result->summary->metrics['assertions'] ?? null;
+    }
+
     private static function key(string $name): string
     {
         return "\033[36;1m{$name}:\033[0m ";
@@ -387,7 +409,13 @@ final class TeamcityLogger
     {
         $name = $overrideName ?? $result->info->name;
 
-        $this->publish(Formatter::testFinished($name, $duration, $result->info->identity));
+        $this->publish(Formatter::testFinished(
+            $name,
+            $duration,
+            $result->info->identity,
+            $result->status,
+            self::assertionsOf($result),
+        ));
     }
 
     /**
@@ -399,8 +427,8 @@ final class TeamcityLogger
     {
         $name = $overrideName ?? $result->info->name;
         $identity = $result->info->identity;
-        $this->publish(Formatter::testIgnored($name, identity: $identity));
-        $this->publish(Formatter::testFinished($name, $duration, $identity));
+        $this->publish(Formatter::testIgnored($name, $result->failure?->getMessage() ?? '', $identity));
+        $this->publish(Formatter::testFinished($name, $duration, $identity, $result->status));
     }
 
     /**
@@ -412,8 +440,9 @@ final class TeamcityLogger
     {
         $name = $overrideName ?? $result->info->name;
         $identity = $result->info->identity;
-        $this->publish(Formatter::testIgnored($name, 'Test cancelled', $identity));
-        $this->publish(Formatter::testFinished($name, $duration, $identity));
+        $message = $result->failure?->getMessage() ?? '';
+        $this->publish(Formatter::testIgnored($name, $message === '' ? 'Test cancelled' : $message, $identity));
+        $this->publish(Formatter::testFinished($name, $duration, $identity, $result->status));
     }
 
     /**
@@ -445,7 +474,7 @@ final class TeamcityLogger
                 identity: $identity,
             ),
         );
-        $this->publish(Formatter::testFinished($name, $duration, $identity));
+        $this->publish(Formatter::testFinished($name, $duration, $identity, $result->status));
     }
 
     /**
@@ -470,7 +499,7 @@ final class TeamcityLogger
                 identity: $identity,
             ),
         );
-        $this->publish(Formatter::testFinished($name, $duration, $identity));
+        $this->publish(Formatter::testFinished($name, $duration, $identity, $result->status));
     }
 
     /**
@@ -490,7 +519,7 @@ final class TeamcityLogger
                 identity: $identity,
             ),
         );
-        $this->publish(Formatter::testFinished($name, $duration, $identity));
+        $this->publish(Formatter::testFinished($name, $duration, $identity, $result->status));
     }
 
     /**

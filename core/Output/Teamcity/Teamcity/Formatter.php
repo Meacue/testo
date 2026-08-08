@@ -6,7 +6,9 @@ namespace Testo\Output\Teamcity\Teamcity;
 
 use Testo\Core\Context\Identity;
 use Testo\Core\Context\Identity\CaseIdentity;
+use Testo\Core\Context\Identity\SuiteIdentity;
 use Testo\Core\Context\Identity\TestIdentity;
+use Testo\Core\Value\Status;
 
 /**
  * Formats TeamCity service messages.
@@ -59,7 +61,25 @@ final class Formatter
         $locationHint = self::locationHint($identity);
         $locationHint === null or $attributes['locationHint'] = $locationHint;
 
-        return self::formatMessage('testSuiteStarted', $attributes + self::placement($identity));
+        return self::formatMessage(
+            'testSuiteStarted',
+            $attributes + self::taxonomy($identity) + self::placement($identity),
+        );
+    }
+
+    /**
+     * Formats a message announcing how many tests are about to run.
+     *
+     * Feeds the progress bar of IntelliJ-based IDEs, which is the only consumer — the TeamCity server
+     * ignores it. Counts accumulate rather than replace, so one message per suite is the intended
+     * shape rather than a single total up front.
+     *
+     * @param int<0, max> $count
+     * @return non-empty-string
+     */
+    public static function testCount(int $count): string
+    {
+        return self::formatMessage('testCount', ['count' => (string) $count]);
     }
 
     /**
@@ -67,11 +87,15 @@ final class Formatter
      *
      * @param non-empty-string $name Suite name
      * @param Identity|null $identity Address of the node this message closes. {@see placement()}
+     * @param Status|null $status Aggregated outcome of the node. {@see status()}
      * @return non-empty-string
      */
-    public static function suiteFinished(string $name, ?Identity $identity = null): string
+    public static function suiteFinished(string $name, ?Identity $identity = null, ?Status $status = null): string
     {
-        return self::formatMessage('testSuiteFinished', ['name' => $name] + self::placement($identity));
+        return self::formatMessage(
+            'testSuiteFinished',
+            ['name' => $name] + self::status($status) + self::placement($identity),
+        );
     }
 
     /**
@@ -96,7 +120,10 @@ final class Formatter
 
         $description !== null and $attributes['metainfo'] = $description;
 
-        return self::formatMessage('testStarted', $attributes + self::placement($identity));
+        return self::formatMessage(
+            'testStarted',
+            $attributes + self::taxonomy($identity) + self::placement($identity),
+        );
     }
 
     /**
@@ -105,15 +132,25 @@ final class Formatter
      * @param non-empty-string $name Test name
      * @param int<0, max>|null $duration Duration in milliseconds
      * @param TestIdentity|null $identity Address of the test this message closes. {@see placement()}
+     * @param Status|null $status Outcome of the test. {@see status()}
+     * @param int<0, max>|null $assertions Number of assertions the test performed. Null when nothing
+     *        counted them — no assertion plugin is active — which is not the same as a test that
+     *        counted zero.
      * @return non-empty-string
      */
-    public static function testFinished(string $name, ?int $duration = null, ?TestIdentity $identity = null): string
-    {
+    public static function testFinished(
+        string $name,
+        ?int $duration = null,
+        ?TestIdentity $identity = null,
+        ?Status $status = null,
+        ?int $assertions = null,
+    ): string {
         $attributes = ['name' => $name];
 
         $duration !== null and $attributes['duration'] = (string) $duration;
+        $assertions !== null and $attributes['assertions'] = (string) $assertions;
 
-        return self::formatMessage('testFinished', $attributes + self::placement($identity));
+        return self::formatMessage('testFinished', $attributes + self::status($status) + self::placement($identity));
     }
 
     /**
@@ -423,6 +460,44 @@ final class Formatter
     }
 
     /**
+     * Which suite the node belongs to and which kind of test it holds — the two things `--suite` and
+     * `--type` select on, so a consumer can offer the same slicing without parsing anything out of a
+     * name or a path.
+     *
+     * Only stated where the address knows it: a suite of the run has no type of its own, since one
+     * suite can hold cases of several ({@see CaseIdentity::$type}).
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private static function taxonomy(?Identity $identity): array
+    {
+        return match (true) {
+            $identity instanceof CaseIdentity,
+            $identity instanceof TestIdentity => [
+                'testSuite' => $identity->suite,
+                'testType' => $identity->type,
+            ],
+            $identity instanceof SuiteIdentity => ['testSuite' => $identity->suite],
+            default => [],
+        };
+    }
+
+    /**
+     * The exact outcome, which the standard protocol cannot express: it distinguishes only ignored,
+     * failed and everything else, so `Flaky` is indistinguishable from `Passed` and `Risky` from a
+     * clean pass. Consumers that understand the attribute get the {@see Status} verbatim; standard
+     * parsers ignore it and keep reading the run as before.
+     *
+     * Lowercased case name, the same wire format the JSON report speaks.
+     *
+     * @return array<non-empty-string, non-empty-string>
+     */
+    private static function status(?Status $status): array
+    {
+        return $status === null ? [] : ['status' => \strtolower($status->name)];
+    }
+
+    /**
      * Location hint for whatever the address names.
      *
      * ```
@@ -430,12 +505,16 @@ final class Formatter
      * php_qn://path/to/BarTest.php::\Ns\BarTest::itWorks        a test, or its DataProvider batch node
      * php_qn://path/to/BarTest.php::\Ns\BarTest::itWorks:0:1    one data set of it
      * php_qn://path/to/functions.php::\Ns\itWorksToo            a free test function
+     * file://path/to/functions.php                             a case of free functions
      * ```
      *
      * The tail is {@see TestIdentity::fqn()} verbatim, so a hint pastes straight back into `--filter`.
      *
-     * Null when there is no code to point at: a suite of the run is a configuration entry, and a case
-     * of free functions has no class of its own.
+     * A case of free functions names no class, and the file it groups holds several functions rather
+     * than one to point at — so it answers with the file itself under `file://`, the scheme IDEs
+     * resolve to a whole file. Clickable all the same, which a hintless node is not.
+     *
+     * Null only for a suite of the run: it is a configuration entry, with no file of its own to name.
      *
      * @return non-empty-string|null
      */
@@ -447,6 +526,6 @@ final class Formatter
 
         $fqn = $identity->fqn();
 
-        return $fqn === null ? null : "php_qn://{$identity->file}::\\{$fqn}";
+        return $fqn === null ? "file://{$identity->file}" : "php_qn://{$identity->file}::\\{$fqn}";
     }
 }

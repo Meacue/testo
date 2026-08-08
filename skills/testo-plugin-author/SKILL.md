@@ -137,7 +137,8 @@ Two independent things live on it:
   run to run. `dataProvider`/`dataSet` are set only for a data set, and address it by **index** —
   provider keys may repeat, so only the index tells two data sets apart. `fqn()` is the machine-facing
   form: no suite, no type, pastes straight into `--filter`, and is the tail of TeamCity's
-  `locationHint` (`php_qn://<file>::\<fqn>`).
+  `locationHint` (`php_qn://<file>::\<fqn>`). A case of free functions has no `fqn()` — no class to
+  qualify — and is hinted as `file://<file>` instead, so its node stays clickable.
 - **`runtimeId`** says *which run of it* is in flight, **`pipelineId`** which test run that one is part
   of — its own for a test, the batch's for each of its data sets — and **`parentId`** which run it
   opened inside (`null` at a suite). All three are process-local: never persist them or match on them.
@@ -154,6 +155,25 @@ To report a **tree** rather than a stream — an IDE that wants `nodeId`/`parent
 from `runtimeId` and its parent from `parentId`, the same two fields at every level. Do not read the
 tree off the order events arrive in: concurrent tests interleave, so a consumer that nests by "whatever
 opened last" puts one test's node inside another's.
+
+The built-in TeamCity output carries the **exact** `Status` as a `status` attribute (lowercased case
+name: `passed`, `failed`, `skipped`, `error`, `risky`, `flaky`, `cancelled`, `aborted`) on every
+`testFinished`, and the aggregated one on `testSuiteFinished` for a suite, a case and a DataProvider
+batch. The standard protocol collapses those eight into ignored/failed/neither, so a consumer that
+needs `Flaky` apart from `Passed`, or `Risky` apart from a clean pass, reads them there; standard
+parsers ignore the attribute. `testFinished` also carries `assertions` — the count the Assert plugin
+records under that metric name — omitted entirely when no plugin counted them, which is not the same
+as `assertions='0'` for a test that asserted nothing.
+
+Every opening message — `testSuiteStarted` for a suite, a case or a DataProvider batch, and
+`testStarted` for a test or a data set — carries `testSuite` and `testType`, the two things `--suite`
+and `--type` select on. A suite of the run states only `testSuite`: it holds cases of several types
+and has none of its own.
+
+Each suite opens with `##teamcity[testCount count='N']` — the tests located for it, read off
+`SuiteInfo::$testCases` before the first one runs. Counts accumulate across suites in IntelliJ-based
+IDEs (the TeamCity server ignores the message), so one per suite is the intended shape. A DataProvider
+test counts once but reports a node per data set, so the number is a lower bound.
 
 ### Passing state down the pipeline — prefer attributes over mutable fields
 
