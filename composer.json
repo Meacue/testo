@@ -57,12 +57,14 @@
         "buggregator/trap": "^1.10",
         "internal/dload": "^1.6",
         "llm/skills": "^1.3",
+        "php-vcr/php-vcr": "^1.6",
         "roxblnfk/unpoly": "1.8.2",
         "rector/rector": "^2.5.2",
         "testo/bridge-infection": "^0.1.8",
         "testo/bridge-mockery": "^0.1.2",
         "testo/bridge-rector": "^0.2.1",
         "testo/bridge-revolt": "^0.1.1",
+        "testo/bridge-vcr": "^0.1",
         "testo/facade": "^0.1.1"
     },
     "suggest": {
@@ -96,6 +98,7 @@
             "Tests\\Bridge\\Rector\\": "bridge/rector/tests/",
             "Tests\\Bridge\\Revolt\\": "bridge/revolt/tests/",
             "Tests\\Bridge\\SymfonyConsole\\": "bridge/symfony-console/tests/",
+            "Tests\\Bridge\\VCR\\": "bridge/vcr/tests/",
             "Tests\\Codecov\\": "plugin/codecov/tests/",
             "Tests\\Convention\\": "plugin/convention/tests/",
             "Tests\\Data\\": "plugin/data/tests/",
@@ -143,7 +146,8 @@
                     "testo/bridge-mockery": "0.1.x-dev",
                     "testo/bridge-rector": "0.2.x-dev",
                     "testo/bridge-revolt": "0.1.x-dev",
-                    "testo/bridge-symfony-console": "0.1.x-dev"
+                    "testo/bridge-symfony-console": "0.1.x-dev",
+                    "testo/bridge-vcr": "0.1.x-dev"
                 }
             }
         }
