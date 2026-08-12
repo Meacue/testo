@@ -12,6 +12,7 @@ use Testo\Core\Context\TestInfo;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Message\MessageReceived;
+use Testo\Event\Report\ReportFileGenerating;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
 use Testo\Event\Test\TestDataSetFinished;
@@ -71,6 +72,9 @@ final class TeamcityPlugin implements PluginConfigurator
         $listeners->addListener(SessionStarting::class, $this->onSessionStarting(...));
         $listeners->addListener(SessionFinished::class, $this->onSessionFinished(...));
 
+        // Report files announced by any reporter plugin
+        $listeners->addListener(ReportFileGenerating::class, $this->onReportFileGenerating(...));
+
         // Messenger output — streamed in real time as stdout/stderr for the current test.
         $listeners->addListener(MessageReceived::class, $this->onMessageReceived(...));
 
@@ -113,6 +117,11 @@ final class TeamcityPlugin implements PluginConfigurator
         // An empty run verified nothing; surface it as a build problem so CI fails the build instead
         // of reporting a green, test-free success.
         $event->result->summary->total() === 0 and $this->logger->logEmptyRun();
+    }
+
+    private function onReportFileGenerating(ReportFileGenerating $event): void
+    {
+        $this->logger->logReport($event->info);
     }
 
     private function onMessageReceived(MessageReceived $event): void

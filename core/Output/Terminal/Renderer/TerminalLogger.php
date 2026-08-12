@@ -19,6 +19,7 @@ use Testo\Core\Log\MessageLog;
 use Testo\Core\Value\Status;
 use Testo\Core\Value\Verbosity;
 use Testo\Data\MultipleResult;
+use Testo\Core\Report\ReportInfo;
 use Testo\Output\Rendering\ChannelRenderer;
 use Testo\Output\Rendering\SharedStream;
 
@@ -279,6 +280,19 @@ final class TerminalLogger
         $this->printFailures();
         $this->printSingleTestOutput($result);
         $this->printStatistics($result);
+    }
+
+    /**
+     * States a written report as one line, with the path in the form the reporter holds it.
+     */
+    public function printReport(ReportInfo $report): void
+    {
+        $this->write(null, \sprintf(
+            ' %s %s %s',
+            Style::info($report->name . ':'),
+            $report->path,
+            Style::dim('(' . $report->format . ')'),
+        ) . "\n");
     }
 
     /**

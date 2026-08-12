@@ -20,7 +20,10 @@ use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
 use Testo\Core\Value\Verbosity;
+use Testo\Core\Report\ReportInfo;
 use Testo\Event\Message\MessageReceived;
+use Testo\Event\Report\ReportFileGenerated;
+use Testo\Event\Report\ReportFileGenerating;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
 use Testo\Event\Test\TestDataSetFinished;
@@ -123,6 +126,35 @@ final class TerminalPluginTest
         // Output that belongs to no test (suite/case setup) has no block to join, but dropping it
         // would lose framework-level output the user asked to see.
         Assert::string($output)->contains("between tests\n");
+    }
+
+    public function aGeneratedReportIsStatedAsAPlainLine(): void
+    {
+        $output = self::capture(static function (EventDispatcher $dispatcher): void {
+            $dispatcher->dispatch(new ReportFileGenerated(self::report()));
+        });
+
+        // Nobody parses a terminal, so the announcement is a path it can turn into a link — the one the
+        // reporter states, short and relative for a report configured that way.
+        Assert::string($output)->contains('Testo HTML report:');
+        Assert::string($output)->contains('runtime/report/index.html');
+        Assert::string($output)->notContains('##teamcity');
+    }
+
+    public function theStartOfAWriteIsNotStatedInATerminal(): void
+    {
+        $output = self::capture(static function (EventDispatcher $dispatcher): void {
+            $dispatcher->dispatch(new ReportFileGenerating(self::report()));
+        });
+
+        // The early event exists for the IDE reading the TeamCity stream; a human gets the path once the
+        // file opens.
+        Assert::string($output)->notContains('Testo HTML report');
+    }
+
+    private static function report(): ReportInfo
+    {
+        return new ReportInfo('html', 'Testo HTML report', Path::create('runtime/report/index.html'));
     }
 
     /**

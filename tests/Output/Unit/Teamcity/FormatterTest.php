@@ -230,6 +230,49 @@ final class FormatterTest
         Assert::string($msg)->contains("actual='|[item||with|'quote|]'");
     }
 
+    public function testoReportCarriesBothPaths(): void
+    {
+        $msg = Formatter::testoReport(
+            format: 'html',
+            path: Path::create('/app/runtime/report/index.html'),
+            relativePath: Path::create('runtime/report/index.html'),
+            name: 'Testo HTML report',
+        );
+
+        // The absolute path is the one inside the execution environment, which a container or a remote
+        // interpreter makes useless on the consumer's machine — hence the relative one alongside it.
+        Assert::string($msg)->contains("path='/app/runtime/report/index.html'");
+        Assert::string($msg)->contains("relativePath='runtime/report/index.html'");
+        Assert::string($msg)->contains('##teamcity[testoReport ');
+    }
+
+    public function testoReportOmitsTheRelativePathWhenTheReportIsOutsideTheWorkingDirectory(): void
+    {
+        $msg = Formatter::testoReport(
+            format: 'html',
+            path: Path::create('/tmp/report/index.html'),
+            relativePath: null,
+            name: 'Testo HTML report',
+        );
+
+        // Absent rather than empty: an empty value would read as "the working directory itself".
+        Assert::string($msg)->notContains('relativePath=');
+    }
+
+    public function testoReportEscapesPathsLikeAnyOtherAttribute(): void
+    {
+        $msg = Formatter::testoReport(
+            format: 'html',
+            path: Path::create("/app/[build]/it's/index.html"),
+            relativePath: null,
+            name: 'Report',
+        );
+
+        // A bracket left raw would terminate the service message early and the plugin would read a
+        // truncated path.
+        Assert::string($msg)->contains("path='/app/|[build|]/it|'s/index.html'");
+    }
+
     private static function test(): TestIdentity
     {
         return (new SuiteIdentity('Core/Unit'))

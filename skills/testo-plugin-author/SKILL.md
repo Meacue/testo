@@ -257,6 +257,40 @@ Listeners are observers. To **change** behaviour (skip, wrap, retry, inject), wr
 **Never capture `$container` inside the listener closure** — resolve services in `configure()` and close
 over those.
 
+`addListener()` takes a third `int $priority` argument, highest first. It matters when several listeners
+share one event and the order is part of the behaviour — a reporter writing a large file on
+`SessionFinished` uses a *negative* priority so the run's summary, printed from a listener of the same
+event, reaches the reader before the serialization starts, and its path lands with the other artifact
+paths at the end of the output.
+
+Writing a report file? Announce it instead of printing anything yourself: the active renderer states it
+in its own terms. Both events carry the same payload — `ReportFileGenerating` as soon as the destination
+is known, which for a reporter built from a whole run means `SessionStarting`, and `ReportFileGenerated`
+once the file is closed. The early one becomes the `##teamcity[testoReport …]` service message an IDE
+turns into a button, and it has to be early: after the last `testSuiteFinished` there is no node in the
+run tree to attach it to. The late one is what a terminal prints as a plain path.
+
+```php
+// once the destination is settled — in configure(), for a reporter built from a whole run
+$this->info = new ReportInfo('html', 'My report', $entry);   // Testo\Core\Report\ReportInfo
+
+// on SessionStarting — the path comes from the config, so nothing waits for the run
+$dispatcher->dispatch(new ReportFileGenerating($this->info));
+
+// on SessionFinished, after the file is closed
+$this->write($this->info->path);
+$dispatcher->dispatch(new ReportFileGenerated($this->info));
+```
+
+Three things and no more in the card: the format id, the label a UI puts on the button, and the entry
+file (`index.html`, never the directory). Pass the path as you hold it, relative or absolute — a renderer
+that needs the other form derives it, because only the renderer knows which form its reader can resolve.
+Both events carry the card as `$event->info`.
+
+Listening rather than writing? Subscribe to both events; a single listener on `ReportEvent`, the shared
+parent, hears every announcement but sees only the format and the label — where a report *is* belongs to
+the concrete event, since a report published to a service has no path to give you.
+
 ## Custom attributes
 
 Define the attribute, then act on it from an interceptor:

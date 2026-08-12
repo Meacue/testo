@@ -6,6 +6,7 @@ namespace Tests\Output\Unit\JUnit;
 
 use Internal\Path;
 use Internal\Container\ObjectContainer;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Application\Internal\EventDispatcher;
 use Testo\Assert;
 use Testo\Common\EventListenerCollector;
@@ -23,6 +24,8 @@ use Testo\Core\Definition\TestDefinition;
 use Testo\Core\Value\Status;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
+use Testo\Event\Report\ReportFileGenerated;
+use Testo\Event\Report\ReportFileGenerating;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
 use Testo\Event\Test\TestDataSetFinished;
@@ -541,6 +544,37 @@ final class JUnitPluginTest
         }
     }
 
+    public function theFileIsAnnouncedAsAPromiseAndThenAsAFact(): void
+    {
+        $path = self::tmpPath();
+        try {
+            $dispatcher = self::wirePlugin(new JUnitPlugin($path));
+
+            /** @var list<array{event: ReportFileGenerating|ReportFileGenerated, existed: bool}> $seen */
+            $seen = [];
+            $record = static function (ReportFileGenerating|ReportFileGenerated $event) use (&$seen): void {
+                $seen[] = ['event' => $event, 'existed' => \is_file((string) $event->info->path)];
+            };
+            $dispatcher->addListener(ReportFileGenerating::class, $record);
+            $dispatcher->addListener(ReportFileGenerated::class, $record);
+
+            $dispatcher->dispatch(new SessionStarting());
+            $dispatcher->dispatch(self::sessionFinished());
+
+            // The early one lands while the run tree is still open; the late one means the XML can be read.
+            Assert::count($seen, 2);
+            Assert::true($seen[0]['event'] instanceof ReportFileGenerating);
+            Assert::false($seen[0]['existed']);
+            Assert::true($seen[1]['event'] instanceof ReportFileGenerated);
+            Assert::true($seen[1]['existed']);
+
+            Assert::same($seen[0]['event']->info->format, 'junit');
+            Assert::same((string) $seen[0]['event']->info->path, (string) $seen[1]['event']->info->path);
+        } finally {
+            self::cleanup($path);
+        }
+    }
+
     /**
      * Wires a freshly built plugin into a real {@see EventDispatcher}.
      */
@@ -549,6 +583,7 @@ final class JUnitPluginTest
         $dispatcher = new EventDispatcher();
         $container = new ObjectContainer();
         $container->set($dispatcher, EventListenerCollector::class);
+        $container->set($dispatcher, EventDispatcherInterface::class);
 
         $input = new JUnitInput();
         $input->outputPath = $cliPath;

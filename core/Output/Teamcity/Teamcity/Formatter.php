@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Output\Teamcity\Teamcity;
 
+use Internal\Path;
 use Testo\Core\Context\Identity;
 use Testo\Core\Context\Identity\CaseIdentity;
 use Testo\Core\Context\Identity\SuiteIdentity;
@@ -372,6 +373,30 @@ final class Formatter
     public static function compilationFinished(string $compiler): string
     {
         return self::formatMessage('compilationFinished', ['compiler' => $compiler]);
+    }
+
+    /**
+     * Formats the announcement of a generated report.
+     *
+     * Non-standard: the TeamCity server ignores it, and an IDE plugin parses it explicitly to offer opening
+     * the report. `path` is absolute inside the execution environment, which a container or a remote
+     * interpreter makes meaningless on the consumer's machine — hence `relativePath` beside it, omitted
+     * when the report lies outside the working directory.
+     *
+     * @param non-empty-string $format Format id, e.g. `html`.
+     * @param non-empty-string $name Human-readable label.
+     * @return non-empty-string
+     */
+    public static function testoReport(
+        string $format,
+        \Stringable $path,
+        ?Path $relativePath,
+        string $name,
+    ): string {
+        $attributes = ['format' => $format, 'path' => (string) $path, 'name' => $name];
+        $relativePath === null or $attributes['relativePath'] = (string) $relativePath;
+
+        return self::formatMessage('testoReport', $attributes);
     }
 
     /**

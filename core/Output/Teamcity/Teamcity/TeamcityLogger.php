@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Output\Teamcity\Teamcity;
 
+use Internal\Path;
 use Testo\Assert\State\Assertion\ComparisonFailure;
 use Testo\Common\Environment;
 use Testo\Common\Info;
@@ -17,6 +18,7 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
+use Testo\Core\Report\ReportInfo;
 use Testo\Output\Rendering\StackTrace;
 
 /**
@@ -337,6 +339,32 @@ final class TeamcityLogger
     public function logEmptyRun(): void
     {
         $this->publish(Formatter::buildProblem('No tests were executed', 'testo.noTests'));
+    }
+
+    public function logReport(ReportInfo $report): void
+    {
+        # A file report states a `Path` and gets both forms of it; any other location is announced as it
+        # stands, since resolving a URL against the working directory would name nothing.
+        $location = $report->path;
+
+        /**
+         * @var \Stringable $absolute Absolute path or URL
+         * @var Path|null $relative Relative path or null
+         */
+        [$absolute, $relative] = match (true) {
+            !$location instanceof Path => [$location, null],
+            $location->isAbsolute() => [$location, $location->tryRelative(Path::create(\getcwd() ?: ''))],
+            default => [$location->absolute(), $location],
+        };
+
+        $relative === null or $relative->isWithin() or $relative = null;
+
+        $this->publish(Formatter::testoReport(
+            format: $report->format,
+            path: $absolute,
+            relativePath: $relative,
+            name: $report->name,
+        ));
     }
 
     /**

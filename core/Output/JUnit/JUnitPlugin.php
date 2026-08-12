@@ -6,6 +6,7 @@ namespace Testo\Output\JUnit;
 
 use Internal\Container\Container;
 use Internal\Path;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Testo\Common\EventListenerCollector;
 use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\CaseInfo;
@@ -13,6 +14,9 @@ use Testo\Core\Context\TestInfo;
 use Testo\Core\Value\TestType;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
+use Testo\Core\Report\ReportInfo;
+use Testo\Event\Report\ReportFileGenerated;
+use Testo\Event\Report\ReportFileGenerating;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
 use Testo\Event\Test\TestDataSetFinished;
@@ -184,6 +188,18 @@ final class JUnitPlugin implements PluginConfigurator
 
         // Test Pipeline events (final event in the test lifecycle)
         $listeners->addListener(TestPipelineFinished::class, $this->onTestPipelineFinished(...));
+
+        // Registered after the listener that writes the file, so the late announcement follows the write.
+        $info = new ReportInfo('junit', 'JUnit report', $this->resolvedPath);
+        $dispatcher = $container->get(EventDispatcherInterface::class);
+        $listeners->addListener(
+            SessionStarting::class,
+            static fn(): mixed => $dispatcher->dispatch(new ReportFileGenerating($info)),
+        );
+        $listeners->addListener(
+            SessionFinished::class,
+            static fn(): mixed => $dispatcher->dispatch(new ReportFileGenerated($info)),
+        );
     }
 
     private static function formatDatasetSuffix(string|int $datasetKey, ?int $providerIndex): string

@@ -8,6 +8,7 @@ use Internal\Path;
 use Testo\Assert;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Assertion\ComparisonFailure;
+use Testo\Codecov\Covers;
 use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\Identity\SuiteIdentity;
 use Testo\Core\Context\SuiteInfo;
@@ -23,12 +24,14 @@ use Testo\Core\Log\Level;
 use Testo\Core\Log\Message;
 use Testo\Core\Value\Status;
 use Testo\Core\Value\Summary;
+use Testo\Core\Report\ReportInfo;
 use Testo\Output\Teamcity\Teamcity\TeamcityLogger;
 use Testo\Test;
 use Tests\Output\Stub\Teamcity\ConcreteSampleTestCase;
 use Tests\Output\Stub\Teamcity\SampleTestClass;
 
 #[Test]
+#[Covers(TeamcityLogger::class)]
 final class TeamcityLoggerTest
 {
     public function handleSingleTestResultEmitsComparisonFailureAttributesForComparisonFailure(): void
@@ -189,6 +192,32 @@ final class TeamcityLoggerTest
 
         Assert::string($output)->contains('##teamcity[buildProblem');
         Assert::string($output)->contains("description='No tests were executed'");
+    }
+
+    public function logReportAnnouncesTheEntryFileOfAReportBeingWritten(): void
+    {
+        $entry = Path::create('runtime/report/index.html');
+        $report = new ReportInfo('html', 'Testo HTML report', $entry);
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->logReport($report));
+
+        // The card names the file once, as configured; the message carries both forms, because only one of
+        // them means anything on the machine reading it.
+        Assert::string($output)->contains('##teamcity[testoReport ');
+        Assert::string($output)->contains("format='html'");
+        Assert::string($output)->contains("path='" . $entry->absolute() . "'");
+        Assert::string($output)->contains("relativePath='runtime/report/index.html'");
+    }
+
+    public function logReportOmitsTheRelativePathOfAReportOutsideTheWorkingDirectory(): void
+    {
+        $report = new ReportInfo('html', 'Testo HTML report', Path::create('/tmp/report/index.html'));
+
+        $output = self::capture(static fn(TeamcityLogger $logger) => $logger->logReport($report));
+
+        // Absent rather than empty: an empty value would read as the working directory itself.
+        Assert::string($output)->contains("path='/tmp/report/index.html'");
+        Assert::string($output)->notContains('relativePath=');
     }
 
     public function testStartedFromInfoStampsFlowIdFromIdentity(): void

@@ -10,6 +10,7 @@ use Testo\Common\PluginConfigurator;
 use Testo\Event\Framework\SessionFinished;
 use Testo\Event\Framework\SessionStarting;
 use Testo\Event\Message\MessageReceived;
+use Testo\Event\Report\ReportFileGenerated;
 use Testo\Event\Test\TestBatchFinished;
 use Testo\Event\Test\TestBatchStarting;
 use Testo\Event\Test\TestDataSetFinished;
@@ -58,6 +59,9 @@ final class TerminalPlugin implements PluginConfigurator
         $listeners->addListener(SessionStarting::class, $this->onSessionStarting(...));
         $listeners->addListener(SessionFinished::class, $this->onSessionFinished(...));
 
+        // Report files announced by any reporter plugin
+        $listeners->addListener(ReportFileGenerated::class, $this->onReportFileGenerated(...));
+
         // Messenger output — streamed to the terminal in real time for the running test.
         $listeners->addListener(MessageReceived::class, $this->onMessageReceived(...));
 
@@ -90,6 +94,11 @@ final class TerminalPlugin implements PluginConfigurator
     private function onSessionFinished(SessionFinished $event): void
     {
         $this->logger->printSummary($event->result);
+    }
+
+    private function onReportFileGenerated(ReportFileGenerated $event): void
+    {
+        $this->logger->printReport($event->info);
     }
 
     private function onMessageReceived(MessageReceived $event): void
