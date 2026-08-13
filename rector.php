@@ -44,10 +44,6 @@ return RectorConfig::configure()
         __DIR__ . '/core/Output/Rendering/SharedStream.php',
         __DIR__ . '/core/Testing/Attribute/TestingSuite.php',
         __DIR__ . '/core/Core/Context/Identity.php',
-
-        // Standalone bugfix (not mechanical Rector output — Rector separately flags an
-        // unrelated tag/type finding in this file; resolved as part of the bugfix PR)
-        __DIR__ . '/plugin/data/src/Internal/DataProviderInterceptor.php',
     ])
     ->withPhpSets(php82: true)
     ->withPreparedSets(
