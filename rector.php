@@ -53,9 +53,8 @@ return RectorConfig::configure()
         __DIR__ . '/core/Output/Terminal/Renderer/Formatter.php',
         __DIR__ . '/core/Core/Internal/RuntimeSequence.php',
 
-        // Standalone bugfixes (not mechanical Rector output — Rector separately flags an
-        // unrelated tag/type finding in these same files; resolved as part of each bugfix PR)
-        __DIR__ . '/core/Output/Rendering/ChannelRenderer.php',
+        // Standalone bugfix (not mechanical Rector output — Rector separately flags an
+        // unrelated tag/type finding in this file; resolved as part of the bugfix PR)
         __DIR__ . '/plugin/data/src/Internal/DataProviderInterceptor.php',
     ])
     ->withPhpSets(php82: true)
