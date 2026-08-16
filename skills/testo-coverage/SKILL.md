@@ -71,6 +71,20 @@ vendor/bin/testo --coverage-xml=build/coverage-xml      # directory, for Infecti
   wins, test-type filters are unioned, and every report (yours + the CLI ones) is emitted.
 - The shadow stays fully inert when no report flag is present, so default behavior is unchanged.
 
+## Choosing the level on the CLI
+
+```
+vendor/bin/testo --coverage-level=branch --coverage-clover=build/clover.xml
+```
+
+`--coverage-level` takes `line`, `branch` or `path` (case-insensitive) and **pins** the depth for the
+whole run — it wins over every `CodecovPlugin(level: …)`, including when it asks for less. An unknown
+value aborts the run rather than falling back.
+
+Without the flag the configured levels are merged and the deepest wins, so a
+`new CodecovPlugin(level: CoverageLevel::Branch)` in `testo.php` still applies to a run that only the
+CLI report flags activated.
+
 ## Picking the coverage level
 
 | Level | Cost | When |

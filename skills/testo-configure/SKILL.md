@@ -169,6 +169,7 @@ vendor/bin/testo --type=test           # only #[Test], not benches/inline (OR ac
 vendor/bin/testo --type=!bench         # everything except benches; prefix with `!` to exclude
 vendor/bin/testo --coverage            # force coverage on
 vendor/bin/testo --no-coverage         # force coverage off
+vendor/bin/testo --coverage-level=branch   # line|branch|path; overrides the level set in testo.php
 vendor/bin/testo --coverage-clover=build/clover.xml        # write Clover report (no testo.php needed)
 vendor/bin/testo --coverage-cobertura=build/cobertura.xml  # write Cobertura report
 vendor/bin/testo --coverage-xml=build/coverage-xml         # write coverage XML dir (Infection)

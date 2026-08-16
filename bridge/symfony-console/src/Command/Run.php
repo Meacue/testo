@@ -138,6 +138,13 @@ final class Run extends Base
             'Disable code coverage collection',
         );
         $this->addOption(
+            'coverage-level',
+            null,
+            InputOption::VALUE_REQUIRED,
+            'Depth of coverage analysis: line, branch or path. Overrides the level configured in '
+            . 'testo.php. Branch and path require Xdebug; PCOV always collects lines.',
+        );
+        $this->addOption(
             'log-junit',
             null,
             InputOption::VALUE_REQUIRED,
