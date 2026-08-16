@@ -19,6 +19,7 @@ use Testo\Application\Internal\SuiteProvider;
 use Testo\Common\PluginConfigurator;
 use Testo\Core\Context\RunResult;
 use Testo\Core\Context\SuiteResult;
+use Testo\Core\Value\RunTiming;
 use Testo\Core\Value\Status;
 use Testo\Core\Value\Summary;
 use Testo\Event\Framework\SessionFinished;
@@ -92,6 +93,8 @@ final readonly class Application
     public function run(): RunResult
     {
         return $this->container->scope(static function (Container $container): RunResult {
+            $startedAt = \microtime(true);
+
             $appConfig = $container->get(ApplicationConfig::class);
             self::applyPlugins($container, self::resolvePlugins($appConfig->plugins, ApplicationPlugins::class));
             $filter = $container->get(Filter::class);
@@ -102,7 +105,12 @@ final readonly class Application
 
             $suiteProvider = $container->get(SuiteProvider::class);
             $status = Status::Passed;
-            $duration = \microtime(true);
+
+            # Phase timers. Discovery and execution interleave — a suite is scanned, run, and only then
+            # is the next one scanned — so these accumulate rather than mark intervals.
+            $startup = \microtime(true) - $startedAt;
+            $discovery = 0.0;
+            $tests = 0.0;
 
             # Iterate and run Test Suites
             $suiteResults = [];
@@ -110,16 +118,33 @@ final readonly class Application
                 # Resolve a Test Suite from config and
                 # run a separate container scope to isolate services and plugins.
                 $suiteResult = $container->scope(
-                    static function (Container $container) use ($filter, $config, $suiteProvider): ?SuiteResult {
+                    static function (Container $container) use (
+                        $filter,
+                        $config,
+                        $suiteProvider,
+                        &$discovery,
+                        &$tests,
+                    ): ?SuiteResult {
+                        $at = \microtime(true);
+
                         # Apply plugins first to have all interceptors before suite files scanning
                         self::applyPlugins($container, self::resolvePlugins($config->plugins, SuitePlugins::class));
 
-                        if (null === $suite = $suiteProvider->findSuite($config)) {
+                        $suite = $suiteProvider->findSuite($config);
+                        $discovery += \microtime(true) - $at;
+
+                        if ($suite === null) {
                             return null;
                         }
 
                         $suiteRunner = $container->get(SuiteRunner::class);
-                        return $suiteRunner->runSuite($suite, $filter);
+
+                        $at = \microtime(true);
+                        try {
+                            return $suiteRunner->runSuite($suite, $filter);
+                        } finally {
+                            $tests += \microtime(true) - $at;
+                        }
                     },
                 );
                 if ($suiteResult === null) {
@@ -130,7 +155,7 @@ final readonly class Application
                 $suiteResult->status->isFailure() and $status = Status::Failed;
             }
 
-            $duration = \microtime(true) - $duration;
+            $teardownAt = \microtime(true);
             $summary = Summary::combine(\array_map(
                 static fn(SuiteResult $r): Summary => $r->summary,
                 $suiteResults,
@@ -144,8 +169,13 @@ final readonly class Application
             $result = new RunResult(
                 $suiteResults,
                 status: $status,
-                duration: $duration,
                 summary: $summary,
+                timing: new RunTiming(
+                    startup: $startup,
+                    discovery: $discovery,
+                    tests: $tests,
+                    teardown: \microtime(true) - $teardownAt,
+                ),
             );
 
             $dispatcher->dispatch(new WorkerFinished());
