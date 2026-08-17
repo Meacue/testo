@@ -131,13 +131,38 @@ Rules (this is project policy in many Testo codebases — confirm before changin
 
 ## Reports cheat-sheet
 
-| Report | Format | Typical consumer |
+| Report | Format id | Typical consumer |
 |---|---|---|
-| `CloverReport` | Clover XML | Codecov, Coveralls, GitHub coverage diffs. |
-| `CoberturaReport` | Cobertura XML | GitLab/Jenkins coverage UI. |
-| `PhpUnitXmlReport` | PHPUnit-style coverage XML | **Infection** (mutation testing). |
+| `CloverReport` | `clover` | Codecov, Coveralls, GitHub coverage diffs. |
+| `CoberturaReport` | `cobertura` | GitLab/Jenkins coverage UI. |
+| `PhpUnitXmlReport` | `coverage-xml` | **Infection** (mutation testing). |
 
 For Infection, point `infection.json`'s `coverage.path` at the directory you gave to `PhpUnitXmlReport`.
+
+Every written report is announced, not printed: the run dispatches
+`Testo\Event\Report\ReportFileGenerating` once it knows coverage will be collected and
+`ReportFileGenerated` after the file is written, and whichever renderer owns stdout states it — a plain
+line in a terminal, a `##teamcity[testoReport …]` service message under `--teamcity`. The format id in
+the table is what a consumer switches on.
+
+`CoverageReport` therefore has two methods: `generate()` and `info(): ReportInfo`
+(`Testo\Core\Report\ReportInfo` — format, label, and a `Stringable` location). The location is what a
+consumer opens: for a report that fills a directory, the index inside it rather than the directory; for
+one that uploads its data, whatever URL it lands on.
+
+```php
+final readonly class MyReport implements CoverageReport
+{
+    public function __construct(private string $path) {}
+
+    public function generate(CoverageResult $result): void { /* write $this->path */ }
+
+    public function info(): ReportInfo
+    {
+        return new ReportInfo('my-format', 'My coverage', Path::create($this->path));
+    }
+}
+```
 
 ## Pitfalls
 
