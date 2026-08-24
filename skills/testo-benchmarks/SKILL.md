@@ -1,6 +1,6 @@
 ---
 name: testo-benchmarks
-description: Write or tune Testo performance benchmarks with #[Bench]. Use when the user asks for "benchmark", "measure performance", "compare two implementations", "micro-benchmark", or mentions Mean/Median/RStDev metrics in a Testo context.
+description: 'Write or tune Testo performance benchmarks with #[Bench]. Use when the user asks for "benchmark", "measure performance", "compare two implementations", "micro-benchmark", or mentions Mean/Median/RStDev metrics in a Testo context.'
 ---
 
 # Benchmarks in Testo (`#[Bench]`)
