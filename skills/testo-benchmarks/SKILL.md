@@ -55,6 +55,7 @@ Key parameters:
 - `arguments` — array of positional arguments, applied to every callable.
 - `calls` — invocations per iteration (the inner loop). Increase until per-iteration time is well above timer resolution.
 - `iterations` — number of iterations (the outer loop). Drives the statistics (Mean/Median/RStDev).
+- `warmup` — discarded calls before measuring (default `1` — enough for autoload/opcache warm-up). Raise it for JIT- or cache-sensitive code that needs many calls to reach a steady state.
 - `tolerance` — how much slower the marked method (`current`) may be than the fastest callable before the benchmark **fails**, as a fraction of the fastest filtered mean (default `0.02`, i.e. 2%).
 
 ## Pass / fail
@@ -77,7 +78,7 @@ Filter semantics live in the `testo-run-tests` skill. Putting benches in their o
 ## Writing a clean benchmark
 
 1. **Isolate the work.** Move setup outside the benched callable — building inputs every call inflates the result.
-2. **Warm up.** The first iteration is often slower (cold cache). Trust the median over the mean for that reason.
+2. **Warm up.** Cold caches inflate early calls — that's what the `warmup` parameter discards; raise it when the default single call isn't enough. Trust the median over the mean for the same reason.
 3. **Stabilise.** Iterate until RStDev < 2%. If you can't get there, the system is noisy (background processes, thermal throttling, GC) — say so honestly rather than ship unstable numbers.
 4. **Compare like with like.** Same inputs across all `callables`. Don't bench `json_encode($small)` against `serialize($large)`.
 5. **Don't benchmark trivial work.** If a call is sub-microsecond and being looped 10 000 times, you are measuring loop overhead, not the work.

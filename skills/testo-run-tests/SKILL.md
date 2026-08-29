@@ -67,8 +67,9 @@ interface — parse the JSON. When a human also needs terminal output (CI logs),
 ```
 
 A case ranks by `place` (1 is fastest); times are microseconds, each `…Diff` a percentage against the
-`place` 1 baseline (0.0 for it, positive for slower), `rstdev` the spread as a percent of the mean, the
-`filtered*` trio the same with outliers dropped, and `memory` the peak bytes per iteration.
+`current` case (the `#[Bench]`-marked method) as the baseline — 0.0 for it, positive for slower,
+negative for faster — `rstdev` the spread as a percent of the mean, the `filtered*` trio the same with
+outliers dropped, and `memory` the peak bytes per iteration.
 
 ## Selecting what to run
 
