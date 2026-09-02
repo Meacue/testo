@@ -59,6 +59,13 @@ use Testo\Test\TestPlugin;
 )]
 final readonly class SkipInterceptor implements TestCaseRunInterceptor
 {
+    /**
+     * Intentionally takes no {@see Skip} parameter (contrast `RetryPolicyRunInterceptor`):
+     * the instance is built on two paths — by the container on the {@see TestPlugin}
+     * registration (`container->get()` cannot resolve an attribute) and by the injector on
+     * a fallback spawn (the attribute arrives in the arguments and is silently ignored).
+     * The attributes are looked up per case in {@see self::findParked()} instead.
+     */
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
     ) {}
