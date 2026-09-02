@@ -150,7 +150,7 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
             info: $testInfo,
             status: Status::Skipped,
             failure: new SkipTest(self::reason($testInfo, $attribute)),
-            attributes: ['duration' => 0],
+            attributes: ['duration' => 0, 'description' => $definition->getDescription()],
             summary: Summary::forTest(Status::Skipped),
         );
 
