@@ -56,11 +56,12 @@ use Testo\Test\Internal\SkipInterceptor;
  *   Skipped is neither a success nor a failure.
  * - On a non-test method the attribute is inert (like `#[Group]` on a helper).
  *
- * The attribute is handled by {@see SkipInterceptor} — registered by {@see TestPlugin}
- * and declared as the {@see FallbackInterceptor} for standalone use. The interceptor does
- * its own lookup over the case's tests (a case-level fallback would not see a method-level
- * attribute), so the registered instance covers every target; the fallback spawn is
- * deduplicated by the pipeline's conflict policy.
+ * The attribute is handled by {@see SkipInterceptor}, registered by {@see TestPlugin}.
+ * It is also declared as the {@see FallbackInterceptor}, which covers a class-level
+ * `#[Skip]` when the plugin is not registered — a case-level fallback is spawned from
+ * class attributes only. A method- or function-level `#[Skip]` needs the TestPlugin
+ * registration; without it the attribute is inert. When both paths are live, the
+ * duplicate spawn is collapsed by the interceptor's `ConflictPolicy::First`.
  * For skipping at runtime — from the test body, based on the environment — throw
  * {@see SkipTest} instead.
  *
