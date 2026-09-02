@@ -6,6 +6,9 @@ namespace Testo\Test;
 
 use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
+use Testo\Pipeline\Attribute\FallbackInterceptor;
+use Testo\Pipeline\Attribute\Interceptable;
+use Testo\Test\Internal\SkipInterceptor;
 
 /**
  * Marks a test as skipped without deleting or hiding it.
@@ -53,8 +56,11 @@ use Testo\Core\Value\Status;
  *   Skipped is neither a success nor a failure.
  * - On a non-test method the attribute is inert (like `#[Group]` on a helper).
  *
- * The attribute is a plain marker: {@see Internal\SkipInterceptor} (registered by
- * {@see TestPlugin}) looks it up itself and reports the synthetic Skipped results.
+ * The attribute is handled by {@see SkipInterceptor} — registered by {@see TestPlugin}
+ * and declared as the {@see FallbackInterceptor} for standalone use. The interceptor does
+ * its own lookup over the case's tests (a case-level fallback would not see a method-level
+ * attribute), so the registered instance covers every target; the fallback spawn is
+ * deduplicated by the pipeline's conflict policy.
  * For skipping at runtime — from the test body, based on the environment — throw
  * {@see SkipTest} instead.
  *
@@ -64,7 +70,8 @@ use Testo\Core\Value\Status;
  * @api
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
-final readonly class Skip
+#[FallbackInterceptor(SkipInterceptor::class)]
+final readonly class Skip implements Interceptable
 {
     /**
      * @param string $reason Why the test is parked. Optional, but a reference to an issue
