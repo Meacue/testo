@@ -6,7 +6,10 @@ namespace Tests\Test\Unit;
 
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Pipeline\Attribute\FallbackInterceptor;
+use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Test;
+use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
 
 /**
@@ -53,6 +56,27 @@ final class SkipAttributeTest
     public function isNotRepeatable(): void
     {
         Assert::same(self::attributeFlags() & \Attribute::IS_REPEATABLE, 0);
+    }
+
+    /**
+     * The pipeline collects `Interceptable` attributes; without the marker a class-level
+     * `#[Skip]` would be invisible to the attributes interceptor.
+     */
+    public function isInterceptable(): void
+    {
+        Assert::true(\is_a(Skip::class, Interceptable::class, true));
+    }
+
+    /**
+     * An `Interceptable` attribute must resolve to an interceptor, or the attributes
+     * interceptor throws at pipeline build time; the fallback names the handler.
+     */
+    public function declaresSkipInterceptorAsFallback(): void
+    {
+        $attributes = (new \ReflectionClass(Skip::class))->getAttributes(FallbackInterceptor::class);
+
+        Assert::count($attributes, 1);
+        Assert::same($attributes[0]->newInstance()->class, SkipInterceptor::class);
     }
 
     private static function attributeFlags(): int
