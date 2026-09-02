@@ -167,7 +167,8 @@ Runtime contract of `#[Skip]`: the test never enters the per-test pipeline, so
 engage, and a data-driven test yields a single Skipped entry. `#[BeforeClass]`/`#[AfterClass]`
 still run (also when every test of the case is parked), and the case class is only
 instantiated if a non-static class-level hook forces it. A run of only `#[Skip]`-marked
-tests is a success (exit 0).
+tests is a success (exit 0). `#[Skip]` applies to plain tests only: on a `#[Bench]` or
+`#[TestInline]` target it is inert — the benchmark or inline case runs as usual.
 
 ## Tests that intentionally perform no assertions
 

@@ -55,6 +55,9 @@ use Testo\Test\Internal\SkipInterceptor;
  * - A run consisting only of `#[Skip]`-marked tests is successful (exit code 0):
  *   Skipped is neither a success nor a failure.
  * - On a non-test method the attribute is inert (like `#[Group]` on a helper).
+ * - Only plain test cases are handled ({@see SkipInterceptor} declares
+ *   `testType: TestType::Test`): on a `#[Bench]` or `#[TestInline]` target the attribute
+ *   is inert — the benchmark or inline case runs as usual.
  *
  * The attribute is handled by {@see SkipInterceptor}, registered by {@see TestPlugin}.
  * It is also declared as the {@see FallbackInterceptor}, which covers a class-level

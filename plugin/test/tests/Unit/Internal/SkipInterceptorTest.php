@@ -19,8 +19,10 @@ use Testo\Core\Definition\TestDefinitions;
 use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
 use Testo\Core\Value\Summary;
+use Testo\Core\Value\TestType;
 use Testo\Event\Test\TestPipelineFinished;
 use Testo\Event\Test\TestPipelineStarting;
+use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Test;
 use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
@@ -207,6 +209,19 @@ final class SkipInterceptorTest
         Assert::count($finished, 1);
         Assert::same($starting[0]->testInfo->name, 'parked');
         Assert::same($finished[0]->testResult->status, Status::Skipped);
+    }
+
+    /**
+     * `#[Skip]` is a plain-test feature: the interceptor declares `testType: TestType::Test`,
+     * so on a bench or inline case the type filter drops it and the attribute is inert.
+     */
+    public function declaresTestTypeScopingSkipToPlainTests(): void
+    {
+        $attributes = (new \ReflectionClass(SkipInterceptor::class))
+            ->getAttributes(InterceptorOptions::class);
+
+        Assert::count($attributes, 1);
+        Assert::same($attributes[0]->newInstance()->testType, TestType::Test);
     }
 
     private static function createDispatcher(): EventDispatcherInterface
