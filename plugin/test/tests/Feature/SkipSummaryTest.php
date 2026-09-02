@@ -62,6 +62,32 @@ final class SkipSummaryTest
         Assert::same($result->summary->total(), 2);
     }
 
+    /**
+     * The dedup invariant, pinned by name: with `TestPlugin` registered, a class-level
+     * `#[Skip]` also spawns a fallback instance of the interceptor, and the conflict policy
+     * must collapse the duplicate — each parked test yields exactly one result, not one per
+     * delivery path.
+     */
+    public function classLevelSkipIsNotHandledTwice(): void
+    {
+        $run = self::run(__DIR__ . '/../Stub/SkipSummary/OnlyParked');
+
+        $cases = [];
+        foreach ($run as $suite) {
+            foreach ($suite as $case) {
+                $cases[] = $case;
+            }
+        }
+
+        # The catalog holds one class with two parked tests.
+        Assert::count($cases, 1);
+        $results = \iterator_to_array($cases[0], preserve_keys: false);
+        Assert::count($results, 2);
+        $names = \array_map(static fn($result) => $result->info->name, $results);
+        \sort($names);
+        Assert::same($names, ['firstParked', 'secondParked']);
+    }
+
     private static function run(string $catalog): RunResult
     {
         return Application::createFromConfig(new ApplicationConfig(
