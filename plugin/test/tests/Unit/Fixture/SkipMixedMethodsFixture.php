@@ -12,6 +12,9 @@ use Testo\Test\Skip;
  */
 final class SkipMixedMethodsFixture
 {
+    /**
+     * Checks that order totals include the reworked pricing.
+     */
     #[Skip('broken by the pricing rework, see ISSUE-123')]
     public function parked(): void
     {

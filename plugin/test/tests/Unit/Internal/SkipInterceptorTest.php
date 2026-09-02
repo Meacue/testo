@@ -212,6 +212,23 @@ final class SkipInterceptorTest
     }
 
     /**
+     * The terminal renders a test's PHPDoc description from the result attributes (as the
+     * regular test path stamps it), so the synthetic result must carry it too.
+     */
+    public function carriesDescriptionInSyntheticResult(): void
+    {
+        $interceptor = new SkipInterceptor(self::createDispatcher());
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked');
+
+        $result = $interceptor->runTestCase($info, self::coreNext());
+
+        Assert::same(
+            self::findResult($result, 'parked')->attributes['description'],
+            'Checks that order totals include the reworked pricing.',
+        );
+    }
+
+    /**
      * `#[Skip]` is a plain-test feature: the interceptor declares `testType: TestType::Test`,
      * so on a bench or inline case the type filter drops it and the attribute is inert.
      */
