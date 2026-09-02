@@ -87,6 +87,8 @@ Don't ship `#[Repeat(times: 50)]` long-term on a fast suite — CI cost adds up.
    - Use `#[Repeat]`, never `#[Retry]`.
 3. Is the flakiness from shared state inside the suite (ordering)?
    - Don't reach for either attribute. Fix isolation (lifecycle hooks, fresh fixtures).
+4. Parking the test for a longer while (root cause known but not fixable now)?
+   - `#[Skip('flaky on CI, see ISSUE-123')]` (`Testo\Test\Skip`) — the test stops running but stays visible in reports as Skipped with the reason. `#[Retry]` is for stabilizing, not parking.
 
 ## Pitfalls
 

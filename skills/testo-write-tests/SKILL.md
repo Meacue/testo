@@ -136,6 +136,39 @@ Constraints:
 - Subclasses work: `class MissingExtensionSkip extends SkipTest {}` is still recognized.
 - Return type stays `void`, or `never` if the throw is unconditional.
 
+## Parking a test: `#[Skip]`
+
+To skip a test declaratively — without running any of its code — put `Testo\Test\Skip` on the
+test method, the class (skips every test of the case; inherited from parents and traits, a
+method-level reason wins), or a free function:
+
+```php
+use Testo\Test\Skip;
+
+#[Test]
+#[Skip('broken by the pricing rework, see ISSUE-123')]
+public function calculatesTotal(): void { ... }   // reported as Skipped, body never runs
+```
+
+The test stays visible in every report as `Status::Skipped` with the message
+`{testId} is skipped via #[Skip] ==> {reason}` (without ` ==> ...` when the reason is empty).
+`reason` is optional and the attribute is not repeatable.
+
+Which skipping tool to reach for:
+
+| Tool | Decided by | Visibility | Use when |
+|---|---|---|---|
+| `#[Skip('...')]` | code, ahead of time | always reported, with reason | test is parked and must be returned to |
+| `throw SkipTest` | test body, at runtime | reported when the run gets there | test isn't applicable in this environment |
+| `#[Group]` + `--group=!x` | runner invocation | invisible — filtered out of reports | a category you sometimes don't run |
+
+Runtime contract of `#[Skip]`: the test never enters the per-test pipeline, so
+`#[BeforeTest]`/`#[AfterTest]`, data providers, `#[Retry]`/`#[Repeat]` and coverage never
+engage, and a data-driven test yields a single Skipped entry. `#[BeforeClass]`/`#[AfterClass]`
+still run (also when every test of the case is parked), and the case class is only
+instantiated if a non-static class-level hook forces it. A run of only `#[Skip]`-marked
+tests is a success (exit 0).
+
 ## Tests that intentionally perform no assertions
 
 A test that finishes successfully without recording a single assertion is reported as
