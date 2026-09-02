@@ -19,6 +19,7 @@ use Testo\Event\Test\TestPipelineFinished;
 use Testo\Event\Test\TestPipelineStarting;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\Middleware\TestCaseRunInterceptor;
+use Testo\Pipeline\Policy\ConflictPolicy;
 use Testo\Test\Skip;
 use Testo\Test\TestPlugin;
 
@@ -49,6 +50,11 @@ use Testo\Test\TestPlugin;
  */
 #[InterceptorOptions(
     order: InterceptorOptions::ORDER_DEFAULT,
+    # A class-level #[Skip] spawns a second instance of this interceptor through the fallback
+    # alias, next to the one registered by TestPlugin; First collapses the duplicate onto the
+    # registered one. The interceptor is stateless, so either instance would do — keeping the
+    # registered one preserves its stable position in the chain.
+    onConflict: ConflictPolicy::First,
     testType: TestType::Test,
 )]
 final readonly class SkipInterceptor implements TestCaseRunInterceptor
