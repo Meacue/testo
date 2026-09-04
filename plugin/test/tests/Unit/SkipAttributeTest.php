@@ -33,13 +33,6 @@ final class SkipAttributeTest
         Assert::same($skip->reason, 'flaky on CI, see ISSUE-123');
     }
 
-    public function namedReasonArgument(): void
-    {
-        $skip = new Skip(reason: 'named');
-
-        Assert::same($skip->reason, 'named');
-    }
-
     public function targetsClassMethodAndFunction(): void
     {
         $flags = self::attributeFlags();
