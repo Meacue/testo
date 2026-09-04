@@ -95,6 +95,17 @@ final class SkipFeatureTest
     }
 
     /**
+     * The function-based analog of the control neighbor: an enabled function of a partially
+     * parked file still runs through the wrapped batch runner and passes.
+     */
+    public function controlNeighborFunctionNextToParkedFunctionStillRuns(): void
+    {
+        $result = TestRunner::runTest('Tests\Test\Stub\Skip\enabled_function');
+
+        Assert::same($result->status, Status::Passed);
+    }
+
+    /**
      * The origin contract for downstream consumers: a `#[Skip]`-parked result carries the
      * attribute instances in `$result->info`, unlike a runtime `throw SkipTest` skip.
      */
