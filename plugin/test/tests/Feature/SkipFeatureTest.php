@@ -33,6 +33,14 @@ use Tests\Test\Stub\Skip\SkipWithRetryStub;
 #[Covers(SkipInterceptor::class)]
 final class SkipFeatureTest
 {
+    public function __construct()
+    {
+        # Functions are not autoloadable: load the stub so TestRunner::runTest() can resolve the
+        # function names below regardless of which test runs first. The pipeline re-includes the
+        # same file (include_once) when it runs.
+        require_once __DIR__ . '/../Stub/Skip/skip_functions.php';
+    }
+
     public function methodLevelSkipReportsSkippedWithComposedReason(): void
     {
         $result = TestRunner::runTest([SkipMethodStub::class, 'parked']);
