@@ -4,9 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Lifecycle\Unit\Internal;
 
+use Internal\Path;
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Core\Context\CaseInfo;
+use Testo\Core\Context\CaseResult;
+use Testo\Core\Context\Identity\SuiteIdentity;
+use Testo\Core\Definition\CaseDefinition;
+use Testo\Core\Definition\TestDefinitions;
+use Testo\Core\Value\Status;
 use Testo\Core\Value\TestType;
+use Testo\Lifecycle\AfterClass;
+use Testo\Lifecycle\AfterTest;
+use Testo\Lifecycle\BeforeClass;
+use Testo\Lifecycle\BeforeTest;
 use Testo\Lifecycle\Internal\LifecycleInterceptor;
 use Testo\Test;
 use Testo\Tokenizer\DefinitionLocator;
@@ -15,6 +26,7 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
 use Tests\Lifecycle\Unit\Fixture\ClassWithLifecycleMethods;
 use Tests\Lifecycle\Unit\Fixture\ClassWithMultipleLifecycleOnOneMethod;
 use Tests\Lifecycle\Unit\Fixture\ClassWithoutLifecycle;
+use Tests\Lifecycle\Unit\Fixture\PrunedFunctionsState;
 
 #[Test]
 #[Covers(LifecycleInterceptor::class)]
@@ -166,6 +178,61 @@ final class LifecycleInterceptorTest
             ->hasKeys('fnAlpha', 'fnBeta');
     }
 
+    /**
+     * Regression: hook discovery for a function-based case must come from
+     * {@see CaseDefinition::$file}, not from the surviving tests. Any outer case interceptor
+     * may prune tests from the case before this interceptor runs, and the
+     * `#[BeforeClass]`/`#[AfterClass]` hooks must still fire — also when nothing survived.
+     * Discovery used to locate the source file from the first surviving test function, so a
+     * fully pruned case silently lost its class-level hooks.
+     */
+    public function runsClassHooksForFunctionCaseWhoseTestsWereAllPruned(): void
+    {
+        # Functions are not autoloadable: load the fixture to reach the counters.
+        require_once $this->fixturesDir . 'PrunedFunctionsWithLifecycle.php';
+        PrunedFunctionsState::$beforeClassCalls = 0;
+        PrunedFunctionsState::$afterClassCalls = 0;
+        $info = $this->makeFunctionCaseInfoWithoutTests($this->fixturesDir . 'PrunedFunctionsWithLifecycle.php');
+
+        $hooksAtNext = null;
+        $beforeClassAtNext = null;
+        $afterClassAtNext = null;
+        $this->interceptor->runTestCase(
+            $info,
+            static function (CaseInfo $case) use (&$hooksAtNext, &$beforeClassAtNext, &$afterClassAtNext): CaseResult {
+                $hooksAtNext = $case->getAttribute(LifecycleInterceptor::class, []);
+                $beforeClassAtNext = PrunedFunctionsState::$beforeClassCalls;
+                $afterClassAtNext = PrunedFunctionsState::$afterClassCalls;
+                return new CaseResult(results: [], status: Status::Passed);
+            },
+        );
+
+        # All four hooks were discovered from the case file and published for the inner pipeline.
+        Assert::array($hooksAtNext)
+            ->hasKeys(BeforeClass::class, AfterClass::class, BeforeTest::class, AfterTest::class);
+        # The class hooks fire exactly once, around the inner pipeline: BeforeClass has already
+        # fired when `$next` runs, AfterClass has not yet.
+        Assert::same($beforeClassAtNext, 1);
+        Assert::same($afterClassAtNext, 0);
+        Assert::same(PrunedFunctionsState::$beforeClassCalls, 1);
+        Assert::same(PrunedFunctionsState::$afterClassCalls, 1);
+    }
+
+    /**
+     * A synthetic function-based definition whose file does not exist on disk has no
+     * discoverable hooks — the case must still pass through the pipeline instead of
+     * failing on tokenization.
+     */
+    public function passesThroughFunctionCaseWithoutRealSourceFile(): void
+    {
+        $info = $this->makeFunctionCaseInfoWithoutTests(__DIR__ . '/does-not-exist.php');
+        $expected = new CaseResult(results: [], status: Status::Passed);
+
+        $result = $this->interceptor->runTestCase($info, static fn(): CaseResult => $expected);
+
+        Assert::same($result, $expected);
+    }
+
     private function makeDefinitionWithAllPublicMethodsAsTests(string $fixture, string $classFqn): FileDefinitions
     {
         $path = $this->fixturesDir . $fixture;
@@ -202,5 +269,23 @@ final class LifecycleInterceptorTest
         }
 
         return $definition;
+    }
+
+    /**
+     * Build a {@see CaseInfo} over a function-based case (null reflection) whose test set is
+     * empty — the state an outer case interceptor leaves behind after pruning every test.
+     */
+    private function makeFunctionCaseInfoWithoutTests(string $path): CaseInfo
+    {
+        $file = Path::create($path);
+        $definition = new CaseDefinition(
+            name: $file->name(),
+            type: TestType::Test->value,
+            file: $file,
+            reflection: null,
+            tests: new TestDefinitions(),
+        );
+
+        return new CaseInfo(definition: $definition, suiteIdentity: new SuiteIdentity('Lifecycle/Unit'));
     }
 }

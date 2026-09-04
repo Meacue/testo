@@ -37,7 +37,7 @@ use Testo\Tokenizer\Reflection\TokenizedFile;
  * Both class-based cases (methods of a {@see \Testo\Test} class) and function-based cases (a file of
  * top-level functions, whose {@see CaseDefinition::$reflection} is null) are supported. For a
  * function-based case the hooks are the file's lifecycle-annotated functions, discovered from the
- * source file of the case's tests.
+ * case's source file ({@see CaseDefinition::$file}).
  *
  * @internal
  * @psalm-internal Testo\Lifecycle
@@ -167,27 +167,25 @@ final readonly class LifecycleInterceptor implements
     /**
      * Collect the lifecycle-annotated free functions of a function-based case.
      *
-     * A function-based case carries no class reflection, so the hooks are located from the source
-     * file of the case's tests: every function declared there is reflected and filtered down to
-     * those carrying a lifecycle attribute.
+     * A function-based case carries no class reflection, so the hooks are located from the case's
+     * source file ({@see CaseDefinition::$file}): every function declared there is reflected and
+     * filtered down to those carrying a lifecycle attribute.
+     *
+     * The path comes from the definition itself, never from the surviving tests: outer case
+     * interceptors may prune tests from the case, and the `#[BeforeClass]`/`#[AfterClass]` hooks
+     * must still run for a fully pruned case.
      *
      * @return list<\ReflectionFunction>
      */
     private static function collectCaseFunctions(CaseDefinition $definition): array
     {
-        $path = null;
-        foreach ($definition->tests->getTests() as $test) {
-            if ($test->reflection instanceof \ReflectionFunction) {
-                $path = $test->reflection->getFileName();
-                break;
-            }
-        }
-
-        if (!\is_string($path)) {
+        $path = $definition->file;
+        if (!$path->isFile()) {
+            # A synthetic definition without a real source file has no discoverable hooks.
             return [];
         }
 
-        $file = new TokenizedFile(file: new \SplFileInfo($path), path: $path);
+        $file = new TokenizedFile(file: new \SplFileInfo((string) $path), path: $path);
 
         return \array_values(\array_filter(
             DefinitionLocator::getFunctions($file),
