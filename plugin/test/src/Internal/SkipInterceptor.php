@@ -153,7 +153,8 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
 
     /**
      * `{testId} is skipped via #[Skip]`, extended with ` ==> {reason}` when a reason is given.
-     * The generated part is always present, so every reporter shows the origin of the skip;
+     * The generated part is always present, so reporters that render skip failure messages
+     * can show that the skip came from #[Skip];
      * the test id is the test's address ({@see \Testo\Core\Context\Identity\TestIdentity::fqn()}),
      * the string `--filter` takes back.
      */
