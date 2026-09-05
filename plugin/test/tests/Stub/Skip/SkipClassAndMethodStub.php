@@ -21,4 +21,10 @@ final class SkipClassAndMethodStub
     {
         throw new \LogicException('Must never run: the case is parked.');
     }
+
+    #[Skip]
+    public function emptyOwnReason(): void
+    {
+        throw new \LogicException('Must never run: the test is parked.');
+    }
 }

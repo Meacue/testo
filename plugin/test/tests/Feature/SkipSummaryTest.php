@@ -11,6 +11,7 @@ use Testo\Application\Config\SuiteConfig;
 use Testo\Assert;
 use Testo\Codecov\Covers;
 use Testo\Core\Context\RunResult;
+use Testo\Core\Context\TestResult;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Test\Internal\SkipInterceptor;
@@ -26,13 +27,16 @@ use Testo\Test\Skip;
 final class SkipSummaryTest
 {
     /**
-     * The classic off-by-parked bug: totals must satisfy `total = passed + failed + skipped`,
-     * and the data-driven parked test counts exactly once.
+     * The mixed catalog holds one passing, one failing and two parked tests (one of them
+     * data-driven). The classic off-by-parked bug: totals must satisfy
+     * `total = passed + failed + skipped` with the data-driven parked test counted exactly
+     * once — and the failing neighbor still fails the run.
      */
-    public function totalsAddUpWithParkedTests(): void
+    public function parkedTestsAddUpAndFailingNeighborStillFailsTheRun(): void
     {
-        $summary = self::run(__DIR__ . '/../Stub/SkipSummary/Mixed')->summary;
+        $result = self::run(__DIR__ . '/../Stub/SkipSummary/Mixed');
 
+        $summary = $result->summary;
         Assert::same($summary->count(Status::Passed), 1);
         Assert::same($summary->count(Status::Failed), 1);
         Assert::same($summary->count(Status::Skipped), 2);
@@ -40,50 +44,37 @@ final class SkipSummaryTest
             $summary->total(),
             $summary->passed() + $summary->failed() + $summary->count(Status::Skipped),
         );
-    }
-
-    public function failingNeighborStillFailsTheRun(): void
-    {
-        $result = self::run(__DIR__ . '/../Stub/SkipSummary/Mixed');
-
         Assert::same($result->status, Status::Failed);
     }
 
     /**
      * A run consisting only of `#[Skip]`-marked tests is a success: Skipped is neither a
      * success nor a failure, so nothing fails the run.
-     */
-    public function runOfOnlyParkedTestsIsSuccessful(): void
-    {
-        $result = self::run(__DIR__ . '/../Stub/SkipSummary/OnlyParked');
-
-        Assert::same($result->status, Status::Passed);
-        Assert::same($result->summary->count(Status::Skipped), 2);
-        Assert::same($result->summary->total(), 2);
-    }
-
-    /**
-     * The dedup invariant, pinned by name: with `TestPlugin` registered, a class-level
+     *
+     * The same run pins the dedup invariant: with `TestPlugin` registered, a class-level
      * `#[Skip]` also spawns a fallback instance of the interceptor, and the conflict policy
      * must collapse the duplicate — each parked test yields exactly one result, not one per
      * delivery path.
      */
-    public function classLevelSkipIsNotHandledTwice(): void
+    public function runOfOnlyParkedTestsIsSuccessfulAndDeliveredOnce(): void
     {
         $run = self::run(__DIR__ . '/../Stub/SkipSummary/OnlyParked');
 
+        Assert::same($run->status, Status::Passed);
+        Assert::same($run->summary->count(Status::Skipped), 2);
+        Assert::same($run->summary->total(), 2);
         $cases = [];
         foreach ($run as $suite) {
             foreach ($suite as $case) {
                 $cases[] = $case;
             }
         }
-
         # The catalog holds one class with two parked tests.
         Assert::count($cases, 1);
-        $results = \iterator_to_array($cases[0], preserve_keys: false);
-        Assert::count($results, 2);
-        $names = \array_map(static fn($result) => $result->info->name, $results);
+        $names = \array_map(
+            static fn(TestResult $result): string => $result->info->name,
+            \iterator_to_array($cases[0], preserve_keys: false),
+        );
         \sort($names);
         Assert::same($names, ['firstParked', 'secondParked']);
     }

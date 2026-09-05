@@ -23,7 +23,6 @@ final readonly class TestPlugin implements PluginConfigurator
     {
         $collector = $container->get(InterceptorCollector::class);
         $collector->addInterceptor(new TestoAttributesLocatorInterceptor());
-        # Registered as a class-string: the container injects the event dispatcher on resolve.
         $collector->addInterceptor(SkipInterceptor::class);
     }
 }

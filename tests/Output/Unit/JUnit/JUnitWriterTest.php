@@ -164,10 +164,14 @@ final class JUnitWriterTest
         Assert::count($xml->testsuite->testcase->skipped, 1);
     }
 
+    /**
+     * The failure message is the single source of truth for the skip reason: every producer
+     * (a runtime throw, a declarative `#[Skip]`) delivers it the same way, and the writer
+     * renders it as the `message` of `<skipped>`.
+     */
+    #[Covers(JUnitWriter::class)]
     public function skippedTestCarriesTheReasonFromTheFailureMessage(): void
     {
-        // Arrange: the failure message is the single source of truth for the skip reason —
-        // every producer (a runtime throw, a declarative skip) delivers it the same way.
         $writer = new JUnitWriter();
         $writer->startSuite('MySuite');
         $writer->addTestResult(self::makeResult(
@@ -177,10 +181,8 @@ final class JUnitWriterTest
         ));
         $writer->finishSuite();
 
-        // Act
         $xml = self::loadXml($writer->generate('Testo'));
 
-        // Assert
         $skipped = $xml->testsuite->testcase->skipped;
         Assert::count($skipped, 1);
         Assert::same((string) $skipped['message'], 'sqlite extension is missing');

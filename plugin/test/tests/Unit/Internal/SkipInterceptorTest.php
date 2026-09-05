@@ -64,7 +64,7 @@ final class SkipInterceptorTest
 
         $parked = self::findResult($result, 'parked');
         Assert::same($parked->status, Status::Skipped);
-        Assert::true($parked->failure instanceof SkipTest);
+        Assert::instanceOf($parked->failure, SkipTest::class);
         Assert::same($parked->summary->count(Status::Skipped), 1);
         Assert::same($result->summary->count(Status::Skipped), 1);
         Assert::same($result->summary->count(Status::Passed), 1);
@@ -113,8 +113,9 @@ final class SkipInterceptorTest
         $result = $interceptor->runTestCase($info, self::coreNext());
 
         $origin = self::findResult($result, 'parked')->info->getAttribute(Skip::class);
-        Assert::true(\is_array($origin) && $origin !== []);
-        Assert::true($origin[0] instanceof Skip);
+        Assert::true(\is_array($origin));
+        Assert::count($origin, 1);
+        Assert::instanceOf($origin[0], Skip::class);
         Assert::same($origin[0]->reason, 'broken by the pricing rework, see ISSUE-123');
         Assert::null(self::findResult($result, 'enabled')->info->getAttribute(Skip::class));
     }
@@ -132,10 +133,14 @@ final class SkipInterceptorTest
         Assert::same(self::findResult($result, 'second')->status, Status::Skipped);
     }
 
+    /**
+     * The method-level attribute wins as a whole: an empty method reason is not filled in
+     * from the class reason.
+     */
     public function methodReasonWinsOverClassReason(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipClassLevelFixture::class, 'first', 'second');
+        $info = self::createCaseInfo(SkipClassLevelFixture::class, 'first', 'second', 'third');
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
@@ -147,6 +152,10 @@ final class SkipInterceptorTest
             (string) self::findResult($result, 'second')->failure?->getMessage(),
             ' ==> method beats class',
         ));
+        Assert::same(
+            self::findResult($result, 'third')->failure?->getMessage(),
+            SkipClassLevelFixture::class . '::third is skipped via #[Skip]',
+        );
     }
 
     /**
@@ -189,8 +198,8 @@ final class SkipInterceptorTest
     }
 
     /**
-     * Reporters render test lines from the pipeline events, so the interceptor dispatches
-     * them for every synthetic result.
+     * Reporters render test lines from the pipeline events: Starting before Finished, both
+     * carrying the same address, so a reporter keyed on the identity closes what it opened.
      */
     public function dispatchesPipelineEventsForParkedTests(): void
     {
@@ -198,17 +207,17 @@ final class SkipInterceptorTest
         $interceptor = new SkipInterceptor($dispatcher);
         $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked');
 
-        $interceptor->runTestCase($info, self::coreNext());
+        $result = $interceptor->runTestCase($info, self::coreNext());
 
         /** @psalm-suppress UndefinedPropertyFetch The anonymous dispatcher exposes $dispatched. */
         $events = $dispatcher->dispatched;
-        $starting = \array_values(\array_filter($events, static fn(object $e): bool => $e instanceof TestPipelineStarting));
-        $finished = \array_values(\array_filter($events, static fn(object $e): bool => $e instanceof TestPipelineFinished));
-
-        Assert::count($starting, 1);
-        Assert::count($finished, 1);
-        Assert::same($starting[0]->testInfo->name, 'parked');
-        Assert::same($finished[0]->testResult->status, Status::Skipped);
+        Assert::count($events, 2);
+        [$starting, $finished] = $events;
+        Assert::instanceOf($starting, TestPipelineStarting::class);
+        Assert::instanceOf($finished, TestPipelineFinished::class);
+        Assert::same($starting->testInfo->name, 'parked');
+        Assert::same($finished->testInfo->identity, $starting->testInfo->identity);
+        Assert::same($finished->testResult, self::findResult($result, 'parked'));
     }
 
     /**
