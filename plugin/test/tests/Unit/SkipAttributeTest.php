@@ -6,6 +6,7 @@ namespace Tests\Test\Unit;
 
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Expect;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Test;
@@ -33,22 +34,36 @@ final class SkipAttributeTest
         Assert::same($skip->reason, 'flaky on CI, see ISSUE-123');
     }
 
-    public function targetsClassMethodAndFunction(): void
+    /**
+     * Exactly class, method and function — and nothing else, so no `IS_REPEATABLE`.
+     */
+    public function targetsClassMethodAndFunctionOnly(): void
     {
-        $flags = self::attributeFlags();
+        $attributes = (new \ReflectionClass(Skip::class))->getAttributes(\Attribute::class);
 
-        Assert::same($flags & \Attribute::TARGET_CLASS, \Attribute::TARGET_CLASS);
-        Assert::same($flags & \Attribute::TARGET_METHOD, \Attribute::TARGET_METHOD);
-        Assert::same($flags & \Attribute::TARGET_FUNCTION, \Attribute::TARGET_FUNCTION);
+        /** @var \Attribute $attribute */
+        $attribute = $attributes[0]->newInstance();
+
+        Assert::same(
+            $attribute->flags,
+            \Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION,
+        );
     }
 
     /**
-     * A skip carries a single reason — a second attribute on the same target has nowhere
-     * to go, so PHP itself rejects the duplicate at reflection time.
+     * A skip carries a single reason — a second `#[Skip]` on the same target has nowhere
+     * to go, so PHP itself rejects the duplicate when the attribute is instantiated. This
+     * is the diagnostic the skip interceptor surfaces for such a target.
      */
-    public function isNotRepeatable(): void
+    public function duplicateOnOneTargetIsRejected(): never
     {
-        Assert::same(self::attributeFlags() & \Attribute::IS_REPEATABLE, 0);
+        $attributes = (new \ReflectionObject(new #[Skip('first')] #[Skip('second')] class {}))
+            ->getAttributes(Skip::class);
+
+        Expect::exception(\Error::class)
+            ->withMessage('Attribute "Testo\Test\Skip" must not be repeated');
+
+        $attributes[0]->newInstance();
     }
 
     /**
@@ -70,15 +85,5 @@ final class SkipAttributeTest
 
         Assert::count($attributes, 1);
         Assert::same($attributes[0]->newInstance()->class, SkipInterceptor::class);
-    }
-
-    private static function attributeFlags(): int
-    {
-        $attributes = (new \ReflectionClass(Skip::class))->getAttributes(\Attribute::class);
-
-        /** @var \Attribute $attribute */
-        $attribute = $attributes[0]->newInstance();
-
-        return $attribute->flags;
     }
 }

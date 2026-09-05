@@ -14,6 +14,7 @@ use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
 use Testo\Testing\Attribute\TestingSuite;
 use Testo\Testing\Helper\TestRunner;
+use Tests\Test\Stub\PipelineEntrySpyPlugin;
 use Tests\Test\Stub\Skip\SkipChildStub;
 use Tests\Test\Stub\Skip\SkipClassAndMethodStub;
 use Tests\Test\Stub\Skip\SkipClassLevelStub;
@@ -28,7 +29,7 @@ use Tests\Test\Stub\Skip\SkipWithRepeatStub;
 use Tests\Test\Stub\Skip\SkipWithRetryStub;
 
 #[Test]
-#[TestingSuite(path: __DIR__ . '/../Stub/Skip')]
+#[TestingSuite(path: __DIR__ . '/../Stub/Skip', plugins: [PipelineEntrySpyPlugin::class])]
 #[Covers(Skip::class)]
 #[Covers(SkipInterceptor::class)]
 final class SkipFeatureTest
@@ -46,9 +47,9 @@ final class SkipFeatureTest
         $result = TestRunner::runTest([SkipMethodStub::class, 'parked']);
 
         Assert::same($result->status, Status::Skipped);
-        Assert::true($result->failure instanceof SkipTest);
+        Assert::instanceOf($result->failure, SkipTest::class);
         Assert::same(
-            $result->failure->getMessage(),
+            $result->failure?->getMessage(),
             SkipMethodStub::class . '::parked is skipped via #[Skip] ==> broken by the pricing rework, see ISSUE-123',
         );
     }
@@ -91,6 +92,21 @@ final class SkipFeatureTest
         Assert::true(\str_ends_with((string) $inherited->failure?->getMessage(), ' ==> class-wide reason'));
     }
 
+    /**
+     * The method-level attribute wins as a whole: an empty method reason is not filled in
+     * from the class reason.
+     */
+    public function emptyMethodReasonStillWinsOverClassReason(): void
+    {
+        $result = TestRunner::runTest([SkipClassAndMethodStub::class, 'emptyOwnReason']);
+
+        Assert::same($result->status, Status::Skipped);
+        Assert::same(
+            $result->failure?->getMessage(),
+            SkipClassAndMethodStub::class . '::emptyOwnReason is skipped via #[Skip]',
+        );
+    }
+
     public function functionalTestUsesFunctionFqnInMessage(): void
     {
         $result = TestRunner::runTest('Tests\Test\Stub\Skip\parked_function');
@@ -122,8 +138,9 @@ final class SkipFeatureTest
         $result = TestRunner::runTest([SkipMethodStub::class, 'parked']);
 
         $origin = $result->info->getAttribute(Skip::class);
-        Assert::true(\is_array($origin) && $origin !== []);
-        Assert::true($origin[0] instanceof Skip);
+        Assert::true(\is_array($origin));
+        Assert::count($origin, 1);
+        Assert::instanceOf($origin[0], Skip::class);
     }
 
     /**
@@ -161,10 +178,12 @@ final class SkipFeatureTest
      */
     public function nonStaticClassHookStillBuildsTheClass(): void
     {
+        $constructions = SkipNonStaticHookStub::$constructions;
+
         $result = TestRunner::runTest([SkipNonStaticHookStub::class, 'parked']);
 
         Assert::same($result->status, Status::Skipped);
-        Assert::true(SkipNonStaticHookStub::$constructed);
+        Assert::same(SkipNonStaticHookStub::$constructions - $constructions, 1);
     }
 
     public function classLevelSkipIsInheritedFromParent(): void
@@ -184,16 +203,17 @@ final class SkipFeatureTest
     }
 
     /**
-     * A data-driven parked test yields a single Skipped node: providers are not expanded
-     * (and not even called), no `MultipleResult` aggregate is attached.
+     * A data-driven parked test yields a single Skipped node: the provider is never called
+     * (not once across all catalog runs of this class), no `MultipleResult` aggregate is
+     * attached.
      */
-    public function dataProviderIsNotExpandedForParkedTest(): void
+    public function dataProviderIsNotCalledForParkedTest(): void
     {
         $result = TestRunner::runTest([SkipWithDataProviderStub::class, 'parked']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::null($result->getAttribute(MultipleResult::class));
-        Assert::false(SkipWithDataProviderStub::$providerCalled);
+        Assert::same(SkipWithDataProviderStub::$providerCalls, 0);
     }
 
     public function retryDoesNotEngageForParkedTest(): void
@@ -215,15 +235,46 @@ final class SkipFeatureTest
     }
 
     /**
+     * The common ground of the hook/provider/retry/repeat checks above: a parked test never
+     * enters the per-test pipeline at all. A spy interceptor on that pipeline sees the
+     * enabled neighbors of the catalog and none of the parked tests.
+     */
+    public function parkedTestsNeverEnterThePerTestPipeline(): void
+    {
+        $offset = \count(PipelineEntrySpyPlugin::$entered);
+
+        TestRunner::runTest([SkipMethodStub::class, 'parked']);
+
+        $entered = \array_slice(PipelineEntrySpyPlugin::$entered, $offset);
+        Assert::contains($entered, SkipMethodStub::class . '::enabled');
+        Assert::same(\array_intersect($entered, [
+            SkipMethodStub::class . '::parked',
+            SkipMethodStub::class . '::parkedNoReason',
+            SkipWithHooksStub::class . '::parked',
+            SkipWithDataProviderStub::class . '::parked',
+            SkipWithRetryStub::class . '::parked',
+            SkipWithRepeatStub::class . '::parked',
+            SkipInFiberStub::class . '::parked',
+            'Tests\Test\Stub\Skip\parked_function',
+        ]), []);
+    }
+
+    /**
      * Fiber compatibility: the skip interceptor wraps the fiber batch runner instead of
-     * replacing it — the enabled test still runs on the scheduler, the parked one is skipped.
+     * replacing it. The round-robin interleaving of the two enabled tests is produced only by
+     * the case scheduler — run sequentially, their `\Fiber::suspend()` would throw and the
+     * log would stop short — while the parked test is still skipped.
      */
     public function fiberBatchRunnerSurvivesTheWrap(): void
     {
-        $enabled = TestRunner::runTest([SkipInFiberStub::class, 'enabled']);
+        $offset = \count(SkipInFiberStub::$log);
+
         $parked = TestRunner::runTest([SkipInFiberStub::class, 'parked']);
 
-        Assert::same($enabled->status, Status::Passed);
         Assert::same($parked->status, Status::Skipped);
+        Assert::same(
+            \array_slice(SkipInFiberStub::$log, $offset),
+            ['first.1', 'second.1', 'first.2', 'second.2'],
+        );
     }
 }

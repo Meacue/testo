@@ -26,45 +26,37 @@ use Testo\Test\TestPlugin;
 /**
  * Reports {@see Skip}-marked tests as skipped without running them.
  *
- * A case-level interceptor (registered by {@see TestPlugin}): before handing the case on, it
- * removes every `#[Skip]` test from the case's test set — so by the time lifecycle hooks run
- * and the per-test pipeline starts, the parked tests are simply not there — and delivers a
- * synthetic {@see Status::Skipped} result for each of them instead.
+ * A case-level interceptor (registered by {@see TestPlugin}, also the attribute's fallback):
+ * it removes every parked test from the case's test set before handing the case on — so
+ * lifecycle hooks and the per-test pipeline never see them — and appends a synthetic
+ * {@see Status::Skipped} result for each through the case's batch runner
+ * ({@see CaseInfo::withBatchRunner}). A runner already installed by an outer interceptor
+ * (e.g. testo/fiber's) is wrapped, never replaced. Every synthetic result is announced with
+ * the {@see TestPipelineStarting}/{@see TestPipelineFinished} pair, so reporters render the
+ * skipped lines inside the case block; the core aggregates the case as usual.
  *
- * Delivery rides the case's batch runner ({@see CaseInfo::withBatchRunner}): a wrapper runs
- * the real handlers (or the already-installed runner, e.g. testo/fiber's — wrapped, never
- * replaced), then appends the synthetic results, dispatching {@see TestPipelineStarting}/
- * {@see TestPipelineFinished} for each so reporters render the skipped lines inside the
- * case block. The core aggregates case status and summary from the returned list as usual.
+ * Ordering: {@see InterceptorOptions::ORDER_DEFAULT} sits outer to the lifecycle interceptor
+ * (so filtering happens before `#[BeforeClass]`) and inner to the fiber interceptor (so a
+ * fiber batch runner is already on the case and gets wrapped).
  *
- * Ordering: {@see InterceptorOptions::ORDER_DEFAULT} keeps this interceptor outer to the
- * lifecycle interceptor (`PHP_INT_MAX`, so filtering happens before `#[BeforeClass]`) and
- * inner to the fiber interceptor (`ORDER_DATA_PROVIDER - 1`, so a fiber batch runner is
- * already on the case and gets wrapped).
- *
- * Never throws for a parked test — a throw from a case interceptor would abort the whole
- * case; skipping is expressed by returning results ("return, do not throw").
+ * Never throws for a parked test — a throw from a case interceptor aborts the whole case.
  *
  * @internal
  * @psalm-internal Testo\Test
  */
 #[InterceptorOptions(
     order: InterceptorOptions::ORDER_DEFAULT,
-    # A class-level #[Skip] spawns a second instance of this interceptor through the fallback
-    # alias, next to the one registered by TestPlugin; First collapses the duplicate onto the
-    # registered one. The interceptor is stateless, so either instance would do — keeping the
-    # registered one preserves its stable position in the chain.
+    # A class-level #[Skip] spawns a second instance through the fallback alias, next to the
+    # one registered by TestPlugin; First collapses the duplicate onto the registered one.
     onConflict: ConflictPolicy::First,
     testType: TestType::Test,
 )]
 final readonly class SkipInterceptor implements TestCaseRunInterceptor
 {
     /**
-     * Intentionally takes no {@see Skip} parameter (contrast `RetryPolicyRunInterceptor`):
-     * the instance is built on two paths — by the container on the {@see TestPlugin}
-     * registration (`container->get()` cannot resolve an attribute) and by the injector on
-     * a fallback spawn (the attribute arrives in the arguments and is silently ignored).
-     * The attributes are looked up per case in {@see self::findParked()} instead.
+     * Takes no {@see Skip} parameter on purpose: the container also builds the instance for
+     * the {@see TestPlugin} registration, where no attribute is at hand. The attributes are
+     * looked up per case in {@see self::findParked()} instead.
      */
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
@@ -160,18 +152,14 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
     }
 
     /**
-     * Composes the reported message: `{testId} is skipped via #[Skip]`, extended with
-     * ` ==> {reason}` when a reason is given. The generated part is always present so every
-     * reporter shows the origin of the skip even with an empty reason.
+     * `{testId} is skipped via #[Skip]`, extended with ` ==> {reason}` when a reason is given.
+     * The generated part is always present, so every reporter shows the origin of the skip;
+     * the test id is the test's address ({@see \Testo\Core\Context\Identity\TestIdentity::fqn()}),
+     * the string `--filter` takes back.
      */
     private static function reason(TestInfo $info, Skip $attribute): string
     {
-        $class = $info->caseInfo->definition->reflection?->getName();
-        $testId = $class !== null
-            ? "{$class}::{$info->name}"
-            : $info->testDefinition->reflection->getName();
-
-        $message = "{$testId} is skipped via #[Skip]";
+        $message = "{$info->identity->fqn()} is skipped via #[Skip]";
 
         return $attribute->reason === '' ? $message : "{$message} ==> {$attribute->reason}";
     }

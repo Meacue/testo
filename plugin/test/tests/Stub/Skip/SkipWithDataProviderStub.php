@@ -8,9 +8,13 @@ use Testo\Data\DataProvider;
 use Testo\Test;
 use Testo\Test\Skip;
 
+/**
+ * The provider counts its calls before returning anything, so the counter tells "never
+ * called" apart from "called but not iterated" — a generator body would only run on iteration.
+ */
 final class SkipWithDataProviderStub
 {
-    public static bool $providerCalled = false;
+    public static int $providerCalls = 0;
 
     #[Test]
     #[Skip('data-driven test is parked as a whole')]
@@ -20,10 +24,16 @@ final class SkipWithDataProviderStub
         throw new \LogicException('Must never run: the test is parked.');
     }
 
-    public static function provide(): iterable
+    /**
+     * @return array<non-empty-string, array{int}>
+     */
+    public static function provide(): array
     {
-        self::$providerCalled = true;
-        yield [1];
-        yield [2];
+        ++self::$providerCalls;
+
+        return [
+            'one' => [1],
+            'two' => [2],
+        ];
     }
 }

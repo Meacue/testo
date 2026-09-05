@@ -49,7 +49,7 @@
         "testo/lifecycle": "^0.1.5",
         "testo/repeat": "^0.1.9",
         "testo/retry": "^0.1.5",
-        "testo/test": "0.1.6 - 1",
+        "testo/test": "^0.1.6",
         "yiisoft/injector": "^1.2"
     },
     "require-dev": {
@@ -132,7 +132,7 @@
                     "testo/lifecycle": "0.1.x-dev",
                     "testo/repeat": "0.1.x-dev",
                     "testo/retry": "0.1.x-dev",
-                    "testo/test": "0.2.x-dev"
+                    "testo/test": "0.1.x-dev"
                 }
             }
         },
