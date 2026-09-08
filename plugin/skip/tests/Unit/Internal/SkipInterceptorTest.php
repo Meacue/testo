@@ -319,7 +319,7 @@ final class SkipInterceptorTest
     /**
      * The rest of the placement contract: `ORDER_DEFAULT` is the slot the class docblock claims
      * (outer to the lifecycle interceptor, inner to the fiber one), and `ConflictPolicy::First`
-     * is what collapses the duplicate instance the class-level fallback alias spawns.
+     * is what collapses the instances the fallback alias spawns per `#[Skip]` occurrence.
      */
     public function declaresOrderAndConflictPolicy(): void
     {

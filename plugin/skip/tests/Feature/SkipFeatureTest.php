@@ -31,7 +31,7 @@ use Tests\Skip\Stub\Skip\SkipWithRepeatStub;
 use Tests\Skip\Stub\Skip\SkipWithRetryStub;
 
 /**
- * End-to-end checks that {@see SkipInterceptor}, registered by {@see \Testo\Test\TestPlugin},
+ * End-to-end checks that {@see SkipInterceptor}, wired by the attribute's fallback declaration,
  * deactivates the `#[Skip]`-marked tests of a case before it runs and delivers them back as
  * {@see Status::Skipped} results carrying the composed skip message.
  *

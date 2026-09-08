@@ -49,10 +49,9 @@ final class SkipSummaryTest
      * A run consisting only of {@see Skip}-marked tests is a success: {@see Status::Skipped}
      * is neither a success nor a failure, so nothing fails the run.
      *
-     * The same run pins one result per skipped test. The stub carries a class-level `#[Skip]`,
-     * so the pipeline spawns a fallback {@see SkipInterceptor} next to the one
-     * {@see \Testo\Test\TestPlugin} registers; a second delivery would show up here as an
-     * inflated total and an extra name.
+     * The same run pins one result per skipped test. Every `#[Skip]` occurrence of the case
+     * spawns its own {@see SkipInterceptor} through the fallback alias; a second delivery would
+     * show up here as an inflated total and an extra name.
      */
     public function runOfOnlySkippedTestsIsSuccessfulAndDeliveredOnce(): void
     {
