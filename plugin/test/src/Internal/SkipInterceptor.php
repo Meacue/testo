@@ -126,6 +126,20 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
     }
 
     /**
+     * `{testId} is skipped via #[Skip]`, extended with ` ==> {reason}` when a reason is given.
+     * The generated part is always present, so reporters that render skip failure messages can
+     * show that the skip came from `#[Skip]`. The test id is the test's address
+     * ({@see \Testo\Core\Context\Identity\TestIdentity::fqn()}) — the exact string `--filter`
+     * takes back.
+     */
+    private static function reason(TestInfo $info, Skip $attribute): string
+    {
+        $message = "{$info->identity->fqn()} is skipped via #[Skip]";
+
+        return $attribute->reason === '' ? $message : "{$message} ==> {$attribute->reason}";
+    }
+
+    /**
      * Collects the parked tests of the case: a method/function-level `#[Skip]` wins over the
      * class-level one; the class-level attribute is inherited from parents and traits.
      *
@@ -184,19 +198,5 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
         $this->eventDispatcher->dispatch(new TestPipelineFinished($testInfo, $result));
 
         return $result;
-    }
-
-    /**
-     * `{testId} is skipped via #[Skip]`, extended with ` ==> {reason}` when a reason is given.
-     * The generated part is always present, so reporters that render skip failure messages can
-     * show that the skip came from `#[Skip]`. The test id is the test's address
-     * ({@see \Testo\Core\Context\Identity\TestIdentity::fqn()}) — the exact string `--filter`
-     * takes back.
-     */
-    private static function reason(TestInfo $info, Skip $attribute): string
-    {
-        $message = "{$info->identity->fqn()} is skipped via #[Skip]";
-
-        return $attribute->reason === '' ? $message : "{$message} ==> {$attribute->reason}";
     }
 }

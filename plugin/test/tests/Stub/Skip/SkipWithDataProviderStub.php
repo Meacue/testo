@@ -16,14 +16,6 @@ final class SkipWithDataProviderStub
 {
     public static int $providerCalls = 0;
 
-    #[Test]
-    #[Skip('data-driven test is parked as a whole')]
-    #[DataProvider('provide')]
-    public function parked(int $value): void
-    {
-        throw new \LogicException('Must never run: the test is parked.');
-    }
-
     /**
      * @return array<non-empty-string, array{int}>
      */
@@ -35,5 +27,13 @@ final class SkipWithDataProviderStub
             'one' => [1],
             'two' => [2],
         ];
+    }
+
+    #[Test]
+    #[Skip('data-driven test is parked as a whole')]
+    #[DataProvider('provide')]
+    public function parked(int $value): void
+    {
+        throw new \LogicException('Must never run: the test is parked.');
     }
 }

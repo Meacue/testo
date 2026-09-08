@@ -17,6 +17,12 @@ use Testo\Test\Skip;
 #[Test]
 final class SummaryMixedStub
 {
+    public static function provide(): iterable
+    {
+        yield [1];
+        yield [2];
+    }
+
     public function passes(): void
     {
         Assert::true(true);
@@ -39,11 +45,5 @@ final class SummaryMixedStub
     public function parkedDataDriven(int $value): void
     {
         throw new \LogicException('Must never run: the test is parked.');
-    }
-
-    public static function provide(): iterable
-    {
-        yield [1];
-        yield [2];
     }
 }
