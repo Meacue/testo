@@ -114,8 +114,7 @@ final class SkipInterceptorTest
         $result = $interceptor->runTestCase($info, self::coreNext());
 
         $origin = self::findResult($result, 'parked')->info->getAttribute(Skip::class);
-        Assert::true(\is_array($origin));
-        Assert::count($origin, 1);
+        Assert::array($origin)->hasCount(1);
         Assert::instanceOf($origin[0], Skip::class);
         Assert::same($origin[0]->reason, 'broken by the pricing rework, see ISSUE-123');
         Assert::null(self::findResult($result, 'enabled')->info->getAttribute(Skip::class));

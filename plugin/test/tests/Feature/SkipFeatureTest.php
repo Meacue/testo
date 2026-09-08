@@ -152,8 +152,7 @@ final class SkipFeatureTest
         $result = TestRunner::runTest([SkipMethodStub::class, 'parked']);
 
         $origin = $result->info->getAttribute(Skip::class);
-        Assert::true(\is_array($origin));
-        Assert::count($origin, 1);
+        Assert::array($origin)->hasCount(1);
         Assert::instanceOf($origin[0], Skip::class);
     }
 
@@ -260,17 +259,16 @@ final class SkipFeatureTest
         TestRunner::runTest([SkipMethodStub::class, 'parked']);
 
         $entered = \array_slice(PipelineEntrySpyPlugin::$entered, $offset);
-        Assert::contains($entered, SkipMethodStub::class . '::enabled');
-        Assert::same(\array_intersect($entered, [
-            SkipMethodStub::class . '::parked',
-            SkipMethodStub::class . '::parkedNoReason',
-            SkipWithHooksStub::class . '::parked',
-            SkipWithDataProviderStub::class . '::parked',
-            SkipWithRetryStub::class . '::parked',
-            SkipWithRepeatStub::class . '::parked',
-            SkipInFiberStub::class . '::parked',
-            'Tests\Test\Stub\Skip\parked_function',
-        ]), []);
+        Assert::array($entered)
+            ->contains(SkipMethodStub::class . '::enabled')
+            ->notContains(SkipMethodStub::class . '::parked')
+            ->notContains(SkipMethodStub::class . '::parkedNoReason')
+            ->notContains(SkipWithHooksStub::class . '::parked')
+            ->notContains(SkipWithDataProviderStub::class . '::parked')
+            ->notContains(SkipWithRetryStub::class . '::parked')
+            ->notContains(SkipWithRepeatStub::class . '::parked')
+            ->notContains(SkipInFiberStub::class . '::parked')
+            ->notContains('Tests\Test\Stub\Skip\parked_function');
     }
 
     /**
