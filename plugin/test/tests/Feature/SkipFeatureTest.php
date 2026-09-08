@@ -159,7 +159,7 @@ final class SkipFeatureTest
 
     /**
      * The skipped test is filtered out before the case runs: class-level hooks fire as usual
-     * (once per catalog run), per-test hooks fire only for the enabled control test.
+     * (once per directory run), per-test hooks fire only for the enabled control test.
      */
     public function classHooksRunButTestHooksDoNot(): void
     {
@@ -230,7 +230,7 @@ final class SkipFeatureTest
 
     /**
      * A data-driven skipped test yields a single Skipped node: the provider is never called
-     * (not once across all catalog runs of this class), no `MultipleResult` aggregate is
+     * (not once across all directory runs of this class), no `MultipleResult` aggregate is
      * attached.
      */
     public function dataProviderIsNotCalledForSkippedTest(): void
@@ -277,7 +277,7 @@ final class SkipFeatureTest
     /**
      * The common ground of the hook/provider/retry/repeat checks above: a skipped test never
      * enters the per-test pipeline at all. A spy interceptor on that pipeline sees the
-     * enabled neighbors of the catalog and none of the skipped tests.
+     * enabled neighbors of the directory and none of the skipped tests.
      */
     public function skippedTestsNeverEnterThePerTestPipeline(): void
     {
@@ -288,6 +288,7 @@ final class SkipFeatureTest
         $entered = \array_slice(PipelineEntrySpyPlugin::$entered, $offset);
         Assert::array($entered)
             ->contains(SkipMethodStub::class . '::enabled')
+            ->contains('Tests\Test\Stub\Skip\enabledFunction')
             ->notContains(SkipMethodStub::class . '::skipped')
             ->notContains(SkipMethodStub::class . '::skippedNoReason')
             ->notContains(SkipWithHooksStub::class . '::skipped')

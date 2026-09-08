@@ -7,12 +7,12 @@ namespace Tests\Test\Stub\SkipStandalone;
 use Testo\Test\Skip;
 
 /**
- * A catalog for the standalone-fallback run: discovered by naming convention alone (no
+ * The case of the standalone-fallback run: discovered by naming convention alone (no
  * `#[Test]` attribute), executed without `TestPlugin` — only the class-level `#[Skip]`
  * fallback skips these tests. Lives in its own directory so the standalone run's
  * `FinderConfig` can point at it alone and pick up nothing else.
  */
-#[Skip('standalone catalog is skipped')]
+#[Skip('standalone case is skipped')]
 final class StandaloneSkippedTest
 {
     public function testFirstSkipped(): void

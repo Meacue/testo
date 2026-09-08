@@ -40,6 +40,7 @@ final class SkipAttributeTest
     {
         $attributes = (new \ReflectionClass(Skip::class))->getAttributes(\Attribute::class);
 
+        Assert::count($attributes, 1);
         /** @var \Attribute $attribute */
         $attribute = $attributes[0]->newInstance();
 

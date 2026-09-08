@@ -54,7 +54,8 @@ final class SkipInterceptorTest
 
     /**
      * The skipped tests still come back in the case result — as synthetic Skipped results
-     * with a SkipTest failure and a self-stamped summary.
+     * with a SkipTest failure and their own `Summary::forTest(Status::Skipped)`, since no core
+     * runner produces one for them.
      */
     public function returnsSyntheticSkippedResults(): void
     {
@@ -167,12 +168,15 @@ final class SkipInterceptorTest
         $interceptor = new SkipInterceptor(self::createDispatcher());
         $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'enabled');
         $batchRunner = false;
+        $seenTests = null;
 
-        $interceptor->runTestCase($info, static function (CaseInfo $inner) use (&$batchRunner): CaseResult {
+        $interceptor->runTestCase($info, static function (CaseInfo $inner) use (&$batchRunner, &$seenTests): CaseResult {
             $batchRunner = $inner->batchRunner;
+            $seenTests = \array_keys($inner->definition->tests->getTests());
             return new CaseResult(results: [], status: Status::Passed);
         });
 
+        Assert::same($seenTests, ['enabled']);
         Assert::null($batchRunner);
     }
 
