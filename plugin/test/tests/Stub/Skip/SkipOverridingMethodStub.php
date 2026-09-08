@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Test\Stub\Skip;
+
+use Testo\Test;
+
+/**
+ * Overrides a `#[Skip]`-marked method without repeating the attribute: the skip is inherited
+ * from the prototype in {@see SkipOverriddenMethodParentStub}, reason included.
+ */
+#[Test]
+final class SkipOverridingMethodStub extends SkipOverriddenMethodParentStub
+{
+    #[\Override]
+    public function parked(): void
+    {
+        throw new \LogicException('Must never run: the test is parked via the overridden method.');
+    }
+}

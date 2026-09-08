@@ -23,6 +23,7 @@ use Tests\Test\Stub\Skip\SkipConstructorSpyStub;
 use Tests\Test\Stub\Skip\SkipInFiberStub;
 use Tests\Test\Stub\Skip\SkipMethodStub;
 use Tests\Test\Stub\Skip\SkipNonStaticHookStub;
+use Tests\Test\Stub\Skip\SkipOverridingMethodStub;
 use Tests\Test\Stub\Skip\SkipTraitStub;
 use Tests\Test\Stub\Skip\SkipWithDataProviderStub;
 use Tests\Test\Stub\Skip\SkipWithHooksStub;
@@ -216,6 +217,18 @@ final class SkipFeatureTest
     }
 
     /**
+     * A method-level `#[Skip]` follows the prototype chain like `#[Group]` does: an overriding
+     * method without the attribute is still skipped, with the parent's reason.
+     */
+    public function methodLevelSkipIsInheritedByOverridingMethod(): void
+    {
+        $result = TestRunner::runTest([SkipOverridingMethodStub::class, 'parked']);
+
+        Assert::same($result->status, Status::Skipped);
+        Assert::true(\str_ends_with((string) $result->failure?->getMessage(), ' ==> inherited from the overridden method'));
+    }
+
+    /**
      * A data-driven parked test yields a single Skipped node: the provider is never called
      * (not once across all catalog runs of this class), no `MultipleResult` aggregate is
      * attached.
@@ -282,6 +295,7 @@ final class SkipFeatureTest
         $offset = \count(SkipInFiberStub::$log);
 
         $parked = TestRunner::runTest([SkipInFiberStub::class, 'parked']);
+            ->notContains(SkipOverridingMethodStub::class . '::parked')
 
         Assert::same($parked->status, Status::Skipped);
         Assert::same(

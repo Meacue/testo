@@ -139,8 +139,9 @@ Constraints:
 ## Parking a test with #[Skip]
 
 To skip a test declaratively — without running any of its code — put `Testo\Test\Skip` (from the
-`testo/test` plugin, the same package as `#[Test]`) on the test method, the class (skips every test
-of the case; inherited from parents and traits, a method-level reason wins), or a free function:
+`testo/test` plugin, the same package as `#[Test]`) on the test method (inherited by an overriding
+method that does not repeat it), the class (skips every test of the case; inherited from parents
+and traits, a method-level reason wins), or a free function:
 
 ```php
 use Testo\Test\Skip;

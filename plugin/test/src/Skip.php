@@ -35,6 +35,9 @@ use Testo\Test\Internal\SkipInterceptor;
  * classes and traits (like `#[Group]`); a method-level `#[Skip]` wins over the class-level
  * one, reason included.
  *
+ * A method-level `#[Skip]` is inherited as well: an overriding method without the attribute is
+ * skipped with the reason of the method it overrides.
+ *
  * The failure message reads `{testId} is skipped via #[Skip]`, extended with ` ==> {reason}`
  * when a reason is given. The JUnit, TeamCity and HTML reporters show that message; the
  * terminal prints the skipped line without it, and the compact `--json` report counts the
