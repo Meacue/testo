@@ -136,25 +136,30 @@ Constraints:
 - Subclasses work: `class MissingExtensionSkip extends SkipTest {}` is still recognized.
 - Return type stays `void`, or `never` if the throw is unconditional.
 
-## Parking a test: `#[Skip]`
+## Parking a test with #[Skip]
 
-To skip a test declaratively — without running any of its code — put `Testo\Test\Skip` on the
-test method, the class (skips every test of the case; inherited from parents and traits, a
-method-level reason wins), or a free function:
+To skip a test declaratively — without running any of its code — put `Testo\Test\Skip` (from the
+`testo/test` plugin, the same package as `#[Test]`) on the test method, the class (skips every test
+of the case; inherited from parents and traits, a method-level reason wins), or a free function:
 
 ```php
 use Testo\Test\Skip;
 
 #[Test]
 #[Skip('broken by the pricing rework, see ISSUE-123')]
-public function calculatesTotal(): void { ... }   // reported as Skipped, body never runs
+public function calculatesTotal(): void { /* ... */ }   // reported as Skipped, body never runs
 ```
 
 The test is reported as `Status::Skipped` and counted in the totals; its reason travels in the
 result's failure message `{testId} is skipped via #[Skip] ==> {reason}` (without ` ==> ...` when
 the reason is empty). The JUnit, TeamCity and HTML reports show that message; the terminal prints
 the skipped line without it, and the compact `--json` report only counts the test in
-`totals.skipped`. `reason` is optional and the attribute is not repeatable.
+`totals.skipped`.
+
+`reason` is optional and the attribute is not repeatable — but **always pass a reason that points
+at an issue** (`#[Skip('flaky on CI, see ISSUE-123')]`); a bare `#[Skip]` is how a parked test rots
+unreviewed. Its interceptor is registered by `TestPlugin` (on by default); in a suite configured
+without that plugin only a class-level `#[Skip]` still works — through the attribute's own fallback.
 
 Which skipping tool to reach for:
 

@@ -172,10 +172,24 @@ if (!$reachable) {
 }
 ```
 
-The canonical shipped example is `Testo\Test\Internal\SkipInterceptor` (`plugin/test`): a
-case-level interceptor that filters `#[Skip]`-marked tests out of the case before lifecycle
-hooks and returns synthetic Skipped results for them — constructing each `TestResult` by hand
-(status, `SkipTest` failure, self-stamped `Summary::forTest(...)`) instead of throwing.
+### Skipping from a case interceptor — do call `$next`
+
+At **case** level the rule inverts: returning a `CaseResult` without `$next` drops the case whole —
+its `#[BeforeClass]`/`#[AfterClass]` hooks and every test it still had to run. Skip a subset instead:
+
+- Deactivate what you skip — pick your tests out of `$info->definition->tests->getTests()` and set
+  `$definition->active = false` on each of those. Deactivated, not discarded: `getTests()` then
+  yields only the rest, and those are the tests the core runs.
+- Hand back their results yourself, from `CaseInfo::withBatchRunner`: **wrap** the runner already on
+  the case (testo/fiber may have set one), never replace it, and append one synthetic `TestResult`
+  per skipped test after the inner runner returns.
+- Dispatch `TestPipelineStarting`/`TestPipelineFinished` around each synthetic result, or reporters
+  never render its line, and stamp `summary: Summary::forTest(Status::Skipped)` on it — a result that
+  never passes through the test runner is not counted for you.
+
+The shipped implementation of exactly this shape is `Testo\Test\Internal\SkipInterceptor` in
+`plugin/test`, serving the `#[Skip]` attribute (whose contract is in the `testo-write-tests` skill). Read it as
+a reference — it is `@internal`, don't import or subclass it.
 
 ## Container scopes — provision per-case / per-suite resources
 
@@ -251,6 +265,8 @@ $optedOut = $method->getAttributes(WithoutTransaction::class) !== [];
 ## Pitfalls
 
 - **Skipping**: return a `Status::Skipped` `TestResult`; never `throw SkipTest` from an interceptor.
+  From a **case** interceptor still call `$next` — deactivate the tests you skip and append their
+  results through the batch runner.
 - **Cleanup**: wrap `$next()` in `try/finally`; a later interceptor may throw.
 - **State**: prefer pipeline attributes / container scope over mutable interceptor fields.
 - **Listeners** observe; **interceptors** change behaviour. Don't try to alter a run from a listener.
