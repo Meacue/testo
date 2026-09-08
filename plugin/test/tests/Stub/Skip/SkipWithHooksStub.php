@@ -61,7 +61,7 @@ final class SkipWithHooksStub
 
     public function enabled(): void
     {
-        // Control neighbor: proves the per-test hooks and counters do work in this case.
+        # Control neighbor: proves the per-test hooks and counters do work in this case.
         Assert::true(true);
     }
 }
