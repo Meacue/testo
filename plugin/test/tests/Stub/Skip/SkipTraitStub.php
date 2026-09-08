@@ -6,6 +6,9 @@ namespace Tests\Test\Stub\Skip;
 
 use Testo\Test;
 
+/**
+ * A case without its own `#[Skip]`: the class-level attribute comes from {@see SkipMarkerTrait}.
+ */
 #[Test]
 final class SkipTraitStub
 {

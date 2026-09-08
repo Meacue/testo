@@ -15,8 +15,9 @@ use Tests\Lifecycle\Stub\FullyParked\FullyParkedClassStub;
 use Tests\Lifecycle\Stub\FullyParked\FullyParkedFunctionState;
 
 /**
- * End-to-end proof of the `#[Skip]` contract: `#[BeforeClass]`/`#[AfterClass]` hooks of a case
- * still run when every test of the case is parked with `#[Skip]`.
+ * End-to-end regression test for {@see LifecycleInterceptor}: the `#[BeforeClass]`/`#[AfterClass]` hooks
+ * of a case still run when an outer case interceptor — here `#[Skip]` from `testo/test` — leaves
+ * the case without a single active test.
  *
  * The `#[Skip]` case interceptor deactivates the parked tests before the {@see LifecycleInterceptor}
  * collects the case's hooks, so hook discovery must not depend on the surviving tests. It does not:
@@ -43,9 +44,8 @@ final class FullyParkedCaseFeatureTest
     }
 
     /**
-     * The `#[Skip]` contract for a function-based case: class-level hooks fire exactly once per
-     * catalog run even though no test of the case stays active; per-test hooks have
-     * nothing to wrap and stay silent.
+     * The function-based case shape: class-level hooks fire exactly once per catalog run even
+     * though no test of the case stays active; per-test hooks have nothing to wrap and stay silent.
      */
     public function classHooksRunForFullyParkedFunctionCase(): void
     {

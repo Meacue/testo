@@ -6,6 +6,9 @@ namespace Tests\Test\Stub\Skip;
 
 use Testo\Test;
 
+/**
+ * A concrete case without its own `#[Skip]`: the attribute comes from {@see SkipParentStub}.
+ */
 #[Test]
 final class SkipChildStub extends SkipParentStub
 {

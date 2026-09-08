@@ -40,7 +40,7 @@ use Testo\Test\Internal\SkipInterceptor;
  * terminal prints the skipped line without it, and the compact `--json` report counts the
  * test in its totals.
  *
- * Runtime contract (v1):
+ * Runtime contract:
  *
  * - The skipped test never enters the per-test pipeline: `#[BeforeTest]`/`#[AfterTest]`
  *   hooks, data providers, `#[Retry]`/`#[Repeat]`, fibers and coverage never engage.
@@ -55,10 +55,9 @@ use Testo\Test\Internal\SkipInterceptor;
  * - On a non-test method the attribute is inert (like `#[Group]` on a helper). So is it on
  *   a `#[Bench]` or `#[TestInline]` target: only plain test cases are handled.
  *
- * Prerequisite: the handler, {@see SkipInterceptor}, is registered by {@see TestPlugin}.
- * Without the plugin only a class-level `#[Skip]` keeps working — through the
- * {@see FallbackInterceptor} declared below, which the pipeline spawns from class attributes
- * only; a method- or function-level `#[Skip]` is then inert.
+ * Prerequisite: {@see TestPlugin}, which registers the handler {@see SkipInterceptor}. Without
+ * the plugin only a class-level `#[Skip]` keeps working — through the {@see FallbackInterceptor}
+ * declared below; a method- or function-level `#[Skip]` is then inert.
  *
  * For skipping at runtime — from the test body, based on the environment — throw
  * {@see SkipTest} instead; the `is skipped via #[Skip]` marker tells the two apart in reports.

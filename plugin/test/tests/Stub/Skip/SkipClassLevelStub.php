@@ -7,6 +7,10 @@ namespace Tests\Test\Stub\Skip;
 use Testo\Test;
 use Testo\Test\Skip;
 
+/**
+ * A class-level `#[Skip]`: both tests of the case are skipped with the class reason, proving the
+ * attribute covers every test and not just the first one.
+ */
 #[Test]
 #[Skip('the whole case is parked')]
 final class SkipClassLevelStub

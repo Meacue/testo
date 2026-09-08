@@ -8,6 +8,11 @@ use Testo\Assert;
 use Testo\Test;
 use Testo\Test\Skip;
 
+/**
+ * Method-level `#[Skip]`, with and without a reason: only the marked tests of the case are
+ * deactivated; the unmarked neighbor still runs. Both marked bodies throw, so a marked test that
+ * reaches the pipeline anyway fails loudly instead of passing quietly.
+ */
 #[Test]
 final class SkipMethodStub
 {
@@ -25,7 +30,7 @@ final class SkipMethodStub
 
     public function enabled(): void
     {
-        // Control neighbor: stays runnable next to the parked ones.
+        # Control neighbor: stays runnable next to the parked ones.
         Assert::true(true);
     }
 }

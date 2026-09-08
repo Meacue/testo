@@ -9,8 +9,8 @@ use Testo\Test\Skip;
 /**
  * A catalog for the standalone-fallback run: discovered by naming convention alone (no
  * `#[Test]` attribute), executed without `TestPlugin` — only the class-level `#[Skip]`
- * fallback parks these tests. Lives in its own directory so no regular suite picks up
- * the convention-named class.
+ * fallback parks these tests. Lives in its own directory so the standalone run's
+ * `FinderConfig` can point at it alone and pick up nothing else.
  */
 #[Skip('standalone catalog is parked')]
 final class StandaloneParkedTest

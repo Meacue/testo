@@ -10,9 +10,10 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
- * One catalog with every outcome kind, so the summary arithmetic
- * `total = passed + failed + skipped` can be pinned. Not part of the Stub/Skip catalog:
- * the deliberately failing test would turn the feature runs red.
+ * One directory with a passing, a failing and two skipped tests, so the summary arithmetic
+ * `total = passed + failed + skipped` can be pinned. Kept out of the shared `Stub/Skip` directory:
+ * {@see \Tests\Test\Feature\SkipSummaryTest} asserts exact per-status counts, so the set of
+ * outcomes here has to stay closed.
  */
 #[Test]
 final class SummaryMixedStub
@@ -30,7 +31,7 @@ final class SummaryMixedStub
 
     public function fails(): void
     {
-        // Controlled failure: the parked tests must not hide it from the totals.
+        # Controlled failure: the parked tests must not hide it from the totals.
         Assert::true(false);
     }
 

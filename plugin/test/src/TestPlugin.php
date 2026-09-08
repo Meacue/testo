@@ -14,6 +14,9 @@ use Testo\Test\Internal\TestoAttributesLocatorInterceptor;
 /**
  * Find tests by the {@see Test} attribute.
  *
+ * Also enables {@see Skip}: {@see SkipInterceptor} reports `#[Skip]`-marked tests as skipped
+ * without running them.
+ *
  * @api
  */
 final readonly class TestPlugin implements PluginConfigurator

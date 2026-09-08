@@ -9,6 +9,8 @@ use Testo\Test\Skip;
 
 /**
  * Only parked tests and no class-level hooks: the class must never be instantiated.
+ *
+ * The flag is a one-way latch — nothing resets it, so feature tests assert it absolutely.
  */
 #[Test]
 #[Skip('fully parked, must not construct')]

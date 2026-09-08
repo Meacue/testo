@@ -7,6 +7,13 @@ namespace Tests\Test\Stub\Skip;
 use Testo\Test;
 use Testo\Test\Skip;
 
+/**
+ * Stub for verifying which {@see Skip} reason a test is skipped with: a method-level attribute
+ * wins over the class-level one, and a method without its own attribute inherits the class reason.
+ *
+ * The method-level attribute wins as a whole, so {@see self::emptyOwnReason()} is skipped with no
+ * reason at all instead of falling back to the class one.
+ */
 #[Test]
 #[Skip('class-wide reason')]
 final class SkipClassAndMethodStub

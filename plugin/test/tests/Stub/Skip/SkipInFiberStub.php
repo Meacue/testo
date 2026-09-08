@@ -11,14 +11,16 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
- * A class-level `#[RunInFiber(Schedule::RoundRobin)]` installs a fiber batch runner on the
+ * A class-level `#[RunInFiber]` ({@see Schedule::RoundRobin}) installs a fiber batch runner on the
  * case; the skip interceptor must wrap that runner, not replace it. The two enabled tests
  * suspend once each and write to a shared log: only the case scheduler produces the
  * round-robin interleaving `first.1, second.1, first.2, second.2` — run sequentially, the
  * `\Fiber::suspend()` outside a fiber would throw and the log would stop short.
  *
- * The log accumulates across catalog runs — the stubs and the feature test assert the tail
- * written by their own run.
+ * Driven through {@see \Testo\Testing\Helper\TestRunner} by the Feature suite;
+ * {@see \Tests\Test\Feature\SkipFeatureTest::fiberBatchRunnerSurvivesTheWrap()} asserts the
+ * interleaving. The log accumulates
+ * across catalog runs — this stub's tests and the feature test assert the tail written by their own run.
  */
 #[Test]
 #[RunInFiber(Schedule::RoundRobin)]

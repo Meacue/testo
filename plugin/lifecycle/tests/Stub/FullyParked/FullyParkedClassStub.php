@@ -10,9 +10,9 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
- * Class-based analog of the fully parked function case: for a class the hooks are resolved from
- * {@see \Testo\Core\Definition\CaseDefinition::$reflection}, so they never depended on the
- * surviving tests — pinned here so both flavors stay in lockstep.
+ * Class-based analog of the fully skipped function case in the same directory
+ * ({@see FullyParkedFunctionState}): the hooks are the case's non-tests, so they never
+ * depended on the surviving tests — pinned here so both flavors stay in lockstep.
  *
  * Static hook counters accumulate across catalog runs — feature tests assert deltas. The hooks
  * are static so the fully parked class is never instantiated.
