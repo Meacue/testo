@@ -18,10 +18,17 @@ use Tests\Lifecycle\Stub\FullyParked\FullyParkedFunctionState;
  * End-to-end proof of the `#[Skip]` contract: `#[BeforeClass]`/`#[AfterClass]` hooks of a case
  * still run when every test of the case is parked with `#[Skip]`.
  *
- * The `#[Skip]` case interceptor prunes the parked tests before the {@see LifecycleInterceptor}
- * collects the case's hooks, so hook discovery must not depend on the surviving tests: for a
- * function-based case it reads {@see \Testo\Core\Definition\CaseDefinition::$file}. Both case
- * shapes are pinned through the real pipeline.
+ * The `#[Skip]` case interceptor deactivates the parked tests before the {@see LifecycleInterceptor}
+ * collects the case's hooks, so hook discovery must not depend on the surviving tests. It does not:
+ * the hooks are the case's non-tests. Prefilling defines every member as a non-test,
+ * {@see LifecycleInterceptor} demotes back the ones a finder took for tests (a class-level `#[Test]`
+ * promotes the hook methods of a class case first), and it then reads them all back with
+ * `filter(isTest: false)` — non-tests outlive the deactivation of the tests.
+ *
+ * Both case shapes are pinned here through the real pipeline. Their members are prefilled by
+ * {@see \Testo\Core\Definition\CaseDefinitions::define()} from the two sources it knows: the
+ * methods of {@see \Testo\Core\Definition\CaseDefinition::$reflection} for a class-based case,
+ * the file's free functions for a function-based one.
  */
 #[Test]
 #[Covers(LifecycleInterceptor::class)]
@@ -37,7 +44,7 @@ final class FullyParkedCaseFeatureTest
 
     /**
      * The `#[Skip]` contract for a function-based case: class-level hooks fire exactly once per
-     * catalog run even though no test of the case survives the pruning; per-test hooks have
+     * catalog run even though no test of the case stays active; per-test hooks have
      * nothing to wrap and stay silent.
      */
     public function classHooksRunForFullyParkedFunctionCase(): void
@@ -58,8 +65,8 @@ final class FullyParkedCaseFeatureTest
     }
 
     /**
-     * The class-based analog: hooks come from the case's class reflection and must keep firing
-     * for a fully parked class exactly as before.
+     * The class-based analog: hooks are the non-tests prefilled from the case's class reflection
+     * and must keep firing for a fully parked class exactly as before.
      */
     public function classHooksRunForFullyParkedClassCase(): void
     {

@@ -23,6 +23,7 @@ use Testo\Core\Value\TestType;
 use Testo\Event\Test\TestPipelineFinished;
 use Testo\Event\Test\TestPipelineStarting;
 use Testo\Pipeline\Attribute\InterceptorOptions;
+use Testo\Pipeline\Policy\ConflictPolicy;
 use Testo\Test;
 use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
@@ -38,7 +39,7 @@ final class SkipInterceptorTest
 {
     /**
      * By the time `$next` (and with it every inner interceptor and lifecycle hook) runs,
-     * the parked tests are no longer in the case's test set.
+     * the parked tests are no longer in the case's active test set.
      */
     public function filtersParkedTestsBeforeNext(): void
     {
@@ -209,7 +210,6 @@ final class SkipInterceptorTest
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
-        /** @psalm-suppress UndefinedPropertyFetch The anonymous dispatcher exposes $dispatched. */
         $events = $dispatcher->dispatched;
         Assert::count($events, 2);
         [$starting, $finished] = $events;
@@ -238,6 +238,69 @@ final class SkipInterceptorTest
     }
 
     /**
+     * A skipped test is deactivated, not discarded: it leaves the case's active test set — the
+     * only set the core runs — yet stays a member of the case for anything that reads them all.
+     */
+    public function skippedTestIsDeactivatedNotDiscarded(): void
+    {
+        $interceptor = new SkipInterceptor(self::createDispatcher());
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked', 'enabled');
+
+        $interceptor->runTestCase($info, self::coreNext());
+
+        $tests = $info->definition->tests;
+        Assert::array($tests->getTests())->hasKeys('enabled')->doesNotHaveKeys('parked');
+        Assert::array($tests->getTests(active: false))->hasKeys('parked');
+        Assert::array($tests->all())->hasKeys('parked', 'enabled');
+    }
+
+    /**
+     * `#[Skip]` on a non-test member is inert. A case is prefilled with every member of the class
+     * — helpers and lifecycle hooks included — and the interceptor walks its tests only, so an
+     * attribute on a non-test has nothing to act on.
+     */
+    public function skipOnANonTestMemberIsInert(): void
+    {
+        $interceptor = new SkipInterceptor(self::createDispatcher());
+        $info = self::createCaseInfoWith(SkipMixedMethodsFixture::class, [
+            'parked' => new TestDefinition(
+                new \ReflectionMethod(SkipMixedMethodsFixture::class, 'parked'),
+                isTest: false,
+            ),
+            'enabled' => new TestDefinition(new \ReflectionMethod(SkipMixedMethodsFixture::class, 'enabled')),
+        ]);
+
+        $result = $interceptor->runTestCase($info, self::coreNext());
+
+        Assert::same($result->summary->count(Status::Skipped), 0);
+        Assert::same($result->summary->count(Status::Passed), 1);
+        Assert::same(self::findResult($result, 'enabled')->status, Status::Passed);
+    }
+
+    /**
+     * A test an earlier filter already dropped is not resurrected as Skipped: `--filter`/`--group`
+     * deactivate at location time, and reporting such a test would put it back into a run it was
+     * excluded from.
+     */
+    public function alreadyFilteredTestIsNotReportedAsSkipped(): void
+    {
+        $interceptor = new SkipInterceptor(self::createDispatcher());
+        $info = self::createCaseInfoWith(SkipMixedMethodsFixture::class, [
+            'parked' => new TestDefinition(
+                new \ReflectionMethod(SkipMixedMethodsFixture::class, 'parked'),
+                active: false,
+            ),
+            'enabled' => new TestDefinition(new \ReflectionMethod(SkipMixedMethodsFixture::class, 'enabled')),
+        ]);
+
+        $result = $interceptor->runTestCase($info, self::coreNext());
+
+        Assert::same($result->summary->count(Status::Skipped), 0);
+        Assert::same($result->summary->count(Status::Passed), 1);
+        Assert::same(self::findResult($result, 'enabled')->status, Status::Passed);
+    }
+
+    /**
      * `#[Skip]` is a plain-test feature: the interceptor declares `testType: TestType::Test`,
      * so on a bench or inline case the type filter drops it and the attribute is inert.
      */
@@ -248,6 +311,24 @@ final class SkipInterceptorTest
 
         Assert::count($attributes, 1);
         Assert::same($attributes[0]->newInstance()->testType, TestType::Test);
+    }
+
+    /**
+     * The rest of the placement contract: `ORDER_DEFAULT` is the slot the class docblock claims
+     * (outer to the lifecycle interceptor, inner to the fiber one), and `ConflictPolicy::First`
+     * is what collapses the duplicate instance the class-level fallback alias spawns.
+     */
+    public function declaresOrderAndConflictPolicy(): void
+    {
+        $attributes = (new \ReflectionClass(SkipInterceptor::class))
+            ->getAttributes(InterceptorOptions::class);
+
+        Assert::count($attributes, 1);
+        # Both values equal the InterceptorOptions defaults, so pin that they are written out.
+        Assert::array($attributes[0]->getArguments())->hasKeys('order', 'onConflict');
+        $options = $attributes[0]->newInstance();
+        Assert::same($options->order, InterceptorOptions::ORDER_DEFAULT);
+        Assert::same($options->onConflict, ConflictPolicy::First);
     }
 
     private static function createDispatcher(): EventDispatcherInterface
@@ -276,6 +357,18 @@ final class SkipInterceptorTest
             $definitions[$method] = new TestDefinition(new \ReflectionMethod($class, $method));
         }
 
+        return self::createCaseInfoWith($class, $definitions);
+    }
+
+    /**
+     * The same case built from definitions that carry their own flags — the shape a case has after
+     * prefilling (non-test members) or after an earlier filter deactivated one of its tests.
+     *
+     * @param class-string $class
+     * @param array<non-empty-string, TestDefinition> $definitions
+     */
+    private static function createCaseInfoWith(string $class, array $definitions): CaseInfo
+    {
         $caseDefinition = new CaseDefinition(
             name: $class,
             type: 'test',

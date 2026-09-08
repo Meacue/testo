@@ -14,10 +14,10 @@ use Testo\Test\Skip;
 /**
  * A fully parked function-based case: every `#[Test]` function is under `#[Skip]`.
  *
- * The `#[Skip]` case interceptor removes the parked tests from the case's test set before the
- * {@see \Testo\Lifecycle\Internal\LifecycleInterceptor} runs, so hook discovery must not depend
- * on the surviving tests: `#[BeforeClass]`/`#[AfterClass]` still run for the case (the `#[Skip]`
- * contract), while the per-test hooks have nothing to wrap.
+ * The `#[Skip]` case interceptor deactivates the skipped tests — they leave the case's active
+ * test set — before the {@see \Testo\Lifecycle\Internal\LifecycleInterceptor} runs, so hook
+ * discovery must not depend on the surviving tests: `#[BeforeClass]`/`#[AfterClass]` still run
+ * for the case (the `#[Skip]` contract), while the per-test hooks have nothing to wrap.
  *
  * Static hook counters accumulate across catalog runs — feature tests assert deltas.
  * State is shared through {@see FullyParkedFunctionState} because functions have no `$this`.
