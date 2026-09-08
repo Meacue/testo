@@ -15,23 +15,24 @@ use Testo\Convention\NamingConventionPlugin;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
-use Testo\Test;
-use Testo\Skip\Internal\SkipInterceptor;
 use Testo\Skip;
+use Testo\Skip\Internal\SkipInterceptor;
+use Testo\Test;
 use Testo\Test\TestPlugin;
 use Tests\Skip\Stub\SkipStandalone\StandaloneSkippedTest;
 
 /**
- * The standalone contract of `#[Skip]`: with `TestPlugin` not registered, the attribute's
- * {@see \Testo\Pipeline\Attribute\FallbackInterceptor} declaration alone skips a class-level
- * case (tests are discovered by naming convention, so no `#[Test]` attribute is involved).
+ * The standalone contract of `#[Skip]`: no plugin registers {@see SkipInterceptor}, so with
+ * `TestPlugin` out of the run and the tests discovered by naming convention, the attribute's own
+ * {@see \Testo\Pipeline\Attribute\FallbackInterceptor} declaration is all that skips a
+ * method-level case member.
  */
 #[Test]
 #[Covers(Skip::class)]
 #[Covers(SkipInterceptor::class)]
 final class SkipFallbackStandaloneTest
 {
-    public function classLevelSkipFallsBackWithoutTestPlugin(): void
+    public function methodLevelSkipFallsBackWithoutAnyPlugin(): void
     {
         $run = Application::createFromConfig(new ApplicationConfig(
             src: [],
@@ -44,33 +45,26 @@ final class SkipFallbackStandaloneTest
             ],
         ))->run();
 
-        /** @var list<TestResult> $tests */
+        /** @var array<non-empty-string, TestResult> $tests */
         $tests = [];
         foreach ($run as $suite) {
             foreach ($suite as $case) {
                 foreach ($case as $test) {
-                    $tests[] = $test;
+                    $tests[$test->info->name] = $test;
                 }
             }
         }
 
-        # No TestPlugin in this run: the interceptor the attribute spawns through its own
-        # #[FallbackInterceptor] is what reports both tests of the case.
         Assert::count($tests, 2);
+        Assert::true(StandaloneSkippedTest::$enabledRan);
+        Assert::same($tests['testEnabled']->status, Status::Passed);
 
-        $messages = [];
-        foreach ($tests as $test) {
-            Assert::same($test->status, Status::Skipped);
-            Assert::instanceOf($test->failure, SkipTest::class);
-            $messages[] = $test->failure?->getMessage();
-        }
-
-        # The order the results are appended in is not a contract; the composed messages are —
-        # the `is skipped via #[Skip]` marker and the class-level reason.
-        \sort($messages);
-        Assert::same($messages, [
-            StandaloneSkippedTest::class . '::testFirstSkipped is skipped via #[Skip] ==> standalone case is skipped',
-            StandaloneSkippedTest::class . '::testSecondSkipped is skipped via #[Skip] ==> standalone case is skipped',
-        ]);
+        $skipped = $tests['testSkipped'];
+        Assert::same($skipped->status, Status::Skipped);
+        Assert::instanceOf($skipped->failure, SkipTest::class);
+        Assert::same(
+            $skipped->failure->getMessage(),
+            StandaloneSkippedTest::class . '::testSkipped is skipped via #[Skip] ==> standalone method is skipped',
+        );
     }
 }

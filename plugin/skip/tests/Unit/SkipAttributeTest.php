@@ -6,6 +6,7 @@ namespace Tests\Skip\Unit;
 
 use Testo\Assert;
 use Testo\Codecov\Covers;
+use Testo\Pipeline\Attribute\CaseInterceptable;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Test;
@@ -57,6 +58,15 @@ final class SkipAttributeTest
     public function isInterceptable(): void
     {
         Assert::instanceOf(new Skip(), Interceptable::class);
+    }
+
+    /**
+     * A method- or function-level `#[Skip]` has to reach the case pipeline, which is built from
+     * class attributes alone unless the attribute opts in.
+     */
+    public function isCaseInterceptable(): void
+    {
+        Assert::instanceOf(new Skip(), CaseInterceptable::class);
     }
 
     /**

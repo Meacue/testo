@@ -263,6 +263,16 @@ $method = $info->testDefinition->reflection;
 $optedOut = $method->getAttributes(WithoutTransaction::class) !== [];
 ```
 
+An attribute can also bring its own interceptor, so users need no plugin registration at all —
+`#[Retry]`, `#[Repeat]` and `#[Skip]` ship this way. Implement `Testo\Pipeline\Attribute\Interceptable`
+and name the handler with `#[FallbackInterceptor(MyInterceptor::class)]` (repeatable — one per
+pipeline position); the core instantiates the interceptor with the attribute instance as a constructor
+argument when the attribute is found on a class (case and test pipelines) or on a test (test pipeline
+only). If a test-level attribute has to act on the **case** pipeline — take that test out before the
+class-level hooks, say — implement `Testo\Pipeline\Attribute\CaseInterceptable` instead: one interceptor
+instance is spawned per attribute occurrence, so declare `ConflictPolicy::First` in
+`#[InterceptorOptions]` to keep a single one.
+
 ## Pitfalls
 
 - **Skipping**: return a `Status::Skipped` `TestResult`; never `throw SkipTest` from an interceptor.

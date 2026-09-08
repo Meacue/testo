@@ -159,8 +159,8 @@ the skipped line without it, and the compact `--json` report only counts the tes
 
 `reason` is optional and the attribute is not repeatable — but **always pass a reason that points
 at an issue** (`#[Skip('flaky on CI, see ISSUE-123')]`); a bare `#[Skip]` is how a skipped test rots
-unreviewed. Its interceptor is registered by `TestPlugin` (on by default); in a suite configured
-without that plugin only a class-level `#[Skip]` still works — through the attribute's own fallback.
+unreviewed. The attribute needs no plugin registration: it wires its own interceptor, from a class,
+a method or a function alike.
 
 Which skipping tool to reach for:
 
