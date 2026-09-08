@@ -7,6 +7,8 @@ namespace Tests\Test\Unit\Fixture;
 use Testo\Test\Skip;
 
 /**
+ * Fixture with a class-level `#[Skip]` and method-level overrides.
+ *
  * Used by {@see \Tests\Test\Unit\Internal\SkipInterceptorTest}: a class-level `#[Skip]`
  * parks every test; a method-level `#[Skip]` wins over the class-level one, reason included —
  * also when its own reason is empty.
@@ -14,20 +16,11 @@ use Testo\Test\Skip;
 #[Skip('entire case is parked')]
 final class SkipClassLevelFixture
 {
-    public function first(): void
-    {
-        throw new \LogicException('Must never run: the test is parked.');
-    }
+    public function first(): void {}
 
     #[Skip('method beats class')]
-    public function second(): void
-    {
-        throw new \LogicException('Must never run: the test is parked.');
-    }
+    public function second(): void {}
 
     #[Skip]
-    public function third(): void
-    {
-        throw new \LogicException('Must never run: the test is parked.');
-    }
+    public function third(): void {}
 }

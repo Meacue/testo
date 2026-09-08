@@ -188,6 +188,28 @@ final class JUnitWriterTest
         Assert::same((string) $skipped['message'], 'sqlite extension is missing');
     }
 
+    /**
+     * No reason — no `message`: an empty attribute would read as an empty reason.
+     */
+    #[Covers(JUnitWriter::class)]
+    public function skippedTestWithoutAReasonOmitsTheMessage(): void
+    {
+        $writer = new JUnitWriter();
+        $writer->startSuite('MySuite');
+        $writer->addTestResult(self::makeResult(
+            'passingTest',
+            Status::Skipped,
+            failure: new SkipTest(),
+        ));
+        $writer->finishSuite();
+
+        $xml = self::loadXml($writer->generate('Testo'));
+
+        $skipped = $xml->testsuite->testcase->skipped;
+        Assert::count($skipped, 1);
+        Assert::null($skipped['message']);
+    }
+
     public function cancelledTestCountsAsSkipped(): void
     {
         // Arrange

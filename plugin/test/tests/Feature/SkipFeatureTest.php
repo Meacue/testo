@@ -9,6 +9,7 @@ use Testo\Codecov\Covers;
 use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
 use Testo\Data\MultipleResult;
+use Testo\Filter\Group;
 use Testo\Test;
 use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
@@ -28,7 +29,19 @@ use Tests\Test\Stub\Skip\SkipWithHooksStub;
 use Tests\Test\Stub\Skip\SkipWithRepeatStub;
 use Tests\Test\Stub\Skip\SkipWithRetryStub;
 
+/**
+ * End-to-end checks that {@see SkipInterceptor}, registered by {@see \Testo\Test\TestPlugin},
+ * deactivates the `#[Skip]`-marked tests of a case before it runs and delivers them back as
+ * {@see Status::Skipped} results carrying the composed skip message.
+ *
+ * Every test method replays the whole `Stub/Skip` directory through {@see TestRunner} and then inspects
+ * either the returned result or what the stubs recorded. The stubs' static counters and flags
+ * survive those runs, so a check either takes a delta over its own run or pins a value that must
+ * never move at all. The directory holds a `#[RunInFiber]` stub, executed by every one of those
+ * runs — hence the class-level `#[Group('async')]`.
+ */
 #[Test]
+#[Group('async')]
 #[TestingSuite(path: __DIR__ . '/../Stub/Skip', plugins: [PipelineEntrySpyPlugin::class])]
 #[Covers(Skip::class)]
 #[Covers(SkipInterceptor::class)]
@@ -120,7 +133,8 @@ final class SkipFeatureTest
 
     /**
      * The function-based analog of the control neighbor: an enabled function of a partially
-     * parked file still runs through the wrapped batch runner and passes.
+     * parked file still runs through the batch runner the interceptor installs on the case, and
+     * passes.
      */
     public function controlNeighborFunctionNextToParkedFunctionStillRuns(): void
     {
@@ -149,19 +163,19 @@ final class SkipFeatureTest
      */
     public function classHooksRunButTestHooksDoNot(): void
     {
-        $beforeClass = SkipWithHooksStub::$beforeClass;
-        $afterClass = SkipWithHooksStub::$afterClass;
-        $beforeTest = SkipWithHooksStub::$beforeTest;
-        $afterTest = SkipWithHooksStub::$afterTest;
+        $beforeClass = SkipWithHooksStub::$beforeClassCalls;
+        $afterClass = SkipWithHooksStub::$afterClassCalls;
+        $beforeTest = SkipWithHooksStub::$beforeTestCalls;
+        $afterTest = SkipWithHooksStub::$afterTestCalls;
 
         $result = TestRunner::runTest([SkipWithHooksStub::class, 'parked']);
 
         Assert::same($result->status, Status::Skipped);
-        Assert::same(SkipWithHooksStub::$beforeClass - $beforeClass, 1);
-        Assert::same(SkipWithHooksStub::$afterClass - $afterClass, 1);
+        Assert::same(SkipWithHooksStub::$beforeClassCalls - $beforeClass, 1);
+        Assert::same(SkipWithHooksStub::$afterClassCalls - $afterClass, 1);
         # Only the enabled control test of the case went through the per-test pipeline.
-        Assert::same(SkipWithHooksStub::$beforeTest - $beforeTest, 1);
-        Assert::same(SkipWithHooksStub::$afterTest - $afterTest, 1);
+        Assert::same(SkipWithHooksStub::$beforeTestCalls - $beforeTest, 1);
+        Assert::same(SkipWithHooksStub::$afterTestCalls - $afterTest, 1);
     }
 
     public function fullyParkedCaseWithoutHooksIsNeverInstantiated(): void

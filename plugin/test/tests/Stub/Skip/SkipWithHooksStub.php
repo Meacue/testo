@@ -13,38 +13,44 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
+ * Stub for verifying that a `#[Skip]`-marked test never reaches the per-test pipeline:
+ * {@see \Testo\Test\Internal\SkipInterceptor} deactivates it before the case's hooks and remaining
+ * tests run, so the `#[BeforeClass]`/`#[AfterClass]` hooks still fire once per case run while
+ * `#[BeforeTest]`/`#[AfterTest]` fire for the enabled control test {@see enabled()} alone.
+ * Driven by {@see \Tests\Test\Feature\SkipFeatureTest::classHooksRunButTestHooksDoNot()}.
+ *
  * Static hook counters accumulate across catalog runs — feature tests assert deltas.
  */
 #[Test]
 final class SkipWithHooksStub
 {
-    public static int $beforeClass = 0;
-    public static int $afterClass = 0;
-    public static int $beforeTest = 0;
-    public static int $afterTest = 0;
+    public static int $beforeClassCalls = 0;
+    public static int $afterClassCalls = 0;
+    public static int $beforeTestCalls = 0;
+    public static int $afterTestCalls = 0;
 
     #[BeforeClass]
     public static function bootCase(): void
     {
-        ++self::$beforeClass;
+        ++self::$beforeClassCalls;
     }
 
     #[AfterClass]
     public static function shutdownCase(): void
     {
-        ++self::$afterClass;
+        ++self::$afterClassCalls;
     }
 
     #[BeforeTest]
     public static function bootTest(): void
     {
-        ++self::$beforeTest;
+        ++self::$beforeTestCalls;
     }
 
     #[AfterTest]
     public static function shutdownTest(): void
     {
-        ++self::$afterTest;
+        ++self::$afterTestCalls;
     }
 
     #[Skip('parked next to hooks')]

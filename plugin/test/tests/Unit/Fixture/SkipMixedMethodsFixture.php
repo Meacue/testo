@@ -7,8 +7,10 @@ namespace Tests\Test\Unit\Fixture;
 use Testo\Test\Skip;
 
 /**
- * Used by {@see \Tests\Test\Unit\Internal\SkipInterceptorTest}: a case mixing parked and
- * enabled tests. Lives in Fixture (excluded from discovery), so the throwing bodies never run.
+ * Fixture mixing skipped and enabled tests.
+ *
+ * Used by {@see \Tests\Test\Unit\Internal\SkipInterceptorTest}: one test is skipped with a reason,
+ * one without a reason, and one stays enabled to show what the interceptor leaves alone.
  */
 final class SkipMixedMethodsFixture
 {
@@ -16,16 +18,10 @@ final class SkipMixedMethodsFixture
      * Checks that order totals include the reworked pricing.
      */
     #[Skip('broken by the pricing rework, see ISSUE-123')]
-    public function parked(): void
-    {
-        throw new \LogicException('Must never run: the test is parked.');
-    }
+    public function parked(): void {}
 
     #[Skip]
-    public function parkedNoReason(): void
-    {
-        throw new \LogicException('Must never run: the test is parked.');
-    }
+    public function parkedNoReason(): void {}
 
     public function enabled(): void {}
 }

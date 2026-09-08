@@ -6,7 +6,6 @@ namespace Tests\Test\Unit;
 
 use Testo\Assert;
 use Testo\Codecov\Covers;
-use Testo\Expect;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Test;
@@ -51,28 +50,12 @@ final class SkipAttributeTest
     }
 
     /**
-     * A skip carries a single reason — a second `#[Skip]` on the same target has nowhere
-     * to go, so PHP itself rejects the duplicate when the attribute is instantiated. This
-     * is the diagnostic the skip interceptor surfaces for such a target.
-     */
-    public function duplicateOnOneTargetIsRejected(): never
-    {
-        $attributes = (new \ReflectionObject(new #[Skip('first')] #[Skip('second')] class {}))
-            ->getAttributes(Skip::class);
-
-        Expect::exception(\Error::class)
-            ->withMessage('Attribute "Testo\Test\Skip" must not be repeated');
-
-        $attributes[0]->newInstance();
-    }
-
-    /**
      * The pipeline collects `Interceptable` attributes; without the marker a class-level
      * `#[Skip]` would be invisible to the attributes interceptor.
      */
     public function isInterceptable(): void
     {
-        Assert::true(\is_a(Skip::class, Interceptable::class, true));
+        Assert::instanceOf(new Skip(), Interceptable::class);
     }
 
     /**

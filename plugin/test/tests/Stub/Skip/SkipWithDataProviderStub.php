@@ -9,9 +9,13 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
+ * Stub with a data-driven test skipped by {@see Skip}:
+ * {@see \Testo\Data\Internal\DataProviderInterceptor} must never expand the test's data sets.
+ *
  * The provider counts its calls before returning anything, so the counter tells "never
  * called" apart from "called but not iterated" — a generator body would only run on iteration.
  */
+#[Test]
 final class SkipWithDataProviderStub
 {
     public static int $providerCalls = 0;
@@ -29,7 +33,6 @@ final class SkipWithDataProviderStub
         ];
     }
 
-    #[Test]
     #[Skip('data-driven test is parked as a whole')]
     #[DataProvider('provide')]
     public function parked(int $value): void

@@ -18,8 +18,9 @@ use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
 
 /**
- * Session-level arithmetic for parked tests: they are counted, not lost — and they never
- * turn a run red on their own.
+ * Session-level arithmetic for {@see Skip}-marked tests: they are counted in the run's
+ * {@see \Testo\Core\Value\Summary}, not lost — and {@see Status::Skipped} never turns a run
+ * red on its own.
  */
 #[Test]
 #[Covers(Skip::class)]
@@ -27,34 +28,31 @@ use Testo\Test\Skip;
 final class SkipSummaryTest
 {
     /**
-     * The mixed catalog holds one passing, one failing and two parked tests (one of them
-     * data-driven). The classic off-by-parked bug: totals must satisfy
-     * `total = passed + failed + skipped` with the data-driven parked test counted exactly
-     * once — and the failing neighbor still fails the run.
+     * The mixed directory holds one passing, one failing and two skipped tests (one of them
+     * data-driven). The classic off-by-one bug lives in that mix: the skipped tests must be
+     * counted rather than lost, and the failing neighbor must still fail the run.
      */
     public function parkedTestsAddUpAndFailingNeighborStillFailsTheRun(): void
     {
-        $result = self::run(__DIR__ . '/../Stub/SkipSummary/Mixed');
+        $run = self::run(__DIR__ . '/../Stub/SkipSummary/Mixed');
 
-        $summary = $result->summary;
+        $summary = $run->summary;
         Assert::same($summary->count(Status::Passed), 1);
         Assert::same($summary->count(Status::Failed), 1);
         Assert::same($summary->count(Status::Skipped), 2);
-        Assert::same(
-            $summary->total(),
-            $summary->passed() + $summary->failed() + $summary->count(Status::Skipped),
-        );
-        Assert::same($result->status, Status::Failed);
+        # Four tests total: the skipped data-driven one is counted once, not once per data set.
+        Assert::same($summary->total(), 4);
+        Assert::same($run->status, Status::Failed);
     }
 
     /**
-     * A run consisting only of `#[Skip]`-marked tests is a success: Skipped is neither a
-     * success nor a failure, so nothing fails the run.
+     * A run consisting only of {@see Skip}-marked tests is a success: {@see Status::Skipped}
+     * is neither a success nor a failure, so nothing fails the run.
      *
-     * The same run pins the dedup invariant: with `TestPlugin` registered, a class-level
-     * `#[Skip]` also spawns a fallback instance of the interceptor, and the conflict policy
-     * must collapse the duplicate — each parked test yields exactly one result, not one per
-     * delivery path.
+     * The same run pins one result per skipped test. The stub carries a class-level `#[Skip]`,
+     * so the pipeline spawns a fallback {@see SkipInterceptor} next to the one
+     * {@see \Testo\Test\TestPlugin} registers; a second delivery would show up here as an
+     * inflated total and an extra name.
      */
     public function runOfOnlyParkedTestsIsSuccessfulAndDeliveredOnce(): void
     {
@@ -69,7 +67,7 @@ final class SkipSummaryTest
                 $cases[] = $case;
             }
         }
-        # The catalog holds one class with two parked tests.
+        # The directory holds one class with two skipped tests.
         Assert::count($cases, 1);
         $names = \array_map(
             static fn(TestResult $result): string => $result->info->name,
@@ -79,14 +77,14 @@ final class SkipSummaryTest
         Assert::same($names, ['firstParked', 'secondParked']);
     }
 
-    private static function run(string $catalog): RunResult
+    private static function run(string $path): RunResult
     {
         return Application::createFromConfig(new ApplicationConfig(
             src: [],
             suites: [
                 new SuiteConfig(
                     'SkipSummary',
-                    location: new FinderConfig(include: [$catalog]),
+                    location: new FinderConfig(include: [$path]),
                 ),
             ],
         ))->run();

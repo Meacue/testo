@@ -8,11 +8,17 @@ use Testo\Repeat;
 use Testo\Test;
 use Testo\Test\Skip;
 
+/**
+ * `#[Skip]` on a test that also carries `#[Repeat]`: the repeat is resolved in the per-test
+ * pipeline, which a skipped test never enters, so the body must not run at all. The latch is
+ * never reset — {@see \Tests\Test\Feature\SkipFeatureTest::repeatDoesNotEngageForParkedTest()}
+ * asserts it absolutely, not as a delta.
+ */
+#[Test]
 final class SkipWithRepeatStub
 {
     public static bool $bodyRan = false;
 
-    #[Test]
     #[Skip('parked, repeat must not engage')]
     #[Repeat(times: 3)]
     public function parked(): void

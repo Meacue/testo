@@ -13,11 +13,13 @@ use Testo\Assert;
 use Testo\Codecov\Covers;
 use Testo\Convention\NamingConventionPlugin;
 use Testo\Core\Context\TestResult;
+use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
 use Testo\Test;
 use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
 use Testo\Test\TestPlugin;
+use Tests\Test\Stub\SkipStandalone\StandaloneParkedTest;
 
 /**
  * The standalone contract of `#[Skip]`: with `TestPlugin` not registered, the attribute's
@@ -52,11 +54,23 @@ final class SkipFallbackStandaloneTest
             }
         }
 
-        # Exactly one result per stub test: the fallback spawn does not duplicate delivery.
+        # No TestPlugin in this run: the interceptor the attribute spawns through its own
+        # #[FallbackInterceptor] is what reports both tests of the catalog.
         Assert::count($tests, 2);
+
+        $messages = [];
         foreach ($tests as $test) {
             Assert::same($test->status, Status::Skipped);
-            Assert::true(\str_contains((string) $test->failure?->getMessage(), ' ==> '));
+            Assert::instanceOf($test->failure, SkipTest::class);
+            $messages[] = $test->failure?->getMessage();
         }
+
+        # The order the results are appended in is not a contract; the composed messages are —
+        # the `is skipped via #[Skip]` marker and the class-level reason.
+        \sort($messages);
+        Assert::same($messages, [
+            StandaloneParkedTest::class . '::testFirstParked is skipped via #[Skip] ==> standalone catalog is parked',
+            StandaloneParkedTest::class . '::testSecondParked is skipped via #[Skip] ==> standalone catalog is parked',
+        ]);
     }
 }
