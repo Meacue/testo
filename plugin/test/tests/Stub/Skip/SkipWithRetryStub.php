@@ -21,6 +21,14 @@ final class SkipWithRetryStub
     public static int $attempts = 0;
     public static int $enabledAttempts = 0;
 
+    /**
+     * Per-run marker for the control neighbor. An instance property, not a static: the case
+     * instance is built anew for every run of the case and shared by all retry attempts within
+     * it, so the marker starts fresh each run and never depends on how many attempts earlier
+     * runs (a `--filter` on one method, an aborted run) left behind.
+     */
+    private bool $firstAttemptFailed = false;
+
     #[Skip('skipped, retry must not engage')]
     #[Retry(maxAttempts: 3)]
     public function skipped(): void
@@ -32,8 +40,12 @@ final class SkipWithRetryStub
     #[Retry(maxAttempts: 3, markFlaky: false)]
     public function enabled(): void
     {
-        # Control neighbor: the counter is even at the start of every run, so the first attempt
-        # makes it odd and fails, the second makes it even and passes — two attempts per run.
-        ++self::$enabledAttempts % 2 === 0 or throw new \RuntimeException('First attempt fails by design.');
+        ++self::$enabledAttempts;
+
+        # Control neighbor: the first attempt of every run fails, the second passes — two attempts per run.
+        if (!$this->firstAttemptFailed) {
+            $this->firstAttemptFailed = true;
+            throw new \RuntimeException('First attempt fails by design.');
+        }
     }
 }
