@@ -138,13 +138,13 @@ Constraints:
 
 ## Skipping a test with #[Skip]
 
-To skip a test declaratively — without running any of its code — put `Testo\Test\Skip` (from the
-`testo/test` plugin, the same package as `#[Test]`) on the test method (inherited by an overriding
+To skip a test declaratively — without running any of its code — put `Testo\Skip` (from the
+`testo/skip` plugin) on the test method (inherited by an overriding
 method that does not repeat it), the class (skips every test of the case; inherited from parents
 and traits, a method-level reason wins), or a free function:
 
 ```php
-use Testo\Test\Skip;
+use Testo\Skip;
 
 #[Test]
 #[Skip('broken by the pricing rework, see ISSUE-123')]

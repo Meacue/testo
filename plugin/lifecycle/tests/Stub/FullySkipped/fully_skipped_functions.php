@@ -9,7 +9,7 @@ use Testo\Lifecycle\AfterTest;
 use Testo\Lifecycle\BeforeClass;
 use Testo\Lifecycle\BeforeTest;
 use Testo\Test;
-use Testo\Test\Skip;
+use Testo\Skip;
 
 /**
  * A fully skipped function-based case: every `#[Test]` function is under `#[Skip]`. Mirrors

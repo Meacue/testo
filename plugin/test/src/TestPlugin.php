@@ -8,14 +8,10 @@ use Internal\Container\Container;
 use Testo\Common\PluginConfigurator;
 use Testo\Pipeline\InterceptorCollector;
 use Testo\Test;
-use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Internal\TestoAttributesLocatorInterceptor;
 
 /**
  * Find tests by the {@see Test} attribute.
- *
- * Also enables {@see Skip}: {@see SkipInterceptor} reports `#[Skip]`-marked tests as skipped
- * without running them.
  *
  * @api
  */
@@ -24,8 +20,6 @@ final readonly class TestPlugin implements PluginConfigurator
     #[\Override]
     public function configure(Container $container): void
     {
-        $collector = $container->get(InterceptorCollector::class);
-        $collector->addInterceptor(new TestoAttributesLocatorInterceptor());
-        $collector->addInterceptor(SkipInterceptor::class);
+        $container->get(InterceptorCollector::class)->addInterceptor(new TestoAttributesLocatorInterceptor());
     }
 }

@@ -7,7 +7,7 @@ namespace Tests\Lifecycle\Stub\FullySkipped;
 use Testo\Lifecycle\AfterClass;
 use Testo\Lifecycle\BeforeClass;
 use Testo\Test;
-use Testo\Test\Skip;
+use Testo\Skip;
 
 /**
  * Class-based analog of the fully skipped function case in `fully_skipped_functions.php`

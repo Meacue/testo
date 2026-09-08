@@ -16,7 +16,7 @@ use Tests\Lifecycle\Stub\FullySkipped\FullySkippedFunctionState;
 
 /**
  * End-to-end regression test for {@see LifecycleInterceptor}: the `#[BeforeClass]`/`#[AfterClass]` hooks
- * of a case still run when an outer case interceptor — here `#[Skip]` from `testo/test` — leaves
+ * of a case still run when an outer case interceptor — here `#[Skip]` from `testo/skip` — leaves
  * the case without a single active test.
  *
  * The `#[Skip]` case interceptor deactivates the skipped tests before the {@see LifecycleInterceptor}

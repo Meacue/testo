@@ -50,6 +50,7 @@
         "testo/lifecycle": "^0.1.6",
         "testo/repeat": "^0.1.9",
         "testo/retry": "^0.1.5",
+        "testo/skip": "0.1 - 1",
         "testo/test": "^0.1.7",
         "yiisoft/injector": "^1.2"
     },
@@ -104,6 +105,7 @@
             "Tests\\Lifecycle\\": "plugin/lifecycle/tests/",
             "Tests\\Repeat\\": "plugin/repeat/tests/",
             "Tests\\Retry\\": "plugin/retry/tests/",
+            "Tests\\Skip\\": "plugin/skip/tests/",
             "Tests\\Test\\": "plugin/test/tests/"
         },
         "files": [
@@ -129,6 +131,7 @@
                     "testo/lifecycle": "0.1.x-dev",
                     "testo/repeat": "0.1.x-dev",
                     "testo/retry": "0.1.x-dev",
+                    "testo/skip": "0.1.x-dev",
                     "testo/test": "0.1.x-dev"
                 }
             }

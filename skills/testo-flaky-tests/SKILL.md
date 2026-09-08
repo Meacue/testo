@@ -88,7 +88,7 @@ Don't ship `#[Repeat(times: 50)]` long-term on a fast suite — CI cost adds up.
 3. Is the flakiness from shared state inside the suite (ordering)?
    - Don't reach for either attribute. Fix isolation (lifecycle hooks, fresh fixtures).
 4. Is the root cause known but not fixable now (the test has to leave the run for a while)?
-   - `#[Skip('flaky on CI, see ISSUE-123')]` (`Testo\Test\Skip`) — the test stops running but stays counted in reports as Skipped (full contract in the `testo-write-tests` skill). `#[Retry]` is for stabilizing, not skipping.
+   - `#[Skip('flaky on CI, see ISSUE-123')]` (`Testo\Skip`, package `testo/skip`) — the test stops running but stays counted in reports as Skipped (full contract in the `testo-write-tests` skill). `#[Retry]` is for stabilizing, not skipping.
 
 ## Pitfalls
 

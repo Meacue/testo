@@ -25,7 +25,7 @@
 
 ## About
 
-Provides the `#[Test]` attribute and the locator that picks up attribute-marked test classes and methods. Without this plugin Testo can still run tests via naming conventions or other locators, but the canonical attribute-driven discovery comes from here. It also provides `#[Skip]`, which reports a marked test — or every test of a marked class — as skipped instead of running it.
+Provides the `#[Test]` attribute and the locator that picks up attribute-marked test classes and methods. Without this plugin Testo can still run tests via naming conventions or other locators, but the canonical attribute-driven discovery comes from here.
 
 ## Install
 

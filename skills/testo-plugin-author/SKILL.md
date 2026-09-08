@@ -188,8 +188,8 @@ its `#[BeforeClass]`/`#[AfterClass]` hooks and every test it still had to run. S
   never render its line, and stamp `summary: Summary::forTest(Status::Skipped)` on it — a result that
   never passes through the test runner is not counted for you.
 
-The shipped implementation of exactly this shape is `Testo\Test\Internal\SkipInterceptor` in
-`plugin/test`, serving the `#[Skip]` attribute (whose contract is in the `testo-write-tests` skill).
+The shipped implementation of exactly this shape is `Testo\Skip\Internal\SkipInterceptor` in
+`plugin/skip`, serving the `#[Skip]` attribute (whose contract is in the `testo-write-tests` skill).
 Read it as a reference — it is `@internal` (and `final`), don't import it.
 
 ## Container scopes — provision per-case / per-suite resources
