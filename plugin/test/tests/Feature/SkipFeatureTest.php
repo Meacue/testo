@@ -242,22 +242,36 @@ final class SkipFeatureTest
         Assert::same(SkipWithDataProviderStub::$providerCalls, 0);
     }
 
+    /**
+     * The positive control on the enabled neighbor proves that `#[Retry]` does engage in this
+     * run — its first attempt fails and the second passes — so the zero on the parked test is
+     * the skip at work, not a retry plugin that never ran.
+     */
     public function retryDoesNotEngageForParkedTest(): void
     {
         $attempts = SkipWithRetryStub::$attempts;
+        $enabledAttempts = SkipWithRetryStub::$enabledAttempts;
 
         $result = TestRunner::runTest([SkipWithRetryStub::class, 'parked']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::same(SkipWithRetryStub::$attempts - $attempts, 0);
+        Assert::same(SkipWithRetryStub::$enabledAttempts - $enabledAttempts, 2);
     }
 
+    /**
+     * Same shape for `#[Repeat]`: the enabled neighbor runs all three of its repetitions, the
+     * parked test not even once.
+     */
     public function repeatDoesNotEngageForParkedTest(): void
     {
+        $enabledRuns = SkipWithRepeatStub::$enabledRuns;
+
         $result = TestRunner::runTest([SkipWithRepeatStub::class, 'parked']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::false(SkipWithRepeatStub::$bodyRan);
+        Assert::same(SkipWithRepeatStub::$enabledRuns - $enabledRuns, 3);
     }
 
     /**
@@ -281,6 +295,7 @@ final class SkipFeatureTest
             ->notContains(SkipWithRetryStub::class . '::parked')
             ->notContains(SkipWithRepeatStub::class . '::parked')
             ->notContains(SkipInFiberStub::class . '::parked')
+            ->notContains(SkipOverridingMethodStub::class . '::parked')
             ->notContains('Tests\Test\Stub\Skip\parked_function');
     }
 
@@ -295,7 +310,6 @@ final class SkipFeatureTest
         $offset = \count(SkipInFiberStub::$log);
 
         $parked = TestRunner::runTest([SkipInFiberStub::class, 'parked']);
-            ->notContains(SkipOverridingMethodStub::class . '::parked')
 
         Assert::same($parked->status, Status::Skipped);
         Assert::same(
