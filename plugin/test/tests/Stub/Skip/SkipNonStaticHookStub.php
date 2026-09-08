@@ -10,13 +10,13 @@ use Testo\Test\Skip;
 
 /**
  * Documented caveat: a non-static class-level hook forces construction even when every
- * test of the case is parked. The stub pins that behavior so a future change is a
+ * test of the case is skipped. The stub pins that behavior so a future change is a
  * conscious one, not an accident.
  *
  * The construction counter accumulates across catalog runs — feature tests assert deltas.
  */
 #[Test]
-#[Skip('fully parked, but the non-static hook builds the class')]
+#[Skip('fully skipped, but the non-static hook builds the class')]
 final class SkipNonStaticHookStub
 {
     public static int $constructions = 0;
@@ -29,8 +29,8 @@ final class SkipNonStaticHookStub
     #[BeforeClass]
     public function bootCase(): void {}
 
-    public function parked(): void
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the case is parked.');
+        throw new \LogicException('Must never run: the case is skipped.');
     }
 }

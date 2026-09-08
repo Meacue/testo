@@ -16,7 +16,7 @@ use Testo\Test\Skip;
  * outcomes here has to stay closed.
  */
 #[Test]
-final class SummaryMixedStub
+final class MixedStub
 {
     public static function provide(): iterable
     {
@@ -31,20 +31,20 @@ final class SummaryMixedStub
 
     public function fails(): void
     {
-        # Controlled failure: the parked tests must not hide it from the totals.
+        # Controlled failure: the skipped tests must not hide it from the totals.
         Assert::true(false);
     }
 
-    #[Skip('parked in the mixed case')]
-    public function parked(): void
+    #[Skip('skipped in the mixed case')]
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 
-    #[Skip('data-driven test parked as a whole')]
+    #[Skip('data-driven test skipped as a whole')]
     #[DataProvider('provide')]
-    public function parkedDataDriven(int $value): void
+    public function skippedDataDriven(int $value): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 }

@@ -53,10 +53,10 @@ final class SkipWithHooksStub
         ++self::$afterTestCalls;
     }
 
-    #[Skip('parked next to hooks')]
-    public function parked(): void
+    #[Skip('skipped next to hooks')]
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 
     public function enabled(): void

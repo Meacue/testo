@@ -33,10 +33,10 @@ final class SkipWithDataProviderStub
         ];
     }
 
-    #[Skip('data-driven test is parked as a whole')]
+    #[Skip('data-driven test is skipped as a whole')]
     #[DataProvider('provide')]
-    public function parked(int $value): void
+    public function skipped(int $value): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 }

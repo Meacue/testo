@@ -32,7 +32,7 @@ final class SkipSummaryTest
      * data-driven). The classic off-by-one bug lives in that mix: the skipped tests must be
      * counted rather than lost, and the failing neighbor must still fail the run.
      */
-    public function parkedTestsAddUpAndFailingNeighborStillFailsTheRun(): void
+    public function skippedTestsAddUpAndFailingNeighborStillFailsTheRun(): void
     {
         $run = self::run(__DIR__ . '/../Stub/SkipSummary/Mixed');
 
@@ -54,9 +54,9 @@ final class SkipSummaryTest
      * {@see \Testo\Test\TestPlugin} registers; a second delivery would show up here as an
      * inflated total and an extra name.
      */
-    public function runOfOnlyParkedTestsIsSuccessfulAndDeliveredOnce(): void
+    public function runOfOnlySkippedTestsIsSuccessfulAndDeliveredOnce(): void
     {
-        $run = self::run(__DIR__ . '/../Stub/SkipSummary/OnlyParked');
+        $run = self::run(__DIR__ . '/../Stub/SkipSummary/OnlySkipped');
 
         Assert::same($run->status, Status::Passed);
         Assert::same($run->summary->count(Status::Skipped), 2);
@@ -74,7 +74,7 @@ final class SkipSummaryTest
             \iterator_to_array($cases[0], preserve_keys: false),
         );
         \sort($names);
-        Assert::same($names, ['firstParked', 'secondParked']);
+        Assert::same($names, ['firstSkipped', 'secondSkipped']);
     }
 
     private static function run(string $path): RunResult

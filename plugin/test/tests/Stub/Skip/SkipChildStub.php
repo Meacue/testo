@@ -12,8 +12,8 @@ use Testo\Test;
 #[Test]
 final class SkipChildStub extends SkipParentStub
 {
-    public function parked(): void
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the case is parked via the parent.');
+        throw new \LogicException('Must never run: the case is skipped via the parent.');
     }
 }

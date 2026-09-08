@@ -21,12 +21,12 @@ final class SkipWithRetryStub
     public static int $attempts = 0;
     public static int $enabledAttempts = 0;
 
-    #[Skip('parked, retry must not engage')]
+    #[Skip('skipped, retry must not engage')]
     #[Retry(maxAttempts: 3)]
-    public function parked(): void
+    public function skipped(): void
     {
         ++self::$attempts;
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 
     #[Retry(maxAttempts: 3, markFlaky: false)]

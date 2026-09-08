@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Lifecycle\Stub\FullyParked;
+namespace Tests\Lifecycle\Stub\FullySkipped;
 
 use Testo\Lifecycle\AfterClass;
 use Testo\Lifecycle\BeforeClass;
@@ -11,14 +11,14 @@ use Testo\Test\Skip;
 
 /**
  * Class-based analog of the fully skipped function case in the same directory
- * ({@see FullyParkedFunctionState}): the hooks are the case's non-tests, so they never
+ * ({@see FullySkippedFunctionState}): the hooks are the case's non-tests, so they never
  * depended on the surviving tests — pinned here so both flavors stay in lockstep.
  *
  * Static hook counters accumulate across catalog runs — feature tests assert deltas. The hooks
- * are static so the fully parked class is never instantiated.
+ * are static so the fully skipped class is never instantiated.
  */
 #[Test]
-final class FullyParkedClassStub
+final class FullySkippedClassStub
 {
     public static int $beforeClassCalls = 0;
     public static int $afterClassCalls = 0;
@@ -35,9 +35,9 @@ final class FullyParkedClassStub
         ++self::$afterClassCalls;
     }
 
-    #[Skip('the whole class case is parked')]
-    public function parked(): void
+    #[Skip('the whole class case is skipped')]
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 }

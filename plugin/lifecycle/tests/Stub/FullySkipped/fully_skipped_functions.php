@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Lifecycle\Stub\FullyParked;
+namespace Tests\Lifecycle\Stub\FullySkipped;
 
 use Testo\Lifecycle\AfterClass;
 use Testo\Lifecycle\AfterTest;
@@ -12,9 +12,9 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
- * A fully parked function-based case: every `#[Test]` function is under `#[Skip]`. Mirrors
- * {@see FullyParkedClassStub} for the function-based shape of the same scenario. Its two tests
- * spell the attribute both ways — `parkedFnOne` with a reason, `parkedFnTwo` without — so neither
+ * A fully skipped function-based case: every `#[Test]` function is under `#[Skip]`. Mirrors
+ * {@see FullySkippedClassStub} for the function-based shape of the same scenario. Its two tests
+ * spell the attribute both ways — `skippedFnOne` with a reason, `skippedFnTwo` without — so neither
  * form leaves the case with an active test.
  *
  * The `#[Skip]` case interceptor deactivates the skipped tests — they leave the case's active
@@ -23,51 +23,51 @@ use Testo\Test\Skip;
  * for the case (the `#[Skip]` contract), while the per-test hooks have nothing to wrap.
  *
  * Static hook counters accumulate across catalog runs — feature tests assert deltas.
- * State is shared through {@see FullyParkedFunctionState} because functions have no `$this`.
+ * State is shared through {@see FullySkippedFunctionState} because functions have no `$this`.
  */
 #[BeforeClass]
-function parkedCaseSetUpClass(): void
+function skippedCaseSetUpClass(): void
 {
-    ++FullyParkedFunctionState::$beforeClassCalls;
+    ++FullySkippedFunctionState::$beforeClassCalls;
 }
 
 #[AfterClass]
-function parkedCaseTearDownClass(): void
+function skippedCaseTearDownClass(): void
 {
-    ++FullyParkedFunctionState::$afterClassCalls;
+    ++FullySkippedFunctionState::$afterClassCalls;
 }
 
 #[BeforeTest]
-function parkedCaseSetUp(): void
+function skippedCaseSetUp(): void
 {
-    ++FullyParkedFunctionState::$beforeTestCalls;
+    ++FullySkippedFunctionState::$beforeTestCalls;
 }
 
 #[AfterTest]
-function parkedCaseTearDown(): void
+function skippedCaseTearDown(): void
 {
-    ++FullyParkedFunctionState::$afterTestCalls;
+    ++FullySkippedFunctionState::$afterTestCalls;
 }
 
 #[Test]
-#[Skip('the whole functional case is parked')]
-function parkedFnOne(): void
+#[Skip('the whole functional case is skipped')]
+function skippedFnOne(): void
 {
-    throw new \LogicException('Must never run: the test is parked.');
+    throw new \LogicException('Must never run: the test is skipped.');
 }
 
 #[Test]
 #[Skip]
-function parkedFnTwo(): void
+function skippedFnTwo(): void
 {
-    throw new \LogicException('Must never run: the test is parked.');
+    throw new \LogicException('Must never run: the test is skipped.');
 }
 
 /**
  * Call counters for the lifecycle functions above. Not autoloadable — the feature test
  * `require_once`s this file before touching the counters.
  */
-final class FullyParkedFunctionState
+final class FullySkippedFunctionState
 {
     public static int $beforeClassCalls = 0;
     public static int $afterClassCalls = 0;

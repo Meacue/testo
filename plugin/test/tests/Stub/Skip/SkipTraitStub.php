@@ -14,8 +14,8 @@ final class SkipTraitStub
 {
     use SkipMarkerTrait;
 
-    public function parked(): void
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the case is parked via the trait.');
+        throw new \LogicException('Must never run: the case is skipped via the trait.');
     }
 }

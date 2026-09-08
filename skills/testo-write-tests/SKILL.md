@@ -136,7 +136,7 @@ Constraints:
 - Subclasses work: `class MissingExtensionSkip extends SkipTest {}` is still recognized.
 - Return type stays `void`, or `never` if the throw is unconditional.
 
-## Parking a test with #[Skip]
+## Skipping a test with #[Skip]
 
 To skip a test declaratively — without running any of its code — put `Testo\Test\Skip` (from the
 `testo/test` plugin, the same package as `#[Test]`) on the test method (inherited by an overriding
@@ -158,7 +158,7 @@ the skipped line without it, and the compact `--json` report only counts the tes
 `totals.skipped`.
 
 `reason` is optional and the attribute is not repeatable — but **always pass a reason that points
-at an issue** (`#[Skip('flaky on CI, see ISSUE-123')]`); a bare `#[Skip]` is how a parked test rots
+at an issue** (`#[Skip('flaky on CI, see ISSUE-123')]`); a bare `#[Skip]` is how a skipped test rots
 unreviewed. Its interceptor is registered by `TestPlugin` (on by default); in a suite configured
 without that plugin only a class-level `#[Skip]` still works — through the attribute's own fallback.
 
@@ -166,15 +166,15 @@ Which skipping tool to reach for:
 
 | Tool | Decided by | Visibility | Use when |
 |---|---|---|---|
-| `#[Skip('...')]` | code, ahead of time | always reported; reason in JUnit/TeamCity/HTML | test is parked and must be returned to |
+| `#[Skip('...')]` | code, ahead of time | always reported; reason in JUnit/TeamCity/HTML | test is skipped and must be returned to |
 | `throw SkipTest` | test body, at runtime | reported when the run gets there | test isn't applicable in this environment |
 | `#[Group]` + `--group=!x` | runner invocation | invisible — filtered out of reports | a category you sometimes don't run |
 
 Runtime contract of `#[Skip]`: the test never enters the per-test pipeline, so
 `#[BeforeTest]`/`#[AfterTest]`, data providers, `#[Retry]`/`#[Repeat]` and coverage never
 engage, and a data-driven test yields a single Skipped entry (the provider is not called).
-`#[BeforeClass]`/`#[AfterClass]` still run (also when every test of the case is parked). A
-skipped test never requires an instance of the case class: a fully parked class is built only
+`#[BeforeClass]`/`#[AfterClass]` still run (also when every test of the case is skipped). A
+skipped test never requires an instance of the case class: a fully skipped class is built only
 when a non-static class-level hook forces it, while enabled neighbors construct it as usual. A
 run of only `#[Skip]`-marked tests is a success (exit 0). `#[Skip]` applies to plain tests only:
 on a `#[Bench]` or `#[TestInline]` target it is inert — the benchmark or inline case runs as usual.

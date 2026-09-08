@@ -8,12 +8,12 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
- * Only parked tests and no class-level hooks: the class must never be instantiated.
+ * Only skipped tests and no class-level hooks: the class must never be instantiated.
  *
  * The flag is a one-way latch — nothing resets it, so feature tests assert it absolutely.
  */
 #[Test]
-#[Skip('fully parked, must not construct')]
+#[Skip('fully skipped, must not construct')]
 final class SkipConstructorSpyStub
 {
     public static bool $constructed = false;
@@ -23,13 +23,13 @@ final class SkipConstructorSpyStub
         self::$constructed = true;
     }
 
-    public function firstParked(): void
+    public function firstSkipped(): void
     {
-        throw new \LogicException('Must never run: the case is parked.');
+        throw new \LogicException('Must never run: the case is skipped.');
     }
 
-    public function secondParked(): void
+    public function secondSkipped(): void
     {
-        throw new \LogicException('Must never run: the case is parked.');
+        throw new \LogicException('Must never run: the case is skipped.');
     }
 }

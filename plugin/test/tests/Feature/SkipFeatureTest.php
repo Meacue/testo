@@ -58,43 +58,43 @@ final class SkipFeatureTest
 
     public function methodLevelSkipReportsSkippedWithComposedReason(): void
     {
-        $result = TestRunner::runTest([SkipMethodStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipMethodStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::instanceOf($result->failure, SkipTest::class);
         Assert::same(
             $result->failure?->getMessage(),
-            SkipMethodStub::class . '::parked is skipped via #[Skip] ==> broken by the pricing rework, see ISSUE-123',
+            SkipMethodStub::class . '::skipped is skipped via #[Skip] ==> broken by the pricing rework, see ISSUE-123',
         );
     }
 
     public function emptyReasonFallsBackToGeneratedMessage(): void
     {
-        $result = TestRunner::runTest([SkipMethodStub::class, 'parkedNoReason']);
+        $result = TestRunner::runTest([SkipMethodStub::class, 'skippedNoReason']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::same(
             $result->failure?->getMessage(),
-            SkipMethodStub::class . '::parkedNoReason is skipped via #[Skip]',
+            SkipMethodStub::class . '::skippedNoReason is skipped via #[Skip]',
         );
     }
 
-    public function controlNeighborNextToParkedTestsStillRuns(): void
+    public function controlNeighborNextToSkippedTestsStillRuns(): void
     {
         $result = TestRunner::runTest([SkipMethodStub::class, 'enabled']);
 
         Assert::same($result->status, Status::Passed);
     }
 
-    public function classLevelSkipParksEveryTestWithClassReason(): void
+    public function classLevelSkipSkipsEveryTestWithClassReason(): void
     {
-        $first = TestRunner::runTest([SkipClassLevelStub::class, 'firstParked']);
-        $second = TestRunner::runTest([SkipClassLevelStub::class, 'secondParked']);
+        $first = TestRunner::runTest([SkipClassLevelStub::class, 'firstSkipped']);
+        $second = TestRunner::runTest([SkipClassLevelStub::class, 'secondSkipped']);
 
         Assert::same($first->status, Status::Skipped);
         Assert::same($second->status, Status::Skipped);
-        Assert::true(\str_ends_with((string) $first->failure?->getMessage(), ' ==> the whole case is parked'));
-        Assert::true(\str_ends_with((string) $second->failure?->getMessage(), ' ==> the whole case is parked'));
+        Assert::true(\str_ends_with((string) $first->failure?->getMessage(), ' ==> the whole case is skipped'));
+        Assert::true(\str_ends_with((string) $second->failure?->getMessage(), ' ==> the whole case is skipped'));
     }
 
     public function methodReasonWinsOverClassReason(): void
@@ -123,34 +123,34 @@ final class SkipFeatureTest
 
     public function functionalTestUsesFunctionFqnInMessage(): void
     {
-        $result = TestRunner::runTest('Tests\Test\Stub\Skip\parked_function');
+        $result = TestRunner::runTest('Tests\Test\Stub\Skip\skippedFunction');
 
         Assert::same($result->status, Status::Skipped);
         Assert::same(
             $result->failure?->getMessage(),
-            'Tests\Test\Stub\Skip\parked_function is skipped via #[Skip] ==> functional test is parked',
+            'Tests\Test\Stub\Skip\skippedFunction is skipped via #[Skip] ==> functional test is skipped',
         );
     }
 
     /**
      * The function-based analog of the control neighbor: an enabled function of a partially
-     * parked file still runs through the batch runner the interceptor installs on the case, and
+     * skipped file still runs through the batch runner the interceptor installs on the case, and
      * passes.
      */
-    public function controlNeighborFunctionNextToParkedFunctionStillRuns(): void
+    public function controlNeighborFunctionNextToSkippedFunctionStillRuns(): void
     {
-        $result = TestRunner::runTest('Tests\Test\Stub\Skip\enabled_function');
+        $result = TestRunner::runTest('Tests\Test\Stub\Skip\enabledFunction');
 
         Assert::same($result->status, Status::Passed);
     }
 
     /**
-     * The origin contract for downstream consumers: a `#[Skip]`-parked result carries the
+     * The origin contract for downstream consumers: a result skipped by `#[Skip]` carries the
      * attribute instances in `$result->info`, unlike a runtime `throw SkipTest` skip.
      */
-    public function parkedResultCarriesOriginAttribute(): void
+    public function skippedResultCarriesOriginAttribute(): void
     {
-        $result = TestRunner::runTest([SkipMethodStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipMethodStub::class, 'skipped']);
 
         $origin = $result->info->getAttribute(Skip::class);
         Assert::array($origin)->hasCount(1);
@@ -158,7 +158,7 @@ final class SkipFeatureTest
     }
 
     /**
-     * The parked test is filtered out before the case runs: class-level hooks fire as usual
+     * The skipped test is filtered out before the case runs: class-level hooks fire as usual
      * (once per catalog run), per-test hooks fire only for the enabled control test.
      */
     public function classHooksRunButTestHooksDoNot(): void
@@ -168,7 +168,7 @@ final class SkipFeatureTest
         $beforeTest = SkipWithHooksStub::$beforeTestCalls;
         $afterTest = SkipWithHooksStub::$afterTestCalls;
 
-        $result = TestRunner::runTest([SkipWithHooksStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipWithHooksStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::same(SkipWithHooksStub::$beforeClassCalls - $beforeClass, 1);
@@ -178,9 +178,9 @@ final class SkipFeatureTest
         Assert::same(SkipWithHooksStub::$afterTestCalls - $afterTest, 1);
     }
 
-    public function fullyParkedCaseWithoutHooksIsNeverInstantiated(): void
+    public function fullySkippedCaseWithoutHooksIsNeverInstantiated(): void
     {
-        $result = TestRunner::runTest([SkipConstructorSpyStub::class, 'firstParked']);
+        $result = TestRunner::runTest([SkipConstructorSpyStub::class, 'firstSkipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::false(SkipConstructorSpyStub::$constructed);
@@ -188,13 +188,13 @@ final class SkipFeatureTest
 
     /**
      * Documented caveat: a non-static class-level hook builds the class even when every
-     * test is parked — pinned so a future change is conscious, not accidental.
+     * test is skipped — pinned so a future change is conscious, not accidental.
      */
     public function nonStaticClassHookStillBuildsTheClass(): void
     {
         $constructions = SkipNonStaticHookStub::$constructions;
 
-        $result = TestRunner::runTest([SkipNonStaticHookStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipNonStaticHookStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::same(SkipNonStaticHookStub::$constructions - $constructions, 1);
@@ -202,7 +202,7 @@ final class SkipFeatureTest
 
     public function classLevelSkipIsInheritedFromParent(): void
     {
-        $result = TestRunner::runTest([SkipChildStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipChildStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::true(\str_ends_with((string) $result->failure?->getMessage(), ' ==> inherited from the parent class'));
@@ -210,7 +210,7 @@ final class SkipFeatureTest
 
     public function classLevelSkipIsInheritedFromTrait(): void
     {
-        $result = TestRunner::runTest([SkipTraitStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipTraitStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::true(\str_ends_with((string) $result->failure?->getMessage(), ' ==> inherited from the trait'));
@@ -222,20 +222,20 @@ final class SkipFeatureTest
      */
     public function methodLevelSkipIsInheritedByOverridingMethod(): void
     {
-        $result = TestRunner::runTest([SkipOverridingMethodStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipOverridingMethodStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::true(\str_ends_with((string) $result->failure?->getMessage(), ' ==> inherited from the overridden method'));
     }
 
     /**
-     * A data-driven parked test yields a single Skipped node: the provider is never called
+     * A data-driven skipped test yields a single Skipped node: the provider is never called
      * (not once across all catalog runs of this class), no `MultipleResult` aggregate is
      * attached.
      */
-    public function dataProviderIsNotCalledForParkedTest(): void
+    public function dataProviderIsNotCalledForSkippedTest(): void
     {
-        $result = TestRunner::runTest([SkipWithDataProviderStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipWithDataProviderStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::null($result->getAttribute(MultipleResult::class));
@@ -244,15 +244,15 @@ final class SkipFeatureTest
 
     /**
      * The positive control on the enabled neighbor proves that `#[Retry]` does engage in this
-     * run — its first attempt fails and the second passes — so the zero on the parked test is
+     * run — its first attempt fails and the second passes — so the zero on the skipped test is
      * the skip at work, not a retry plugin that never ran.
      */
-    public function retryDoesNotEngageForParkedTest(): void
+    public function retryDoesNotEngageForSkippedTest(): void
     {
         $attempts = SkipWithRetryStub::$attempts;
         $enabledAttempts = SkipWithRetryStub::$enabledAttempts;
 
-        $result = TestRunner::runTest([SkipWithRetryStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipWithRetryStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::same(SkipWithRetryStub::$attempts - $attempts, 0);
@@ -261,13 +261,13 @@ final class SkipFeatureTest
 
     /**
      * Same shape for `#[Repeat]`: the enabled neighbor runs all three of its repetitions, the
-     * parked test not even once.
+     * skipped test not even once.
      */
-    public function repeatDoesNotEngageForParkedTest(): void
+    public function repeatDoesNotEngageForSkippedTest(): void
     {
         $enabledRuns = SkipWithRepeatStub::$enabledRuns;
 
-        $result = TestRunner::runTest([SkipWithRepeatStub::class, 'parked']);
+        $result = TestRunner::runTest([SkipWithRepeatStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
         Assert::false(SkipWithRepeatStub::$bodyRan);
@@ -275,43 +275,43 @@ final class SkipFeatureTest
     }
 
     /**
-     * The common ground of the hook/provider/retry/repeat checks above: a parked test never
+     * The common ground of the hook/provider/retry/repeat checks above: a skipped test never
      * enters the per-test pipeline at all. A spy interceptor on that pipeline sees the
-     * enabled neighbors of the catalog and none of the parked tests.
+     * enabled neighbors of the catalog and none of the skipped tests.
      */
-    public function parkedTestsNeverEnterThePerTestPipeline(): void
+    public function skippedTestsNeverEnterThePerTestPipeline(): void
     {
         $offset = \count(PipelineEntrySpyPlugin::$entered);
 
-        TestRunner::runTest([SkipMethodStub::class, 'parked']);
+        TestRunner::runTest([SkipMethodStub::class, 'skipped']);
 
         $entered = \array_slice(PipelineEntrySpyPlugin::$entered, $offset);
         Assert::array($entered)
             ->contains(SkipMethodStub::class . '::enabled')
-            ->notContains(SkipMethodStub::class . '::parked')
-            ->notContains(SkipMethodStub::class . '::parkedNoReason')
-            ->notContains(SkipWithHooksStub::class . '::parked')
-            ->notContains(SkipWithDataProviderStub::class . '::parked')
-            ->notContains(SkipWithRetryStub::class . '::parked')
-            ->notContains(SkipWithRepeatStub::class . '::parked')
-            ->notContains(SkipInFiberStub::class . '::parked')
-            ->notContains(SkipOverridingMethodStub::class . '::parked')
-            ->notContains('Tests\Test\Stub\Skip\parked_function');
+            ->notContains(SkipMethodStub::class . '::skipped')
+            ->notContains(SkipMethodStub::class . '::skippedNoReason')
+            ->notContains(SkipWithHooksStub::class . '::skipped')
+            ->notContains(SkipWithDataProviderStub::class . '::skipped')
+            ->notContains(SkipWithRetryStub::class . '::skipped')
+            ->notContains(SkipWithRepeatStub::class . '::skipped')
+            ->notContains(SkipInFiberStub::class . '::skipped')
+            ->notContains(SkipOverridingMethodStub::class . '::skipped')
+            ->notContains('Tests\Test\Stub\Skip\skippedFunction');
     }
 
     /**
      * Fiber compatibility: the skip interceptor wraps the fiber batch runner instead of
      * replacing it. The round-robin interleaving of the two enabled tests is produced only by
      * the case scheduler — run sequentially, their `\Fiber::suspend()` would throw and the
-     * log would stop short — while the parked test is still skipped.
+     * log would stop short — while the skipped test is still skipped.
      */
     public function fiberBatchRunnerSurvivesTheWrap(): void
     {
         $offset = \count(SkipInFiberStub::$log);
 
-        $parked = TestRunner::runTest([SkipInFiberStub::class, 'parked']);
+        $skipped = TestRunner::runTest([SkipInFiberStub::class, 'skipped']);
 
-        Assert::same($parked->status, Status::Skipped);
+        Assert::same($skipped->status, Status::Skipped);
         Assert::same(
             \array_slice(SkipInFiberStub::$log, $offset),
             ['first.1', 'second.1', 'first.2', 'second.2'],

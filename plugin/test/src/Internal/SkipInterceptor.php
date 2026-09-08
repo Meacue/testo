@@ -85,7 +85,7 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
     /**
      * Takes no {@see Skip} parameter on purpose: the container also builds the instance for
      * the {@see TestPlugin} registration, where no attribute is at hand. The attributes are
-     * looked up per case in {@see self::findParked()} instead.
+     * looked up per case in {@see self::findSkipped()} instead.
      */
     public function __construct(
         private EventDispatcherInterface $eventDispatcher,
@@ -94,16 +94,16 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
     #[\Override]
     public function runTestCase(CaseInfo $info, callable $next): CaseResult
     {
-        $parked = $this->findParked($info);
+        $skipped = $this->findSkipped($info);
 
-        if ($parked === []) {
+        if ($skipped === []) {
             return $next($info);
         }
 
         # Deactivated, not discarded — the same way filtering narrows a case
         # (FilterInterceptor::locateTestCases()). The core runs only the active tests
         # (CaseRunner::run()), so the synthetic results below are their only delivery.
-        foreach ($parked as [$definition, $_]) {
+        foreach ($skipped as [$definition, $_]) {
             $definition->active = false;
         }
 
@@ -111,12 +111,12 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
         # results are appended by the batch runner inside the case window.
         $inner = $info->batchRunner;
         return $next($info->withBatchRunner(
-            function (array $handlers) use ($inner, $info, $parked): array {
+            function (array $handlers) use ($inner, $info, $skipped): array {
                 $results = $inner === null
                     ? \array_map(static fn(callable $handler): TestResult => $handler(), $handlers)
                     : $inner($handlers);
 
-                foreach ($parked as $name => [$definition, $attribute]) {
+                foreach ($skipped as $name => [$definition, $attribute]) {
                     $results[] = $this->reportSkipped($info, $name, $definition, $attribute);
                 }
 
@@ -140,12 +140,12 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
     }
 
     /**
-     * Collects the parked tests of the case: a method/function-level `#[Skip]` wins over the
+     * Collects the skipped tests of the case: a method/function-level `#[Skip]` wins over the
      * class-level one; the class-level attribute is inherited from parents and traits.
      *
      * @return array<non-empty-string, array{TestDefinition, Skip}>
      */
-    private function findParked(CaseInfo $info): array
+    private function findSkipped(CaseInfo $info): array
     {
         $classAttribute = null;
         $reflection = $info->definition->reflection;
@@ -154,7 +154,7 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
             $attributes === [] or $classAttribute = $attributes[0]->newInstance();
         }
 
-        $parked = [];
+        $skipped = [];
         # Only the case's active tests: a non-test member (a helper, a lifecycle hook) carries no
         # skip semantics, and a test already deactivated by a filter is not part of this run —
         # reporting it as Skipped would resurrect what --filter/--group threw away.
@@ -166,14 +166,14 @@ final readonly class SkipInterceptor implements TestCaseRunInterceptor
             );
             $attribute = $attributes === [] ? $classAttribute : $attributes[0]->newInstance();
 
-            $attribute === null or $parked[$name] = [$definition, $attribute];
+            $attribute === null or $skipped[$name] = [$definition, $attribute];
         }
 
-        return $parked;
+        return $skipped;
     }
 
     /**
-     * Builds the synthetic result for a parked test and dispatches its pipeline events, so
+     * Builds the synthetic result for a skipped test and dispatches its pipeline events, so
      * reporters that render test lines from those events see the test as any other.
      */
     private function reportSkipped(

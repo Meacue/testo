@@ -29,10 +29,10 @@ final class SkipInFiberStub
     /** @var list<non-empty-string> */
     public static array $log = [];
 
-    #[Skip('parked inside a fiber-driven case')]
-    public function parked(): void
+    #[Skip('skipped inside a fiber-driven case')]
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 
     public function first(): void

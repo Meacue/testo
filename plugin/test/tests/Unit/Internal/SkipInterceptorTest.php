@@ -39,12 +39,12 @@ final class SkipInterceptorTest
 {
     /**
      * By the time `$next` (and with it every inner interceptor and lifecycle hook) runs,
-     * the parked tests are no longer in the case's active test set.
+     * the skipped tests are no longer in the case's active test set.
      */
-    public function filtersParkedTestsBeforeNext(): void
+    public function filtersSkippedTestsBeforeNext(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked', 'parkedNoReason', 'enabled');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped', 'skippedNoReason', 'enabled');
         $seenTests = null;
 
         $interceptor->runTestCase($info, self::coreNext($seenTests));
@@ -53,20 +53,20 @@ final class SkipInterceptorTest
     }
 
     /**
-     * The parked tests still come back in the case result — as synthetic Skipped results
+     * The skipped tests still come back in the case result — as synthetic Skipped results
      * with a SkipTest failure and a self-stamped summary.
      */
     public function returnsSyntheticSkippedResults(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked', 'enabled');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped', 'enabled');
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
-        $parked = self::findResult($result, 'parked');
-        Assert::same($parked->status, Status::Skipped);
-        Assert::instanceOf($parked->failure, SkipTest::class);
-        Assert::same($parked->summary->count(Status::Skipped), 1);
+        $skipped = self::findResult($result, 'skipped');
+        Assert::same($skipped->status, Status::Skipped);
+        Assert::instanceOf($skipped->failure, SkipTest::class);
+        Assert::same($skipped->summary->count(Status::Skipped), 1);
         Assert::same($result->summary->count(Status::Skipped), 1);
         Assert::same($result->summary->count(Status::Passed), 1);
     }
@@ -74,14 +74,14 @@ final class SkipInterceptorTest
     public function composesReasonAfterGeneratedPart(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped');
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
         Assert::same(
-            self::findResult($result, 'parked')->failure?->getMessage(),
+            self::findResult($result, 'skipped')->failure?->getMessage(),
             SkipMixedMethodsFixture::class
-            . '::parked is skipped via #[Skip] ==> broken by the pricing rework, see ISSUE-123',
+            . '::skipped is skipped via #[Skip] ==> broken by the pricing rework, see ISSUE-123',
         );
     }
 
@@ -92,35 +92,35 @@ final class SkipInterceptorTest
     public function fallsBackToGeneratedMessageWithoutReason(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parkedNoReason');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skippedNoReason');
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
         Assert::same(
-            self::findResult($result, 'parkedNoReason')->failure?->getMessage(),
-            SkipMixedMethodsFixture::class . '::parkedNoReason is skipped via #[Skip]',
+            self::findResult($result, 'skippedNoReason')->failure?->getMessage(),
+            SkipMixedMethodsFixture::class . '::skippedNoReason is skipped via #[Skip]',
         );
     }
 
     /**
-     * The origin contract: a `#[Skip]`-parked result carries the attribute instances in its
+     * The origin contract: a result skipped by `#[Skip]` carries the attribute instances in its
      * info, so downstream consumers can tell a declarative skip from a runtime one.
      */
     public function stampsOriginAttributeOnSyntheticInfo(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked', 'enabled');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped', 'enabled');
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
-        $origin = self::findResult($result, 'parked')->info->getAttribute(Skip::class);
+        $origin = self::findResult($result, 'skipped')->info->getAttribute(Skip::class);
         Assert::array($origin)->hasCount(1);
         Assert::instanceOf($origin[0], Skip::class);
         Assert::same($origin[0]->reason, 'broken by the pricing rework, see ISSUE-123');
         Assert::null(self::findResult($result, 'enabled')->info->getAttribute(Skip::class));
     }
 
-    public function classLevelSkipParksEveryTest(): void
+    public function classLevelSkipSkipsEveryTest(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
         $info = self::createCaseInfo(SkipClassLevelFixture::class, 'first', 'second');
@@ -146,7 +146,7 @@ final class SkipInterceptorTest
 
         Assert::true(\str_ends_with(
             (string) self::findResult($result, 'first')->failure?->getMessage(),
-            ' ==> entire case is parked',
+            ' ==> entire case is skipped',
         ));
         Assert::true(\str_ends_with(
             (string) self::findResult($result, 'second')->failure?->getMessage(),
@@ -159,10 +159,10 @@ final class SkipInterceptorTest
     }
 
     /**
-     * A case with no parked tests passes through untouched: same test set, no batch runner
+     * A case with no skipped tests passes through untouched: same test set, no batch runner
      * installed.
      */
-    public function passesThroughCaseWithoutParkedTests(): void
+    public function passesThroughCaseWithoutSkippedTests(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
         $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'enabled');
@@ -184,7 +184,7 @@ final class SkipInterceptorTest
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
         $innerRunnerCalls = 0;
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked', 'enabled')
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped', 'enabled')
             ->withBatchRunner(static function (array $handlers) use (&$innerRunnerCalls): array {
                 ++$innerRunnerCalls;
                 return \array_map(static fn(callable $handler): TestResult => $handler(), $handlers);
@@ -194,18 +194,18 @@ final class SkipInterceptorTest
 
         Assert::same($innerRunnerCalls, 1);
         Assert::same(self::findResult($result, 'enabled')->status, Status::Passed);
-        Assert::same(self::findResult($result, 'parked')->status, Status::Skipped);
+        Assert::same(self::findResult($result, 'skipped')->status, Status::Skipped);
     }
 
     /**
      * Reporters render test lines from the pipeline events: Starting before Finished, both
      * carrying the same address, so a reporter keyed on the identity closes what it opened.
      */
-    public function dispatchesPipelineEventsForParkedTests(): void
+    public function dispatchesPipelineEventsForSkippedTests(): void
     {
         $dispatcher = self::createDispatcher();
         $interceptor = new SkipInterceptor($dispatcher);
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped');
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
@@ -214,9 +214,9 @@ final class SkipInterceptorTest
         [$starting, $finished] = $events;
         Assert::instanceOf($starting, TestPipelineStarting::class);
         Assert::instanceOf($finished, TestPipelineFinished::class);
-        Assert::same($starting->testInfo->name, 'parked');
+        Assert::same($starting->testInfo->name, 'skipped');
         Assert::same($finished->testInfo->identity, $starting->testInfo->identity);
-        Assert::same($finished->testResult, self::findResult($result, 'parked'));
+        Assert::same($finished->testResult, self::findResult($result, 'skipped'));
     }
 
     /**
@@ -226,12 +226,12 @@ final class SkipInterceptorTest
     public function carriesDescriptionInSyntheticResult(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped');
 
         $result = $interceptor->runTestCase($info, self::coreNext());
 
         Assert::same(
-            self::findResult($result, 'parked')->attributes['description'],
+            self::findResult($result, 'skipped')->attributes['description'],
             'Checks that order totals include the reworked pricing.',
         );
     }
@@ -243,14 +243,14 @@ final class SkipInterceptorTest
     public function skippedTestIsDeactivatedNotDiscarded(): void
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
-        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'parked', 'enabled');
+        $info = self::createCaseInfo(SkipMixedMethodsFixture::class, 'skipped', 'enabled');
 
         $interceptor->runTestCase($info, self::coreNext());
 
         $tests = $info->definition->tests;
-        Assert::array($tests->getTests())->hasKeys('enabled')->doesNotHaveKeys('parked');
-        Assert::array($tests->getTests(active: false))->hasKeys('parked');
-        Assert::array($tests->all())->hasKeys('parked', 'enabled');
+        Assert::array($tests->getTests())->hasKeys('enabled')->doesNotHaveKeys('skipped');
+        Assert::array($tests->getTests(active: false))->hasKeys('skipped');
+        Assert::array($tests->all())->hasKeys('skipped', 'enabled');
     }
 
     /**
@@ -262,8 +262,8 @@ final class SkipInterceptorTest
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
         $info = self::createCaseInfoWith(SkipMixedMethodsFixture::class, [
-            'parked' => new TestDefinition(
-                new \ReflectionMethod(SkipMixedMethodsFixture::class, 'parked'),
+            'skipped' => new TestDefinition(
+                new \ReflectionMethod(SkipMixedMethodsFixture::class, 'skipped'),
                 isTest: false,
             ),
             'enabled' => new TestDefinition(new \ReflectionMethod(SkipMixedMethodsFixture::class, 'enabled')),
@@ -285,8 +285,8 @@ final class SkipInterceptorTest
     {
         $interceptor = new SkipInterceptor(self::createDispatcher());
         $info = self::createCaseInfoWith(SkipMixedMethodsFixture::class, [
-            'parked' => new TestDefinition(
-                new \ReflectionMethod(SkipMixedMethodsFixture::class, 'parked'),
+            'skipped' => new TestDefinition(
+                new \ReflectionMethod(SkipMixedMethodsFixture::class, 'skipped'),
                 active: false,
             ),
             'enabled' => new TestDefinition(new \ReflectionMethod(SkipMixedMethodsFixture::class, 'enabled')),

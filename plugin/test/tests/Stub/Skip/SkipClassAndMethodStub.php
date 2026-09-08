@@ -21,17 +21,17 @@ final class SkipClassAndMethodStub
     #[Skip('method-specific reason')]
     public function ownReason(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 
     public function classReason(): void
     {
-        throw new \LogicException('Must never run: the case is parked.');
+        throw new \LogicException('Must never run: the case is skipped.');
     }
 
     #[Skip]
     public function emptyOwnReason(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 }

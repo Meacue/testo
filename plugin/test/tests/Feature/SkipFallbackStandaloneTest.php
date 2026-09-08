@@ -19,11 +19,11 @@ use Testo\Test;
 use Testo\Test\Internal\SkipInterceptor;
 use Testo\Test\Skip;
 use Testo\Test\TestPlugin;
-use Tests\Test\Stub\SkipStandalone\StandaloneParkedTest;
+use Tests\Test\Stub\SkipStandalone\StandaloneSkippedTest;
 
 /**
  * The standalone contract of `#[Skip]`: with `TestPlugin` not registered, the attribute's
- * {@see \Testo\Pipeline\Attribute\FallbackInterceptor} declaration alone parks a class-level
+ * {@see \Testo\Pipeline\Attribute\FallbackInterceptor} declaration alone skips a class-level
  * catalog (tests are discovered by naming convention, so no `#[Test]` attribute is involved).
  */
 #[Test]
@@ -69,8 +69,8 @@ final class SkipFallbackStandaloneTest
         # the `is skipped via #[Skip]` marker and the class-level reason.
         \sort($messages);
         Assert::same($messages, [
-            StandaloneParkedTest::class . '::testFirstParked is skipped via #[Skip] ==> standalone catalog is parked',
-            StandaloneParkedTest::class . '::testSecondParked is skipped via #[Skip] ==> standalone catalog is parked',
+            StandaloneSkippedTest::class . '::testFirstSkipped is skipped via #[Skip] ==> standalone catalog is skipped',
+            StandaloneSkippedTest::class . '::testSecondSkipped is skipped via #[Skip] ==> standalone catalog is skipped',
         ]);
     }
 }

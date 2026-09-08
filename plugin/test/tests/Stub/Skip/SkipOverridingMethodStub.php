@@ -14,8 +14,8 @@ use Testo\Test;
 final class SkipOverridingMethodStub extends SkipOverriddenMethodParentStub
 {
     #[\Override]
-    public function parked(): void
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the test is parked via the overridden method.');
+        throw new \LogicException('Must never run: the test is skipped via the overridden method.');
     }
 }

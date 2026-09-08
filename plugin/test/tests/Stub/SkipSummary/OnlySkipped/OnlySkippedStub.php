@@ -2,18 +2,17 @@
 
 declare(strict_types=1);
 
-namespace Tests\Test\Stub\Skip;
+namespace Tests\Test\Stub\SkipSummary\OnlySkipped;
 
 use Testo\Test;
 use Testo\Test\Skip;
 
 /**
- * A class-level `#[Skip]`: both tests of the case are skipped with the class reason, proving the
- * attribute covers every test and not just the first one.
+ * A catalog consisting of skipped tests only: such a run must be a success (exit 0).
  */
 #[Test]
-#[Skip('the whole case is skipped')]
-final class SkipClassLevelStub
+#[Skip('everything here is skipped')]
+final class OnlySkippedStub
 {
     public function firstSkipped(): void
     {

@@ -13,8 +13,8 @@ use Testo\Test\Skip;
 abstract class SkipOverriddenMethodParentStub
 {
     #[Skip('inherited from the overridden method')]
-    public function parked(): void
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the parent method is parked.');
+        throw new \LogicException('Must never run: the parent method is skipped.');
     }
 }

@@ -17,20 +17,20 @@ use Testo\Test\Skip;
 final class SkipMethodStub
 {
     #[Skip('broken by the pricing rework, see ISSUE-123')]
-    public function parked(): void
+    public function skipped(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 
     #[Skip]
-    public function parkedNoReason(): void
+    public function skippedNoReason(): void
     {
-        throw new \LogicException('Must never run: the test is parked.');
+        throw new \LogicException('Must never run: the test is skipped.');
     }
 
     public function enabled(): void
     {
-        # Control neighbor: stays runnable next to the parked ones.
+        # Control neighbor: stays runnable next to the skipped ones.
         Assert::true(true);
     }
 }

@@ -10,10 +10,10 @@ use Testo\Test\Skip;
  * Fixture with a class-level `#[Skip]` and method-level overrides.
  *
  * Used by {@see \Tests\Test\Unit\Internal\SkipInterceptorTest}: a class-level `#[Skip]`
- * parks every test; a method-level `#[Skip]` wins over the class-level one, reason included —
+ * skips every test; a method-level `#[Skip]` wins over the class-level one, reason included —
  * also when its own reason is empty.
  */
-#[Skip('entire case is parked')]
+#[Skip('entire case is skipped')]
 final class SkipClassLevelFixture
 {
     public function first(): void {}
