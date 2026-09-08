@@ -10,7 +10,9 @@ use Testo\Test\Skip;
 /**
  * Only skipped tests and no class-level hooks: the class must never be instantiated.
  *
- * The flag is a one-way latch — nothing resets it, so feature tests assert it absolutely.
+ * The flag is a one-way latch — nothing resets it, so
+ * {@see \Tests\Test\Feature\SkipFeatureTest::fullySkippedCaseWithoutHooksIsNeverInstantiated()}
+ * asserts it absolutely, not as a delta.
  */
 #[Test]
 #[Skip('fully skipped, must not construct')]

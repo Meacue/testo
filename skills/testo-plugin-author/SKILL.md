@@ -181,15 +181,16 @@ its `#[BeforeClass]`/`#[AfterClass]` hooks and every test it still had to run. S
   `$definition->active = false` on each of those. Deactivated, not discarded: `getTests()` then
   yields only the rest, and those are the tests the core runs.
 - Hand back their results yourself, from `CaseInfo::withBatchRunner`: **wrap** the runner already on
-  the case (testo/fiber may have set one), never replace it, and append one synthetic `TestResult`
-  per skipped test after the inner runner returns.
+  the case (testo/fiber may have set one), never replace it — and run the handlers yourself when the
+  case carries none — then append one synthetic `TestResult` per skipped test after the inner
+  runner returns.
 - Dispatch `TestPipelineStarting`/`TestPipelineFinished` around each synthetic result, or reporters
   never render its line, and stamp `summary: Summary::forTest(Status::Skipped)` on it — a result that
   never passes through the test runner is not counted for you.
 
 The shipped implementation of exactly this shape is `Testo\Test\Internal\SkipInterceptor` in
-`plugin/test`, serving the `#[Skip]` attribute (whose contract is in the `testo-write-tests` skill). Read it as
-a reference — it is `@internal`, don't import or subclass it.
+`plugin/test`, serving the `#[Skip]` attribute (whose contract is in the `testo-write-tests` skill).
+Read it as a reference — it is `@internal` (and `final`), don't import it.
 
 ## Container scopes — provision per-case / per-suite resources
 

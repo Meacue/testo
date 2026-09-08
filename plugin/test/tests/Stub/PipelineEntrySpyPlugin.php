@@ -17,7 +17,7 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
  * Unlike a {@see \Testo\Event\Test\TestPipelineStarting} listener — which also sees the
  * events the skip interceptor dispatches for its synthetic results — a per-test interceptor
  * is reached only by tests that actually run through the pipeline. The record accumulates
- * across catalog runs — feature tests inspect the slice of their own run.
+ * across directory runs — feature tests inspect the slice of their own run.
  */
 final class PipelineEntrySpyPlugin implements PluginConfigurator
 {

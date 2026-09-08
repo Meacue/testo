@@ -29,8 +29,8 @@ final class SkipSummaryTest
 {
     /**
      * The mixed directory holds one passing, one failing and two skipped tests (one of them
-     * data-driven). The classic off-by-one bug lives in that mix: the skipped tests must be
-     * counted rather than lost, and the failing neighbor must still fail the run.
+     * data-driven). Skipped tests are where the totals go off by one: they must be counted
+     * rather than lost, and the failing neighbor must still fail the run.
      */
     public function skippedTestsAddUpAndFailingNeighborStillFailsTheRun(): void
     {

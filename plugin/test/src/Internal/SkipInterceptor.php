@@ -49,9 +49,9 @@ use Testo\Test\TestPlugin;
  * (so filtering happens before `#[BeforeClass]`) and inner to the fiber interceptor (so a
  * fiber batch runner is already on the case and gets wrapped).
  *
- * `testType: TestType::Test` keeps the interceptor off `#[Bench]` and `#[TestInline]` cases; those
- * carry no foreign members to skip anyway, their finders (`BenchFinder`, `InlineFinder`) define
- * the case with `prefill: false`.
+ * `testType: TestType::Test` keeps the interceptor off `#[Bench]` and `#[TestInline]` cases: their
+ * finders (`BenchFinder`, `InlineFinder`) define the case with `prefill: false`, so it holds nothing
+ * but their own members — a `#[Skip]` on one of them is inert, see {@see Skip}.
  *
  * Two deliberate consequences of delivering results this way:
  *
@@ -65,8 +65,9 @@ use Testo\Test\TestPlugin;
  *   ({@see \Testo\Application\Internal\Runner\CaseRunner::run()}). One `#[Skip]` in a case moves
  *   its remaining tests onto a handler frame.
  *
- * The flag is flipped once on the shared case definition, so a second `runTestCase()` over the
- * same {@see \Testo\Core\Definition\CaseDefinition} finds no skipped tests left to report.
+ * The flag is flipped once on the case's shared {@see \Testo\Core\Definition\TestDefinition}s, so a
+ * second `runTestCase()` over the same {@see \Testo\Core\Definition\CaseDefinition} finds no skipped
+ * tests left to report.
  *
  * Never throws for a skipped test — a throw from a case interceptor aborts the whole case.
  *

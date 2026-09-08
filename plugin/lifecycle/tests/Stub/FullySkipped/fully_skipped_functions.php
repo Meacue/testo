@@ -22,7 +22,7 @@ use Testo\Test\Skip;
  * discovery must not depend on the surviving tests: `#[BeforeClass]`/`#[AfterClass]` still run
  * for the case (the `#[Skip]` contract), while the per-test hooks have nothing to wrap.
  *
- * Static hook counters accumulate across catalog runs — feature tests assert deltas.
+ * Static hook counters accumulate across directory runs — feature tests assert deltas.
  * State is shared through {@see FullySkippedFunctionState} because functions have no `$this`.
  */
 #[BeforeClass]

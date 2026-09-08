@@ -8,7 +8,7 @@ use Testo\Test;
 use Testo\Test\Skip;
 
 /**
- * A catalog consisting of skipped tests only: such a run must be a success (exit 0).
+ * A case consisting of skipped tests only: such a run must be a success (exit 0).
  */
 #[Test]
 #[Skip('everything here is skipped')]

@@ -18,6 +18,11 @@ use Testo\Test\Skip;
 #[Test]
 final class MixedStub
 {
+    /**
+     * Data sets for {@see self::skippedDataDriven()}; never called, since that test is skipped.
+     *
+     * @return iterable<array{int}>
+     */
     public static function provide(): iterable
     {
         yield [1];

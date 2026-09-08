@@ -13,7 +13,8 @@ use Testo\Test\Skip;
  * test of the case is skipped. The stub pins that behavior so a future change is a
  * conscious one, not an accident.
  *
- * The construction counter accumulates across catalog runs — feature tests assert deltas.
+ * The construction counter accumulates across directory runs —
+ * {@see \Tests\Test\Feature\SkipFeatureTest::nonStaticClassHookStillBuildsTheClass()} asserts the delta.
  */
 #[Test]
 #[Skip('fully skipped, but the non-static hook builds the class')]

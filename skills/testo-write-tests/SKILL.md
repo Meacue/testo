@@ -166,7 +166,7 @@ Which skipping tool to reach for:
 
 | Tool | Decided by | Visibility | Use when |
 |---|---|---|---|
-| `#[Skip('...')]` | code, ahead of time | always reported; reason in JUnit/TeamCity/HTML | test is skipped and must be returned to |
+| `#[Skip('...')]` | code, ahead of time | always reported; reason in JUnit/TeamCity/HTML | the test is knowingly broken, tracked in an issue, and must be returned to |
 | `throw SkipTest` | test body, at runtime | reported when the run gets there | test isn't applicable in this environment |
 | `#[Group]` + `--group=!x` | runner invocation | invisible — filtered out of reports | a category you sometimes don't run |
 

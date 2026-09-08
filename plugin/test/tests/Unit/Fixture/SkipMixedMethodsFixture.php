@@ -10,7 +10,9 @@ use Testo\Test\Skip;
  * Fixture mixing skipped and enabled tests.
  *
  * Used by {@see \Tests\Test\Unit\Internal\SkipInterceptorTest}: one test is skipped with a reason,
- * one without a reason, and one stays enabled to show what the interceptor leaves alone.
+ * one without a reason, and one stays enabled to show what the interceptor leaves alone. The
+ * PHPDoc summary of the skipped test is the description {@see \Testo\Test\Internal\SkipInterceptor}
+ * copies into the synthetic result.
  */
 final class SkipMixedMethodsFixture
 {

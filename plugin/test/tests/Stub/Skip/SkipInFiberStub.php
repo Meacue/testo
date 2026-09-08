@@ -19,8 +19,8 @@ use Testo\Test\Skip;
  *
  * Driven through {@see \Testo\Testing\Helper\TestRunner} by the Feature suite;
  * {@see \Tests\Test\Feature\SkipFeatureTest::fiberBatchRunnerSurvivesTheWrap()} asserts the
- * interleaving. The log accumulates
- * across catalog runs — this stub's tests and the feature test assert the tail written by their own run.
+ * interleaving. The log accumulates across directory runs — this stub's tests and the feature
+ * test assert the tail written by their own run.
  */
 #[Test]
 #[RunInFiber(Schedule::RoundRobin)]

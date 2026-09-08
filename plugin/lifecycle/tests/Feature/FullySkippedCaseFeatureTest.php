@@ -22,9 +22,9 @@ use Tests\Lifecycle\Stub\FullySkipped\FullySkippedFunctionState;
  * The `#[Skip]` case interceptor deactivates the skipped tests before the {@see LifecycleInterceptor}
  * collects the case's hooks, so hook discovery must not depend on the surviving tests. It does not:
  * the hooks are the case's non-tests. Prefilling defines every member as a non-test,
- * {@see LifecycleInterceptor} demotes back the ones a finder took for tests (a class-level `#[Test]`
- * promotes the hook methods of a class case first), and it then reads them all back with
- * `filter(isTest: false)` — non-tests outlive the deactivation of the tests.
+ * {@see LifecycleInterceptor} demotes back the lifecycle-annotated ones a finder took for tests
+ * (a class-level `#[Test]` promotes the hook methods of a class case first), and it then reads
+ * them all back with `filter(isTest: false)` — non-tests outlive the deactivation of the tests.
  *
  * Both case shapes are pinned here through the real pipeline. Their members are prefilled by
  * {@see \Testo\Core\Definition\CaseDefinitions::define()} from the two sources it knows: the
@@ -44,7 +44,7 @@ final class FullySkippedCaseFeatureTest
     }
 
     /**
-     * The function-based case shape: class-level hooks fire exactly once per catalog run even
+     * The function-based case shape: class-level hooks fire exactly once per directory run even
      * though no test of the case stays active; per-test hooks have nothing to wrap and stay silent.
      */
     public function classHooksRunForFullySkippedFunctionCase(): void

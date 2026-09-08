@@ -19,7 +19,7 @@ use Testo\Test\Skip;
  * `#[BeforeTest]`/`#[AfterTest]` fire for the enabled control test {@see enabled()} alone.
  * Driven by {@see \Tests\Test\Feature\SkipFeatureTest::classHooksRunButTestHooksDoNot()}.
  *
- * Static hook counters accumulate across catalog runs — feature tests assert deltas.
+ * Static hook counters accumulate across directory runs — feature tests assert deltas.
  */
 #[Test]
 final class SkipWithHooksStub
