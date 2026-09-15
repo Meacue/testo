@@ -30,7 +30,7 @@
     "require": {
         "php": ">=8.2",
         "ext-tokenizer": "*",
-        "internal/container": "^1.0",
+        "internal/container": "^1.1",
         "internal/destroy": "^1.0",
         "internal/path": "^1.3",
         "psr/container": "1 - 2",
@@ -38,37 +38,32 @@
         "psr/log": "^2.0 || ^3.0",
         "symfony/console": "^6.4 || ^7 || ^8.0",
         "symfony/finder": "^6.4 || ^7 || ^8.0",
-        "testo/assert": "^0.1.14",
+        "testo/assert": "^0.1.15",
         "testo/fiber": "^0.1.3",
-        "testo/bench": "^0.1.11",
-        "testo/bridge-symfony-console": "^0.1.12",
-        "testo/codecov": "^0.2.1",
+        "testo/bench": "^0.1.12",
+        "testo/bridge-symfony-console": "^0.1.13",
+        "testo/codecov": "^0.2.2",
         "testo/convention": "^0.1.5",
         "testo/data": "^0.1.9",
-        "testo/filter": "^0.1.7",
+        "testo/filter": "^0.1.8",
         "testo/inline": "^0.1.9",
         "testo/lifecycle": "^0.1.6",
         "testo/repeat": "^0.1.9",
         "testo/retry": "^0.1.5",
         "testo/skip": "0.1 - 1",
-        "testo/test": "^0.1.7",
+        "testo/test": "^0.1.8",
         "yiisoft/injector": "^1.2"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.8",
         "buggregator/trap": "^1.10",
         "llm/skills": "^1.3",
-        "php-vcr/php-vcr": "^1.6",
         "roxblnfk/unpoly": "1.8.2",
-        "rector/rector": "^2.6.4",
         "testo/bridge-infection": "^0.1.8",
-        "testo/bridge-mockery": "^0.1.2",
-        "testo/bridge-rector": "^0.2.5",
-        "testo/bridge-revolt": "^0.1.2",
-        "testo/bridge-vcr": "^0.1.1",
         "testo/facade": "^0.1.1"
     },
     "suggest": {
+        "testo/bridge-double": "Auto-verifies Double mocks, stubs and spies after every test — fiber-safe, no manual verify() calls.",
         "testo/bridge-infection": "Provides integration with Infection PHP mutation testing framework.",
         "testo/bridge-mockery": "Provides integration with the Mockery mocking framework.",
         "llm/skills": "Ship Testo's bundled AI-agent skills into your project's skills directory automatically."
@@ -87,11 +82,17 @@
     "autoload-dev": {
         "psr-4": {
             "Internal\\Fiber\\Tests\\": "internal/fiber/tests/",
+            "Testo\\Bridge\\Double\\": "bridge/double/src",
+            "Testo\\Bridge\\Mockery\\": "bridge/mockery/src",
+            "Testo\\Bridge\\Rector\\": "bridge/rector/src",
+            "Testo\\Bridge\\Revolt\\": "bridge/revolt/src",
+            "Testo\\Bridge\\VCR\\": "bridge/vcr/src",
             "Tests\\PhpUnit\\": "tests/PhpUnit/",
             "Tests\\": "tests/",
             "Tests\\Assert\\": "plugin/assert/tests/",
             "Tests\\Fiber\\": "plugin/fiber/tests/",
             "Tests\\Bench\\": "plugin/bench/tests/",
+            "Tests\\Bridge\\Double\\": "bridge/double/tests/",
             "Tests\\Bridge\\Mockery\\": "bridge/mockery/tests/",
             "Tests\\Bridge\\Rector\\": "bridge/rector/tests/",
             "Tests\\Bridge\\Revolt\\": "bridge/revolt/tests/",
@@ -109,7 +110,8 @@
             "Tests\\Test\\": "plugin/test/tests/"
         },
         "files": [
-            "tests/Fixture/functions.php"
+            "tests/Fixture/functions.php",
+            "bridge/vcr/VCR.php"
         ]
     },
     "repositories": [
@@ -142,6 +144,7 @@
             "options": {
                 "symlink": true,
                 "versions": {
+                    "testo/bridge-double": "0.1.x-dev",
                     "testo/bridge-infection": "0.1.x-dev",
                     "testo/bridge-mockery": "0.1.x-dev",
                     "testo/bridge-rector": "0.2.x-dev",
@@ -174,10 +177,10 @@
         }
     },
     "scripts": {
-        "cs:diff": "php-cs-fixer fix --dry-run -v --diff",
-        "cs:fix": "php-cs-fixer fix -v",
-        "rector": "rector",
-        "rector:ci": "rector --dry-run --clear-cache --no-progress-bar",
+        "cs:diff": "php-cs-fixer fix --dry-run -v --diff --config=tools/code-style/.php-cs-fixer.dist.php",
+        "cs:fix": "php-cs-fixer fix -v --config=tools/code-style/.php-cs-fixer.dist.php",
+        "rector": "rector --config=tools/rector/rector.php",
+        "rector:ci": "rector --config=tools/rector/rector.php --dry-run --clear-cache --no-progress-bar",
         "infect": [
             "@putenv TESTO_CI=1",
             "@putenv XDEBUG_MODE=coverage",
@@ -194,18 +197,21 @@
             "@composer dump-autoload --quiet",
             "rector process --config=bin/rector-phpunit-build.php --no-diffs --no-progress-bar"
         ],
-        "phpunit": "phpunit",
+        "phpunit": "phpunit --configuration tools/phpunit/phpunit.xml",
         "infect:phpunit": [
             "@putenv XDEBUG_MODE=coverage",
-            "infection --configuration=infection.phpunit.json --threads=max --min-msi=0"
+            "@php bin/phpunit-coverage.php runtime/phpunit-cov",
+            "infection --configuration=tools/phpunit/infection.phpunit.json --coverage=../../runtime/phpunit-cov --skip-initial-tests --threads=max --min-msi=0"
         ],
         "infect:phpunit:ci": [
             "@putenv XDEBUG_MODE=coverage",
-            "infection --ansi --configuration=infection.phpunit.json --logger-github --threads=max --show-mutations=0 --min-msi=0"
+            "@php bin/phpunit-coverage.php runtime/phpunit-cov",
+            "infection --ansi --configuration=tools/phpunit/infection.phpunit.json --coverage=../../runtime/phpunit-cov --skip-initial-tests --logger-github --threads=max --show-mutations=0 --min-msi=0"
         ],
-        "psalm": "psalm",
-        "psalm:baseline": "psalm --set-baseline=psalm-baseline.xml",
-        "psalm:ci": "psalm --output-format=github --shepherd --show-info=false --stats --threads=4",
+        "psalm": "psalm -c tools/psalm/psalm.xml",
+        "psalm:baseline": "psalm -c tools/psalm/psalm.xml --set-baseline=tools/psalm/psalm-baseline.xml",
+        "psalm:ci": "psalm -c tools/psalm/psalm.xml --output-format=github --shepherd --show-info=false --stats --threads=4",
+        "structarmed": "structarmed analyse --config=tools/structarmed/structarmed.php --clear-cache",
         "test": "testo",
         "test:ci": [
             "@putenv TESTO_CI=1",
@@ -214,7 +220,7 @@
         "test:cc": [
             "@putenv TESTO_CI=1",
             "@putenv XDEBUG_MODE=coverage",
-            "testo --coverage --coverage-clover=runtime/clover.xml"
+            "testo --coverage --coverage-clover=runtime/clover.xml --type=!bench"
         ]
     }
 }

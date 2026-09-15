@@ -6,7 +6,7 @@ on:
       - 'core/**'
       - 'plugin/**'
       - 'bridge/**'
-      - 'rector.php'
+      - 'tools/rector/rector.php'
       - 'composer.json'
       - 'composer.lock'
       - '.github/workflows/rector.yml'
@@ -15,7 +15,7 @@ on:
       - 'core/**'
       - 'plugin/**'
       - 'bridge/**'
-      - 'rector.php'
+      - 'tools/rector/rector.php'
       - 'composer.json'
       - 'composer.lock'
       - '.github/workflows/rector.yml'
@@ -45,6 +45,10 @@ jobs:
         uses: ramsey/composer-install@v3
         with:
           dependency-versions: highest
+
+      # rector is isolated in tools/rector; bin-links put its binary on vendor/bin.
+      - name: Install bin tools
+        run: composer bin all install --ignore-platform-req=php
 
       - name: Run Rector
         run: composer rector:ci

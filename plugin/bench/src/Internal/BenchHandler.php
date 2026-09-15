@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Bench\Internal;
 
+use Internal\Container\Attribute\ScopeShared;
 use Testo\Assert\Internal\StaticState;
 use Testo\Assert\State\Assertion\AssertionException;
 use Testo\Assert\State\Assertion\AssertionSuccess;
@@ -21,11 +22,76 @@ use Testo\Core\Log\Level;
 /**
  * @internal
  */
+#[ScopeShared]
 final readonly class BenchHandler
 {
     public function __construct(
         private Messenger $messenger,
     ) {}
+
+    /**
+     * The benchmark's verdict as an assertion record: a successful one when `current` (always case 0)
+     * is the fastest within `$tolerance` headroom over the fastest callable, a failing one naming the
+     * faster callable otherwise. A `$tolerance` of `\INF` always passes.
+     *
+     * @param list<CaseResult> $results Case results, ordered as measured — index 0 is `current`.
+     * @param list<string> $aliases Case aliases in the same order; `$aliases[0]` is `current`.
+     */
+    public static function benchmarkVerdict(
+        array $results,
+        array $aliases,
+        float $tolerance,
+    ): AssertionSuccess|AssertionException {
+        $current = $results[0]->favg;
+        $fastest = $current;
+        $fastestAlias = $aliases[0];
+        foreach ($results as $i => $result) {
+            if ($result->favg < $fastest) {
+                $fastest = $result->favg;
+                $fastestAlias = $aliases[$i];
+            }
+        }
+
+        $assertion = \sprintf('is the fastest within %.0f%%', $tolerance * 100);
+
+        if ($current <= $fastest * (1 + $tolerance)) {
+            return new AssertionSuccess('current', $assertion, '');
+        }
+
+        $slower = $fastest > 0.0 ? ($current / $fastest - 1) * 100 : \INF;
+
+        return new AssertionException(
+            value: 'current',
+            assertion: $assertion,
+            context: '',
+            reason: \sprintf("'%s' is %.1f%% faster", $fastestAlias, $slower),
+            details: '',
+        );
+    }
+
+    /**
+     * Resolves a `[class-string, method]` reference to a closure, bypassing visibility so a benchmark
+     * can compare non-public implementations. A static method binds to no instance; a non-static one
+     * binds to `$instance`, which must be an instance of the method's declaring class.
+     *
+     * @param class-string $class
+     * @param non-empty-string $method
+     */
+    public static function methodClosure(string $class, string $method, ?object $instance): \Closure
+    {
+        $reflection = new \ReflectionMethod($class, $method);
+
+        if ($reflection->isStatic()) {
+            return $reflection->getClosure();
+        }
+
+        $instance !== null && $reflection->getDeclaringClass()->isInstance($instance)
+            or throw new \InvalidArgumentException(
+                "Cannot benchmark non-static method {$class}::{$method}() without an instance of {$class}.",
+            );
+
+        return $reflection->getClosure($instance);
+    }
 
     public function __invoke(TestInfo $info): mixed
     {
@@ -131,46 +197,6 @@ final readonly class BenchHandler
         $record instanceof AssertionException and throw $record;
     }
 
-    /**
-     * The benchmark's verdict as an assertion record: a successful one when `current` (always case 0)
-     * is the fastest within `$tolerance` headroom over the fastest callable, a failing one naming the
-     * faster callable otherwise. A `$tolerance` of `\INF` always passes.
-     *
-     * @param list<CaseResult> $results Case results, ordered as measured — index 0 is `current`.
-     * @param list<string> $aliases Case aliases in the same order; `$aliases[0]` is `current`.
-     */
-    public static function benchmarkVerdict(
-        array $results,
-        array $aliases,
-        float $tolerance,
-    ): AssertionSuccess|AssertionException {
-        $current = $results[0]->favg;
-        $fastest = $current;
-        $fastestAlias = $aliases[0];
-        foreach ($results as $i => $result) {
-            if ($result->favg < $fastest) {
-                $fastest = $result->favg;
-                $fastestAlias = $aliases[$i];
-            }
-        }
-
-        $assertion = \sprintf('is the fastest within %.0f%%', $tolerance * 100);
-
-        if ($current <= $fastest * (1 + $tolerance)) {
-            return new AssertionSuccess('current', $assertion, '');
-        }
-
-        $slower = $fastest > 0.0 ? ($current / $fastest - 1) * 100 : \INF;
-
-        return new AssertionException(
-            value: 'current',
-            assertion: $assertion,
-            context: '',
-            reason: \sprintf("'%s' is %.1f%% faster", $fastestAlias, $slower),
-            details: '',
-        );
-    }
-
     private static function normalizeCallable(TestInfo $info, callable|array $callable): \Closure
     {
         # A `[class-string, method]` pair may name a non-public method, which the plain first-class
@@ -185,30 +211,6 @@ final readonly class BenchHandler
         }
 
         return static fn(): mixed => $fn(...$info->arguments);
-    }
-
-    /**
-     * Resolves a `[class-string, method]` reference to a closure, bypassing visibility so a benchmark
-     * can compare non-public implementations. A static method binds to no instance; a non-static one
-     * binds to `$instance`, which must be an instance of the method's declaring class.
-     *
-     * @param class-string $class
-     * @param non-empty-string $method
-     */
-    public static function methodClosure(string $class, string $method, ?object $instance): \Closure
-    {
-        $reflection = new \ReflectionMethod($class, $method);
-
-        if ($reflection->isStatic()) {
-            return $reflection->getClosure();
-        }
-
-        $instance !== null && $reflection->getDeclaringClass()->isInstance($instance)
-            or throw new \InvalidArgumentException(
-                "Cannot benchmark non-static method {$class}::{$method}() without an instance of {$class}.",
-            );
-
-        return $reflection->getClosure($instance);
     }
 
     /**
@@ -239,7 +241,7 @@ final readonly class BenchHandler
         # peak is reset first so it reflects this iteration only, and the collection cycle keeps
         # garbage from a previous case out of the window.
         \gc_collect_cycles();
-        \memory_reset_peak_usage();
+        \function_exists('memory_reset_peak_usage') and \memory_reset_peak_usage();
         $beforeMem = \memory_get_peak_usage();
         $beforeTime = \hrtime(true);
         for ($i = 0; $i < $calls; ++$i) {

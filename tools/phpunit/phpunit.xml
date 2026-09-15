@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Drives the GENERATED PHPUnit mirror of Testo's own test suite (tests/PhpUnit/),
+    produced by `composer phpunit:build`. Its sole purpose is mutation testing of the
+    engine with a runner that shares no code with the mutated `core/` (see
+    bridge/rector/README.md "Why Testo -> PHPUnit"). Not the primary test runner —
+    `composer test` (Testo) is.
+
+    This config lives under tools/phpunit/, next to its isolated PHPUnit install; its paths are
+    therefore relative to this directory. PHPUnit resolves them against the config's own location,
+    and Infection rewrites them against `phpUnit.configDir` from infection.phpunit.json.
+
+    executionOrder must NOT include `defects`: Infection disables test-run-history recording for its
+    initial coverage run (it injects cacheResult="false"), and since PHPUnit 13.3 defect ordering
+    requires that history — with it off the runner orders by nothing and executes zero tests, so
+    Infection collects empty coverage and aborts with "No source code was executed".
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="../../tests/bootstrap.php"
+         cacheDirectory="../../runtime/.phpunit.cache"
+         executionOrder="depends"
+         failOnRisky="false"
+         failOnWarning="false"
+         failOnPhpunitWarning="false"
+         displayDetailsOnTestsThatTriggerWarnings="true"
+         beStrictAboutTestsThatDoNotTestAnything="false"
+         colors="true">
+    <testsuites>
+        <testsuite name="generated">
+            <directory>../../tests/PhpUnit</directory>
+            <!--
+                Testo Stub/Fixture classes are support data — test doubles and sample sources Testo's
+                own unit tests reflect on. Some are deliberately named like real test classes (*Test),
+                so PHPUnit must not collect them. Excluding a directory here only stops test
+                COLLECTION; the classes still autoload when a real test references them. The build
+                leaves them unconverted under Stub/ and Fixture/ dirs, so exclude those at any depth.
+            -->
+            <exclude>../../tests/PhpUnit/*/Fixture</exclude>
+            <exclude>../../tests/PhpUnit/*/*/Fixture</exclude>
+            <exclude>../../tests/PhpUnit/*/*/*/Fixture</exclude>
+            <exclude>../../tests/PhpUnit/*/Stub</exclude>
+            <exclude>../../tests/PhpUnit/*/*/Stub</exclude>
+            <exclude>../../tests/PhpUnit/*/*/*/Stub</exclude>
+        </testsuite>
+    </testsuites>
+    <!--
+        Coverage scope must list every source a mirror test targets via #[CoversClass]; PHPUnit raises
+        a warning for a covered class outside it. The directories cover core plus the plugin/bridge
+        `src/` trees. Each package's top-level facade (Testo\Assert, Testo\Repeat, …) lives in a
+        `files`-autoloaded php file at the package ROOT, outside `src/`, and tests cover it — so those
+        files are listed one by one below (PHPUnit's <file> takes a literal path: it does NOT expand a
+        `plugin/*/*.php` glob the way <directory> expands `*`, and a <directory> at the package root
+        would recurse back into src/ and tests/). Mutation scope is set separately in
+        infection.phpunit.json (core + plugin/*/src + bridge/*/src).
+    -->
+    <source>
+        <include>
+            <directory>../../core</directory>
+            <directory>../../plugin/*/src</directory>
+            <directory>../../bridge/*/src</directory>
+            <file>../../plugin/assert/Assert.php</file>
+            <file>../../plugin/assert/Expect.php</file>
+            <file>../../plugin/bench/Bench.php</file>
+            <file>../../plugin/facade/Testo.php</file>
+            <file>../../plugin/filter/Filter.php</file>
+            <file>../../plugin/repeat/Repeat.php</file>
+            <file>../../plugin/retry/Retry.php</file>
+            <file>../../plugin/skip/Skip.php</file>
+            <file>../../plugin/test/Test.php</file>
+            <file>../../bridge/vcr/VCR.php</file>
+        </include>
+    </source>
+</phpunit>
