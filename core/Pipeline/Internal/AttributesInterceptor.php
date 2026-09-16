@@ -68,7 +68,6 @@ final readonly class AttributesInterceptor implements TestRunInterceptor, TestCa
             $attrs,
         ));
 
-        # Merge and instantiate attributes
         $interceptors = $this->interceptorProvider->fromAttributes(TestRunInterceptor::class, ...$attrs);
         $info = $info->withAttributes(self::groupAttributes($attrs));
 
@@ -98,7 +97,7 @@ final readonly class AttributesInterceptor implements TestRunInterceptor, TestCa
                 flags: \ReflectionAttribute::IS_INSTANCEOF,
             );
 
-        # Test-level attributes join the case pipeline only when they ask for it explicitly.
+        # Active tests only: an attribute on a test the filter dropped must not shape the case.
         $testAttributes = [];
         foreach ($info->definition->tests->getTests() as $definition) {
             $testAttributes = [...$testAttributes, ...Reflection::fetchFunctionAttributes(
