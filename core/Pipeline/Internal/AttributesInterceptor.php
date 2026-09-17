@@ -10,7 +10,6 @@ use Testo\Core\Context\CaseInfo;
 use Testo\Core\Context\CaseResult;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
-use Testo\Pipeline\Attribute\CaseInterceptable;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Pipeline\Attribute\InterceptorOptions;
 use Testo\Pipeline\InterceptorProvider;
@@ -22,9 +21,6 @@ use Testo\Pipeline\Pipeline;
 /**
  * Reads {@see Interceptable} attributes and integrates them into the pipeline.
  * Also maps the found attributes into the info DTO attributes.
- *
- * At the case level the class attributes are read; a test-level attribute joins the case pipeline
- * only when it is a {@see CaseInterceptable}.
  *
  * @internal
  * @psalm-internal Testo\Pipeline
@@ -89,7 +85,7 @@ final readonly class AttributesInterceptor implements TestRunInterceptor, TestCa
     #[\Override]
     public function runTestCase(CaseInfo $info, callable $next): CaseResult
     {
-        $classAttributes = $info->definition->reflection === null
+        $attrs = $info->definition->reflection === null
             ? []
             : Reflection::fetchClassAttributes(
                 class: $info->definition->reflection,
@@ -97,39 +93,22 @@ final readonly class AttributesInterceptor implements TestRunInterceptor, TestCa
                 flags: \ReflectionAttribute::IS_INSTANCEOF,
             );
 
-        # Active tests only: an attribute on a test the filter dropped must not shape the case.
-        $testAttributes = [];
-        foreach ($info->definition->tests->getTests() as $definition) {
-            $testAttributes = [...$testAttributes, ...Reflection::fetchFunctionAttributes(
-                function: $definition->reflection,
-                attributeClass: CaseInterceptable::class,
-                flags: \ReflectionAttribute::IS_INSTANCEOF,
-            )];
-        }
-
-        if ($classAttributes === [] && $testAttributes === []) {
+        if ($attrs === []) {
             # No attributes, continue to next interceptor
             return $next($info);
         }
 
-        $instantiate = static fn(array $attrs): array => \array_values(\array_map(
+        $attrs = \array_map(
             static function (\ReflectionAttribute $a): Interceptable {
                 /** @var Interceptable */
                 return $a->newInstance();
             },
             $attrs,
-        ));
-        $classAttributes = $instantiate($classAttributes);
-        $testAttributes = $instantiate($testAttributes);
+        );
 
         # Merge and instantiate attributes
-        $interceptors = $this->interceptorProvider->fromAttributes(
-            TestCaseRunInterceptor::class,
-            ...$classAttributes,
-            ...$testAttributes,
-        );
-        # Only class attributes describe the case itself; test attributes stay on their tests.
-        $classAttributes === [] or $info = $info->withAttributes(self::groupAttributes($classAttributes));
+        $interceptors = $this->interceptorProvider->fromAttributes(TestCaseRunInterceptor::class, ...$attrs);
+        $info = $info->withAttributes(self::groupAttributes($attrs));
 
         /** @var callable(CaseInfo): CaseResult $pipeline */
         $pipeline = $next instanceof Pipeline

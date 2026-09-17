@@ -35,6 +35,10 @@ use Testo\Pipeline\Pipeline;
  * {@see Status::Error} result, and a failure of the interceptor pipeline itself is captured as
  * {@see Status::Aborted}.
  *
+ * A test marked {@see \Testo\Core\Definition\TestDefinition::$skipped} still goes down the
+ * pipeline, so the interceptor that knows the reason may report it; if none does, the runner
+ * reports it as {@see Status::Skipped} itself instead of running the body.
+ *
  * @internal
  * @psalm-internal Testo\Application
  */
@@ -61,6 +65,20 @@ final readonly class TestRunner
                 ...$interceptors,
             )->with(
                 function (TestInfo $info) use ($description): TestResult {
+                    # A skipped test that no interceptor reported on the way down: report it here,
+                    # ahead of `TestStarting`, since no test body is about to run.
+                    if ($info->testDefinition->skipped) {
+                        return new TestResult(
+                            info: $info,
+                            status: Status::Skipped,
+                            failure: new SkipTest("{$info->identity->fqn()} is skipped"),
+                            attributes: [
+                                'duration' => 0,
+                                'description' => $description,
+                            ],
+                        );
+                    }
+
                     $this->eventDispatcher->dispatch(new TestStarting($info));
 
                     $startTime = \microtime(true);
