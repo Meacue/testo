@@ -12,6 +12,7 @@ use Testo\Data\MultipleResult;
 use Testo\Filter\Group;
 use Testo\Test;
 use Testo\Skip\Internal\SkipInterceptor;
+use Testo\Skip\Internal\SkipLocatorInterceptor;
 use Testo\Skip;
 use Testo\Testing\Attribute\TestingSuite;
 use Testo\Testing\Helper\TestRunner;
@@ -32,8 +33,9 @@ use Tests\Skip\Stub\Skip\SkipWithRetryStub;
 
 /**
  * End-to-end checks that {@see SkipInterceptor}, wired by the attribute's fallback declaration,
- * deactivates the `#[Skip]`-marked tests of a case before it runs and delivers them back as
- * {@see Status::Skipped} results carrying the composed skip message.
+ * reports the `#[Skip]`-marked tests as {@see Status::Skipped} at the entry of their pipeline with
+ * the composed skip message, and that the flag {@see SkipLocatorInterceptor} sets ahead of the run
+ * keeps the lifecycle hooks away from them.
  *
  * Every test method replays the whole `Stub/Skip` directory through {@see TestRunner} and then inspects
  * either the returned result or what the stubs recorded. The stubs' static counters and flags
@@ -46,6 +48,7 @@ use Tests\Skip\Stub\Skip\SkipWithRetryStub;
 #[TestingSuite(path: __DIR__ . '/../Stub/Skip', plugins: [PipelineEntrySpyPlugin::class])]
 #[Covers(Skip::class)]
 #[Covers(SkipInterceptor::class)]
+#[Covers(SkipLocatorInterceptor::class)]
 final class SkipFeatureTest
 {
     public function __construct()
@@ -134,8 +137,7 @@ final class SkipFeatureTest
 
     /**
      * The function-based analog of the control neighbor: an enabled function of a partially
-     * skipped file still runs through the batch runner the interceptor installs on the case, and
-     * passes.
+     * skipped file still runs and passes.
      */
     public function controlNeighborFunctionNextToSkippedFunctionStillRuns(): void
     {
@@ -158,8 +160,8 @@ final class SkipFeatureTest
     }
 
     /**
-     * The skipped test is filtered out before the case runs: class-level hooks fire as usual
-     * (once per directory run), per-test hooks fire only for the enabled control test.
+     * A partially skipped case: class-level hooks fire as usual (once per directory run) because
+     * the case still has a test to run, per-test hooks fire only for the enabled control test.
      */
     public function classHooksRunButTestHooksDoNot(): void
     {
@@ -187,17 +189,19 @@ final class SkipFeatureTest
     }
 
     /**
-     * Documented caveat: a non-static class-level hook builds the class even when every
-     * test is skipped — pinned so a future change is conscious, not accidental.
+     * A fully skipped case gets no class-level hooks at all, so not even a non-static
+     * `#[BeforeClass]` hook builds the class.
      */
-    public function nonStaticClassHookStillBuildsTheClass(): void
+    public function fullySkippedCaseRunsNoClassHooksAndIsNotBuiltForThem(): void
     {
         $constructions = SkipNonStaticHookStub::$constructions;
+        $hookCalls = SkipNonStaticHookStub::$hookCalls;
 
         $result = TestRunner::runTest([SkipNonStaticHookStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
-        Assert::same(SkipNonStaticHookStub::$constructions - $constructions, 1);
+        Assert::same(SkipNonStaticHookStub::$hookCalls - $hookCalls, 0);
+        Assert::same(SkipNonStaticHookStub::$constructions - $constructions, 0);
     }
 
     public function classLevelSkipIsInheritedFromParent(): void
@@ -275,11 +279,11 @@ final class SkipFeatureTest
     }
 
     /**
-     * The common ground of the hook/provider/retry/repeat checks above: a skipped test never
-     * enters the per-test pipeline at all. A spy interceptor on that pipeline sees the
-     * enabled neighbors of the directory and none of the skipped tests.
+     * The common ground of the hook/provider/retry/repeat checks above: a skipped test is cut off
+     * at the entry of its pipeline. A spy interceptor at the default position sees the enabled
+     * neighbors of the directory and none of the skipped tests.
      */
-    public function skippedTestsNeverEnterThePerTestPipeline(): void
+    public function skippedTestsNeverGetPastTheSkipInterceptor(): void
     {
         $offset = \count(PipelineEntrySpyPlugin::$entered);
 
@@ -301,12 +305,12 @@ final class SkipFeatureTest
     }
 
     /**
-     * Fiber compatibility: the skip interceptor wraps the fiber batch runner instead of
-     * replacing it. The round-robin interleaving of the two enabled tests is produced only by
-     * the case scheduler — run sequentially, their `\Fiber::suspend()` would throw and the
-     * log would stop short — while the skipped test is still skipped.
+     * Fiber compatibility: a skipped test inside a fiber-driven case does not disturb the case
+     * scheduler. The round-robin interleaving of the two enabled tests is produced only by that
+     * scheduler — run sequentially, their `\Fiber::suspend()` would throw and the log would stop
+     * short — while the skipped test is still skipped.
      */
-    public function fiberBatchRunnerSurvivesTheWrap(): void
+    public function fiberScheduledCaseKeepsItsInterleaving(): void
     {
         $offset = \count(SkipInFiberStub::$log);
 

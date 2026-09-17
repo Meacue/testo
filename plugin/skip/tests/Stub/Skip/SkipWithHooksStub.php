@@ -13,10 +13,10 @@ use Testo\Test;
 use Testo\Skip;
 
 /**
- * Stub for verifying that a `#[Skip]`-marked test never reaches the per-test pipeline:
- * {@see \Testo\Skip\Internal\SkipInterceptor} deactivates it before the case's hooks and remaining
- * tests run, so the `#[BeforeClass]`/`#[AfterClass]` hooks still fire once per case run while
- * `#[BeforeTest]`/`#[AfterTest]` fire for the enabled control test {@see enabled()} alone.
+ * Stub for verifying the hooks of a partially skipped case: the case still has a test to run, so
+ * the `#[BeforeClass]`/`#[AfterClass]` hooks fire once per case run, while
+ * `#[BeforeTest]`/`#[AfterTest]` fire for the enabled control test {@see enabled()} alone, since
+ * the skipped test is flagged ahead of the run and reported at the entry of its pipeline.
  * Driven by {@see \Tests\Skip\Feature\SkipFeatureTest::classHooksRunButTestHooksDoNot()}.
  *
  * Static hook counters accumulate across directory runs — feature tests assert deltas.

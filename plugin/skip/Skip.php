@@ -6,9 +6,10 @@ namespace Testo;
 
 use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
-use Testo\Pipeline\Attribute\CaseInterceptable;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
+use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Skip\Internal\SkipInterceptor;
+use Testo\Skip\SkipPlugin;
 
 /**
  * Marks a test as skipped without deleting or hiding it.
@@ -37,16 +38,17 @@ use Testo\Skip\Internal\SkipInterceptor;
  *
  * Runtime contract:
  *
- * - The skipped test never enters the per-test pipeline: `#[BeforeTest]`/`#[AfterTest]`,
+ * - The skipped test is reported at the entry of its pipeline: `#[BeforeTest]`/`#[AfterTest]`,
  *   data providers, `#[Retry]`/`#[Repeat]`, fibers and coverage never engage. A data-driven
  *   test yields a single Skipped entry.
- * - `#[BeforeClass]`/`#[AfterClass]` still run, also when every test of the case is skipped.
- * - The case class is not constructed for a skipped test.
+ * - `#[BeforeClass]`/`#[AfterClass]` run when the case still has a test to run. When every test
+ *   of the case is skipped they stay silent, and the case class is not constructed.
  * - A run consisting only of skipped tests is successful (exit code 0).
  * - The attribute is inert on a non-test method and on `#[Bench]`/`#[TestInline]` targets.
  *
  * No registration is needed: the attribute wires {@see SkipInterceptor} itself, from a class, a
- * method or a function alike.
+ * method or a function alike. {@see SkipPlugin}, part of the default suite plugins, is what makes
+ * the lifecycle hooks aware of the skip ahead of the run.
  *
  * For skipping at runtime — from the test body, based on the environment — throw {@see SkipTest}
  * instead; the `is skipped via #[Skip]` marker tells the two apart in reports.
@@ -55,7 +57,7 @@ use Testo\Skip\Internal\SkipInterceptor;
  */
 #[\Attribute(\Attribute::TARGET_CLASS | \Attribute::TARGET_METHOD | \Attribute::TARGET_FUNCTION)]
 #[FallbackInterceptor(SkipInterceptor::class)]
-final readonly class Skip implements CaseInterceptable
+final readonly class Skip implements Interceptable
 {
     /**
      * @param string $reason Why the test is skipped. A reference to an issue

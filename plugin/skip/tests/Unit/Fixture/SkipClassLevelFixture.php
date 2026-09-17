@@ -9,9 +9,8 @@ use Testo\Skip;
 /**
  * Fixture with a class-level `#[Skip]` and method-level overrides.
  *
- * Used by {@see \Tests\Skip\Unit\Internal\SkipInterceptorTest}: a class-level `#[Skip]`
- * skips every test; a method-level `#[Skip]` wins over the class-level one, reason included —
- * also when its own reason is empty.
+ * Used by {@see \Tests\Skip\Unit\Internal\SkipLocatorInterceptorTest}: a class-level `#[Skip]`
+ * flags every test, whatever the method-level overrides say about the reason.
  */
 #[Skip('entire case is skipped')]
 final class SkipClassLevelFixture

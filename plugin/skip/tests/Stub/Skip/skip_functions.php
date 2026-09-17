@@ -17,8 +17,7 @@ function skippedFunction(): void
     throw new \LogicException('Must never run: the test is skipped.');
 }
 
-# Control neighbor of the same case: an enabled function next to a skipped one still runs through
-# the batch runner the interceptor installs on the case, and passes.
+# Control neighbor of the same case: an enabled function next to a skipped one still runs and passes.
 #[Test]
 function enabledFunction(): void
 {

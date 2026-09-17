@@ -8,11 +8,10 @@ use Testo\Assert;
 use Testo\Skip;
 
 /**
- * The case of the standalone run: discovered by naming convention alone (no `#[Test]`
+ * The case of the standalone runs: discovered by naming convention alone (no `#[Test]`
  * attribute, no `TestPlugin`), so nothing but the attribute's own fallback declaration
- * can wire the skip. The method-level `#[Skip]` is the one that reaches the case pipeline
- * only through {@see \Testo\Pipeline\Attribute\CaseInterceptable}. Lives in its own
- * directory so the standalone run's `FinderConfig` can point at it alone.
+ * wires the skip; one of the runs also leaves the `SkipPlugin` out. Lives in its own
+ * directory so the standalone runs' `FinderConfig` can point at it alone.
  */
 final class StandaloneSkippedTest
 {

@@ -10,8 +10,8 @@ use Testo\Skip;
 
 /**
  * Method-level `#[Skip]`, with and without a reason: only the marked tests of the case are
- * deactivated; the unmarked neighbor still runs. Both marked bodies throw, so a marked test that
- * reaches the pipeline anyway fails loudly instead of passing quietly.
+ * skipped; the unmarked neighbor still runs. Both marked bodies throw, so a marked test that
+ * gets past the skip interceptor anyway fails loudly instead of passing quietly.
  */
 #[Test]
 final class SkipMethodStub

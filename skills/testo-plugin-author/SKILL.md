@@ -172,25 +172,23 @@ if (!$reachable) {
 }
 ```
 
-### Skipping from a case interceptor — do call `$next`
+### Skipping ahead of the run — flag the definition
 
-At **case** level the rule inverts: returning a `CaseResult` without `$next` drops the case whole —
-its `#[BeforeClass]`/`#[AfterClass]` hooks and every test it still had to run. Skip a subset instead:
+At **case** level, returning a `CaseResult` without `$next` drops the case whole — its
+`#[BeforeClass]`/`#[AfterClass]` hooks and every test it still had to run. When the decision is known
+before the run (an attribute, a static rule), do not skip from a case interceptor at all: flag the
+tests instead, from a `CaseLocatorInterceptor`, with `$definition->skipped = true` on each of them
+(`TestDefinition::$skipped`). A flagged test stays active, so the case keeps it and reports it: the
+core returns a `Status::Skipped` result at the entry of its pipeline (no `TestStarting`, no body),
+the lifecycle plugin runs no per-test hooks for it, and a case whose active tests are all flagged
+gets no class-level hooks either. To attach a reason, pair the flag with a per-test interceptor that
+returns the `Skipped` result itself, ordered outer to data providers and fibers
+(`InterceptorOptions::ORDER_FILTER + 1_000` is the slot `#[Skip]` uses).
 
-- Deactivate what you skip — pick your tests out of `$info->definition->tests->getTests()` and set
-  `$definition->active = false` on each of those. Deactivated, not discarded: `getTests()` then
-  yields only the rest, and those are the tests the core runs.
-- Hand back their results yourself, from `CaseInfo::withBatchRunner`: **wrap** the runner already on
-  the case (testo/fiber may have set one), never replace it — and run the handlers yourself when the
-  case carries none — then append one synthetic `TestResult` per skipped test after the inner
-  runner returns.
-- Dispatch `TestPipelineStarting`/`TestPipelineFinished` around each synthetic result, or reporters
-  never render its line, and stamp `summary: Summary::forTest(Status::Skipped)` on it — a result that
-  never passes through the test runner is not counted for you.
-
-The shipped implementation of exactly this shape is `Testo\Skip\Internal\SkipInterceptor` in
-`plugin/skip`, serving the `#[Skip]` attribute (whose contract is in the `testo-write-tests` skill).
-Read it as a reference — it is `@internal` (and `final`), don't import it.
+The shipped implementation of exactly this shape is `plugin/skip`: `SkipLocatorInterceptor` flags,
+`SkipInterceptor` reports with the reason, serving the `#[Skip]` attribute (whose contract is in the
+`testo-write-tests` skill). Read them as a reference — they are `@internal` (and `final`), don't
+import them.
 
 ## Container scopes — provision per-case / per-suite resources
 
@@ -268,16 +266,15 @@ An attribute can also bring its own interceptor, so users need no plugin registr
 and name the handler with `#[FallbackInterceptor(MyInterceptor::class)]` (repeatable — one per
 pipeline position); the core instantiates the interceptor with the attribute instance as a constructor
 argument when the attribute is found on a class (case and test pipelines) or on a test (test pipeline
-only). If a test-level attribute has to act on the **case** pipeline — take that test out before the
-class-level hooks, say — implement `Testo\Pipeline\Attribute\CaseInterceptable` instead: one interceptor
-instance is spawned per attribute occurrence, so declare `ConflictPolicy::First` in
-`#[InterceptorOptions]` to keep a single one.
+only). A test-level attribute never reaches the case pipeline: whatever has to be known about the
+case ahead of the run (a skipped test, say) is flagged on the definitions from a
+`CaseLocatorInterceptor` registered by a plugin instead.
 
 ## Pitfalls
 
 - **Skipping**: return a `Status::Skipped` `TestResult`; never `throw SkipTest` from an interceptor.
-  From a **case** interceptor still call `$next` — deactivate the tests you skip and append their
-  results through the batch runner.
+  Never return early from a **case** interceptor to skip — flag the definitions as `skipped` from a
+  locator instead, and let the core report them.
 - **Cleanup**: wrap `$next()` in `try/finally`; a later interceptor may throw.
 - **State**: prefer pipeline attributes / container scope over mutable interceptor fields.
 - **Listeners** observe; **interceptors** change behaviour. Don't try to alter a run from a listener.

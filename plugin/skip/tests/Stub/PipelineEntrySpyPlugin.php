@@ -14,10 +14,10 @@ use Testo\Pipeline\Middleware\TestRunInterceptor;
 /**
  * Records the address of every test that enters the per-test pipeline.
  *
- * Unlike a {@see \Testo\Event\Test\TestPipelineStarting} listener — which also sees the
- * events the skip interceptor dispatches for its synthetic results — a per-test interceptor
- * is reached only by tests that actually run through the pipeline. The record accumulates
- * across directory runs — feature tests inspect the slice of their own run.
+ * Unlike a {@see \Testo\Event\Test\TestPipelineStarting} listener — which sees the skipped tests
+ * too — a per-test interceptor at the default position is reached only by tests that get past the
+ * skip interceptor. The record accumulates across directory runs — feature tests inspect the
+ * slice of their own run.
  */
 final class PipelineEntrySpyPlugin implements PluginConfigurator
 {

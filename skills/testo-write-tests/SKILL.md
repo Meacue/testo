@@ -170,14 +170,15 @@ Which skipping tool to reach for:
 | `throw SkipTest` | test body, at runtime | reported when the run gets there | test isn't applicable in this environment |
 | `#[Group]` + `--group=!x` | runner invocation | invisible — filtered out of reports | a category you sometimes don't run |
 
-Runtime contract of `#[Skip]`: the test never enters the per-test pipeline, so
-`#[BeforeTest]`/`#[AfterTest]`, data providers, `#[Retry]`/`#[Repeat]` and coverage never
+Runtime contract of `#[Skip]`: the test is reported at the entry of its pipeline, so
+`#[BeforeTest]`/`#[AfterTest]`, data providers, `#[Retry]`/`#[Repeat]`, fibers and coverage never
 engage, and a data-driven test yields a single Skipped entry (the provider is not called).
-`#[BeforeClass]`/`#[AfterClass]` still run (also when every test of the case is skipped). A
-skipped test never requires an instance of the case class: a fully skipped class is built only
-when a non-static class-level hook forces it, while enabled neighbors construct it as usual. A
-run of only `#[Skip]`-marked tests is a success (exit 0). `#[Skip]` applies to plain tests only:
-on a `#[Bench]` or `#[TestInline]` target it is inert — the benchmark or inline case runs as usual.
+`#[BeforeClass]`/`#[AfterClass]` run when the case still has a test to run; when every test of the
+case is skipped they stay silent and the case class is never constructed (enabled neighbors
+construct it as usual). A run of only `#[Skip]`-marked tests is a success (exit 0). `#[Skip]`
+applies to plain tests only: on a `#[Bench]` or `#[TestInline]` target it is inert — the benchmark
+or inline case runs as usual. The `testo/skip` plugin (`Testo\Skip\SkipPlugin`) is part of the
+default suite plugins; it is what tells the lifecycle hooks about the skip ahead of the run.
 
 ## Tests that intentionally perform no assertions
 
