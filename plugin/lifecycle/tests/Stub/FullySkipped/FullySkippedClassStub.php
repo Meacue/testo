@@ -11,11 +11,10 @@ use Testo\Skip;
 
 /**
  * Class-based analog of the fully skipped function case in `fully_skipped_functions.php`
- * ({@see skippedFnOne()}): the hooks are the case's non-tests, so they never depended on the
- * surviving tests — pinned here so both flavors stay in lockstep.
+ * ({@see skippedFnOne()}): a case with no test to run gets no class-level hooks — pinned here so
+ * both flavors stay in lockstep.
  *
- * Static hook counters accumulate across directory runs — feature tests assert deltas. The hooks
- * are static so the fully skipped class is never instantiated.
+ * Static hook counters accumulate across directory runs — feature tests assert deltas.
  */
 #[Test]
 final class FullySkippedClassStub

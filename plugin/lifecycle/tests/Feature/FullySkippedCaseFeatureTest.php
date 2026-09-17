@@ -15,21 +15,14 @@ use Tests\Lifecycle\Stub\FullySkipped\FullySkippedClassStub;
 use Tests\Lifecycle\Stub\FullySkipped\FullySkippedFunctionState;
 
 /**
- * End-to-end regression test for {@see LifecycleInterceptor}: the `#[BeforeClass]`/`#[AfterClass]` hooks
- * of a case still run when an outer case interceptor — here `#[Skip]` from `testo/skip` — leaves
- * the case without a single active test.
+ * End-to-end regression test for {@see LifecycleInterceptor}: a case whose every test is flagged
+ * skipped ahead of the run — here by `#[Skip]` from `testo/skip` — has nothing to set up, so none
+ * of its hooks fire, `#[BeforeClass]`/`#[AfterClass]` included.
  *
- * The `#[Skip]` case interceptor deactivates the skipped tests before the {@see LifecycleInterceptor}
- * collects the case's hooks, so hook discovery must not depend on the surviving tests. It does not:
- * the hooks are the case's non-tests. Prefilling defines every member as a non-test,
- * {@see LifecycleInterceptor} demotes back the lifecycle-annotated ones a finder took for tests
- * (a class-level `#[Test]` promotes the hook methods of a class case first), and it then reads
- * them all back with `filter(isTest: false)` — non-tests outlive the deactivation of the tests.
- *
- * Both case shapes are pinned here through the real pipeline. Their members are prefilled by
- * {@see \Testo\Core\Definition\CaseDefinitions::define()} from the two sources it knows: the
- * methods of {@see \Testo\Core\Definition\CaseDefinition::$reflection} for a class-based case,
- * the file's free functions for a function-based one.
+ * The skipped tests stay active (the case is still located, run and reported), which is why the
+ * interceptor has to look at the skipped flag and not only at the active test set. Both case
+ * shapes are pinned here through the real pipeline: the methods of a class-based case and the
+ * free functions of a function-based one.
  */
 #[Test]
 #[Covers(LifecycleInterceptor::class)]
@@ -44,10 +37,10 @@ final class FullySkippedCaseFeatureTest
     }
 
     /**
-     * The function-based case shape: class-level hooks fire exactly once per directory run even
-     * though no test of the case stays active; per-test hooks have nothing to wrap and stay silent.
+     * The function-based case shape: no hook of any kind fires, and the skipped tests are still
+     * reported.
      */
-    public function classHooksRunForFullySkippedFunctionCase(): void
+    public function noHookRunsForAFullySkippedFunctionCase(): void
     {
         $beforeClass = FullySkippedFunctionState::$beforeClassCalls;
         $afterClass = FullySkippedFunctionState::$afterClassCalls;
@@ -57,18 +50,16 @@ final class FullySkippedCaseFeatureTest
         $result = TestRunner::runTest('Tests\Lifecycle\Stub\FullySkipped\skippedFnOne');
 
         Assert::same($result->status, Status::Skipped);
-        Assert::same(FullySkippedFunctionState::$beforeClassCalls - $beforeClass, 1);
-        Assert::same(FullySkippedFunctionState::$afterClassCalls - $afterClass, 1);
-        # No test of the case ran, so the per-test hooks never fired.
+        Assert::same(FullySkippedFunctionState::$beforeClassCalls - $beforeClass, 0);
+        Assert::same(FullySkippedFunctionState::$afterClassCalls - $afterClass, 0);
         Assert::same(FullySkippedFunctionState::$beforeTestCalls - $beforeTest, 0);
         Assert::same(FullySkippedFunctionState::$afterTestCalls - $afterTest, 0);
     }
 
     /**
-     * The class-based analog: hooks are the non-tests prefilled from the case's class reflection
-     * and must keep firing for a fully skipped class exactly as before.
+     * The class-based analog: the class-level hooks stay silent for a fully skipped class.
      */
-    public function classHooksRunForFullySkippedClassCase(): void
+    public function noHookRunsForAFullySkippedClassCase(): void
     {
         $beforeClass = FullySkippedClassStub::$beforeClassCalls;
         $afterClass = FullySkippedClassStub::$afterClassCalls;
@@ -76,7 +67,7 @@ final class FullySkippedCaseFeatureTest
         $result = TestRunner::runTest([FullySkippedClassStub::class, 'skipped']);
 
         Assert::same($result->status, Status::Skipped);
-        Assert::same(FullySkippedClassStub::$beforeClassCalls - $beforeClass, 1);
-        Assert::same(FullySkippedClassStub::$afterClassCalls - $afterClass, 1);
+        Assert::same(FullySkippedClassStub::$beforeClassCalls - $beforeClass, 0);
+        Assert::same(FullySkippedClassStub::$afterClassCalls - $afterClass, 0);
     }
 }

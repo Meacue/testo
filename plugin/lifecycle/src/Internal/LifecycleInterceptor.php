@@ -73,10 +73,17 @@ final readonly class LifecycleInterceptor implements
 
     /**
      * Collect all the lifecycle hooks and cache them for execution during test runs.
+     *
+     * A case without a test to run (every active test is skipped) has nothing to set up: its hooks
+     * stay silent, class-level and per-test alike.
      */
     #[\Override]
     public function runTestCase(CaseInfo $info, callable $next): CaseResult
     {
+        if ($info->definition->tests->getTests(skipped: false) === []) {
+            return $next($info);
+        }
+
         $result = self::group(self::collectHooks($info->definition));
 
         # Execute BeforeClass hooks
@@ -99,7 +106,8 @@ final readonly class LifecycleInterceptor implements
     {
         /** @var array<class-string<LifecycleAttribute>, non-empty-list<\ReflectionFunctionAbstract>> $hooks */
         $hooks = $info->caseInfo->getAttribute(self::class, []);
-        if ($hooks === []) {
+        # A skipped test has no body to set up or tear down.
+        if ($hooks === [] || $info->testDefinition->skipped) {
             return $next($info);
         }
 

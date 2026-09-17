@@ -17,10 +17,9 @@ use Testo\Skip;
  * spell the attribute both ways — `skippedFnOne` with a reason, `skippedFnTwo` without — so neither
  * form leaves the case with an active test.
  *
- * The `#[Skip]` case interceptor deactivates the skipped tests — they leave the case's active
- * test set — before the {@see \Testo\Lifecycle\Internal\LifecycleInterceptor} runs, so hook
- * discovery must not depend on the surviving tests: `#[BeforeClass]`/`#[AfterClass]` still run
- * for the case (the `#[Skip]` contract), while the per-test hooks have nothing to wrap.
+ * The skipped tests are flagged ahead of the run and stay active, so the
+ * {@see \Testo\Lifecycle\Internal\LifecycleInterceptor} sees a case with tests but without a single
+ * one to run: none of its hooks fire (the `#[Skip]` contract).
  *
  * Static hook counters accumulate across directory runs — feature tests assert deltas.
  * State is shared through {@see FullySkippedFunctionState} because functions have no `$this`.
