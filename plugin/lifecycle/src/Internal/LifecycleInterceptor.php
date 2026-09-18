@@ -162,8 +162,8 @@ final readonly class LifecycleInterceptor implements
     /**
      * The lifecycle-annotated non-test members of the case. Lifecycle-annotated members a finder
      * took for tests were demoted in {@see self::locateTestCases()}, so every hook is a non-test.
-     * Non-tests outlive test filtering: the `#[BeforeClass]`/`#[AfterClass]` hooks run even for a
-     * case whose tests were all filtered out.
+     * Discovery therefore does not depend on which tests survived: deactivating or skipping one
+     * leaves the case's hooks where they are.
      *
      * @return list<\ReflectionFunctionAbstract>
      */
