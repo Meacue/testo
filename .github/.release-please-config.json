@@ -130,6 +130,12 @@
             "component": "bridge-vcr",
             "include-component-in-tag": true,
             "changelog-path": "CHANGELOG.md"
+        },
+        "bridge/double": {
+            "package-name": "testo/bridge-double",
+            "component": "bridge-double",
+            "include-component-in-tag": true,
+            "changelog-path": "CHANGELOG.md"
         }
     },
     "bump-patch-for-minor-pre-major": true,

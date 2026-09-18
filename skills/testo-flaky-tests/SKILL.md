@@ -14,7 +14,7 @@ Two attributes, two different jobs. Don't mix them up.
 
 Both should be a **last resort** — first investigate the root cause (shared global state, time/timezone, ordering, randomness, network). Surface this to the user before reaching for `#[Retry]`.
 
-Fetch `https://php-testo.github.io/llms.txt` for the current attribute namespaces and parameters.
+Verify attribute namespaces and parameters against the installed `vendor/testo/` before writing code — the API is version-specific.
 
 ## `#[Retry]` — make a known-flaky test green-ish
 

@@ -10,10 +10,9 @@ Write them the Testo way described below — don't transliterate idioms from oth
 
 ## Before you write code
 
-Fetch the canonical API surface:
-
-- `https://php-testo.github.io/llms.txt` — concise index. Always start here.
-- `https://php-testo.github.io/llms-full.txt` — escalate when `llms.txt` doesn't answer the question.
+This skill is the API surface for ordinary tests; sibling `testo-*` skills cover data providers, doubles,
+async, coverage and the rest. When a name here disagrees with the installed version, `vendor/testo/`
+wins — verify against it before relying on memory.
 
 If the project ships an `AGENTS.md`, honour it.
 
@@ -284,7 +283,7 @@ semantics are covered by the `testo-run-tests` skill — escalate there before a
 ## Pitfalls
 
 - Do not mock `enum`s or `final` classes — instantiate real ones. For stubs, spies, mocks and fakes (Double, Mockery, hand-written), escalate to the `testo-test-doubles` skill.
-- Do not invent attributes. If you need behaviour you haven't seen in `llms.txt`, escalate to `llms-full.txt` before guessing.
+- Do not invent attributes. If you need behaviour no `testo-*` skill describes, look for it in the installed `vendor/testo/` before guessing.
 - Do not write `setUp`/`tearDown` — use the lifecycle attributes above.
 - For parameterized tests, escalate to the `testo-data-driven` skill.
 - For flaky-test handling, escalate to the `testo-flaky-tests` skill.

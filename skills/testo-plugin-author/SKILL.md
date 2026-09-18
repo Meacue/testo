@@ -15,10 +15,9 @@ container. From there a plugin can:
 - **Bind / scope services** in the container — provision resources, replace Testo defaults.
 - Define and act on **custom attributes** placed on test classes/methods.
 
-`llms.txt` covers test authoring; this skill covers the plugin surface. Escalate to
-`https://php-testo.github.io/llms-full.txt` only for things not here. **Verify type/namespace names
-against the installed `vendor/testo/` before relying on memory** — the APIs below are stable but
-version-specific.
+`testo-write-tests` covers test authoring; this skill covers the plugin surface. For anything not
+here, read the installed source under `vendor/testo/`. **Verify type/namespace names against it
+before relying on memory** — the APIs below are stable but version-specific.
 
 ## Going deeper
 
