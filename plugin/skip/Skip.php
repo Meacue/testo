@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace Testo;
 
+use Testo\Core\Definition\TestDefinition;
 use Testo\Core\Exception\SkipTest;
 use Testo\Core\Value\Status;
+use Testo\Core\Value\TestType;
 use Testo\Pipeline\Attribute\FallbackInterceptor;
 use Testo\Pipeline\Attribute\Interceptable;
 use Testo\Skip\Internal\SkipInterceptor;
@@ -15,8 +17,8 @@ use Testo\Skip\SkipPlugin;
  * Marks a test as skipped without deleting or hiding it.
  *
  * The test is not executed, but stays in the results as {@see Status::Skipped}: it is counted in
- * the totals and carries its reason in the result's failure message. Contrast with a group filter
- * (`#[Group('x')]` + `--group=!x`), which drops the test from the results entirely.
+ * the totals and carries its reason in the result's failure message. Contrast with a filter, which
+ * drops the test from the run and from the results entirely.
  *
  * ```
  *  #[Test]
@@ -38,20 +40,21 @@ use Testo\Skip\SkipPlugin;
  *
  * Runtime contract:
  *
- * - The skipped test is reported at the entry of its pipeline: `#[BeforeTest]`/`#[AfterTest]`,
- *   data providers, `#[Retry]`/`#[Repeat]`, fibers and coverage never engage. A data-driven
- *   test yields a single Skipped entry.
- * - `#[BeforeClass]`/`#[AfterClass]` run when the case still has a test to run. When every test
- *   of the case is skipped they stay silent, and the case class is not constructed.
+ * - The test is flagged {@see TestDefinition::$skipped} before the run and reported at the entry
+ *   of its own pipeline, so nothing that prepares, wraps or multiplies a test body engages for it.
+ *   What each of those does for a skipped test is its own to document.
  * - A run consisting only of skipped tests is successful (exit code 0).
- * - The attribute is inert on a non-test method and on `#[Bench]`/`#[TestInline]` targets.
+ * - The attribute is inert on a non-test member and on a case of any type but
+ *   {@see TestType::Test}.
  *
  * No registration is needed: the attribute wires {@see SkipInterceptor} itself, from a class, a
- * method or a function alike. {@see SkipPlugin}, part of the default suite plugins, is what makes
- * the lifecycle hooks aware of the skip ahead of the run.
+ * method or a function alike. {@see SkipPlugin}, part of the default suite plugins, is what sets
+ * the flag ahead of the run.
  *
  * For skipping at runtime — from the test body, based on the environment — throw {@see SkipTest}
- * instead; the `is skipped via #[Skip]` marker tells the two apart in reports.
+ * instead. It reaches the same {@see Status::Skipped}, but only once the body has started, so a
+ * flagged test and a thrown skip are not interchangeable; the `is skipped via #[Skip]` marker
+ * tells the two apart in reports.
  *
  * @api
  */

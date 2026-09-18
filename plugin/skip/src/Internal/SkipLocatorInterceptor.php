@@ -22,8 +22,8 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
  * overridden method — {@see Reflection} walks both chains by default.
  *
  * `testType: TestType::Test` only drops this interceptor from a run filtered to other types; a
- * located file still yields cases of every type, hence the per-case check. `#[Skip]` is inert on
- * `#[Bench]`/`#[TestInline]` targets.
+ * located file still yields cases of every type, hence the per-case check that keeps `#[Skip]`
+ * inert outside a plain test.
  *
  * @internal
  * @psalm-internal Testo\Skip

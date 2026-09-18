@@ -32,8 +32,8 @@ final class TestDefinition
         /**
          * Whether this test is skipped ahead of time. A skipped test stays active: it is reported as
          * {@see \Testo\Core\Value\Status::Skipped} without its body being run, unlike a deactivated
-         * test, which leaves the results entirely. Nothing that prepares a test for execution, such
-         * as a lifecycle hook, has to engage for it.
+         * test, which leaves the results entirely. Nothing that prepares a test body has to engage
+         * for it — a reader of this flag decides that for itself.
          */
         public bool $skipped = false,
     ) {}

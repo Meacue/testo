@@ -24,6 +24,7 @@ use Tests\Skip\Stub\Skip\SkipConstructorSpyStub;
 use Tests\Skip\Stub\Skip\SkipInFiberStub;
 use Tests\Skip\Stub\Skip\SkipMethodStub;
 use Tests\Skip\Stub\Skip\SkipNonStaticHookStub;
+use Tests\Skip\Stub\Skip\SkipOverridingMethodOwnReasonStub;
 use Tests\Skip\Stub\Skip\SkipOverridingMethodStub;
 use Tests\Skip\Stub\Skip\SkipTraitStub;
 use Tests\Skip\Stub\Skip\SkipWithDataProviderStub;
@@ -221,8 +222,8 @@ final class SkipFeatureTest
     }
 
     /**
-     * A method-level `#[Skip]` follows the prototype chain like `#[Group]` does: an overriding
-     * method without the attribute is still skipped, with the parent's reason.
+     * A method-level `#[Skip]` follows the prototype chain: an overriding method without the
+     * attribute is still skipped, with the parent's reason.
      */
     public function methodLevelSkipIsInheritedByOverridingMethod(): void
     {
@@ -230,6 +231,22 @@ final class SkipFeatureTest
 
         Assert::same($result->status, Status::Skipped);
         Assert::true(\str_ends_with((string) $result->failure?->getMessage(), ' ==> inherited from the overridden method'));
+    }
+
+    /**
+     * The nearest declaration wins: an override that repeats `#[Skip]` reports its own reason.
+     * Both declarations spawn an interceptor, and the surviving one carries no reason of its own,
+     * so this passes only while the reason is resolved by reflection.
+     */
+    public function ownReasonOfAnOverridingMethodWinsOverTheInheritedOne(): void
+    {
+        $result = TestRunner::runTest([SkipOverridingMethodOwnReasonStub::class, 'skipped']);
+
+        Assert::same($result->status, Status::Skipped);
+        Assert::same(
+            $result->failure?->getMessage(),
+            SkipOverridingMethodOwnReasonStub::class . '::skipped is skipped via #[Skip] ==> own reason of the overriding method',
+        );
     }
 
     /**

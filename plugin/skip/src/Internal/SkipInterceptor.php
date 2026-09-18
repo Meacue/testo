@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Testo\Skip\Internal;
 
+use Testo\Common\Reflection;
 use Testo\Core\Context\TestInfo;
 use Testo\Core\Context\TestResult;
 use Testo\Core\Exception\SkipTest;
@@ -18,14 +19,13 @@ use Testo\Skip;
 /**
  * Reports a {@see Skip}-marked test as skipped, with the attribute's reason, instead of running it.
  *
- * Spawned by the attribute itself, one instance per `#[Skip]` found on the test's class and
- * function. {@see ConflictPolicy::Last} keeps the method-level one, which the attributes
- * interceptor lists after the class-level one, so the method reason wins over the class reason.
+ * The attribute spawns one instance per `#[Skip]` it is found on, class and function alike, and
+ * {@see ConflictPolicy::First} collapses them — so which instance survives says nothing about which
+ * reason applies, and the reason is read back from reflection instead: nearest declaration first,
+ * the function's own attribute over an inherited one, the function over the class.
  *
- * Ordering: inner to the filter, outer to everything that would engage for a test body — the fiber
- * wrap, data providers, `#[Retry]`/`#[Repeat]`, coverage, per-test lifecycle hooks. The core
- * dispatches `TestStarting`/`TestFinished` innermost of all, so a skipped test announces only the
- * `TestPipelineStarting`/`TestPipelineFinished` pair.
+ * Ordering: inner to the filter, outer to every interceptor that prepares, wraps or multiplies a
+ * test body, since none of them has anything to do for a test that has no body to run.
  *
  * Returns the result instead of throwing {@see SkipTest}: a throw leaves the pipeline and lands as
  * {@see Status::Aborted}.
@@ -35,22 +35,18 @@ use Testo\Skip;
  */
 #[InterceptorOptions(
     order: InterceptorOptions::ORDER_FILTER + 1_000,
-    onConflict: ConflictPolicy::Last,
+    onConflict: ConflictPolicy::First,
     testType: TestType::Test,
 )]
 final readonly class SkipInterceptor implements TestRunInterceptor
 {
-    public function __construct(
-        private Skip $attribute,
-    ) {}
-
     #[\Override]
     public function runTest(TestInfo $info, callable $next): TestResult
     {
         return new TestResult(
             info: $info,
             status: Status::Skipped,
-            failure: new SkipTest($this->reason($info)),
+            failure: new SkipTest(self::reason($info)),
             attributes: ['duration' => 0, 'description' => $info->testDefinition->getDescription()],
             summary: Summary::forTest(Status::Skipped),
         );
@@ -60,10 +56,34 @@ final readonly class SkipInterceptor implements TestRunInterceptor
      * `{testId} is skipped via #[Skip]`, extended with ` ==> {reason}` when a reason is given.
      * The test id is the string `--filter` takes back.
      */
-    private function reason(TestInfo $info): string
+    private static function reason(TestInfo $info): string
     {
         $message = "{$info->identity->fqn()} is skipped via #[Skip]";
+        $reason = self::attribute($info)?->reason ?? '';
 
-        return $this->attribute->reason === '' ? $message : "{$message} ==> {$this->attribute->reason}";
+        return $reason === '' ? $message : "{$message} ==> {$reason}";
+    }
+
+    /**
+     * The attribute whose reason applies to this test: `limit: 1` stops at the nearest declaration,
+     * so an overriding function's own `#[Skip]` is taken over the one it inherits. The class is
+     * consulted only when the function carries none of its own.
+     */
+    private static function attribute(TestInfo $info): ?Skip
+    {
+        $attributes = Reflection::fetchFunctionAttributes(
+            $info->testDefinition->reflection,
+            attributeClass: Skip::class,
+            limit: 1,
+        );
+
+        $class = $info->caseInfo->definition->reflection;
+        $attributes === [] && $class !== null and $attributes = Reflection::fetchClassAttributes(
+            $class,
+            attributeClass: Skip::class,
+            limit: 1,
+        );
+
+        return $attributes === [] ? null : $attributes[0]->newInstance();
     }
 }
