@@ -11,12 +11,11 @@ use Testo\Skip;
 use Testo\Skip\Internal\SkipLocatorInterceptor;
 
 /**
- * Marks the `#[Skip]`-annotated tests as skipped at location time, so the case pipeline knows
- * ahead of the run which tests have no body to prepare for.
+ * Registers the locator that flags the `#[Skip]`-annotated tests ahead of the run.
  *
- * Part of the default suite plugins. The Skipped result itself does not depend on the plugin:
- * {@see Skip} wires its own per-test interceptor, and the core reports a skipped test even without
- * one. Without the plugin the lifecycle hooks are unaware of the skip and run as for any test.
+ * Part of the default suite plugins. Dropping it leaves the Skipped results intact — {@see Skip}
+ * wires its own per-test interceptor — but the lifecycle hooks then run for a skipped test and for
+ * a case with nothing left to run.
  *
  * @api
  */

@@ -16,12 +16,13 @@ use Testo\Tokenizer\Reflection\FileDefinitions;
  * Flags the `#[Skip]`-annotated tests as {@see \Testo\Core\Definition\TestDefinition::$skipped}
  * once the cases of a file are located.
  *
- * The flag is what the rest of the pipeline reads: lifecycle hooks stay silent for a skipped test
- * and for a case without a test to run, and the core reports a skipped test even when nothing
- * else does. The reason travels separately, with the attribute, see {@see SkipInterceptor}.
+ * The flag alone: the reason travels with the attribute, to {@see SkipInterceptor}.
  *
  * A class-level attribute is inherited from parents and traits, a method-level one from the
- * overridden method. Only {@see TestType::Test} cases are touched: `#[Skip]` is inert on
+ * overridden method — {@see Reflection} walks both chains by default.
+ *
+ * `testType: TestType::Test` only drops this interceptor from a run filtered to other types; a
+ * located file still yields cases of every type, hence the per-case check. `#[Skip]` is inert on
  * `#[Bench]`/`#[TestInline]` targets.
  *
  * @internal

@@ -65,8 +65,8 @@ final readonly class TestRunner
                 ...$interceptors,
             )->with(
                 function (TestInfo $info) use ($description): TestResult {
-                    # A skipped test that no interceptor reported on the way down: report it here,
-                    # ahead of `TestStarting`, since no test body is about to run.
+                    # Nothing on the way down reported this skipped test, so no reason is known.
+                    # `TestStarting` announces a body, and there is none: return ahead of it.
                     if ($info->testDefinition->skipped) {
                         return new TestResult(
                             info: $info,

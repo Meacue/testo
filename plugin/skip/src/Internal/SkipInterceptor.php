@@ -22,14 +22,13 @@ use Testo\Skip;
  * function. {@see ConflictPolicy::Last} keeps the method-level one, which the attributes
  * interceptor lists after the class-level one, so the method reason wins over the class reason.
  *
- * Ordering: right after the filter, outer to everything that would engage for a test body: the
- * fiber wrap, data providers, `#[Retry]`/`#[Repeat]`, coverage, per-test lifecycle hooks. The core
- * dispatches `TestStarting`/`TestFinished` inner to all of them, so a skipped test gets only the
- * `TestPipelineStarting`/`TestPipelineFinished` pair. `testType: TestType::Test` keeps `#[Bench]`
- * and `#[TestInline]` cases out.
+ * Ordering: inner to the filter, outer to everything that would engage for a test body — the fiber
+ * wrap, data providers, `#[Retry]`/`#[Repeat]`, coverage, per-test lifecycle hooks. The core
+ * dispatches `TestStarting`/`TestFinished` innermost of all, so a skipped test announces only the
+ * `TestPipelineStarting`/`TestPipelineFinished` pair.
  *
- * Never throws: a throw is a runtime skip, and the `is skipped via #[Skip]` marker tells the two
- * apart in reports.
+ * Returns the result instead of throwing {@see SkipTest}: a throw leaves the pipeline and lands as
+ * {@see Status::Aborted}.
  *
  * @internal
  * @psalm-internal Testo\Skip

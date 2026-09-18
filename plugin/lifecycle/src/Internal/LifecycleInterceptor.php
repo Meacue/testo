@@ -106,7 +106,6 @@ final readonly class LifecycleInterceptor implements
     {
         /** @var array<class-string<LifecycleAttribute>, non-empty-list<\ReflectionFunctionAbstract>> $hooks */
         $hooks = $info->caseInfo->getAttribute(self::class, []);
-        # A skipped test has no body to set up or tear down.
         if ($hooks === [] || $info->testDefinition->skipped) {
             return $next($info);
         }

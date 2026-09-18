@@ -98,8 +98,8 @@ final class SkipInterceptorTest
     }
 
     /**
-     * `#[Skip]` is a plain-test feature: the interceptor declares `testType: TestType::Test`,
-     * so on a bench or inline case the type filter drops it and the attribute is inert.
+     * `#[Skip]` is a plain-test feature: without this declaration the attribute would skip a
+     * `#[Bench]` or `#[TestInline]` target too.
      */
     public function declaresTestTypeScopingSkipToPlainTests(): void
     {

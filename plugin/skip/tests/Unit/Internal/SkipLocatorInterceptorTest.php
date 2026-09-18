@@ -77,8 +77,8 @@ final class SkipLocatorInterceptorTest
     }
 
     /**
-     * A test an earlier filter deactivated is flagged all the same; being inactive, it is not run
-     * and not reported either way, and the flag keeps its meaning should it be reactivated.
+     * The interceptor does not read `active`: a test an earlier filter deactivated is flagged all
+     * the same, and being inactive it is neither run nor reported either way.
      */
     public function flagsADeactivatedTestToo(): void
     {
