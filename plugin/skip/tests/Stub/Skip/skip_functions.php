@@ -17,6 +17,14 @@ function skippedFunction(): void
     throw new \LogicException('Must never run: the test is skipped.');
 }
 
+# The function shape of the bare attribute: no reason to compose into the message.
+#[Test]
+#[Skip]
+function skippedFunctionNoReason(): void
+{
+    throw new \LogicException('Must never run: the test is skipped.');
+}
+
 # Control neighbor of the same case: an enabled function next to a skipped one still runs and passes.
 #[Test]
 function enabledFunction(): void

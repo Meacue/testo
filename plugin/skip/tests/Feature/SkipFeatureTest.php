@@ -137,6 +137,21 @@ final class SkipFeatureTest
     }
 
     /**
+     * A function carries no class to fall back on, so the empty-reason fallback has to hold on its
+     * own: the message is the generated part alone.
+     */
+    public function functionWithoutReasonFallsBackToGeneratedMessage(): void
+    {
+        $result = TestRunner::runTest('Tests\Skip\Stub\Skip\skippedFunctionNoReason');
+
+        Assert::same($result->status, Status::Skipped);
+        Assert::same(
+            $result->failure?->getMessage(),
+            'Tests\Skip\Stub\Skip\skippedFunctionNoReason is skipped via #[Skip]',
+        );
+    }
+
+    /**
      * The function-based analog of the control neighbor: an enabled function of a partially
      * skipped file still runs and passes.
      */
@@ -318,7 +333,8 @@ final class SkipFeatureTest
             ->notContains(SkipWithRepeatStub::class . '::skipped')
             ->notContains(SkipInFiberStub::class . '::skipped')
             ->notContains(SkipOverridingMethodStub::class . '::skipped')
-            ->notContains('Tests\Skip\Stub\Skip\skippedFunction');
+            ->notContains('Tests\Skip\Stub\Skip\skippedFunction')
+            ->notContains('Tests\Skip\Stub\Skip\skippedFunctionNoReason');
     }
 
     /**
